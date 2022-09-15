@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- NPC -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npc">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="525" height="633" />
+		</placement>
+		<sizelimits>
+			<minimum width="525" height="633" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_npc</minimize>
+		<tooltip field="name" />
+		<gmexport>npc</gmexport>
+		<script file="campaign/scripts/npc_chronicle.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>npc_header</class>
+			</sub_record_header>
+
+			<frame_record_content_tabbed name="contentframe" />
+
+			<ft_record name="text">
+				<anchored to="contentframe" position="over" />
+				<invisible />
+			</ft_record>
+
+			<!-- <scrollbar_record> -->
+				<!-- <target>main_creature</target> -->
+			<!-- </scrollbar_record> -->
+
+			<scrollbar_record>
+				<target>text</target>
+			</scrollbar_record>
+
+			<!-- Added from Char -->
+			<subwindow_record name="skills">
+				<class>charsheet_skills</class>
+			</subwindow_record>
+
+			<subwindow_record name="abilities">
+				<class>charsheet_abilities</class>
+			</subwindow_record>
+
+			<subwindow_record name="inventory">
+				<class>charsheet_inventory</class>
+			</subwindow_record>
+
+			<subwindow_record name="actions">
+				<class>npcsheet_actions</class>
+			</subwindow_record>
+
+			<tabs_charsheet name="tabs">
+				<tab>
+					<icon>tab_skills</icon>
+					<subwindow>skills</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_abilities</icon>
+					<subwindow>abilities</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_inventory</icon>
+					<subwindow>inventory</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_actions</icon>
+					<subwindow>actions</subwindow>
+				</tab>
+
+				<!-- <tab> -->
+					<!-- <icon>tab_main</icon> -->
+					<!-- <subwindow>main_creature</subwindow> -->
+				<!-- </tab> -->
+
+				<tab>
+					<icon>tab_other</icon>
+					<subwindow>text</subwindow>
+				</tab>
+			</tabs_charsheet>
+
+			<close_recordsheet />
+			<resize_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- NPC Header -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npc_header" merge="join">
+		<margins control="0,0,0,2" />
+	</windowclass>
+</root>

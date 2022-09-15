@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- Common -->
+	<string name="gmid_default">Narrator</string>
+	<string name="misc">Misc</string>
+
+	<!-- Abilities - short - capitalized -->
+	<string name="AGI">AGI</string>
+	<string name="ANI">ANI</string>
+	<string name="ATH">ATH</string>
+	<string name="AWA">AWA</string>
+	<string name="CUN">CUN</string>
+	<string name="DEC">DEC</string>
+	<string name="END">END</string>
+	<string name="FIG">FIG</string>
+	<string name="HEA">HEA</string>
+	<string name="LAN">LAN</string>
+	<string name="KNO">KNO</string>
+	<string name="MAR">MAR</string>
+	<string name="PER">PER</string>
+	<string name="STA">STA</string>
+	<string name="STE">STE</string>
+	<string name="SUR">SUR</string>
+	<string name="THI">THI</string>
+	<string name="WAR">WAR</string>
+	<string name="WIL">WIL</string>
+
+	<!-- Abilities - long -->
+	<string name="agility">Agility</string>
+	<string name="animalhandling">Animal Handling</string>
+	<string name="athletics">Athletics</string>
+	<string name="awareness">Awareness</string>
+	<string name="cunning">Cunning</string>
+	<string name="deception">Deception</string>
+	<string name="endurance">Endurance</string>
+	<string name="fighting">Fighting</string>
+	<string name="healing">Healing</string>
+	<string name="language">Language</string>
+	<string name="knowledge">Knowledge</string>
+	<string name="marksmanship">Marksmanship</string>
+	<string name="persuasion">Persuasion</string>
+	<string name="status">Status</string>
+	<string name="stealth">Stealth</string>
+	<string name="survival">Survival</string>
+	<string name="thievery">Thievery</string>
+	<string name="warfare">Warfare</string>
+	<string name="will">Will</string>
+
+	<!-- Common -->
+	<string name="xp">XP</string>
+	<string name="hitpoints">Health</string>
+	<string name="ac">CoD</string>
+	<string name="armorclass">Combat Defense</string>
+	<string name="ic">InD</string>
+	<string name="intrigueclass">Intrigue Defense</string>
+	<string name="init">Init</string>
+	<string name="initiative">Initiative</string>
+	<string name="melee">Melee</string>
+	<string name="ranged">Ranged</string>
+	<string name="armor">Armor</string>
+	<string name="weapon">Weapon</string>
+	<string name="skill">Skill</string>
+	<string name="acbonus">Bonus</string>
+	
+	<string name="tooltip_ac">Combat Defense</string>
+	<string name="tooltip_ic">Intrigue Defense</string>
+
+	<string name="menu_rest">Rest</string>
+	<string name="message_restshort">Taking short rest.</string>
+	<string name="menu_init">Initiative</string>
+	<string name="menu_initall">Roll All Initiatives</string>
+	<string name="menu_initnpc">Roll NPC Initiatives</string>
+	<string name="menu_initpc">Roll PC Initiatives</string>
+	<string name="menu_initclear">Clear All Initiatives</string>
+
+	<!-- Default weapon values -->
+	<string name="default_wpn_grade">Common</string>
+	<string name="default_wpn_skill">None</string>
+	<string name="default_wpn_dmg_ability">Athletics</string>
+
+	<!-- Degrees of Success and Failures -->
+	<string name="success_test_degree_1">Marginal success</string>
+	<string name="success_test_degree_2">Great success</string>
+	<string name="success_test_degree_3">Incredible success</string>
+	<string name="success_test_degree_4">Astonishing success</string>
+	<string name="failure_test_1">Marginal failure</string>
+	<string name="failure_test_2">Critical failure</string>
+	<string name="success_attack_degree_1">Hit (1 Degree)</string>
+	<string name="success_attack_degree_2">Hit (2 Degree)</string>
+	<string name="success_attack_degree_3">Hit (3 Degree)</string>
+	<string name="success_attack_degree_4">Hit (4 Degree)</string>
+	<string name="failure_attack_degree_1">Miss</string>
+	<string name="failure_attack_degree_2">Miss</string>
+
+	<!-- Options -->
+	<!-- <string name="option_label_RMMT">Target: Remove on miss</string> -->
+	<!-- <string name="option_label_SHRR">Chat: Show results to client</string> -->
+	<!-- <string name="option_label_PSMN">Party: Show characters to clients</string> -->
+	<!-- <string name="option_label_INIT">Add: Auto NPC initiative</string> -->
+	<string name="option_label_ANPC">Chat: Anonymize NPC attacks</string>
+	<string name="option_val_multi">Multi</string>
+	<!-- <string name="option_val_pc">PC</string> -->
+	<!-- <string name="option_val_npc">NPC</string> -->
+	<!-- <string name="option_val_group">Group</string> -->
+	<string name="option_val_fixed">Fixed</string>
+	<string name="option_val_variable">Variable</string>
+	<!-- <string name="option_val_fumbleandcrit">Fumble and Crit</string> -->
+	<!-- <string name="option_val_fumble">Fumble</string> -->
+	<!-- <string name="option_val_crit">Crit</string> -->
+	<!-- <string name="option_val_max">Max</string> -->
+	<!-- <string name="option_val_random">Random</string> -->
+	<!-- <string name="option_val_variant">Variant</string> -->
+	<!-- <string name="option_val_raw">Raw</string> -->
+	<!-- <string name="option_header_houserule">House Rules (GM)</string> -->
+	<!-- <string name="option_label_HRIR">CT: Roll init each round</string> -->
+	<string name="option_label_HRNH">Combat: NPC hit points</string>
+	<!-- <string name="option_label_HRMD">Damage: Massive system shock</string> -->
+	<!-- <string name="option_label_HRFC">Attack: Fumble/crit tables</string> -->
+	<string name="option_label_HREN">PC: Encumbrance</string>
+	<!-- <string name="option_label_HRHV">PC: Healing variants</string> -->
+
+	<!-- Languages -->
+	<string name="language_value_common">Common</string>
+
+	<!-- Combat Tracker -->
+	<string name="ct_label_wounds">Dmg</string>
+	<string name="ct_label_speed">MOV</string>
+	<string name="ct_label_traits">Traits</string>
+	<string name="ct_label_actions">Actions</string>
+	<string name="ct_label_fatigue">Fat</string>
+	<string name="ct_label_injuries">Inj</string>
+	<string name="ct_label_trauma">Wnd</string>
+
+	<string name="ct_tooltip_wounds">Damage</string>
+	<string name="ct_tooltip_attribute">Attributes</string>
+	<string name="ct_tooltip_offense">Offense</string>
+	<string name="ct_tooltip_defense">Defense</string>
+
+	<string name="ct_tooltip_ac">Combat Defense</string>
+	<string name="ct_tooltip_fatigue">Fatigue</string>
+	<string name="ct_tooltip_hitpoints">Health</string>
+	<string name="ct_tooltip_initiative">Initiative</string>
+	<string name="ct_tooltip_injuries">Injuries</string>
+	<string name="ct_tooltip_speed">Movement</string>
+	<string name="ct_tooltip_sprint">Sprint</string>
+	<string name="ct_tooltip_trauma">Wounds</string>
+
+	<string name="ct_message_rest">Party taking a rest.</string>
+
+	<!-- Party Sheet -->
+	<string name="ps_emptylistother">Add PCs on main tab to add to party.</string>
+	<string name="ps_emptylistquest">Click button below to add a new quest entry.\nRight click and use menu to award XP.</string>
+	<string name="ps_emptylistenc">Drop completed encounter links here.\nRight click and use menu to award XP.</string>
+
+	<string name="ps_label_name">Name</string>
+	<string name="ps_label_abilities">Abilities</string>
+	<string name="ps_label_hp">Health</string>
+	<string name="ps_label_injuries">Injuries</string>
+	<string name="ps_label_trauma">Wounds</string>
+
+	<string name="ps_label_groupcheck">Ability</string>
+	<string name="ps_label_groupskill">Speciality</string>
+	<string name="ps_label_groupatk">Attack</string>
+	<string name="ps_default_groupability">Awarness</string>
+	<string name="ps_message_groupatk">Party Attack</string>
+
+	<string name="ps_tooltip_showrollon">Show Roll Results</string>
+	<string name="ps_tooltip_showrolloff">Hide Roll Results</string>
+
+	<string name="ps_label_party">Party</string>
+	<string name="ps_label_partyentryxp">XP</string>
+	<string name="ps_label_encounters">Encounters</string>
+	<string name="ps_label_quests">Quests</string>
+	<string name="ps_label_xpawarded">Aw?</string>
+	<string name="ps_tooltip_xpawarded">Awarded?</string>
+	<string name="ps_label_xp">XP</string>
+	<string name="ps_label_xpname">Name</string>
+
+	<string name="ps_label_award">Award</string>
+	<string name="ps_menu_awardxp">Award XP</string>
+	<string name="ps_message_xpaward">Awarded XP to the Party.</string>
+
+	<!-- Modifiers -->
+	<string name="modifier_label_PLUS1">+1D</string>
+	<string name="modifier_label_PLUS2">+2D</string>
+	<string name="modifier_label_PLUS4">+4D</string>
+	<string name="modifier_label_BONUS1">+1B</string>
+	<string name="modifier_label_BONUS2">+2B</string>
+	<string name="modifier_label_BONUS4">+4B</string>
+	<string name="modifier_label_MINUS1">-1P</string>
+	<string name="modifier_label_MINUS2">-2P</string>
+	<string name="modifier_label_MINUS4">-4P</string>
+
+	<string name="modifier_category_attack">Attack</string>
+	<string name="modifier_label_ATT_OPP">Opportunity</string>
+	<string name="modifier_label_ATT_AIM">Aimed</string>
+	<string name="modifier_label_ATT_CAUTIOUS">Cautious</string>
+	<string name="modifier_label_ATT_RECKLESS">Reckless</string>
+	<string name="modifier_label_ATT_HIGHGROUND">Higher Grnd</string>
+	<string name="modifier_label_DEF_COVER">Cover</string>
+	<string name="modifier_label_DEF_SCOVER">Sup. Cover</string>
+	<string name="modifier_label_DEF_LOWLIGHT">Shadowy Light</string>
+	<string name="modifier_label_DEF_NOLIGHT">Darkness</string>
+	<string name="modifier_label_DEF_SPRINT">Moving Target</string>
+	<string name="modifier_category_damage">Damage</string>
+	<string name="modifier_label_DMG_CRIT">Critical</string>
+	<string name="modifier_label_DMG_MAX">Max</string>
+	<string name="modifier_label_DMG_HALF">Half</string>
+
+	<!-- Characters - Overall -->
+	<string name="char_title_weapons">WEAPONS</string>
+	<string name="char_title_combat">COMBAT</string>
+	<string name="char_title_intrigue">INTRIGUE</string>
+	<string name="char_title_health">HEALTH</string>
+	<string name="char_title_defense">DEFENSES</string>
+	<string name="char_title_armor">ARMOR</string>
+	<string name="char_title_speed">MOVEMENT</string>
+
+	<!-- Characters - Main -->
+	<string name="char_tooltip_speed">Movement speed</string>
+	<string name="char_tooltip_sprint">Sprint speed</string>
+
+	<string name="char_label_hp">HP</string>
+	<string name="char_label_dmg">DMG</string>
+	<string name="char_label_injuries">INJ</string>
+	<string name="char_label_trauma">WND</string>
+	<string name="char_label_fatigue">FAT</string>
+	<string name="char_label_composure">COM</string>
+	<string name="char_label_influence">INF</string>
+	<string name="char_label_frustration">FRU</string>
+	<string name="char_tooltip_hp">Health</string>
+	<string name="char_tooltip_dmg">Damage</string>
+	<string name="char_tooltip_injuries">Injuries</string>
+	<string name="char_tooltip_trauma">Wounds</string>
+	<string name="char_tooltip_fatigue">Fatigue</string>
+	<string name="char_tooltip_frustration">Frustration</string>
+	<string name="char_tooltip_composure">Composure</string>
+	<string name="char_tooltip_influence">Influence</string>
+	<string name="char_tooltip_cd">Combat Defense</string>
+	<string name="char_tooltip_initiative">Initiative</string>
+	<string name="char_tooltip_cd">Combat Defense</string>
+	<string name="char_tooltip_armor">Armor</string>
+	<string name="char_tooltip_move">Move</string>
+	<string name="char_tooltip_sprint">Sprint</string>
+
+	<!-- Moved to Actions Tab -->
+	<string name="char_combatcalc_title">COMBAT CALC</string>
+	<string name="char_label_initdetail">Init:</string>
+	<string name="char_label_initmisc">Misc</string>
+	<string name="char_label_speed_detail">Move:</string>
+	<string name="char_label_speed_base">Base</string>
+	<string name="char_label_speed_misc">Misc</string>
+	<string name="char_label_armor_detail">Armor:</string>
+	<string name="char_label_armor_main">Armor</string>
+	<string name="char_label_armor_base">Base</string>
+	<string name="char_label_armor_misc">Misc</string>
+	<string name="char_label_armor_list">ARMOR</string>
+	<string name="char_label_ac">Defense:</string>
+	<string name="char_label_ac_misc">Misc</string>
+	<string name="char_label_speed_bonus">Bonus</string>
+	<string name="char_label_speed_bulk">Half Bulk</string>
+	<string name="char_label_sprint_bulk">Bulk</string>
+	<string name="char_label_sprint_detail">Sprint:</string>
+	<string name="char_label_speed_sprintfactor">Factor</string>
+
+	<!-- Characters - Skills -->
+	<string name="char_label_abilities">ABILITIES</string>
+	<string name="char_label_skills">SPECIALTIES</string>
+	<string name="char_label_skilltotal">TOTAL</string>
+	<string name="char_label_skillmisc">RANK</string>
+	<string name="char_label_skillstat">ABIL</string>
+	<string name="char_label_skillname">NAME</string>
+	<string name="char_label_clearfilter">Show all</string>
+	<string name="char_label_clearfilter_short">ALL</string>
+
+	<string name="char_skills_tooltip_edit">Edit Specialties</string>
+	<string name="char_skills_tooltip_clearfilter">Click to show all Specialties</string>
+	<string name="char_skills_tooltip_agility">Agility</string>
+	<string name="char_skills_tooltip_animalhandling">Animal Handling</string>
+	<string name="char_skills_tooltip_athletics">Athletics</string>
+	<string name="char_skills_tooltip_awareness">Awareness</string>
+	<string name="char_skills_tooltip_cunning">Cunning</string>
+	<string name="char_skills_tooltip_deception">Deception</string>
+	<string name="char_skills_tooltip_endurance">Endurance</string>
+	<string name="char_skills_tooltip_fighting">Fighting</string>
+	<string name="char_skills_tooltip_healing">Healing</string>
+	<string name="char_skills_tooltip_knowledge">Knowledge</string>
+	<string name="char_skills_tooltip_language">Language</string>
+	<string name="char_skills_tooltip_marksmanship">Marksmanship</string>
+	<string name="char_skills_tooltip_persuasion">Persuasion</string>
+	<string name="char_skills_tooltip_status">Status</string>
+	<string name="char_skills_tooltip_stealth">Stealth</string>
+	<string name="char_skills_tooltip_survival">Survival</string>
+	<string name="char_skills_tooltip_thievery">Thievery</string>
+	<string name="char_skills_tooltip_warfare">Warfare</string>
+	<string name="char_skills_tooltip_will">Will</string>
+
+	<!-- Character - Abilities -->
+	<string name="char_abilities_title">ABILITIES</string>
+	<string name="char_abilities_label_feats">QUALITIES</string>
+	<string name="char_abilities_label_languages">LANGUAGES</string>
+	<string name="char_abilities_tooltip_edit">Edit Abilities</string>
+
+	<!-- Character - Inventory -->
+	<string name="char_label_inventory">EQUIPMENT</string>
+	<string name="char_label_itemname">NAME</string>
+	<string name="char_label_itemlocation">LOCATION</string>
+	<string name="char_label_itemweight">WT</string>
+	<string name="char_label_money">TREASURE</string>
+	<string name="char_label_encumbrance">ENCUMBRANCE</string>
+	<string name="char_label_totalweight">LOAD</string>
+	<string name="char_label_totalbulk">BULK</string>
+	<string name="char_inventory_tooltip_totalweight">Total weight carried/equipped</string>
+	<string name="char_inventory_tooltip_totalbulk">Total bulk equipped</string>
+
+	<string name="char_label_encbase">Encumbered</string>
+	<string name="char_label_encheavy">Heavy</string>
+	<string name="char_label_encmax">Maximum</string>
+	<string name="char_label_encdrag">Lift, Push, Drag</string>
+	<string name="char_inventory_tooltip_edit">Edit Inventory</string>
+	
+	<!-- Character - Notes -->
+	<string name="char_notes_title">NOTES</string>
+	<string name="char_destinycalc_title">DESTINY &#38; EXPERIENCE</string>
+	<string name="char_label_notes_destiny">DESTINY &#38; EXPERIENCE</string>
+	<string name="char_label_notes_traits">PERSONALITY TRAITS</string>
+	<string name="char_label_notes_dp">DESTINY POINTS</string>
+	<string name="char_label_notes_xp">EXP. POINTS</string>
+	<string name="char_label_notes_sp">SORCERY POINTS</string>
+	<string name="char_label_size">SIZE</string>
+	<string name="char_label_appearance">APPEARANCE &#38; FEATURES</string>
+	<string name="char_label_notes">NOTES</string>
+	<string name="char_label_age">AGE</string>
+	<string name="char_label_gender">GENDER</string>
+	<string name="char_label_height">HEIGHT</string>
+	<string name="char_label_name">NAME</string>
+	<string name="char_label_ancestry">ANCESRTY</string>
+	<string name="char_label_alignment">ALLEGIANCE</string>
+	<string name="char_label_xp">Exp. Points</string>
+	<string name="char_label_dp">Destiny Points</string>
+	<string name="char_label_sp">Sorcery Points</string>
+	<string name="char_label_allies">ALLIES &#38; ENEMIES</string>
+	<string name="char_label_history">PERSONAL HISTORY</string>
+
+	<string name="char_label_dp_base">Base</string>
+	<string name="char_label_dp_awarded">Awarded</string>
+	<string name="char_label_dp_invested">Invested</string>
+	<string name="char_label_dp_burned">Burned</string>
+	<string name="char_label_dp_spent">Spent</string>
+	<string name="char_label_dp_available">Available</string>
+	<string name="char_label_sp_awarded">Awarded</string>
+	<string name="char_label_sp_invested">Invested</string>
+	<string name="char_label_sp_burned">Burned</string>
+	<string name="char_label_sp_spent">Spent</string>
+	<string name="char_label_sp_available">Available</string>	
+	<string name="char_label_xp_awarded">Awarded</string>
+	<string name="char_label_xp_invested">Invested</string>
+	<string name="char_label_xp_available">Available</string>
+
+	<!-- Character - Actions -->
+	<string name="char_actions_title">ACTIONS</string>
+	<string name="char_actions_label_initiative">Initiative</string>
+	<string name="char_actions_label_ride">Ride</string>
+	<string name="char_actions_label_dodge">Dodge</string>
+
+	<!-- <string name="char_label_weapon">WEAPONS</string> -->
+	<string name="char_tooltip_weapontypemelee">Melee</string>
+	<string name="char_tooltip_weapontyperanged">Ranged</string>
+	<string name="char_tooltip_weapontypethrown">Thrown</string>
+    <string name="char_tooltip_weaponhand1">Primary Hand</string>
+    <string name="char_tooltip_weaponhand2">Two Hands</string>
+    <string name="char_tooltip_weaponhandoff">Off Hand. Weapon off-hand bonus applies to Primary Hand attacks.</string>
+	<string name="char_tooltip_weaponhandoff_defense">Off Hand (Defense). Weapon defense bonus applies to Combat Defense.</string>
+	<string name="char_label_weaponammo">Ammo</string>
+
+	<string name="char_message_atkwithnoammo">[ATTACKING WHILE OUT OF AMMO]</string>
+		
+	<string name="char_tooltip_actionedit">Edit Weapons and Powers</string>
+	<string name="char_tooltip_actionaddweapon">Add Weapon</string>
+
+	<!-- Backgrounds -->
+	<string name="background_header_features">FEATURES</string>
+	<string name="background_label_equipment">Equipment</string>
+	<string name="background_label_languages">Languages</string>
+	<string name="background_label_skills">Skills</string>
+	<string name="background_label_tools">Tools</string>
+
+	<!-- Skills/Specialties -->
+	<string name="skill_label_ability">Ability</string>
+	<string name="skill_value_acrobatics">Acrobatics</string>
+	<string name="skill_value_balance">Balance</string>
+	<string name="skill_value_contortions">Contortions</string>
+	<string name="skill_value_dodge">Dodge</string>
+	<string name="skill_value_quickness">Quickness</string>
+	<string name="skill_value_charmanimal">Charm Animal</string>
+	<string name="skill_value_drive">Drive</string>
+	<string name="skill_value_ride">Ride</string>
+	<string name="skill_value_train">Train</string>
+	<string name="skill_value_climb">Climb</string>
+	<string name="skill_value_jump">Jump</string>
+	<string name="skill_value_run">Run</string>
+	<string name="skill_value_strength">Strength</string>
+	<string name="skill_value_swim">Swim</string>
+	<string name="skill_value_throw">Throw</string>
+	<string name="skill_value_empathy">Empathy</string>
+	<string name="skill_value_notice">Notice</string>
+	<string name="skill_value_decipher">Decipher</string>
+	<string name="skill_value_logic">Logic</string>
+	<string name="skill_value_memory">Memory</string>
+	<string name="skill_value_act">Act</string>
+	<string name="skill_value_bluff">Bluff</string>
+	<string name="skill_value_cheat">Cheat</string>
+	<string name="skill_value_disguise">Disguise</string>
+	<string name="skill_value_resilience">Resilience</string>
+	<string name="skill_value_stamina">Stamina</string>
+	<string name="skill_value_axes">Axes</string>
+	<string name="skill_value_bludgeons">Bludgeons</string>
+	<string name="skill_value_brawling">Brawling</string>
+	<string name="skill_value_fencing">Fencing</string>
+	<string name="skill_value_longblades">Long Blades</string>
+	<string name="skill_value_polearms">Pole-Arms</string>
+	<string name="skill_value_shields">Shields</string>
+	<string name="skill_value_shortblades">Short Blades</string>
+	<string name="skill_value_spears">Spears</string>
+	<string name="skill_value_diagnosis">Diagnosis</string>
+	<string name="skill_value_treatailment">Treat Ailment</string>
+	<string name="skill_value_treatinjury">Treat Injury</string>
+	<string name="skill_value_education">Education</string>
+	<string name="skill_value_research">Research</string>
+	<string name="skill_value_streetwise">Streetwise</string>
+	<string name="skill_value_bows">Bows</string>
+	<string name="skill_value_crossbows">Crossbows</string>
+	<string name="skill_value_siege">Siege</string>
+	<string name="skill_value_thrown">Thrown</string>
+	<string name="skill_value_targetshooting">Target Shooting</string>
+	<string name="skill_value_bargain">Bargain</string>
+	<string name="skill_value_charm">Charm</string>
+	<string name="skill_value_convince">Convince</string>
+	<string name="skill_value_incite">Incite</string>
+	<string name="skill_value_intimidate">Intimidate</string>
+	<string name="skill_value_seduce">Seduce</string>
+	<string name="skill_value_taunt">Taunt</string>
+	<string name="skill_value_breeding">Breeding</string>
+	<string name="skill_value_reputation">Reputation</string>
+	<string name="skill_value_stewardship">Stewardship</string>
+	<string name="skill_value_tournaments">Tournaments</string>
+	<string name="skill_value_blendin">Blend In</string>
+	<string name="skill_value_sneak">Sneak</string>
+	<string name="skill_value_forage">Forage</string>
+	<string name="skill_value_hunt">Hunt</string>
+	<string name="skill_value_orientation">Orientation</string>
+	<string name="skill_value_track">Track</string>
+	<string name="skill_value_picklock">Pick Lock</string>
+	<string name="skill_value_sleightofhand">Sleight of Hand</string>
+	<string name="skill_value_steal">Steal</string>
+	<string name="skill_value_command">Command</string>
+	<string name="skill_value_strategy">Strategy</string>
+	<string name="skill_value_tactics">Tactics</string>
+	<string name="skill_value_coordinate">Coordinate</string>
+	<string name="skill_value_courage">Courage</string>
+	<string name="skill_value_dedication">Dedication</string>
+
+	<!-- NPCs -->
+	<string name="npc_label_type">Type</string>
+	<string name="npc_label_speed">Move</string>
+	<string name="npc_label_sprint">Sprint</string>
+	<string name="npc_label_abilities">Abilities</string>
+	<string name="npc_label_skills">Specialties</string>
+	<string name="npc_label_languages">Languages</string>
+	<string name="npc_header_traits">Qualities</string>
+	<string name="npc_header_actions">ACTIONS</string>
+	<string name="npc_header_reactions">REACTIONS</string>
+	<string name="npc_label_ac">CoD</string>
+	<string name="npc_label_armor_rating">Armor Rating</string>
+	<string name="npc_label_destiny_points">Destiny Points</string>
+	<string name="npc_label_bulk">Bulk</string>
+	<string name="npc_label_hp">Health</string>
+	<string name="npc_label_trauma">Max. Wounds</string>
+	<string name="npc_label_injuries">Max. Injuries</string>
+	<string name="npc_tooltip_ac">Combat Defense</string>
+
+	<string name="npc_grouped_label_name">Name</string>
+	<string name="npc_grouped_label_cr">CR</string>
+	<string name="npc_grouped_tooltip_cr">Challenge Rating</string>
+
+	<string name="npc_atk_dice_test_label">Test</string>
+	<string name="npc_atk_dice_bonus_label">Bonus</string>
+	<string name="npc_atk_modifier_label">Mod.</string>
+
+	<!-- Encounters -->
+	<string name="enc_tooltip_refreshcr">Refresh CR</string>
+	<string name="enc_tooltip_refreshxp">Refresh XP</string>
+	<string name="enc_message_refreshxp_missingnpclink">[ERROR] Link for NPC '%s' is not working. Make sure the correct modules have been opened in the Library.</string>
+	
+	<!-- Items -->
+	<string name="item_label_unidentifiednotes">Non-ID Notes</string>
+	<string name="item_label_type">Type</string>
+	<string name="item_label_subtype">Subtype</string>
+	<string name="item_label_rarity">Rarity</string>
+	<string name="item_label_bonus">Bonus</string>
+	<string name="item_label_dmg">Damage</string>
+	<string name="item_label_dmg_ability">Dmg Ability</string>
+	<string name="item_label_dmg_bonus">Dmg Bonus</string>
+	<string name="item_label_dmg_modifier">Dmg Modifier</string>
+	<string name="item_label_speed">Speed</string>
+	<string name="item_label_properties">Properties</string>
+	<string name="item_label_carryingcapacity">Carrying Capacity</string>
+	<string name="item_label_armor_rating">Armor Rating</string>
+	<string name="item_label_armor_penalty">Armor Penalty</string>
+	<string name="item_label_bulk">Bulk</string>
+	<string name="item_label_weapon_qualities">Qualities</string>
+	<string name="item_label_weapon_speciality">Speciality</string>
+	<string name="item_label_weapon_training">Training</string>
+	<string name="item_grouped_label_name">Name</string>
+	<string name="item_grouped_label_cost">Cost</string>
+	<string name="item_grouped_label_weight">Wt</string>
+	<string name="item_grouped_tooltip_weight">Weight</string>
+	<string name="item_grouped_label_ac">DEF</string>
+	<string name="item_grouped_tooltip_ac">Defense Bonus</string>
+	<string name="item_grouped_label_dmg">Damage</string>
+	<string name="item_grouped_label_properties">Properties</string>
+	<string name="item_grouped_label_speed">Speed</string>
+	<string name="item_grouped_label_carryingcapacity">Carry</string>
+	<string name="item_grouped_tooltip_carryingcapacity">Carrying Capacity</string>
+	<string name="item_grouped_label_ap">AP</string>
+	<string name="item_grouped_label_ar">AR</string>
+	<string name="item_grouped_label_bulk">Bulk</string>
+	<string name="item_grouped_label_weapon_skill">Speciality</string>
+	<string name="item_grouped_label_weapon_training">Training</string>
+	<string name="item_grouped_label_weapon_qualities">Qualities</string>
+	<string name="item_grouped_title_armor">Armor</string>
+	<string name="item_grouped_title_vehicledrawn">Tack, Harness, and Drawn Vehicles</string>
+	<string name="item_grouped_title_vehiclemount">Mounts and Other Animals</string>
+	<string name="item_grouped_title_vehiclewater">Waterborne Vehicles</string>
+	<string name="item_grouped_title_weapons">Weapons</string>
+	<string name="item_grouped_tooltip_ap">Armor Penalty</string>
+	<string name="item_grouped_tooltip_ar">Armor Rating</string>
+	<string name="item_grouped_tooltip_bulk">Bulk</string>
+	<string name="item_grouped_tooltip_weapon_dmg">Ability plus Damage Bonus</string>
+	<string name="item_grouped_tooltip_weaponskill">Speciality providing bonus dice</string>
+
+	<!-- Powers -->
+	<string name="power_label_modestd">Standard</string>
+	<string name="power_label_modecombat">Combat</string>
+
+	<!-- Reference -->
+	<string name="ref_label_listname">Name</string>
+	<string name="ref_label_listcost">Cost</string>
+	<string name="ref_label_listweight">Weight</string>
+	<string name="ref_label_listdamage">Damage</string>
+	<string name="ref_label_listgroup">Group</string>
+	<string name="ref_label_listproperties">Properties</string>
+	<string name="ref_label_listac">DEF</string>
+	<string name="ref_label_listprereq">Prerequisite</string>
+	<string name="ref_label_listdesc">Description</string>
+	<string name="ref_label_listcarryingcapacity">C.Capacity</string>
+	<string name="ref_label_listspeed">Speed</string>
+
+	<string name="ref_label_source">Source</string>
+	<string name="ref_label_ritual">Ritual</string>
+
+	<string name="ref_label_shortdescription">Summary</string>
+	<string name="ref_label_school">School</string>
+	<string name="ref_label_prerequisite">Prerequisite</string>
+	<string name="ref_label_cantrip">cantrip</string>
+	<string name="ref_label_castingtime">Casting Time</string>
+	<string name="ref_label_range">Range</string>
+	<string name="ref_label_components">Components</string>
+	<string name="ref_label_duration">Duration</string>
+	
+	<string name="ref_type_adventure">Adventure</string>
+	<string name="ref_type_background">Background</string>
+ 	<string name="ref_type_backgroundfeature">Background Feature</string>
+	<string name="ref_type_backgroundproficiency">Background Proficiency</string>
+	<string name="ref_type_characteristic">Background Characteristic</string>
+
+	<string name="ref_type_feat">Quality</string>
+	<string name="ref_type_npc">NPC</string>
+	<string name="ref_type_skill">Skill</string>
+
+	<!-- Reference - Qualities -->
+	<string name="ref_feat_type_label">Overal Type</string>
+	<string name="ref_feat_subtype_label">Quality Type</string>
+	<string name="ref_feat_requirements_label">Requirements</string>
+
+	<!-- Reference - Specialties -->
+	<string name="ref_skill_ability_label">Ability</string>
+	<string name="ref_skill_test_label">Test</string>
+	<string name="ref_skill_action_label">Action</string>
+
+	<!-- Editors -->
+	<string name="weapon_title">Weapon</string>
+	<string name="wpn_header_attack">ATTACK</string>
+	<string name="weapon_header_dmg">DAMAGE</string>
+	<string name="weapon_label_atk_stat">Ability</string>
+	<string name="weapon_label_atk_bonus">Bonus</string>
+	<string name="weapon_label_atk_modifier">Modifier</string>
+	<string name="weapon_label_atk_skill">Speciality</string>
+	<string name="weapon_label_training">Training</string>
+	<string name="weapon_label_bulk">Bulk</string>
+	<string name="weapon_label_def">Defense</string>
+	<string name="weapon_label_dmg">Damage</string>
+	<string name="weapon_label_dmg_bonus">Bonus</string>
+	<string name="weapon_label_dmg_modifier">Modifier</string>
+	<string name="weapon_label_dmg_stat">Ability</string>
+	<string name="weapon_label_grade">Weapon Grade</string>
+	<string name="weapon_label_grade_common">Common</string>
+	<string name="weapon_label_grade_extraordinary">Extraordinary</string>
+	<string name="weapon_label_grade_poor">Poor</string>
+	<string name="weapon_label_grade_superior">Superior</string>
+	<string name="weapon_label_name">Name</string>
+	<string name="weapon_label_qualities">Qualities</string>
+	<string name="weapon_label_reach">Reach</string>
+
+	<!-- Library - Master Index -->
+	<string name="library_recordtype_empty_backgroundfeature">&#171; New Background Feature &#187;</string>
+	<string name="library_recordtype_label_feat">Qualities</string>
+	<string name="library_recordtype_single_feat">Quality</string>
+	<string name="library_recordtype_empty_feat">&#171; New Quality &#187;</string>
+	<string name="library_recordtype_label_skill">Specialties</string>
+	<string name="library_recordtype_single_skill">Speciality</string>
+	<string name="library_recordtype_empty_skill">&#171; New Speciality &#187;</string>
+	<string name="library_recordview_label_item_armor">Armor</string>
+	<string name="library_recordview_label_item_weapon">Weapons</string>
+	<string name="library_recordview_label_npc_bycr">By CR</string>
+	<string name="library_recordview_label_npc_byletter">By Letter</string>
+	<string name="library_recordview_label_npc_bytype">By Type</string>
+</root>

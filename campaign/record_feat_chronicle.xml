@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Reference Feat -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_feat">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="350" />
+		</placement>
+		<sizelimits>
+			<minimum width="350" height="350" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_reference</minimize>
+		<tooltip field="name" />
+		<sharable />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>ref_feat_header</class>
+			</sub_record_header>
+
+			<frame_record_content />
+			
+			<subwindow_record name="main">
+				<class>ref_feat_main</class>
+				<activate />
+			</subwindow_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Reference Feat Header -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_feat_header">
+		<margins control="0,0,0,2" />
+		<script file="common/scripts/record_header.lua" />
+		<sheetdata>
+			<link_record_header name="link" />
+
+			<anchor_record_header_right />
+			<icon_record_locked />
+			<button_record_locked />
+
+			<string_record_name name="name" />
+			<label_recordtype name="recordtype_label" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Custom Reference Feat Main -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_feat_main">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				update()
+			end
+
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode())
+
+				type.setReadOnly(bReadOnly)
+				subtype.setReadOnly(bReadOnly)
+				requirements.setReadOnly(bReadOnly)
+				text.setReadOnly(bReadOnly)
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="type_label">
+				<static textres="ref_feat_type_label" />
+			</label_column>
+			<string_columnh name="type" />
+
+			<label_column name="subtype_label">
+				<static textres="ref_feat_subtype_label" />
+			</label_column>
+			<string_columnh name="subtype" />
+
+			<label_column name="requirements_label">
+				<static textres="ref_feat_requirements_label" />
+			</label_column>
+			<string_columnh name="requirements" />
+
+			<line_column name="divider1" />
+
+			<ft_columnh  name="text">
+			<anchored >
+				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+				<bottom anchor="bottom" offeset="20" />
+				<left />
+				<right offset="-15" />
+			</anchored>			
+			</ft_columnh>
+			<scrollbar>
+				<anchored to="text" />
+				<target>text</target>
+			</scrollbar>
+		</sheetdata>
+	</windowclass>
+</root>

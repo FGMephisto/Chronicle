@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="windowtitlebar_char">
+		<windowtitlebar>
+			<bounds merge="replace">0,10,-1,40</bounds>
+			<field>name</field>
+			<font>subwindowtitle</font>
+			<script>
+				function setValue(sTitle)
+					if widgetTitle then
+						if prefix then
+							sTitle = Interface.getString(prefix[1]) .. " - " .. sTitle
+						end
+						widgetTitle.setText(sTitle)
+						updatePosition()
+					end
+				end
+			</script>
+		</windowtitlebar>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Obsolete -->
+	<!-- =================================================================================================================== -->
+	<template name="subwindow_charcontents">
+		<subwindow name="contents">
+			<anchored>
+				<top offset="45" />
+				<bottom offset="-25" />
+				<left offset="15" />
+				<right offset="-30" />
+			</anchored>
+			<activate />
+			<fastinit />
+		</subwindow>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="scrollbar_charcontents">
+		<scrollbar>
+			<anchored to="contents" offset="-5,-10"/>
+			<target>contents</target>
+		</scrollbar>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="label_charframetop">
+		<metalplate>
+			<frame name="metalplate" offset="10,2,10,2"/>
+			<font>subwindowsmalltitle</font>
+			<center />
+			<nodrag />
+			<readonly />
+			<script file="campaign/scripts/char_labelframetop.lua" />
+		</metalplate>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Obsolete -->
+	<!-- =================================================================================================================== -->
+	<template name="string_charframetop">	
+		<stringfield>
+			<anchored position="insidetop" />
+			<font>subwindowsmalltitle</font>
+			<center />
+			<nodrag/>
+			<readonly />
+		</stringfield>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="label_charfieldtop">
+		<label>
+			<anchored position="above" offset="0,3" />
+			<font>subwindowsmalltitle</font>
+			<center />
+		</label>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotal">
+		<number_modifier>
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<showemptywidget />
+		</number_modifier>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_readonly">
+		<basicnumber>
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<readonly />
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="cycler_ability">
+		<button_stringcycler>
+			<parameters>
+				<defaultlabelres mergerule="replace">dash</defaultlabelres>
+				<labelsres>AGI|ANI|ATH|AWA|CUN|DEC|END|FIG|HEA|LAN|KNO|MAR|PER|STA|STE|SUR|THI|WAR|WIL</labelsres>
+				<values>agility|animalhandling|athletics|awareness|cunning|deception|endurance|fighting|healing|language|knowledge|marksmanship|persuasion|status|stealth|survival|thievery|warfare|will</values>
+			</parameters>
+		</button_stringcycler>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Ability score combined with filter for skills -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charabilityscore_filter">
+		<number_abilityscore>
+			<anchored width="40" height="30" />
+			<rollable />
+			<script>
+				function onClickDown()
+					window.parentcontrol.window.contents.subwindow.filter_ability.setValue(target[1])
+				end
+			</script>
+		</number_abilityscore>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Button Degrees of Sucess -->
+	<!-- =================================================================================================================== -->
+	<template name="button_dos">
+		<buttonfield>
+			<state icon="button_success_degree_1" />
+			<state icon="button_success_degree_2" />
+			<state icon="button_success_degree_3" />
+			<state icon="button_success_degree_4" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 3 then
+						nState = 3
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotalac">
+		<number_chartotal>
+			<description textres="combatdef" />
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>defenses.ac.temporary</modifierfield>
+			<source><name>abilities.agility.score</name><op>+</op></source>
+			<source><name>abilities.athletics.score</name><op>+</op></source>
+			<source><name>abilities.awareness.score</name><op>+</op></source>
+			<source><name>defenses.ac.bonus</name><op>+</op></source>
+			<source><name>defenses.ac.misc</name><op>+</op></source>
+		</number_chartotal>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotalar">
+		<number_chartotal>
+			<description textres="armor" />
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>defenses.armor.temporary</modifierfield>
+			<source><name>defenses.armor.rating</name><op>+</op></source>
+			<source><name>defenses.armor.misc</name><op>+</op></source>
+		</number_chartotal>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotalic">
+		<number_chartotal>
+			<description textres="intriguedef" />
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>defenses.ic.temporary</modifierfield>
+			<source><name>abilities.awareness.score</name><op>+</op></source>
+			<source><name>abilities.cunning.score</name><op>+</op></source>
+			<source><name>abilities.status.score</name><op>+</op></source>
+			<source><name>defenses.ic.misc</name><op>+</op></source>
+		</number_chartotal>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotaldp">
+		<number_linked>
+			<description textres="char_label_dp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.dp.base</name><op>+</op></source>
+			<source><name>destiny.dp.awarded</name><op>+</op></source>
+			<source><name>destiny.dp.invested</name><op>-</op></source>
+			<source><name>destiny.dp.burned</name><op>-</op></source>
+			<source><name>destiny.dp.spent</name><op>-</op></source>
+		</number_linked>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotalsp">
+		<number_linked>
+			<description textres="char_label_sp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.sp.awarded</name><op>+</op></source>
+			<source><name>destiny.sp.invested</name><op>-</op></source>
+			<source><name>destiny.sp.burned</name><op>-</op></source>
+		</number_linked>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartotalxp">
+		<number_linked>
+			<description textres="char_label_xp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.xp.awarded</name><op>+</op></source>
+			<source><name>destiny.xp.invested</name><op>-</op></source>
+			<source><name>destiny.xp.burned</name><op>-</op></source>
+		</number_linked>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charwounds">
+		<basicnumber>
+			<script>
+				function onInit()
+					super.onInit()
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onSourceUpdate)
+					onSourceUpdate()
+				end
+				
+				function onClose()
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onSourceUpdate)
+				end
+				
+				function onSourceUpdate()
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode())
+					setValue(ActorManager5E.getAbilityScore(rActor, "endurance")*3)
+				end
+			</script>
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charinjuries">
+		<basicnumber>
+			<min value="0" />
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartrauma">
+		<basicnumber>
+			<min value="0" />
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charspeed">
+		<number_chartotal>
+			<font>reference-b-large</font>
+			<modifierfield>speed.temporary</modifierfield>
+			<modifiersize>mini</modifiersize>
+			<description textres="char_tooltip_speed" />
+			<source><name>speed.base</name><op>+</op></source>
+			<source><name>speed.bonus</name><op>+</op></source>
+			<source><name>speed.misc</name><op>+</op></source>
+			<source><name>encumbrance.bulkhalved</name><op>-</op></source>
+			<min>1</min>
+			<script>
+				function onInit()
+					super.onInit()
+					local nodeActor = window.getDatabaseNode()
+					DB.addHandler(DB.getPath(nodeActor, "abilities.athletics.score"), "onUpdate", onSourceUpdate)
+					DB.addHandler(DB.getPath(nodeActor, "skilllist"), "onChildUpdate", onSourceUpdate)
+					onSourceUpdate()
+				end
+
+				function onClose()
+					local nodeActor = window.getDatabaseNode()
+					DB.removeHandler(DB.getPath(nodeActor, "abilities.athletics.score"), "onUpdate", onSourceUpdate)
+					DB.removeHandler(DB.getPath(nodeActor, "skilllist"), "onChildUpdate", onSourceUpdate)
+				end
+
+				function onSourceUpdate()
+					local nodeActor = window.getDatabaseNode()
+					local rActor = ActorManager.resolveActor(nodeActor)
+					local nAthletics = ActorManager5E.getAbilityScore(rActor, "athletics")
+					local nRunBonus = math.floor(ActorManager5E.getSkillRank(rActor, "run")/2)
+					local nBaseSpeed = 4
+					local nSprintFactor = 4
+
+					-- Check for lowered base speed
+					if nAthletics == 1 and nRunBonus == 0 then
+						nBaseSpeed = 3
+					elseif nAthletics == 1 and nRunBonus > 0 then
+						nBaseSpeed = 4
+						nRunBonus = nRunBonus -1
+					end
+
+					-- Set Base Speed
+					DB.setValue(nodeActor, "speed.base", "number", nBaseSpeed)
+
+					-- Set Run Bonus
+					DB.setValue(nodeActor, "speed.bonus", "number", nRunBonus)
+
+					-- Set calculated value
+					setValue(calculateSources())
+				end
+			</script>
+		</number_chartotal>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charsprint">
+		<number_chartotal>
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>sprint.temporary</modifierfield>
+			<description textres="char_tooltip_sprint" />
+			<source><name>speed.base</name><op>+</op></source>
+			<source><name>speed.bonus</name><op>+</op></source>
+			<source><name>speed.misc</name><op>+</op></source>
+			<source><name>speed.temporary</name><op>+</op></source>
+			<source><name>encumbrance.bulkhalved</name><op>-</op></source>
+			<min>4</min>
+			<script>
+				function onInit()
+					super.onInit()
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "speed.sprintfactor"), "onUpdate", onSourceUpdate)
+				end
+				
+				function onClose()
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "speed.sprintfactor"), "onUpdate", onSourceUpdate)
+				end
+				
+				function onSourceUpdate()
+					local nodeChar = window.getDatabaseNode()
+					local nSprintFactor = DB.getValue(nodeChar, "speed.sprintfactor", 4)
+					local nBulk = DB.getValue(nodeChar, "encumbrance.bulk", 0)
+					setValue(calculateSources() * nSprintFactor - nBulk)
+				end
+			</script>
+		</number_chartotal>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="list_charweapon">
+		<windowlist>
+			<datasource>.weaponlist</datasource>
+			<sortby><control>name</control></sortby>
+			<allowcreate />
+			<allowdelete />
+			<script file="campaign/scripts/char_weaponlist_chronicle.lua" />
+		</windowlist>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="state_charweapontype">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_melee" tooltipres="char_tooltip_weapontypemelee" />
+			<state icon="char_weapon_ranged" tooltipres="char_tooltip_weapontyperanged" />
+			<state icon="char_weapon_thrown" tooltipres="char_tooltip_weapontypethrown" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 2 then
+						nState = 2
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="state_charweaponhand">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_hand1" tooltipres="char_tooltip_weaponhand1" />
+			<state icon="char_weapon_hand2" tooltipres="char_tooltip_weaponhand2" />
+			<state icon="char_weapon_handoff" tooltipres="char_tooltip_weaponhandoff" />
+			<state icon="char_weapon_handoff_defense" tooltipres="char_tooltip_weaponhandoff_defense" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 3 then
+						nState = 3
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="state_charammocounter">
+		<buttongroup_counter>
+			<sourcefields>
+				<maximum>maxammo</maximum>
+				<current>ammo</current>
+			</sourcefields>
+		</buttongroup_counter>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="list_abilities">
+		<list_text>
+			<child></child>
+			<child><backcolor>1A40301E</backcolor></child>
+			<allowcreate />
+			<allowdelete />
+			<sortby mergerule="replace"><control>name</control></sortby>
+			<noscroll />
+			<script>
+				function onListChanged()
+					update()
+					if listheader and listheader[1] and not isVisible() then
+						window[listheader[1]].expand()
+					end
+				end
+
+				function update()
+					local bEdit = (window.parentcontrol.window.actions_iedit.getValue() == 1)
+					for _,w in ipairs(getWindows()) do
+						w.idelete.setVisibility(bEdit)
+					end
+				end
+
+				function addEntry(bFocus)
+					local w = createWindow()
+					if bFocus then
+						w.name.setFocus()
+					end
+					return w
+				end
+			</script>
+		</list_text>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="button_char_skills_iedit">
+		<buttoncontrol>
+			<anchored width="20" height="20" />
+			<state icon="button_edit" tooltipres="button_editon" />
+			<state icon="button_edit_down" tooltipres="button_editoff" />
+			<script>
+				function onInit()
+					local node = window.getDatabaseNode()
+					if not node or node.isReadOnly() then
+						setVisible(false)
+					end
+				end
+				
+				function onValueChanged()
+					window.contents.subwindow.skills.update()
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_charskill">
+		<basicnumber>
+			<anchored width="32" height="20" />
+			<hideonvalue>0</hideonvalue>
+			<min>0</min>
+			<nodrag />
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="list_charinv">
+		<windowlist>
+			<child></child>
+			<child><backcolor>1A40301E</backcolor></child>
+			<datasource>.inventorylist</datasource>
+			<class>char_invitem</class>
+			<allowdelete />
+			<script file="campaign/scripts/char_invlist_chronicle.lua" />
+		</windowlist>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="sub_charsheet_overview">
+		<subwindow>
+			<anchored to="contentanchor" height="52">
+				<top anchor="bottom" relation="relative" />
+				<left />
+				<right />
+			</anchored>
+			<activate />
+			<fastinit />
+			<class>charsheet_overview</class>
+		</subwindow>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="sub_charsheet">
+		<subwindow>
+			<anchored to="contentanchor">
+				<top anchor="bottom" relation="relative" />
+				<left />
+				<right />
+				<bottom parent="" offset="-20" />
+			</anchored>
+		</subwindow>
+	</template>
+</root>

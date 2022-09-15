@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Weapon Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_weapon">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="350" height="350" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_weapon_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header name="link">
+				<class>reference_weapon</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_weapon_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+
+			<label_column name="weight_label">
+				<anchored to="cost_label" />
+				<static textres="item_label_weight" />
+			</label_column>
+			<stringc_column name="weightwithsuffix" />
+			<number_ref_weightwithsuffix name="weight" />
+			
+			<line_column name="line_stats" />
+
+			<label_column name="weapon_speciality_label">
+				<static textres="item_label_weapon_speciality" />
+			</label_column>
+			<string_columnh name="weapon_speciality">
+				<separator>line_stats</separator>
+				<readonly />
+			</string_columnh>
+
+			<label_column name="weapon_training_label">
+				<static textres="item_label_weapon_training" />
+			</label_column>
+			<number_columnh name="weapon_training">
+				<readonly />
+			</number_columnh>
+
+			<label_column name="weapon_dmg_string_label">
+				<static textres="item_label_dmg" />
+			</label_column>
+			<string_columnh name="weapon_dmg_string">
+				<readonly />
+			</string_columnh>
+			
+			<label_column name="weapon_qualities_label">
+				<static textres="item_label_weapon_qualities" />
+			</label_column>
+			<string_columnh name="weapon_qualities">
+				<readonly />
+			</string_columnh>
+			
+			<line_column name="line_desc" />
+			
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Armor Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_armor">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="450" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_armor_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header>
+				<class>reference_armor</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_armor_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+			
+			<label_column name="weight_label">
+				<anchored to="cost_label" />
+				<static textres="item_label_weight" />
+			</label_column>
+			<stringc_column name="weightwithsuffix" />
+			<number_ref_weightwithsuffix name="weight" />
+			
+			<line_column name="line_stats" />
+			
+			<label_column name="armor_rating_label">
+				<static textres="item_label_armor_rating" />
+			</label_column>
+			<number_columnh name="armor_rating">
+				<separator>line_desc</separator>
+			</number_columnh>
+
+			<label_column name="armor_penalty_label">
+				<static textres="item_label_armor_penalty" />
+			</label_column>
+			<number_columnh name="armor_penalty">
+				<separator>line_desc</separator>
+			</number_columnh>
+			
+			<line_column name="line_desc" />
+			
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Equipment Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_equipment">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="450" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_equipment_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header>
+				<class>reference_equipment</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_equipment_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+			
+			<label_column name="weight_label">
+				<anchored to="cost_label" />
+				<static textres="item_label_weight" />
+			</label_column>
+			<stringc_column name="weightwithsuffix" />
+			<number_ref_weightwithsuffix name="weight" />
+			
+			<line_column name="line_desc" />
+
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Mounts and Other Animals Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_mountsandotheranimals">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="450" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_mountsandotheranimals_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header>
+				<class>reference_mountsandotheranimals</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_mountsandotheranimals_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+			
+			<label_column name="speed_label">
+				<static textres="item_label_speed" />
+			</label_column>
+			<string_columnh name="speed">
+				<readonly />
+			</string_columnh>
+			
+			<label_column name="carryingcapacity_label">
+				<static textres="item_label_carryingcapacity" />
+			</label_column>
+			<string_columnh name="carryingcapacity">
+				<readonly />
+			</string_columnh>
+			
+			<line_column name="line_desc" />
+
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Waterborne Vehicles Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_waterbornevehicles">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="450" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_waterbornevehicles_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header>
+				<class>reference_waterbornevehicles</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_waterbornevehicles_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+			
+			<label_column name="speed_label">
+				<static textres="item_label_speed" />
+			</label_column>
+			<string_columnh name="speed">
+				<readonly />
+			</string_columnh>
+			
+			<line_column name="line_desc" />
+
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Vehicle Description sheets -->
+	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="reference_vehicle">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="450" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_vehicle_header">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<link_record_header>
+				<class>reference_vehicle</class>
+			</link_record_header>
+			<string_record_name_ref name="name" />
+			<label_item_reftype name="reftype" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- ToDo: Still needed? -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ref_vehicle_stats">
+		<margins control="0,0,0,7" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="cost_label">
+				<static textres="ref_label_listcost" />
+			</label_column>
+			<string_column_left name="cost">
+				<readonly />
+			</string_column_left>
+			
+			<label_column name="speed_label">
+				<static textres="item_label_speed" />
+			</label_column>
+			<string_columnh name="speed">
+				<readonly />
+			</string_columnh>
+			
+			<line_column name="line_desc" />
+
+			<ft_columnh name="description">
+				<separator>line_desc</separator>
+				<readonly />
+			</ft_columnh>
+		</sheetdata>
+	</windowclass>
+</root>

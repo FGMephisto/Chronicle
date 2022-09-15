@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Modified -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="client_ct_entry" merge="join">
+		<script file="ct/scripts/clientct_entry_chronicle.lua" />
+		<sheetdata>
+			<base_clientct_health name="healthbase" insertbefore="initresult" />
+			<string_clientct_status name="status" insertbefore="initresult" />
+			<number_clientct_wounds name="wounds" source="hp.wounds" insertbefore="initresult" />
+			<number_clientct_trauma name="trauma" source="hp.trauma" insertbefore="initresult" />
+			<number_clientct_injuries name="injuries" source="hp.injuries" insertbefore="initresult" />
+			<number_clientct_fatigue name="fatigue" source="hp.fatigue" insertbefore="initresult" />
+			<number_clientct_hp name="hptotal" source="hp.total" insertbefore="initresult" />
+
+			<sub_ct_section name="sub_active" insertbefore="sub_effects" />
+		</sheetdata>
+	</windowclass>
+</root>

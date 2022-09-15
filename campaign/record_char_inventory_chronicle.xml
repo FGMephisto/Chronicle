@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Charsheet Inventory -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_inventory">
+		<sheetdata>
+			<subwindow name="contents">
+				<anchored>
+					<top offset="0" />
+					<bottom offset="-40" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>charsheet_inventory_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+
+			<scrollbar_charcontents />
+
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Inventory Contents -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_inventory_contents">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_inventory_chronicle.lua" />
+		<sheetdata>
+			<!-- =================================================================================================================== -->
+			<!-- Inventory -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="invtitle">
+				<bounds>15,10,-10,20</bounds>
+				<icons>char_inventory</icons>
+				<static textres="char_label_inventory" />
+			</label_charframetop>
+
+			<label name="count_label">
+				<anchored to="invtitle" width="20">
+					<top anchor="bottom" relation="relative" offset="5" />
+					<left offset="-3" />
+				</anchored>
+				<center />
+				<static>#</static>
+			</label>
+
+			<genericcontrol name="rightanchor">
+				<anchored to="invtitle" position="belowright" offset="-5,5" width="0" />
+				<invisible />
+			</genericcontrol>
+
+			<genericcontrol name="shortcut_header">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-2" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<genericcontrol name="carried_header">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<icon>char_inv_carried_header</icon>
+				<tooltip textres="char_tooltip_itemcarried" />
+			</genericcontrol>
+
+			<label name="weight_label">
+				<anchored to="rightanchor" width="30">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<center />
+				<static textres="char_label_itemweight" />
+				<tooltip textres="char_tooltip_itemweight" />
+			</label>
+
+			<label name="location_label">
+				<anchored to="rightanchor" width="80">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<center />
+				<static textres="char_label_itemlocation" />
+			</label>
+
+			<label name="name_label">
+				<anchored to="invtitle">
+					<top anchor="bottom" offset="5" />
+					<left offset="55" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<static textres="char_label_itemname" />
+				<center />
+			</label>
+
+			<button_iedit name="inventorylist_iedit">
+				<anchored to="invtitle" position="insidetopright" offset="0,0"/>
+				<target>inventorylist</target>
+			</button_iedit>
+
+			<list_charinv name="inventorylist">
+				<anchored to="invtitle">
+					<top anchor="bottom" relation="relative" offset="2" />
+					<right offset="5" />
+					<left offset="-5" />
+				</anchored>
+				<noscroll />
+			</list_charinv>
+
+			<simplenumber name="encumbranceload" source="encumbrance.load">
+				<anchored to="invtitle" width="30" height="20">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<right offset="-55" />
+				</anchored>
+				<frame name="fielddark" offset="7,5,7,5" />
+				<font>sheetlabel</font>
+				<tooltip textres="char_inventory_tooltip_totalweight" />
+				<readonly />
+			</simplenumber>
+
+			<label name="encumbranceload_label">
+				<anchored to="encumbranceload" width="50" height="20" >
+					<top offset="0" />
+					<right anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static textres="char_label_totalweight" />
+				<tooltip textres="char_inventory_tooltip_totalweight" />
+			</label>
+
+			<simplenumber name="encumbrancebulk" source="encumbrance.bulk">
+				<anchored to="encumbranceload" width="30" height="20">
+					<top offset="0" />
+					<right anchor="left" relation="relative" offset="-20" />
+				</anchored>
+				<frame name="fielddark" offset="7,5,7,5" />
+				<font>sheetlabel</font>
+				<tooltip textres="char_inventory_tooltip_totalbulk" />
+				<readonly />
+			</simplenumber>
+
+			<label name="encumbranceload_label">
+				<anchored to="encumbranceload" width="50" height="20" >
+					<top offset="0" />
+					<right anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<static textres="char_label_totalbulk" />
+				<tooltip textres="char_inventory_tooltip_totalbulk" />
+			</label>
+
+			<!-- =================================================================================================================== -->
+			<!-- Money -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="moneytitle">
+				<anchored to="invtitle" height="20">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left />
+					<right />
+				</anchored>
+				<icons>char_treasure</icons>
+				<static textres="char_label_money" />
+			</label_charframetop>
+
+			<list_charcurrency_inline name="currencylist" />
+			<button_iadd_currencylist_inline name="currencylist_iadd" />
+			<button_iedit_currencylist_inline name="currencylist_iedit" />
+			<string_coinother_inline name="coinother" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Inventory Item -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="char_invitem" merge="join">
+		<sheetdata>
+			<button_idelete name="idelete" merge="delete" />
+			<button_idelete name="idelete" insertbefore="carried">
+				<anchored>
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" offset="-5" />
+				</anchored>
+			</button_idelete>
+		</sheetdata>
+	</windowclass>
+</root>

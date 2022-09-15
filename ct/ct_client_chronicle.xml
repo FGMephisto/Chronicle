@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Modified -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="combattracker_client" merge="join">
+		<placement>
+			<size width="600" height="600" />
+		</placement>
+		<sizelimits>
+			<minimum width="600" height="600" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			function onInit()
+				super.onInit();
+				OptionsManager.registerCallback("SHPC", updateHealthDisplay);
+				OptionsManager.registerCallback("SHNPC", updateHealthDisplay);
+				updateHealthDisplay();
+			end
+			
+			function onClose()
+				super.onClose();
+				OptionsManager.unregisterCallback("SHPC", updateHealthDisplay);
+				OptionsManager.unregisterCallback("SHNPC", updateHealthDisplay);
+			end
+			
+			function updateHealthDisplay()
+				local sOptSHPC = OptionsManager.getOption("SHPC");
+				local sOptSHNPC = OptionsManager.getOption("SHNPC");
+				local bShowDetail = (sOptSHPC == "detailed") or (sOptSHNPC == "detailed");
+				
+				label_hp.setVisible(bShowDetail);
+				label_fatigue.setVisible(bShowDetail);
+				label_injuries.setVisible(bShowDetail);
+				label_trauma.setVisible(bShowDetail);
+				label_wounds.setVisible(bShowDetail);
+
+				label_status.setVisible(not bShowDetail);
+
+				for _,w in pairs(list.getWindows()) do
+					w.updateHealthDisplay();
+				end
+			end
+		</script>
+		<sheetdata>
+			<frame_ctbox_client_header name="frame_label" insertbefore="label_init" />
+
+			<!-- Not showing up in 5E either -->
+			<label_ct_right name="label_status" insertbefore="label_init">
+				<anchored width="110" />
+				<static textres="ct_label_status" />
+			</label_ct_right>
+
+			<label_ct_right name="label_wounds" insertbefore="label_init">
+				<static textres="ct_label_wounds" />
+				<tooltip textres="ct_tooltip_wounds" />
+			</label_ct_right>
+
+			<label_ct_right name="label_trauma" insertbefore="label_init">
+				<static textres="ct_label_trauma" />
+				<tooltip textres="ct_tooltip_trauma" />
+			</label_ct_right>
+
+			<label_ct_right name="label_injuries" insertbefore="label_init">
+				<static textres="ct_label_injuries" />
+				<tooltip textres="ct_tooltip_injuries" />
+			</label_ct_right>
+
+			<label_ct_right name="label_fatigue" insertbefore="label_init">
+				<static textres="ct_label_fatigue" />
+				<tooltip textres="ct_tooltip_fatigue" />
+			</label_ct_right>
+
+			<label_ct_right name="label_hp" insertbefore="label_init">
+				<static textres="hp" />
+				<tooltip textres="hitpoints" />
+			</label_ct_right>
+		</sheetdata>
+	</windowclass>
+</root>

@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Charsheet Actions -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npcsheet_actions">
+		<script>
+			function onDrop(x, y, draginfo)
+				if contents.subwindow.weapons.onDrop(x, y, draginfo) then
+					return true
+				end
+				return false
+			end
+		</script>
+		<sheetdata>
+			<button_iedit name="actions_iedit">
+				<anchored position="insidebottomright" offset="10,10" />
+				<tooltip textres="char_tooltip_actionedit" />
+				<script>
+					function onValueChanged()
+						window.contents.subwindow.weapons.update()
+					end
+				</script>
+			</button_iedit>
+
+			<buttoncontrol name="weapons_iadd">
+				<anchored to="actions_iedit" position="lefthigh" offset="5,0" width="20" height="20" />
+				<icon normal="button_weapon" pressed="button_weapon_down" />
+				<tooltip textres="char_tooltip_actionaddweapon" />
+				<script>
+					function onButtonPress()
+						window.contents.subwindow.weapons.addEntry(true)
+					end
+				</script>
+			</buttoncontrol>
+
+			<subwindow name="contents">
+				<anchored>
+					<bottom offset="-40" />
+					<top offset="0" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>npcsheet_actions_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+			<scrollbar_charcontents />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Actions Contents -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npcsheet_actions_contents">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+
+			<anchor_column name="columnanchor" />
+
+			<!-- =================================================================================================================== -->
+			<!-- Health -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="healthtitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<icons>char_background</icons>
+				<static textres="char_title_health" />
+			</label_charframetop>
+
+			<genericcontrol name="hp_icon">
+				<anchored to="healthtitle" width="30" height="30">
+					<top anchor="bottom" offset="15" />
+					<left anchor="left" offset="15" />
+				</anchored>
+				<icon>char_health</icon>
+				<tooltip textres="char_tooltip_hp" />
+			</genericcontrol>
+
+			<number_charwounds name="hp" source="hp.total">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+			</number_charwounds>
+
+			<genericcontrol name="dmg_icon">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_damage</icon>
+				<tooltip textres="char_tooltip_dmg" />
+			</genericcontrol>
+
+			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
+			<basicnumber name="dmg" source="hp.wounds">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<min value="0" />
+			</basicnumber>
+
+			<genericcontrol name="injuries_icon">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_injuries</icon>
+				<tooltip textres="char_tooltip_injuries" />
+			</genericcontrol>
+
+			<number_charinjuries name="injuries" source="hp.injuries">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<min value="0" />
+			</number_charinjuries>
+
+			<genericcontrol name="trauma_icon">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_trauma</icon>
+				<tooltip textres="char_tooltip_trauma" />
+			</genericcontrol>
+
+			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
+			<number_chartrauma name="trauma" source="hp.trauma">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<min value="0" />
+			</number_chartrauma>
+
+			<genericcontrol name="fatigue_icon">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_fatigue</icon>
+				<tooltip textres="char_tooltip_fatigue" />
+			</genericcontrol>
+
+			<basicnumber name="fatigue" source="hp.fatigue">
+				<anchored to="hp_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<min value="0" />
+			</basicnumber>
+
+			<!-- =================================================================================================================== -->
+			<!-- Combat -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="combattitle">
+				<anchored to="healthtitle" height="20">
+					<top anchor="bottom" relation="relative" offset="60" />
+					<left />
+					<right />
+				</anchored>
+				<static textres="char_title_combat" />
+				<icons>char_attacks</icons>
+			</label_charframetop>
+
+			<buttoncontrol name="combatcalc_button">
+				<anchored width="20" to="combattitle" position="insideright" />
+				<state icon="button_details" pressed="button_details_down" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("charsheet_combatcalc", window.getDatabaseNode())
+					end
+				</script>
+			</buttoncontrol>
+
+			<genericcontrol name="cd_icon">
+				<anchored to="combattitle" width="30" height="30">
+					<top anchor="bottom" offset="15" />
+					<left anchor="left" offset="60" />
+				</anchored>
+				<icon>char_cd</icon>
+				<tooltip textres="char_tooltip_cd" />
+			</genericcontrol>
+
+			<number_chartotalac name="cd" source="defenses.ac.total">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+			</number_chartotalac>
+
+			<genericcontrol name="armor_icon">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_armor</icon>
+				<tooltip textres="char_tooltip_armor" />
+			</genericcontrol>
+
+			<number_chartotalar name="armor" source="defenses.armor.total">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+			</number_chartotalar>
+
+			<genericcontrol name="move_icon">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_move</icon>
+				<tooltip textres="char_tooltip_move" />
+			</genericcontrol>
+
+			<number_charspeed name="move" source="speed.total">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+			</number_charspeed>
+
+			<genericcontrol name="sprint_icon">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<icon>char_sprint</icon>
+				<tooltip textres="char_tooltip_sprint" />
+			</genericcontrol>
+
+			<number_charsprint name="sprint" source="speed.sprint">
+				<anchored to="cd_icon" width="30" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+			</number_charsprint>
+
+			<!-- =================================================================================================================== -->
+			<!-- Weapons -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="weapontitle">
+				<anchored to="combattitle" height="20">
+					<top anchor="bottom" relation="relative" offset="60" />
+					<left />
+					<right />
+				</anchored>
+				<icons>char_attacks</icons>
+				<static textres="char_title_weapons" />
+			</label_charframetop>
+
+			<list_charweapon name="weapons">
+				<anchored>
+					<top parent="weapontitle" anchor="bottom" relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-5" />
+				</anchored>
+				<class>char_weapon</class>
+				<noscroll />
+			</list_charweapon>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Combat Details-->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_combatcalc">
+		<frame>charsheethelper</frame>
+		<placement>
+			<size width="500" height="240" />
+		</placement>
+		<nodelete />
+		<playercontrol />
+		<sheetdata>
+			<windowtitlebar_char name="title">
+				<prefix>char_combatcalc_title</prefix>
+			</windowtitlebar_char>
+
+			<anchor_title_charsheethelper name="contentanchor" />
+
+			<anchor_column name="columnanchor">
+				<anchored to="contentanchor" position="below" offset="0,-5" />
+			</anchor_column>
+
+			<!-- =================================================================================================================== -->
+			<!-- Defense Details -->
+			<!-- =================================================================================================================== -->
+			<label name="label_acdetail">
+				<anchored width="60">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="30" />
+				</anchored>
+				<static textres="char_label_ac" />
+			</label>
+
+			<number_readonly name="agility" source="abilities.agility.score">
+				<anchored to="label_acdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="agility" />
+				<static textres="agility" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_acdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_readonly name="athletics" source="abilities.athletics.score">
+				<anchored to="label_acdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="athletics" />
+				<static textres="athletics" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_acdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_readonly name="awareness" source="abilities.awareness.score">
+				<anchored to="label_acdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="awareness" />
+				<static textres="awareness" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_acdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_readonly name="acbonus" source="defenses.ac.bonus">
+				<anchored to="label_acdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="acbonus" />
+				<static textres="acbonus" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_acdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="acmisc" source="defenses.ac.misc">
+				<anchored to="label_acdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="acmisc" />
+				<static textres="char_label_ac_misc" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Armor Details -->
+			<!-- =================================================================================================================== -->
+			<label name="label_armordetail">
+				<anchored width="60">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="30" />
+				</anchored>
+				<static textres="char_label_armor_detail" />
+			</label>
+
+			<number_readonly name="armor" source="defenses.armor.rating">
+				<anchored to="label_armordetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="armor" />
+				<static textres="char_label_armor_main" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_armordetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="armormisc" source="defenses.armor.misc">
+				<anchored to="label_armordetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="armormisc" />
+				<static textres="char_label_armor_misc" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Speed Details -->
+			<!-- =================================================================================================================== -->
+			<label name="label_speeddetail">
+				<anchored width="60">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="30" />
+				</anchored>
+				<static textres="char_label_speed_detail" />
+			</label>
+
+			<number_readonly name="speedbase" source="speed.base">
+				<anchored to="label_speeddetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="speedbase" />
+				<static textres="char_label_speed_base" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_speeddetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_readonly name="speedbonus" source="speed.bonus">
+				<anchored to="label_speeddetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="speedbonus" />
+				<static textres="char_label_speed_bonus" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_speeddetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="speedmisc" source="speed.misc">
+				<anchored to="label_speeddetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="speedmisc" />
+				<static textres="char_label_speed_misc" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_speeddetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_readonly name="speedbulkhalf" source="encumbrance.bulkhalved">
+				<anchored to="label_speeddetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="speedbulkhalf" />
+				<static textres="char_label_speed_bulk" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Sprint Details -->
+			<!-- =================================================================================================================== -->
+			<label name="label_sprintdetail">
+				<anchored width="60">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="30" />
+				</anchored>
+				<static textres="char_label_sprint_detail" />
+			</label>
+
+			<number_readonly name="sprintbase" source="speed.base">
+				<anchored to="label_sprintdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="sprintbase" />
+				<static textres="char_label_speed_base" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_sprintdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_readonly name="sprintbonus" source="speed.bonus">
+				<anchored to="label_sprintdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="sprintbonus" />
+				<static textres="char_label_speed_bonus" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_sprintdetail">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="sprintmisc" source="speed.misc">
+				<anchored to="label_sprintdetail" width="50" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="sprintmisc" />
+				<static textres="char_label_speed_misc" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_sprintdetail" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_readonly name="sprintbulkhalf" source="encumbrance.bulkhalved">
+				<anchored to="label_sprintdetail" width="50" height="20" >
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="sprintbulkhalf" />
+				<static textres="char_label_speed_bulk" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_sprintdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>*</static>
+				<center />
+			</label>
+
+			<basicnumber name="sprintfactor" source="speed.sprintfactor">
+				<anchored to="label_sprintdetail" width="50" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<default>4</default>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="sprintfactor" />
+				<static textres="char_label_speed_sprintfactor" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_sprintdetail">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_readonly name="sprintbulk" source="encumbrance.bulk">
+				<anchored to="label_sprintdetail" width="50" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_readonly>
+			<label_fieldtop>
+				<anchored to="sprintbulk" />
+				<static textres="char_label_sprint_bulk" />
+			</label_fieldtop>
+
+			<close_charsheethelper />
+		</sheetdata>
+	</windowclass>
+</root>

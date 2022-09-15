@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Charsheet -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet">
+		<frame>charsheet</frame>
+		<placement>
+			<size width="525" height="633" />
+		</placement>
+		<sizelimits>
+			<minimum width="525" height="633" />
+			<dynamic />
+		</sizelimits>
+		<softclose />
+		<minimize>minimized_char</minimize>
+		<tooltip field="name" />
+		<export>character</export>
+		<script file="campaign/scripts/char_chronicle.lua" />
+		<sheetdata>
+			<anchor_title_charsheet name="contentanchor" />
+
+			<sub_charsheet_overview name="overview" />
+							  
+			<sub_charsheet name="skills">
+				<class>charsheet_skills</class>
+			</sub_charsheet>
+
+			<sub_charsheet name="abilities">
+				<class>charsheet_abilities</class>
+			</sub_charsheet>
+
+			<sub_charsheet name="inventory">
+				<class>charsheet_inventory</class>
+			</sub_charsheet>
+
+			<sub_charsheet name="notes">
+				<class>charsheet_notes</class>
+			</sub_charsheet>
+
+			<sub_charsheet name="actions">
+				<class>charsheet_actions</class>
+			</sub_charsheet>
+
+			<!-- <sub_charsheet name="intrigue"> -->
+				<!-- <class>charsheet_intrigue</class> -->
+			<!-- </sub_charsheet> -->
+
+			<tabs_charsheet name="tabs">
+				<tab>
+					<icon>tab_skills</icon>
+					<subwindow>skills</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_abilities</icon>
+					<subwindow>abilities</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_inventory</icon>
+					<subwindow>inventory</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_notes</icon>
+					<subwindow>notes</subwindow>
+				</tab>
+
+				<tab>
+					<icon>tab_actions</icon>
+					<subwindow>actions</subwindow>
+				</tab>
+
+				<activate>1</activate>
+			</tabs_charsheet>
+
+			<close_charsheet />
+			<resize_charsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_overview">
+		<sheetdata>
+			<genericcontrol name="portraitbase">
+				<anchored position="insidetopleft" offset="5,5" width="45" height="45" />
+				<icon>charlist_base</icon>
+				<disabled />
+			</genericcontrol>
+
+			<portrait_char name="portrait">
+				<anchored position="insidetopleft" offset="5,5" width="45" height="45" />
+			</portrait_char>
+
+			<genericcontrol name="rightanchor">
+				<anchored position="insidetopright" offset="0,5" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
+
+			<button_charactivate>
+				<anchored to="rightanchor" width="23" height="22">
+					<top />
+					<right anchor="left" relation="relative" />
+				</anchored>
+			</button_charactivate>
+
+			<token_char name="token">
+				<anchored to="rightanchor" width="45" height="45">
+					<top offset="1" />
+					<right anchor="left" relation="relative" offset="-2" />
+				</anchored>
+			</token_char>
+
+			<label_charframetop name="nametitle">
+				<anchored to="rightanchor" height="20">
+					<top offset="2" />
+					<left parent="" offset="65" />
+					<right anchor="left" relation="relative" offset="-20"/>
+				</anchored>
+				<static textres="char_label_name" />
+			</label_charframetop>
+
+			<stringu name="name">
+				<anchored to="nametitle" position="below" offset="0,5" height="20" />
+			</stringu>
+		</sheetdata>
+	</windowclass>
+</root>

@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Weapon List -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="char_weapon">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/char_weapon_chronicle.lua" />
+
+		<sheetdata>
+			<genericcontrol name="rightanchor">
+				<anchored width="0" height="0">
+					<top />
+					<right />
+				</anchored>
+				<invisible />
+			</genericcontrol>
+
+			<linkfield name="shortcut">
+				<anchored to="rightanchor" width="20" height="20">
+					<top offset="8" />
+					<right anchor="left" relation="relative" offset="-2" />
+				</anchored>
+			</linkfield>
+
+			<button_idelete name="idelete">
+				<anchored to="rightanchor">
+					<top offset="8" />
+					<right anchor="left" offset="-2" />
+				</anchored>
+			</button_idelete>
+
+			<button_details  name="activatedetail">
+				<anchored to="rightanchor" width="20" height="20">
+					<top offset="8" />
+					<right anchor="left" relation="relative" offset="-3" />
+				</anchored>
+				<script>
+					function onButtonPress()
+						Interface.openWindow("char_weapon_editor", window.getDatabaseNode());
+					end
+				</script>
+			</button_details >
+
+			<!-- =================================================================================================================== -->
+			<!-- Damage Field -->
+			<!-- =================================================================================================================== -->
+			<genericcontrol name="dmg_frame">
+				<anchored to="rightanchor" width="75" height="35">
+					<top />
+					<right anchor="left" relation="relative" />
+				</anchored>
+				<frame name="fielddark" />
+			</genericcontrol>
+
+			<genericcontrol name="dmg_icon">
+				<anchored to="dmg_frame" position="insideleft" offset="5,0" width="20" />
+				<icon>spell_damage</icon>
+				<script>
+					function onInit()
+						setHoverCursor("hand")
+					end
+					
+					function onDoubleClick(x,y)
+ 						return window.onDamageAction()
+					end
+
+					function onDragStart(button, x, y, draginfo)
+						return window.onDamageAction(draginfo)
+					end
+
+					function onWheel(notches)
+						window.dmg_multiplier.onWheel(notches)
+					end
+				</script>
+			</genericcontrol>
+
+			<simplenumberc name="dmg_total">
+				<anchored to="dmg_icon" position="right" width="20" />
+				<readonly />
+				<script>
+					function onInit()
+						setHoverCursor("hand")
+					end
+					
+					function onDoubleClick(x,y)
+ 						return window.onDamageAction()
+					end
+
+					function onDragStart(button, x, y, draginfo)
+						return window.onDamageAction(draginfo)
+					end
+
+					function onWheel(notches)
+						window.dmg_multiplier.onWheel(notches)
+					end
+				</script>
+			</simplenumberc>
+
+			<button_dos name="dmg_multiplier">
+				<anchored to="dmg_total" position="right" width="20" />
+			</button_dos>
+
+			<!-- =================================================================================================================== -->
+			<!-- Attack Field -->
+			<!-- =================================================================================================================== -->
+			<genericcontrol name="atk_frame">
+				<anchored to="rightanchor" width="110" height="35">
+					<top />
+					<right anchor="left" relation="relative" offset="-7" />
+				</anchored>
+				<frame name="fielddark" />
+			</genericcontrol>
+
+			<genericcontrol name="atk_icon_test">
+				<anchored to="atk_frame" position="insideleft" offset="5,0" width="25" />
+				<icon>d6icon</icon>
+			</genericcontrol>
+
+			<genericcontrol name="atk_icon_bonus">
+				<anchored to="atk_icon_test" position="right" width="25" />
+				<icon>d6gicon</icon>
+			</genericcontrol>
+
+			<genericcontrol name="atk_icon_penalty">
+				<anchored to="atk_icon_bonus" position="right" width="25" />
+				<icon>d6ricon</icon>
+			</genericcontrol>
+
+			<simplenumberc name="atk_total">
+				<anchored to="atk_icon_penalty" position="right" width="20" />
+				<displaysign />
+			</simplenumberc>
+
+			<simplenumberc name="atk_dice_test">
+				<anchored to="atk_icon_test" position="over" />
+				<color>FFFFFF</color>
+				<readonly />
+			</simplenumberc>
+
+			<simplenumberc name="atk_dice_bonus">
+				<anchored to="atk_icon_bonus" position="over" />
+				<color>FFFFFF</color>
+				<readonly />
+			</simplenumberc>
+
+			<simplenumberc name="atk_dice_penalty">
+				<anchored to="atk_icon_penalty" position="over" />
+				<color>FFFFFF</color>
+				<readonly />
+			</simplenumberc>
+
+			<genericcontrol name="atk_frame_interaction">
+				<anchored to="atk_frame" position="over" />
+				<script>
+					function onInit()
+						setHoverCursor("hand");
+					end
+					
+					function onDoubleClick(x,y)
+						return window.onAttackAction();
+					end			
+
+					function onDragStart(button, x, y, draginfo)
+						return window.onAttackAction(draginfo);
+					end
+				</script>
+			</genericcontrol>
+
+			<!-- =================================================================================================================== -->
+			<state_charweaponhand name="wpn_handling">
+				<anchored to="rightanchor">
+					<top offset="2" />
+					<right anchor="left" relation="relative" offset="0" />
+				</anchored>
+			</state_charweaponhand>
+
+			<state_charweapontype name="wpn_type">
+				<anchored to="rightanchor">
+					<top offset="2" />
+					<right anchor="left" relation="relative" offset="2" />
+				</anchored>
+			</state_charweapontype>
+
+			<genericcontrol name="leftanchor">
+				<anchored width="0" height="0">
+					<top />
+					<left />
+				</anchored>
+				<invisible />
+			</genericcontrol>
+
+			<button_char_inv_carried name="carried">
+				<anchored to="leftanchor" width="20" height="20">
+					<top offset="5" />
+					<left anchor="right" relation="relative" offset="0" />
+				</anchored>
+				<script file="common/scripts/button_crosslink.lua" />
+			</button_char_inv_carried>
+			
+			<stringu name="name">
+				<anchored height="20">
+					<top offset="8" />
+					<left parent="leftanchor" anchor="right" relation="relative" offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="0" />
+				</anchored>
+			</stringu>
+
+			<label name="label_ammo">
+				<anchored width="50">
+					<top parent="dmg_total" anchor="bottom" relation="relative" offset="5" />
+					<left offset="15" />
+				</anchored>
+				<static textres="char_label_weaponammo" />
+			</label>
+
+			<basicnumber name="maxammo">
+				<anchored to="label_ammo" position="righthigh" width="30" height="20" />
+				<min>0</min>
+				<max>100</max>
+			</basicnumber>
+			<state_charammocounter name="ammocounter">
+				<anchored to="maxammo" position="righthigh" offset="8,0" />
+			</state_charammocounter>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Weapon Editor -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="char_weapon_editor">
+		<frame>charsheethelper</frame>
+		<placement>
+			<size width="525" height="350" />
+		</placement>
+		<sizelimits>
+			<minimum width="525" height="350" />
+			<dynamic />
+		</sizelimits>
+		<tooltip control="name" />
+
+		<sheetdata>
+			<windowtitlebar_char name="title">
+				<prefix>weapon_title</prefix>
+			</windowtitlebar_char>
+
+			<anchor_title_charsheethelper name="contentanchor" />
+			
+			<genericcontrol name="contentframe">
+				<anchored to="contentanchor">
+					<top anchor="bottom" offset="0" />
+					<left />
+					<right />
+					<bottom parent="" offset="-30" />
+				</anchored>
+			</genericcontrol>
+
+			<subwindow_record name="main">
+				<class>char_weapon_editor_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_charsheethelper />
+			<close_charsheethelper />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Weapon Editor Main -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="char_weapon_editor_main">
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="name_label">
+				<static textres="weapon_label_name" />
+			</label_column>
+			<string_column name="name" />
+
+			<label_column name="wpn_grade_label">
+				<static textres="weapon_label_grade" />
+			</label_column>
+			<combobox_wpngrade name="wpn_grade">
+				<anchored width="90" height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<left offset="97" />
+				</anchored>
+			</combobox_wpngrade>
+
+			<header_column name="header_attack">
+				<static textres="wpn_header_attack" />
+				<center />
+			</header_column>
+
+			<!-- =================================================================================================================== -->
+			<!-- Attack Line -->
+			<!-- =================================================================================================================== -->
+			<stringfield name="atk_stat">
+				<anchored width="120" height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+				<frame name="fieldlight" offset="7,5,7,5" />
+				<center />
+				<readonly />
+			</stringfield>
+			<label_fieldtop>
+				<anchored to="atk_stat" />
+				<static textres="weapon_label_atk_stat" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="atk_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+(</static>
+				<center />
+			</label>
+
+			<combobox name="atk_skill">
+				<anchored to="atk_stat" width="100" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<frame><name>fielddark</name></frame>
+				<center />
+				<default textres="default_wpn_skill" />
+				<listdirection>down</listdirection>
+				<listmaxsize>6</listmaxsize>
+				<unsorted />
+				<script>
+					function onInit()
+						super.onInit()
+						addItems(DataCommon.wpnskilldata)
+					end
+				</script>
+			</combobox>
+			<label_fieldtop>
+				<anchored to="atk_skill" />
+				<static textres="weapon_label_atk_skill" />
+			</label_fieldtop>
+			<hn name="atk_dice_bonus" />
+
+			<label>
+				<anchored to="atk_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<basicnumber name="wpn_training">
+				<anchored to="atk_stat" width="40" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="wpn_training" />
+				<static textres="weapon_label_training" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="atk_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>)+</static>
+				<center />
+			</label>
+
+			<basicnumber name="atk_bonus">
+				<anchored to="atk_stat" width="40" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="atk_bonus" />
+				<static textres="weapon_label_atk_bonus" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="atk_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="atk_mod">
+				<anchored to="atk_stat" width="40" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="atk_mod" />
+				<static textres="weapon_label_atk_modifier" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Damage Line -->
+			<!-- =================================================================================================================== -->
+			<header_column name="header_dmg">
+				<static textres="weapon_header_dmg" />
+				<center />
+			</header_column>
+
+			<combobox_wpndmgability name="dmg_stat">
+				<anchored width="120" height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+			</combobox_wpndmgability>
+			<label_fieldtop>
+				<anchored to="dmg_stat" />
+				<static textres="weapon_label_dmg_stat" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="dmg_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="dmg_bonus">
+				<anchored to="dmg_stat" width="40" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="dmg_bonus" />
+				<static textres="weapon_label_dmg_bonus" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="dmg_stat" width="10">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<basicnumber name="dmg_mod">
+				<anchored to="dmg_stat" width="40" height="20">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="dmg_mod" />
+				<static textres="weapon_label_dmg_modifier" />
+			</label_fieldtop>
+
+			<header_column name="header_qualities">
+				<static textres="weapon_label_qualities" />
+				<center />
+			</header_column>
+
+			<string_column_full name="wpn_qualities" />
+
+		</sheetdata>
+	</windowclass>
+</root>

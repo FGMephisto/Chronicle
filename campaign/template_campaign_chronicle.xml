@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="parcel_header" merge="join">
+		<margins control="0,0,0,2" />
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="table_header" merge="join">
+		<margins control="0,0,0,2" />
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="sub_record_header">
+		<subwindow>
+			<anchored>
+				<top offset="10" />
+				<left offset="10" />
+				<right offset="-25" />
+			</anchored>
+			<frame name="headergray" offset="5,5,20,5" />
+			<activate />
+			<fastinit />
+		</subwindow>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="frame_record_content">
+		<genericcontrol name="contentframe">
+			<anchored>
+				<top parent="header" anchor="bottom" offset="7" />
+				<left offset="15" />
+				<right offset="-20" />
+				<bottom offset="-20" />
+			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="frame_record_content_tabbed">
+		<genericcontrol name="contentframe">
+			<anchored>
+				<top parent="header" anchor="bottom" offset="7" />
+				<left offset="15" />
+				<right offset="-30" />
+				<bottom offset="-20" />
+			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="area_parcel_content">
+		<genericcontrol name="contentframe">
+			<anchored>
+				<top parent="header" anchor="bottom" offset="22" />
+				<left offset="25" />
+				<right offset="-25" />
+				<bottom offset="-25" />
+			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="frame_parcel">
+		<genericcontrol>
+			<frame name="groupbox" offset="15,15,20,15" />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="button_toggledetail">
+		<buttoncontrol>
+			<anchored width="20" height="20" />
+			<state icon="button_details" />
+			<state icon="button_details_down" />
+			<script>
+				function onValueChanged()
+					if window.toggleDetail then
+						window.toggleDetail();
+					end
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="label_abilityscore">
+		<label_fieldtop>
+			<anchored offset="-2,-6" />
+			<frame name="abilityscore" />
+		</label_fieldtop>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_abilityscore">
+		<basicnumber>
+			<default>2</default>
+			<min>0</min>
+			<script file="campaign/scripts/number_abilityscore_chronicle.lua" />
+		</basicnumber>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="string_abilitymodtext">
+		<stringcontrol>
+			<anchored position="below" offset="-8,-5" />
+			<frame name="abilityscore" />
+			<font>sheetlabelmini</font>
+			<static />
+			<center />
+		</stringcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="list_editor">
+		<windowlist name="list">
+			<anchored>
+				<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+				<left />
+				<right />
+			</anchored>
+			<allowdelete />
+			<child></child>
+			<child><backcolor>1A40301E</backcolor></child>
+			<noscroll />
+			<script>
+				function onInit()
+					registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
+				end
+				
+				function onMenuSelection(selection)
+					if selection == 5 then
+						self.addEntry(true);
+					end
+				end
+				
+				function onListChanged()
+					update();
+				end
+
+				function update()
+					local bEditMode = (window.list_iedit.getValue() == 1);
+					for _,w in pairs(getWindows()) do
+						w.idelete.setVisibility(bEditMode);
+					end
+				end
+				
+				function addEntry(bFocus)
+					return createWindow();
+				end
+			</script>
+		</windowlist>
+	</template>
+</root>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<!-- Section - Active (2022-08-16) -->
+	<windowclass name="client_ct_section_active_vehicle">
+		<script>
+			function updateHealthDisplay(sOption)
+				for _,w in ipairs(components.getWindows()) do
+					w.updateHealthDisplay(sOption);
+				end
+			end
+		</script>
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_sword_down</icon>
+			</icon_ct_section>
+			<list_clientct_section_active_vehicle_components name="components" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="client_ct_section_active_vehicle_component">
+		<margins control="0,0,0,2" />
+		<script file="ct/scripts/clientct_entry_active_vehicle_component.lua" />
+		<sheetdata>
+			<anchor_ct_subsection name="anchor_section" />
+
+			<genericcontrol name="rightanchor">
+				<anchored to="anchor_section" position="belowright" offset="0,2" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
+			<base_clientct_health name="healthbase">
+				<anchored to="rightanchor" width="70" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+			</base_clientct_health>
+			<string_clientct_status name="status">
+				<frame name="cteffect" offset="5,2,5,2" />
+			</string_clientct_status>
+			<number_clientct_wounds name="wounds" />
+			<number_clientct_hp name="hp">
+				<anchored to="wounds" width="30" height="20">
+					<top />
+					<right anchor="left" offset="-10" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						window.onHealthChanged();
+						window.windowlist.window.parentcontrol.window.updateHealthDisplay();
+					end
+				</script>
+			</number_clientct_hp>
+
+			<stringu name="name">
+				<anchored to="anchor_section" position="insidetopleft" offset="30,2" height="20">
+					<top anchor="bottom" relation="relative" offset="2" />
+					<left offset="5" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<frame name="cteffect" offset="5,2,5,2" />
+			</stringu>
+		</sheetdata>
+	</windowclass>
+</root>

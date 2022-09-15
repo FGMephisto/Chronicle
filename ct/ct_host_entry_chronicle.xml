@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Character entries -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ct_entry">
+		<margins control="0,0,0,5" />
+		<frame>ctentrybox</frame>
+		<sizelimits>
+			<minimum height="50" />
+		</sizelimits>
+		<script file="ct/scripts/ct_entry_chronicle.lua" />
+		<sheetdata>
+			<!-- =================================================================================================================== -->
+			<!-- Hidden fields -->
+			<!-- =================================================================================================================== -->
+			<hs name="tokenrefid" />
+			<hs name="tokenrefnode" />
+			<hs name="status" />
+
+			<hsx name="type" />
+			<hsx name="size" />
+
+			<hnx name="cd" source="defenses.ac.total" />
+			<hnx name="armor" source="defenses.armor.total" />
+			<hnx name="move" source="speed.total" />
+			<hnx name="sprint" source="speed.sprint" />
+
+			<hnx name="agility" source="abilities.agility.score" />
+			<hnx name="animalhandling" source="abilities.animalhandling.score" />
+			<hnx name="athletics" source="abilities.athletics.score" />
+			<hnx name="awareness" source="abilities.awareness.score" />
+			<hnx name="cunning" source="abilities.cunning.score" />
+			<hnx name="endurance" source="abilities.endurance.score" />
+			<hnx name="fighting" source="abilities.fighting.score" />
+			<hnx name="marksmanship" source="abilities.marksmanship.score" />
+			<hnx name="warfare" source="abilities.warfare.score" />
+			<hnx name="will" source="abilities.will.score" />
+
+		<!-- init_skill_misc.setLink(v.createChild("misc", "number"), true) -->
+
+			<hnx name="init" />
+			<!-- <hnx name="speed" /> -->
+
+			<!-- =================================================================================================================== -->
+			<!-- Entry header toggles for subsections -->
+			<!-- =================================================================================================================== -->
+			<spacer_ctentry_active_top name="active_spacer_top" />
+			
+			<button_ctentry_active name="active" />
+			<token_ctentry name="token" />
+			<button_ct_entry_tokenvis name="tokenvis" />
+			<button_ct_entry_isidentified name="isidentified" />
+			
+			<anchor_ct_entry_right name="rightanchor" />
+
+			<button_ct_entry_idelete name="idelete" />
+
+			<link_ct_entry name="link" />
+
+			<button_ct_section_effects name="button_section_effects" />
+			<button_ct_section_defense name="button_section_defense" />
+			<button_ct_section_active name="button_section_active" />
+			<button_ct_section_space name="button_section_space" />
+			<button_ct_section_targets name="button_section_targets" />
+
+			<button_ctentry_friendfoe name="friendfoe" />
+
+			<!-- =================================================================================================================== -->
+			<!-- Entry health fields -->
+			<!-- =================================================================================================================== -->
+			<number_ct_crosslink name="wounds" source="hp.wounds">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<min value="0" />
+				<hideonvalue value="0" />
+				<tabtarget prev="initresult" next="trauma" />
+				<script>
+					function handleDrop(draginfo)
+						if draginfo.getType() == "number" then
+							local node = window.getDatabaseNode();
+							local rActor = ActorManager.resolveActor(node);
+							local rRoll = { sDesc = draginfo.getDescription(), nTotal = draginfo.getNumberData() };
+							rRoll.bSecret = CombatManager.isCTHidden(node);
+							ActionDamage.applyDamage(nil, rActor, rRoll);
+						end
+					end
+
+					function update()
+						window.onHealthChanged();
+					end
+				</script>
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="trauma" source="hp.trauma">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<color>0000AA</color>
+				<tabtarget prev="wounds" next="injuries" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="injuries" source="hp.injuries">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<color>0000AA</color>
+				<tabtarget prev="trauma" next="fatigue" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="fatigue" source="hp.fatigue">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<color>0000AA</color>
+				<tabtarget prev="injuries" next="hptotal" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="hptotal" source="hp.total">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<tabtarget prev="fatigue" next="initresult" />
+			</number_ct_crosslink>
+
+			<!-- =================================================================================================================== -->
+			<!-- Initiative -->
+			<!-- =================================================================================================================== -->
+			<number_ctentry_initresult name="initresult">
+				<anchored><right offset="-15" /></anchored>
+			</number_ctentry_initresult>
+
+			<string_ct_entry_name name="name" />
+			<string_ct_entry_name_nonid name="nonid_name" />
+
+			<!-- Sections -->
+			<sub_ct_section name="sub_targets" />
+			<sub_ct_section name="sub_space" />
+			<sub_ct_section name="sub_active" />
+			<sub_ct_section name="sub_defense" />
+			<sub_ct_section name="sub_effects" />
+
+			<!-- Quick labels -->
+			<string_ct_entry_targets name="summary_targets" />
+			<string_ct_entry_effects name="summary_effects" />
+
+			<spacer_ctentry_middle name="spacer" />
+			<spacer_ctentry_active_bottom name="active_spacer_bottom" />
+		</sheetdata>
+	</windowclass>
+</root>
