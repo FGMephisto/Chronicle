@@ -29,16 +29,6 @@
 			</anchored>
 		</genericcontrol>
 	</template>
-	<template name="anchor_calendarlog">
-		<genericcontrol>
-			<anchored height="0">
-				<top parent="title" anchor="bottom" offset="0" />
-				<left parent="" anchor="left" offset="30" />
-				<right parent="" anchor="right" offset="-30" />
-			</anchored>
-			<disabled />
-		</genericcontrol>
-	</template>
 	
 	<!-- Library - Master Index -->
 	<template name="masterindex_anchor_bottom">

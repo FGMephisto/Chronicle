@@ -1,7 +1,7 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
+-- File adjusted for Chronicle System.
 --
 
 SPELL_LEVELS = 9

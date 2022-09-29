@@ -95,14 +95,6 @@
 			</anchored>
 		</resize>
 	</template>
-	<template name="resize_campaignlistwithtabs">
-		<resize>
-			<anchored>
-				<right offset="-8" />
-				<bottom offset="-10" />
-			</anchored>
-		</resize>
-	</template>
 	<template name="resize_referencepage">
 		<resize>
 			<anchored>
@@ -207,14 +199,6 @@
 			<anchored>
 				<top offset="20" />
 				<right offset="-20" />
-			</anchored>
-		</close>
-	</template>
-	<template name="close_campaignlist">
-		<close>
-			<anchored>
-				<top offset="9" />
-				<right offset="-12" />
 			</anchored>
 		</close>
 	</template>

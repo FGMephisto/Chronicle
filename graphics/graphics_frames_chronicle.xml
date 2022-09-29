@@ -284,20 +284,6 @@
 		<insideoffset>0,0,18,16</insideoffset>
 	</framedef>
 
-	<framedef name="campaignlistwithtabs">
-		<bitmap file="graphics/frames/scrollbox.png" />
-		<topleft rect="0,0,190,66" />
-		<top rect="190,0,189,66" />
-		<topright rect="379,0,189,66" />
-		<left rect="0,66,190,456" />
-		<middle rect="190,66,189,456" />
-		<right rect="379,66,190,456" />
-		<bottomleft rect="0,522,190,62" />
-		<bottom rect="190,522,189,62" />
-		<bottomright rect="379,522,190,62" />
-		<insideoffset>0,0,9,10</insideoffset>
-	</framedef>
-
 	<framedef name="referencepage">
 		<bitmap file="graphics/frames/recordsheet.png" />
 		<offset>12,11,17,18</offset>

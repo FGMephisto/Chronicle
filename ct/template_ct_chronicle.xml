@@ -8,25 +8,24 @@
 
 <root>
 	<!-- =================================================================================================================== -->
-	<!-- General combat tracker window (Original) -->
-	<!-- =================================================================================================================== -->
-	<template name="anchor_ct_label_right">
-		<genericcontrol name="rightanchor">
-			<anchored to="contentanchor" position="insidetopright" offset="45,5" width="0" height="0" />
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
 	<!-- GM combat tracker window (Original) -->
 	<!-- =================================================================================================================== -->
 	<template name="anchor_ctbox_host_header">
 		<genericcontrol name="headeranchor">
 			<anchored to="contentanchor" height="26">
-				<top anchor="bottom" relation="relative" offset="2" />
+				<top anchor="bottom" relation="relative" offset="3" />
 				<left />
 				<right />
 			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="anchor_ct_host_label_right">
+		<genericcontrol name="rightanchor">
+			<anchored to="headeranchor" position="insidetopright" offset="0,3" width="0" height="0" />
 			<disabled />
 		</genericcontrol>
 	</template>
@@ -56,6 +55,7 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- NOTE: Redefine list box template to make sure that new ct.lua script used -->
+	<!-- ToDo Remove -->
 	<!-- =================================================================================================================== -->
 	<template name="list_ctbox_host">
 		<windowlist name="list">
@@ -176,10 +176,19 @@
 	<template name="anchor_ctbox_client_header">
 		<genericcontrol name="headeranchor">
 			<anchored to="contentanchor" height="26">
-				<top anchor="bottom" relation="relative" offset="2" />
+				<top anchor="bottom" relation="relative" offset="3" />
 				<left offset="5"/>
 				<right />
 			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="anchor_ct_client_label_right">
+		<genericcontrol name="rightanchor">
+			<anchored to="headeranchor" position="insidetopright" offset="0,3" width="0" height="0" />
 			<disabled />
 		</genericcontrol>
 	</template>
@@ -236,7 +245,6 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- GM combat tracker entry (Original) -->
-	<!-- Ability number & roll -->
 	<!-- =================================================================================================================== -->
 	<template name="number_ct_ability">
 		<number_ct>
@@ -255,7 +263,6 @@
 				function onDoubleClick(x,y)
 					return action();
 				end
-
 			</script>
 		</number_ct>
 	</template>
@@ -307,13 +314,24 @@
 	<!-- =================================================================================================================== -->
 	<template name="base_clientct_health">
 		<genericcontrol name="healthbase">
-			<!-- <anchored to="rightanchor" width="110" height="20"> -->
 			<anchored to="rightanchor" width="190" height="20">
 				<top />
 				<right anchor="left" relation="relative" offset="-10" />
 			</anchored>
 			<disabled />
 		</genericcontrol>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="string_clientct_status">
+		<simplestring name="status">
+			<anchored to="healthbase" position="over" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<center />
+			<static />
+			<invisible />
+		</simplestring>
 	</template>
 
 	<!-- =================================================================================================================== -->
@@ -335,6 +353,23 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- =================================================================================================================== -->
+	<template name="number_clientct_hptemp">
+		<number_ct_static name="hptemp">
+			<anchored to="wounds" width="30" height="20">
+				<top />
+				<right anchor="left" offset="-10" />
+			</anchored>
+			<color>0000AA</color>
+			<script>
+				function onValueChanged()
+					window.onHealthChanged();
+				end
+			</script>
+		</number_ct_static>
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="number_clientct_hp">
 		<number_ct_static name="hptotal">
 			<anchored to="fatigue" width="30" height="20">
@@ -343,7 +378,7 @@
 			</anchored>
 			<min value="0" />
 			<script>
-				function onInit()
+				function onValueChanged()
 					window.onHealthChanged();
 				end
 			</script>
@@ -406,6 +441,7 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
+	<!-- ToDo Check all below if needed -->
 	<!-- =================================================================================================================== -->
 	<template name="frame_ctbox_host_header_toggles">
 		<metalplate name="header_toggles">

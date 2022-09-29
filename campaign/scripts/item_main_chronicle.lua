@@ -1,7 +1,7 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
+-- File adjusted for Chronicle System.
 --
 
 -- ===================================================================================================================
@@ -110,8 +110,8 @@ function update()
 		description.setVisible(bID and not description.isEmpty())
 		bSection5 = (description.isVisible())
 	else
-		description.setVisible(true)
-		bSection5 = true
+		description.setVisible(bID)
+		bSection5 = bID
 	end
 	description.setReadOnly(bReadOnly)
 

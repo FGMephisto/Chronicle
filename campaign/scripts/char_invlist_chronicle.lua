@@ -1,7 +1,7 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
+-- File adjusted for Chronicle System.
 --
 
 local sortLocked = false
@@ -131,21 +131,6 @@ function addEntry(bFocus)
 		w.count.setValue(1)
 	end
 	return w
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onClickDown(button, x, y)
-	return true
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onClickRelease(button, x, y)
-	if not getNextWindow(nil) then
-		addEntry(true)
-	end
-	return true
 end
 
 -- ===================================================================================================================
