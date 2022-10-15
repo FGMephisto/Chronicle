@@ -45,14 +45,6 @@ function onCharItemDelete(nodeItem)
 end
 
 -- ===================================================================================================================
--- ===================================================================================================================
-function updateEncumbrance(nodeChar)
-	Debug.console("CharManager.updateEncumbrance - DEPRECATED - 2022-02-01 - Use CharEncumbranceManager.updateEncumbrance");
-	ChatManager.SystemMessage("CharManager.updateEncumbrance - DEPRECATED - 2022-02-01 - Contact forge/extension author");
-	CharEncumbranceManager.updateEncumbrance(nodeChar);
-end
-
--- ===================================================================================================================
 -- ACTIONS
 -- ===================================================================================================================
 function rest(nodeChar, bLong)

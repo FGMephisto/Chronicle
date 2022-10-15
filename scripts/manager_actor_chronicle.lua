@@ -454,35 +454,30 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	end
 	
 	-- Base calculations
-	-- ToDo: ???
 	local sAttack = rRoll.sDesc
 	
-	local sAttackType = string.match(sAttack, "%[ATTACK.*%((%w+)%)%]")
-	local bOpportunity = string.match(sAttack, "%[OPPORTUNITY%]")
-	local nCover = tonumber(string.match(sAttack, "%[COVER %-(%d)%]")) or 0
+	local sAttackType = sAttack:match("%[ATTACK.*%((%w+)%)%]")
+	local bOpportunity = sAttack:match("%[OPPORTUNITY%]")
+	local nCover = tonumber(sAttack:match("%[COVER %-(%d)%]")) or 0
 
 	local nDefense = 0
-
 	local nodeDefender = ActorManager.getCreatureNode(rDefender)
 
 	-- Exits if no defender was provided
+	local sDefenderNodeType, nodeDefender = ActorManager.getTypeAndNode(rDefender)
 	if not nodeDefender then
 		return nil, 0, 0, false, false
 	end
 
 	-- Get Combat Defense
-	local sDefenderActorType = ActorManager.getRecordType(rDefender)
-
-	if sDefenderActorType == "charsheet" then
+	if sDefenderNodeType == "pc" then
 		nDefense = DB.getValue(nodeDefender, "defenses.ac.total", 0)
-	elseif sDefenderActorType == "npc" then
-		nDefense = DB.getValue(nodeDefender, "defenses.ac.total", 0)
-	-- elseif sDefenderActorType == "vehicle" then
-		-- nDefense = DB.getValue(nodeDefender, "defenses.ac.total", 0)
+	elseif StringManager.contains({ "ct", "npc", "vehicle" }, sDefenderNodeType) then
+		DB.getValue(nodeDefender, "defenses.ac.total", 0)
 	else
-		return 0, 0, 0
+		return nil, 0, 0, false, false
 	end
-	
+
 	-- Effects
 	local nDefenseEffectMod = 0
 

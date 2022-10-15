@@ -7,7 +7,7 @@
 -->
 
 <root version="3.0" release="9" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2022-08-30) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+	<announcement text="Chronicle System ruleset (v2022-10-14) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>

@@ -18,17 +18,16 @@
 			<minimum width="600" height="600" />
 			<dynamic />
 		</sizelimits>
-		<script file="ct/scripts/clientct_window_dnd.lua" />
+		<script file="ct/scripts/clientct_window_chronicle.lua" />
 		<sheetdata>
-			<spacer_ct_client_header_buttons name="spacer_buttons_header">
-				<anchored width="47" />
+			<spacer_ct_client_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
+				<anchored width="5" />
 			</spacer_ct_client_header_buttons>
 
 			<frame_ctbox_client_header name="frame_label" insertbefore="label_init" />
 
-			<!-- Not showing up in 5E either -->
 			<label_ct_right name="label_status" insertbefore="label_init">
-				<anchored width="110" />
+				<anchored width="190" />
 				<static textres="ct_label_status" />
 			</label_ct_right>
 

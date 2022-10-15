@@ -27,8 +27,12 @@
 				<anchored to="header_vis" position="insidetopleft" offset="-5,2" width="22" height="22" />
 			</button_ctbox_host_header_visibility>
 
-			<spacer_ct_host_header_buttons name="spacer_buttons_header">
-				<anchored width="168" />
+			<!-- <spacer_ct_host_header_buttons name="spacer_buttons_header"> -->
+				<!-- <anchored width="168" /> -->
+			<!-- </spacer_ct_host_header_buttons> -->
+
+			<spacer_ct_host_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
+				<anchored width="63" />
 			</spacer_ct_host_header_buttons>
 
 			<!-- =================================================================================================================== -->
@@ -36,55 +40,35 @@
 			<!-- =================================================================================================================== -->
 			<frame_ctbox_host_header_labels name="header_labels" insertbefore="rightanchor" />
 
-			<label_ct name="label_name">
-				<anchored to="header_labels" position="insidetopleft" offset="5,3">
-					<right offset="-425" />
-				</anchored>
-				<static textres="ct_label_name" />
-				<center />
-			</label_ct>
-
-			<label_ct name="label_wounds">
-				<anchored to="header_labels" position="insidetopright" offset="180,3" width="30" />
+			<label_ct_right name="label_wounds" insertbefore="label_init">
 				<center />
 				<static textres="ct_label_wounds" />
 				<tooltip textres="ct_tooltip_wounds" />
-			</label_ct>
+			</label_ct_right>
 
-			<label_ct name="label_trauma">
-				<anchored to="header_labels" position="insidetopright" offset="220,3" width="30" />
+			<label_ct_right name="label_trauma" insertbefore="label_init">
 				<center />
 				<static textres="ct_label_trauma" />
 				<tooltip textres="ct_tooltip_trauma" />
-			</label_ct>
+			</label_ct_right>
 
-			<label_ct name="label_injuries">
-				<anchored to="header_labels" position="insidetopright" offset="263,3" width="30" />
+			<label_ct_right name="label_injuries" insertbefore="label_init">
 				<center />
 				<static textres="ct_label_injuries" />
 				<tooltip textres="ct_tooltip_injuries" />
-			</label_ct>
+			</label_ct_right>
 
-			<label_ct name="label_fatigue">
-				<anchored to="header_labels" position="insidetopright" offset="302,3" width="30" />
+			<label_ct_right name="label_fatigue" insertbefore="label_init">
 				<center />
 				<static textres="ct_label_fatigue" />
 				<tooltip textres="ct_tooltip_fatigue" />
-			</label_ct>
+			</label_ct_right>
 
-			<label_ct name="label_hp">
-				<anchored to="header_labels" position="insidetopright" offset="340,3" width="30" />
+			<label_ct_right name="label_hp" insertbefore="label_init">
 				<center />
 				<static textres="hp" />
 				<tooltip textres="ct_tooltip_hitpoints" />
-			</label_ct>
-
-			<label_ct name="label_init">
-				<anchored to="header_labels" position="insidetopright" offset="385,3" width="30" />
-				<center />
-				<static textres="init" />
-				<tooltip textres="ct_tooltip_initative" />
-			</label_ct>
+			</label_ct_right>
 		</sheetdata>
 	</windowclass>
 </root>

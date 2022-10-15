@@ -31,32 +31,13 @@ function updateHealthDisplay()
 	local bShowStatus = ((sOptSHPC == "status") or (sOptSHNPC == "status")) and not bShowDetail;
 
 	-- General
-	if label_hp then
-		label_hp.setVisible(bShowDetail);
-	end
+	label_wounds.setVisible(bShowDetail);
+	label_trauma.setVisible(bShowDetail);
+	label_injuries.setVisible(bShowDetail);
+	label_fatigue.setVisible(bShowDetail);
+	label_hp.setVisible(bShowDetail);
 
-	if label_temp then
-		label_temp.setVisible(bShowDetail);
-	end
-
-	if label_wounds then
-		label_wounds.setVisible(bShowDetail);
-	end
-
-	-- Chronicle
-	if abel_injuriess then
-		label_injuries.setVisible(bShowDetail);
-	end
-
-	if label_fatigues then
-		label_fatigue.setVisible(bShowDetail);
-	end
-
-	if label_trauma then
-		label_trauma.setVisible(bShowDetail);
-	end
-
-	label_status.setVisible(not bShowDetail);
+	label_status.setVisible(bShowStatus);
 
 	for _,w in pairs(list.getWindows()) do
 		w.updateHealthDisplay();

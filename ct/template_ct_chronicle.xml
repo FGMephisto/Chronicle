@@ -292,24 +292,6 @@
 	</template>
 
 	<!-- =================================================================================================================== -->
-	<!-- GM combat tracker entry (2022-08-16) -->
-	<!-- =================================================================================================================== -->
-	<template name="button_ct_entry_tokenvis">
-		<buttonfield>
-			<anchored to="token" position="rightlow" offset="-2,-4" width="12" height="12" />
-			<frame name="tempmodmini" offset="3,1,4,3" />
-			<state icon="visibilityoff" tooltipres="ct_tooltip_shownpcon" />
-			<state icon="visibilityon" tooltipres="ct_tooltip_shownpcoff" />
-			<invisible/>
-			<script>
-				function onValueChanged()
-					window.onVisibilityChanged();
-				end
-			</script>
-		</buttonfield>
-	</template>
-
-	<!-- =================================================================================================================== -->
 	<!-- Player combat tracker entry (Original) -->
 	<!-- =================================================================================================================== -->
 	<template name="base_clientct_health">

@@ -10,9 +10,6 @@ function onInit()
 	if Session.IsHost then
 		registerMenuItem(Interface.getString("menu_rest"), "lockvisibilityon", 7)
 	end
-
-	-- local nodeChar = getDatabaseNode();
-	-- CharEncumbranceManager5E.updateEncumbranceLimit(nodeChar);
 end
 
 -- ===================================================================================================================

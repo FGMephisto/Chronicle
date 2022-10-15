@@ -102,5 +102,24 @@
 	<!-- =================================================================================================================== -->
 	<windowclass name="npc_header" merge="join">
 		<margins control="0,0,0,2" />
+		<sheetdata>
+			<label name="nonid_name_label">
+				<anchored to="name" position="belowleft" offset="0,10" />
+				<static textres="npc_label_unidentified" />
+			</label>
+
+			<string_record_name_id name="nonid_name">
+				<!-- <anchored to="name" position="below" offset="0,15" /> -->
+				<anchored to="nonid_name_label">
+					<top offset="-2" />
+					<left offset="90" />
+					<right to="name" anchor="right" offset="-105" />
+				</anchored>
+				<frame name="fielddark" offset="7,5,7,5" />
+				<!-- <multilinespacing>20</multilinespacing> -->
+				<nodrag />
+				<delaykeyupdate />
+			</string_record_name_id>
+		</sheetdata>
 	</windowclass>
 </root>
