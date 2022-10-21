@@ -30,14 +30,23 @@
 
 			<frame_record_content_tabbed name="contentframe" />
 
+			<!-- <ft_record name="text"> -->
+				<!-- <anchored to="contentframe" position="over" /> -->
+				<!-- <invisible /> -->
+			<!-- </ft_record> -->
+
+			<subwindow_record name="main_creature">
+				<class>npc_combat</class>
+			</subwindow_record>
+
 			<ft_record name="text">
 				<anchored to="contentframe" position="over" />
 				<invisible />
 			</ft_record>
 
-			<!-- <scrollbar_record> -->
-				<!-- <target>main_creature</target> -->
-			<!-- </scrollbar_record> -->
+			<scrollbar_record>
+				<target>main_creature</target>
+			</scrollbar_record>
 
 			<scrollbar_record>
 				<target>text</target>
@@ -62,6 +71,11 @@
 
 			<tabs_charsheet name="tabs">
 				<tab>
+					<icon>tab_main</icon>
+					<subwindow>main_creature</subwindow>
+				</tab>
+
+				<tab>
 					<icon>tab_skills</icon>
 					<subwindow>skills</subwindow>
 				</tab>
@@ -81,11 +95,6 @@
 					<subwindow>actions</subwindow>
 				</tab>
 
-				<!-- <tab> -->
-					<!-- <icon>tab_main</icon> -->
-					<!-- <subwindow>main_creature</subwindow> -->
-				<!-- </tab> -->
-
 				<tab>
 					<icon>tab_other</icon>
 					<subwindow>text</subwindow>
@@ -102,24 +111,322 @@
 	<!-- =================================================================================================================== -->
 	<windowclass name="npc_header" merge="join">
 		<margins control="0,0,0,2" />
-		<sheetdata>
-			<label name="nonid_name_label">
-				<anchored to="name" position="belowleft" offset="0,10" />
-				<static textres="npc_label_unidentified" />
-			</label>
+	</windowclass>
 
-			<string_record_name_id name="nonid_name">
-				<!-- <anchored to="name" position="below" offset="0,15" /> -->
-				<anchored to="nonid_name_label">
-					<top offset="-2" />
-					<left offset="90" />
-					<right to="name" anchor="right" offset="-105" />
-				</anchored>
-				<frame name="fielddark" offset="7,5,7,5" />
-				<!-- <multilinespacing>20</multilinespacing> -->
-				<nodrag />
+	<!-- =================================================================================================================== -->
+	<!-- NPC Combat -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npc_combat">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_chronicle.lua" />
+
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="nonid_name_label">
+				<static textres="npc_label_unidentified" />
+			</label_column>
+			<string_columnh name="nonid_name" />
+
+			<line_column name="divider" />
+			
+			<label_column name="size_label">
+				<static textres="npc_label_size" />
+			</label_column>
+
+			<string_columnh name="size">
+				<script>
+					function onValueChanged()
+						window.onSummaryChanged();
+					end
+				</script>
+			</string_columnh>
+			
+			<label_column name="type_label">
+				<static textres="npc_label_type" />
+			</label_column>
+			<string_columnh name="type">
 				<delaykeyupdate />
-			</string_record_name_id>
+				<script>
+					function onValueChanged()
+						window.onSummaryChanged();
+					end
+				</script>
+			</string_columnh>
+
+			<label_column name="summary_label">
+				<anchored>
+					<top relation="relative" />
+				</anchored>
+				<font>reference-b-large</font>
+			</label_column>
+
+			<line_column />
+
+			<!-- Abilities -->
+			<number_npc_abilityscore name="agility" source="abilities.agility.score">
+				<anchored merge="replace" width="40" height="30">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
+					<left offset="15" />
+				</anchored>
+
+				<target>agility</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="agility" />
+				<static textres="AGI" />
+				<tooltip textres="char_skills_tooltip_agility" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="animalhandling" source="abilities.animalhandling.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>animalhandling</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="animalhandling" />
+				<static textres="ANI" />
+				<tooltip textres="char_skills_tooltip_animalhandling" />
+			</label_npc_abilityscore>
+		
+			<number_npc_abilityscore name="athletics" source="abilities.athletics.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>athletics</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="athletics" />
+				<static textres="ATH" />
+				<tooltip textres="char_skills_tooltip_athletics" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="awareness" source="abilities.awareness.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>awareness</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="awareness" />
+				<static textres="AWA" />
+				<tooltip textres="char_skills_tooltip_awareness" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="cunning" source="abilities.cunning.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>cunning</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="cunning" />
+				<static textres="CUN" />
+				<tooltip textres="char_skills_tooltip_cunning" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="deception" source="abilities.deception.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>deception</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="deception" />
+				<static textres="DEC" />
+				<tooltip textres="char_skills_tooltip_deception" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="endurance" source="abilities.endurance.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>endurance</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="endurance" />
+				<static textres="END" />
+				<tooltip textres="char_skills_tooltip_endurance" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="fighting" source="abilities.fighting.score">
+				<anchored merge="replace" width="40" height="30">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
+					<left offset="15" />
+				</anchored>
+				<target>fighting</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="fighting" />
+				<static textres="FIG" />
+				<tooltip textres="char_skills_tooltip_fighting" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="healing" source="abilities.healing.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>healing</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="healing" />
+				<static textres="HEA" />
+				<tooltip textres="char_skills_tooltip_healing" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="knowledge" source="abilities.knowledge.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>knowledge</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="knowledge" />
+				<static textres="KNO" />
+				<tooltip textres="char_skills_tooltip_knowledge" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="language" source="abilities.language.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>language</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="language" />
+				<static textres="LAN" />
+				<tooltip textres="char_skills_tooltip_language" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="marksmanship" source="abilities.marksmanship.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>marksmanship</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="marksmanship" />
+				<static textres="MAR" />
+				<tooltip textres="char_skills_tooltip_marksmanship" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="persuasion" source="abilities.persuasion.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>persuasion</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="persuasion" />
+				<static textres="PER" />
+				<tooltip textres="char_skills_tooltip_persuasion" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="status" source="abilities.status.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+
+				<target>status</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="status" />
+				<static textres="STA" />
+				<tooltip textres="char_skills_tooltip_status" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="stealth" source="abilities.stealth.score">
+				<anchored merge="replace" width="40" height="30">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
+					<left offset="70" />
+				</anchored>
+				<target>stealth</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="stealth" />
+				<static textres="STE" />
+				<tooltip textres="char_skills_tooltip_stealth" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="survival" source="abilities.survival.score">
+				<anchored to="stealth">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>survival</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="survival" />
+				<static textres="SUR" />
+				<tooltip textres="char_skills_tooltip_survival" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="thievery" source="abilities.thievery.score">
+				<anchored to="stealth">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>thievery</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="thievery" />
+				<static textres="THI" />
+				<tooltip textres="char_skills_tooltip_thievery" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="warfare" source="abilities.warfare.score">
+				<anchored to="stealth">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>warfare</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="warfare" />
+				<static textres="WAR" />
+				<tooltip textres="char_skills_tooltip_warfare" />
+			</label_npc_abilityscore>
+
+			<number_npc_abilityscore name="will" source="abilities.will.score">
+				<anchored to="stealth">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>will</target>
+			</number_npc_abilityscore>
+			<label_npc_abilityscore>
+				<anchored to="will" />
+				<static textres="WIL" />
+				<tooltip textres="char_skills_tooltip_will" />
+			</label_npc_abilityscore>
+
+			<!-- Anchor -->
+			<line_column>
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
+				</anchored>
+			</line_column>
+
+			<!-- Skills	-->
+			<!-- <label_column name="skills_label"> -->
+				<!-- <static textres="npc_label_skills" /> -->
+			<!-- </label_column> -->
+			<!-- <string_columnh name="skills" > -->
+				<!-- <script file="campaign/scripts/npc_skill.lua" /> -->
+			<!-- </string_columnh> -->
 		</sheetdata>
 	</windowclass>
 </root>

@@ -173,4 +173,39 @@
 			</script>
 		</windowlist>
 	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="label_npc_abilityscore">
+		<label_abilityscore />
+	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<template name="number_npc_abilityscore">
+		<number_abilityscore>
+			<anchored to="statstitle" width="40" height="30">
+				<top anchor="bottom" relation="relative" offset="18" />
+				<left anchor="center" offset="-20" />
+			</anchored>
+			<rollable />
+			<script>
+				function action(draginfo)
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+					ActionCheck.performRoll(draginfo, rActor, self.target[1]);
+					return true;
+				end
+
+				function onDragStart(button, x, y, draginfo)
+					action(draginfo);
+					return true;
+				end
+					
+				function onButtonPress()
+					action();
+					return true;
+				end
+			</script>
+		</number_abilityscore>
+	</template>
 </root>

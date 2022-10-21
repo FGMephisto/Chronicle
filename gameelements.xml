@@ -27,15 +27,15 @@
 			<left offset="320" />
 		</anchored>
 	</panel>
-	<die name="d6" version="&lt;4.3">
-		<icon>d6icon</icon>
-		<position>445,-70</position>
-	</die>
+	<!-- <die name="d6" version="&lt;4.3"> -->
+		<!-- <icon>d6icon</icon> -->
+		<!-- <position>445,-70</position> -->
+	<!-- </die> -->
 
-	<die name="d6">
-		<icon>d6icon</icon>
-		<position>360,-70</position>
-	</die>
+	<!-- <die name="d6"> -->
+		<!-- <icon>d6icon</icon> -->
+		<!-- <position>360,-70</position> -->
+	<!-- </die> -->
 
 	<die name="dF" merge="delete" />
 	<die name="rF" merge="delete" />

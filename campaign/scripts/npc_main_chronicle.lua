@@ -60,9 +60,9 @@ function update()
 	updateControl("type", bReadOnly, bReadOnly)
 	summary_label.setVisible(bReadOnly)
 
-	ac.setReadOnly(bReadOnly)
-	hp.setReadOnly(bReadOnly)
-	speed.setReadOnly(bReadOnly)
+	-- ac.setReadOnly(bReadOnly)
+	-- hp.setReadOnly(bReadOnly)
+	-- speed.setReadOnly(bReadOnly)
 	
 	updateControl("agility", bReadOnly)
 	updateControl("animalhandling", bReadOnly)
@@ -84,11 +84,7 @@ function update()
 	updateControl("warfare", bReadOnly)
 	updateControl("will", bReadOnly)
 
-
-	updateControl("skills", bReadOnly)
-	updateControl("senses", bReadOnly)
-	updateControl("languages", bReadOnly)
-	updateControl("qualities", bReadOnly)
+	-- updateControl("skills", bReadOnly)
 	
 	-- if bReadOnly then
 		-- header_actions.setVisible(bShow)
