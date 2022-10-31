@@ -5,13 +5,7 @@
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onInit()
-	-- Interface.onDesktopInit = onDesktopInit;
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onDesktopInit()
+function onTabletopInit()
 	-- DB.addHandler("charsheet.*.size", "onUpdate", CharEncumbranceManager5E.onSizeChange);
 	-- DB.addHandler("charsheet.*.abilities.strength.score", "onUpdate", CharEncumbranceManager5E.onStrengthChange);
 	-- DB.addHandler("charsheet.*.featurelist.*.name", "onUpdate", CharEncumbranceManager5E.onAbilityFieldChange);

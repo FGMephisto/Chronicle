@@ -41,7 +41,7 @@
 		<color value="000000" />
 	</font>
 
-	<!-- Override CoreRPG -->
+	<!-- Override CoreRPG ruleset graphics -->
 	<!-- Modifier Stack -->
 	<font name="modcollector">
 		<ttf file="graphics/fonts/Noto_Sans/NotoSans-Bold.ttf" name="Noto Sans Bold" size="24" />

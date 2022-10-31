@@ -7,22 +7,6 @@
 -->
 
 <root>
-	<!-- Custom - Ruleset -->
-	<icon name="rulesetlogo_chronicle" file="graphics/icons_new/chronicle_system_guild.png" />
-
-	<!-- Custom - Combat -->
-	<icon name="char_abdominal-armor" file="graphics/icons_new/abdominal-armor.png" />
-	<icon name="char_injuries" file="graphics/icons_new/arm-bandage.png" />
-	<icon name="char_trauma" file="graphics/icons_new/arm-sling.png" />
-	<!-- <icon name="char_armor" file="graphics/icons_new/breastplate.png" /> -->
-	<icon name="char_armor" file="graphics/icons_new/abdominal-armor.png" />
-	<icon name="char_health" file="graphics/icons_new/heart.png" />
-	<icon name="char_damage" file="graphics/icons_new/heart-minus.png" />
-	<icon name="char_fatigue" file="graphics/icons_new/oppression.png" />
-	<icon name="char_move" file="graphics/icons_new/walk.png" />
-	<icon name="char_sprint" file="graphics/icons_new/run.png" />
-	<icon name="char_cd" file="graphics/icons_new/surrounded-shield.png" />
-
 	<!-- Common -->
 	<icon name="question" file="graphics/icons/question.png" />
 	<icon name="actions" file="graphics/icons/actions.png" />
@@ -59,7 +43,7 @@
 	<icon name="visibilityon" file="graphics/icons/visibilityon.png" />
 	<icon name="visibilityoff" file="graphics/icons/visibilityoff.png" />
 	
-	<!-- Character Sheet -->
+	<!-- Character Sheet - Modified -->
 	<icon name="char_weapon_melee" file="graphics/icons/char_weapon_melee.png" />
 	<icon name="char_weapon_ranged" file="graphics/icons/char_weapon_ranged.png" />
 	<icon name="char_weapon_thrown" file="graphics/icons/char_weapon_thrown.png" />
@@ -96,7 +80,8 @@
 	<icon name="minimized_charequipment" file="graphics/icons/minimized_charequipment.png" />
 	<icon name="minimized_charnotes" file="graphics/icons/minimized_charnotes.png" />
 
-	<!-- Override CoreRPG -->
+	<!-- Override CoreRPG ruleset graphics -->
+
 	<!-- Common -->
 	<icon name="window_resize_filled" file="graphics/icons/window_resize_filled.png" />
 	<icon name="button_expand" file="graphics/icons/exp.png" />
@@ -110,4 +95,20 @@
 	
 	<!-- Dice tower -->
 	<icon name="dicetower_icon" file="graphics/icons/dicetower_icon.png" />
+
+	<!-- Custom - Ruleset -->
+	<icon name="rulesetlogo_chronicle" file="graphics/icons_new/chronicle_system_guild.png" />
+
+	<!-- Custom - Combat -->
+	<icon name="char_abdominal-armor" file="graphics/icons_new/abdominal-armor.png" />
+	<icon name="char_injuries" file="graphics/icons_new/arm-bandage.png" />
+	<icon name="char_trauma" file="graphics/icons_new/arm-sling.png" />
+	<!-- <icon name="char_armor" file="graphics/icons_new/breastplate.png" /> -->
+	<icon name="char_armor" file="graphics/icons_new/abdominal-armor.png" />
+	<icon name="char_health" file="graphics/icons_new/heart.png" />
+	<icon name="char_damage" file="graphics/icons_new/heart-minus.png" />
+	<icon name="char_fatigue" file="graphics/icons_new/oppression.png" />
+	<icon name="char_move" file="graphics/icons_new/walk.png" />
+	<icon name="char_sprint" file="graphics/icons_new/run.png" />
+	<icon name="char_cd" file="graphics/icons_new/surrounded-shield.png" />
 </root>

@@ -10,17 +10,9 @@ local bDragging = nil;
 local hoverAbility = nil;
 local clickAbility = nil;
 
-function getPowerNode()	
-	local nodePower = window.getDatabaseNode();
-	if not nodePower then
-		nodePower = window.windowlist.window.getDatabaseNode();
-	end
-	return nodePower;
-end
-
 function getActor()
-	local nodePower = getPowerNode();
-	local nodeCreature = nodePower.getChild("...");
+	local wTop = UtilityManager.getTopWindow(window);
+	local nodeCreature = wTop.getDatabaseNode();
 	return ActorManager.resolveActor(nodeCreature);
 end
 

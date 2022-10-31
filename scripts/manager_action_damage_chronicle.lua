@@ -1,7 +1,7 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System.
+-- File adjusted for Chronicle System
 --
 
 OOB_MSGTYPE_APPLYDMG = "applydmg";
@@ -231,8 +231,6 @@ end
 function setupModRoll(rRoll, rActor, rTarget)
 -- Step 4
 	-- Debug.chat("FN: setupModRoll in manager_action_damage")
-
-	-- ToDo: Interesting
 	-- ActionDamage.decodeDamageTypes(rRoll);
 	-- CombatManager2.addRightClickDiceToClauses(rRoll);
 
@@ -323,11 +321,6 @@ function applyDmgEffectsToModRoll(rRoll, rActor, rTarget)
 					if rClause.reroll then
 						table.insert(rClause.reroll, 0);
 					end
-					if vDie:sub(1,1) == "-" then
-						table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
-					else
-						table.insert(rRoll.aDice, "p" .. vDie:sub(2));
-					end
 				end
 
 				rRoll.nEffectMod = rRoll.nEffectMod + v.mod;
@@ -345,6 +338,12 @@ function applyDmgEffectsToModRoll(rRoll, rActor, rTarget)
 				rClause.dmgtype = table.concat(aEffectDmgType, ",");
 
 				table.insert(rRoll.clauses, rClause);
+
+				local tDiceData = {
+					dmgtype = rClause.dmgtype,
+					iconcolor = "FF00FF",
+				};
+				DiceRollManager.addDamageDice(rRoll.aDice, rClause.dice, tDiceData);
 			end
 		end
 	end
@@ -411,19 +410,8 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 	
 	-- Double the dice, and add extra critical dice
 	local aNewClauses = {};
-	local aNewDice = {};
 	local nMaxSides = 0;
 	local nMaxClause = 0;
-	local nMaxDieIndex = 0;
-
-	-- Insert the original dice
-	local nOldDieIndex = 1;
-	for _,vClause in ipairs(rRoll.clauses) do
-		for _,vDie in ipairs(vClause.dice) do
-			table.insert(aNewDice, rRoll.aDice[nOldDieIndex]);
-			nOldDieIndex = nOldDieIndex + 1;
-		end
-	end
 
 	-- Add critical dice by clause
 	for kClause,vClause in ipairs(rRoll.clauses) do
@@ -441,11 +429,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 			local aCritClauseDice = {};
 			local aCritClauseReroll = {};
 			for kDie,vDie in ipairs(vClause.dice) do
-				if vDie:sub(1,1) == "-" then
-					table.insert(aNewDice, "-g" .. vDie:sub(3));
-				else
-					table.insert(aNewDice, "g" .. vDie:sub(2));
-				end
 				table.insert(aCritClauseDice, vDie);
 				if vClause.reroll then
 					table.insert(aCritClauseReroll, vClause.reroll[kDie]);
@@ -475,7 +458,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 				
 				if bNewMax then
 					nMaxClause = #aNewClauses;
-					nMaxDieIndex = #aNewDice + 1;
 				end
 			end
 		end
@@ -495,7 +477,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 		
 		if nCritDice > 0 then
 			for i = 1, nCritDice do
-				table.insert(aNewDice, nMaxDieIndex, "g" .. nMaxSides);
 				table.insert(aNewClauses[nMaxClause].dice, "d" .. nMaxSides);
 				if aNewClauses[nMaxClause].reroll then
 					table.insert(aNewClauses[nMaxClause].reroll, aNewClauses[nMaxClause].reroll[1]);
@@ -506,8 +487,13 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 	local aFinalClauses = {};
 	for _,vClause in ipairs(aNewClauses) do
 		table.insert(rRoll.clauses, vClause);
+
+		local tDiceData = {
+			dmgtype = vClause.dmgtype,
+			iconcolor = "00FF00",
+		};
+		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, tDiceData);
 	end
-	rRoll.aDice = aNewDice;
 end
 
 -- ===================================================================================================================
@@ -542,17 +528,13 @@ function applyFixedDamageOptionToModRoll(rRoll, rActor, rTarget)
 			vClause.dice = {};
 			nFixedMod = nFixedMod + nClauseFixedMod;
 		else
-			for _,vDie in ipairs(vClause.dice) do
-				if vClause.bCritical then
-					if vDie:sub(1,1) == "-" then
-						table.insert(aFixedDice, "-g" .. vDie:sub(3));
-					else
-						table.insert(aFixedDice, "g" .. vDie:sub(2));
-					end
-				else
-					table.insert(aFixedDice, vDie);
-				end
+			local tDiceData = {
+				dmgtype = vClause.dmgtype,
+			};
+			if vClause.bCritical then
+				tDiceData.iconcolor = "00FF00";
 			end
+			DiceRollManager.addDamageDice(aFixedDice, vClause.dice, tDiceData);
 		end
 		
 		table.insert(aFixedClauses, vClause);
@@ -599,8 +581,8 @@ end
 -- ===================================================================================================================
 -- NOTE: Dice determined randomly, instead of rolled
 -- ===================================================================================================================
-function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
-	local tTargetedDamage = EffectManager5E.getEffectsBonusByType(rSource, "DMG", true, rDamageOutput.aDamageFilter, rTarget, true);
+function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rActor, rTarget)
+	local tTargetedDamage = EffectManager5E.getEffectsBonusByType(rActor, "DMG", true, rDamageOutput.aDamageFilter, rTarget, true);
 
 	local nDamageEffectTotal = 0;
 	local nDamageEffectCount = 0;
@@ -645,9 +627,9 @@ end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
+function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rActor, rTarget)
 	local tAddDmgTypes = {};
-	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rSource, "DMGTYPE", nil, rTarget, true);
+	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rActor, "DMGTYPE", nil, rTarget, true);
 	for _,rEffectComp in ipairs(tDmgTypeEffects) do
 		for _,v in ipairs(rEffectComp.remainder) do
 			local tSplitDmgTypes = StringManager.split(v, ",", true);
@@ -713,24 +695,25 @@ function decodeDamageTypes(rRoll, bFinal)
 		end
 		for kDie,vDie in ipairs(rClause.dice) do
 			nMainDieIndex = nMainDieIndex + 1;
-			if rRoll.aDice[nMainDieIndex] then
+			local tDie = rRoll.aDice[nMainDieIndex];
+			if tDie then
 				if bFinal and 
 						rClause.reroll and rClause.reroll[kDie] and 
-						rRoll.aDice[nMainDieIndex].result and 
-						(math.abs(rRoll.aDice[nMainDieIndex].result) <= rClause.reroll[kDie]) then
-					local nDieSides = tonumber(string.match(rRoll.aDice[nMainDieIndex].type, "[%-%+]?[a-z](%d+)")) or 0;
+						tDie.result and 
+						(math.abs(tDie.result) <= rClause.reroll[kDie]) then
+					local nDieSides = tonumber(string.match(tDie.type, "[%-%+]?[a-z](%d+)")) or 0;
 					if nDieSides > 0 then
-						table.insert(aRerollOutput, "D" .. nMainDieIndex .. "=" .. rRoll.aDice[nMainDieIndex].result);
+						table.insert(aRerollOutput, "D" .. nMainDieIndex .. "=" .. tDie.result);
 						local nSubtotal = math.random(nDieSides);
-						if rRoll.aDice[nMainDieIndex].result < 0 then
-							rRoll.aDice[nMainDieIndex].result = -nSubtotal;
+						if tDie.result < 0 then
+							tDie.result = -nSubtotal;
 						else
-							rRoll.aDice[nMainDieIndex].result = nSubtotal;
+							tDie.result = nSubtotal;
 						end
-						rRoll.aDice[nMainDieIndex].value = nil;
+						tDie.value = nil;
 					end
 				end
-				rClause.nTotal = rClause.nTotal + (rRoll.aDice[nMainDieIndex].result or 0);
+				rClause.nTotal = rClause.nTotal + (tDie.result or 0);
 			end
 		end
 		
@@ -1100,6 +1083,30 @@ function decodeDamageText(nDamage, sDamageDesc)
 	-- Debug.chat("FN: decodeDamageText in manager_action_damage")
 	local rDamageOutput = {};
 
+	-- if string.match(sDamageDesc, "%[RECOVERY") then
+		-- rDamageOutput.sType = "recovery";
+		-- rDamageOutput.sTypeOutput = "Recovery";
+		-- rDamageOutput.sVal = string.format("%01d", nDamage);
+		-- rDamageOutput.nVal = nDamage;
+
+	-- elseif string.match(sDamageDesc, "%[HEAL") then
+		-- if string.match(sDamageDesc, "%[TEMP%]") then
+			-- rDamageOutput.sType = "temphp";
+			-- rDamageOutput.sTypeOutput = "Temporary hit points";
+		-- else
+			-- rDamageOutput.sType = "heal";
+			-- rDamageOutput.sTypeOutput = "Heal";
+		-- end
+		-- rDamageOutput.sVal = string.format("%01d", nDamage);
+		-- rDamageOutput.nVal = nDamage;
+
+	-- elseif nDamage < 0 then
+		-- rDamageOutput.sType = "heal";
+		-- rDamageOutput.sTypeOutput = "Heal";
+		-- rDamageOutput.sVal = string.format("%01d", (0 - nDamage));
+		-- rDamageOutput.nVal = 0 - nDamage;
+
+	-- else
 	rDamageOutput.sType = "damage";
 	rDamageOutput.sTypeOutput = "Damage";
 	rDamageOutput.sVal = string.format("%01d", nDamage);
@@ -1117,6 +1124,24 @@ function decodeDamageText(nDamage, sDamageDesc)
 	elseif rDamageOutput.sRange == "R" then
 		table.insert(rDamageOutput.aDamageFilter, "ranged");
 	end
+
+	-- Determine damage energy types
+	-- local nDamageRemaining = nDamage;
+	-- rDamageOutput.aDamageTypes = {};
+	-- for sDamageType, sDamageDice, sDamageSubTotal in string.gmatch(sDamageDesc, "%[TYPE: ([^(]*) %(([%d%+%-dD]+)%=(%d+)%)%]") do
+		-- local nDamageSubTotal = (tonumber(sDamageSubTotal) or 0);
+		-- rDamageOutput.aDamageTypes[sDamageType] = nDamageSubTotal + (rDamageOutput.aDamageTypes[sDamageType] or 0);
+		-- if not rDamageOutput.sFirstDamageType then
+			-- rDamageOutput.sFirstDamageType = sDamageType;
+		-- end
+		
+		-- nDamageRemaining = nDamageRemaining - nDamageSubTotal;
+	-- end
+	-- if nDamageRemaining > 0 then
+		-- rDamageOutput.aDamageTypes[""] = nDamageRemaining;
+	-- elseif nDamageRemaining < 0 then
+		-- ChatManager.SystemMessage("Total mismatch in damage type totals");
+	-- end
 
 	return rDamageOutput;
 end
@@ -1293,8 +1318,8 @@ function messageDamage(rActor, rTarget, rRoll)
 		return;
 	end
 	
-	local msgShort = { font = "msgfont" }
-	local msgLong = { font = "msgfont" }
+	local msgShort = { font = "msgfont" };
+	local msgLong = { font = "msgfont" };
 
 	-- Standard roll information
 	msgShort.text = string.format("[%s", rRoll.sDamageText);

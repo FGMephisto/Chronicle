@@ -1,13 +1,31 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System.
+-- File adjusted for Chronicle System
 --
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
+	registerDiceRolls();
 	registerOptions()
+end
+
+-- ===================================================================================================================
+-- ===================================================================================================================
+function registerDiceRolls()
+	DiceRollManager.registerDamageTypeKey("acid", "life");
+	DiceRollManager.registerDamageTypeKey("cold", "frost");
+	DiceRollManager.registerDamageTypeKey("fire", "fire");
+	DiceRollManager.registerDamageTypeKey("force", "arcane");
+	DiceRollManager.registerDamageTypeKey("lightning", "lightning");
+	DiceRollManager.registerDamageTypeKey("necrotic", "shadow");
+	DiceRollManager.registerDamageTypeKey("poison", "life");
+	DiceRollManager.registerDamageTypeKey("psychic", "shadow");
+	DiceRollManager.registerDamageTypeKey("radiant", "light");
+	DiceRollManager.registerDamageTypeKey("thunder", "storm");
+
+	DiceRollManager.registerHealKey("light");
 end
 
 -- ===================================================================================================================

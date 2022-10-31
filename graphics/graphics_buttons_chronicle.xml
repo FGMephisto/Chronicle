@@ -14,11 +14,6 @@
 	<icon name="button_dialog_cancel_down" file="graphics/buttons/button_dialog_cancel_down.png" />
 	<icon name="button_dialog_roll" file="graphics/buttons/button_dialog_roll.png" />
 	<icon name="button_dialog_roll_down" file="graphics/buttons/button_dialog_roll_down.png" />
-	
-	<!-- Character wizard -->
-	<icon name="button_alert" file="graphics/buttons/button_window_alert.png" />
-	<icon name="button_selectedspell_add" file="graphics/buttons/button_charwizard_selectedspell_add.png" />
-	<icon name="button_selectedspell_add_down" file="graphics/buttons/button_charwizard_selectedspell_add_down.png" />
 
 	<!-- Character Sheet -->
 	<icon name="button_prof" file="graphics/buttons/button_prof.png" />
@@ -29,14 +24,14 @@
 	<icon name="button_weapon_down" file="graphics/buttons/button_weapon_down.png" />
 	<icon name="button_star" file="graphics/buttons/button_star.png" />
 	<icon name="button_star_down" file="graphics/buttons/button_star_down.png" />
-	
+
 	<!-- Encounters -->
 	<icon name="button_enc_refreshcr" file="graphics/buttons/button_ctnextround.png" />
 	<icon name="button_enc_refreshcr_down" file="graphics/buttons/button_ctnextround_down.png" />
 	<icon name="button_enc_refreshxp" file="graphics/buttons/button_ctnextround.png" />
 	<icon name="button_enc_refreshxp_down" file="graphics/buttons/button_ctnextround_down.png" />
 
-	<!-- Weapons -->
+	<!-- Weapons - Modified -->
 	<icon name="button_success_degree_1" file="graphics/buttons_new/degree_of_sucess_1.png" />
 	<icon name="button_success_degree_2" file="graphics/buttons_new/degree_of_sucess_2.png" />
 	<icon name="button_success_degree_3" file="graphics/buttons_new/degree_of_sucess_3.png" />
