@@ -12,7 +12,6 @@ function setIcon(sIcon)
 	end
 	
 	if sIcon then
-		widget = addBitmapWidget(sIcon);
-		widget.setPosition("topleft", 2, 8);
+		widget = addBitmapWidget({ icon = sIcon, position="topleft", x = 2, y = 8 });
 	end
 end

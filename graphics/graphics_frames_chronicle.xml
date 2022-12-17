@@ -55,22 +55,35 @@
 
 	<!-- Override CoreRPG ruleset graphics -->
 
-	<!-- Desktop background -->
+	<!-- Desktop background 5E Desktop.png -->
+	<!-- <framedef name="desktop"> -->
+		<!-- <bitmap file="graphics/frames/desktop.png" /> -->
+		<!-- <topleft rect="0,0,15,15" /> -->
+		<!-- <top rect="15,0,485,15" /> -->
+		<!-- <left rect="0,15,15,485" /> -->
+		<!-- <middle rect="15,15,485,485" /> -->
+		<!-- <bottomleft rect="0,500,15,15" /> -->
+		<!-- <bottom rect="15,500,480,15" /> -->
+	<!-- </framedef> -->
+
+	<!-- <framedef name="shortcuts"> -->
+		<!-- <bitmap file="graphics/frames/desktop.png" /> -->
+		<!-- <left rect="500,25,15,490" /> -->
+		<!-- <middle rect="515,0,100,500" /> -->
+		<!-- <right rect="500,25,11,490" /> -->
+	<!-- </framedef> -->
+
+	<!-- Desktop background 4E Desktop.png -->
 	<framedef name="desktop">
 		<bitmap file="graphics/frames/desktop.png" />
-		<topleft rect="0,0,15,15" />
-		<top rect="15,0,485,15" />
-		<left rect="0,15,15,485" />
-		<middle rect="15,15,485,485" />
-		<bottomleft rect="0,500,15,15" />
-		<bottom rect="15,500,480,15" />
+		<middle rect="0,0,512,512" />
 	</framedef>
 
 	<framedef name="shortcuts">
 		<bitmap file="graphics/frames/desktop.png" />
-		<left rect="500,25,15,490" />
-		<middle rect="515,0,100,500" />
-		<right rect="500,25,11,490" />
+		<left rect="512,0,25,512" />
+		<middle rect="537,0,50,512" />
+		<right rect="587,0,25,512" />
 	</framedef>
 
 	<!-- Sidebar -->
