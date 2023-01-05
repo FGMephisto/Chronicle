@@ -38,7 +38,7 @@
 			<subwindow_record name="main_creature">
 				<class>npc_combat</class>
 			</subwindow_record>
-
+			
 			<ft_record name="text">
 				<anchored to="contentframe" position="over" />
 				<invisible />
@@ -47,7 +47,7 @@
 			<scrollbar_record>
 				<target>main_creature</target>
 			</scrollbar_record>
-
+			
 			<scrollbar_record>
 				<target>text</target>
 			</scrollbar_record>

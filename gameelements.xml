@@ -24,7 +24,7 @@
 	<!-- Dice -->
 	<panel name="dicepanel" merge="join">
 		<anchored>
-			<left offset="320" />
+			<left offset="330" />
 		</anchored>
 	</panel>
 
