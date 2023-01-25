@@ -79,12 +79,12 @@ function constructDefaultSkills()
 		-- Get skill names from all existing list items
 		local sLabel = w.name.getValue()
 
-		-- Check if the skill name matches to a skill maintained in DataCommon.lua (i.e. is not custom skill)
+		-- Check if the skill name matches a skill maintained in DataCommon.lua (i.e. is not custom skill)
 		if DataCommon.skilldata[sLabel] then
-			-- Add skill and window instance to entrymap table if the skill is not present yet
+			-- Add skill and window instance to entrymap table if the skill is not present yet else
+			-- store skill and window instance in entrymap table if the skill is already present
 			if not entrymap[sLabel] then
 				entrymap[sLabel] = { w }
-			-- Update skill with window instance in entrymap table if the skill is already present
 			else
 				table.insert(entrymap[sLabel], w)
 			end
