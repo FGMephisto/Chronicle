@@ -239,9 +239,9 @@
 		<tooltip control="name" />
 
 		<sheetdata>
-			<windowtitlebar_char name="title">
+			<windowtitlebar_charsheethelper name="title">
 				<prefix>weapon_title</prefix>
-			</windowtitlebar_char>
+			</windowtitlebar_charsheethelper>
 
 			<anchor_title_charsheethelper name="contentanchor" />
 			

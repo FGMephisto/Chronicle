@@ -4,35 +4,53 @@
 -- File adjusted for Chronicle System
 --
 
-local m_sClass = ""
-local m_sRecord = ""
-
 WEAPON_PROP_TWOHANDED = "twohanded"
 WEAPON_PROP_OFFHAND = "offhand"
 WEAPON_PROP_DEFENSIVE = "defensive"
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = DB.getChild(nodeWeapon, "...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...");
 
-	DB.addHandler(nodeWeapon.getPath(), "onChildUpdate", onDataChanged)
-	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged)
-	DB.addHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged)
+	DB.addHandler(nodeWeapon, "onChildUpdate", onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged);
 
-	onDataChanged()
+	onDataChanged();
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onClose()
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = DB.getChild(nodeWeapon, "...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...");
 
-	DB.removeHandler(nodeWeapon.getPath(), "onChildUpdate", onDataChanged)
-	DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged)
-	DB.removeHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged)
+	DB.removeHandler(nodeWeapon, "onChildUpdate", onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged);
+end
+
+local m_sClass = "";
+local m_sRecord = "";
+
+-- ===================================================================================================================
+-- ===================================================================================================================
+function onLinkChanged()
+	local node = getDatabaseNode();
+	local sClass, sRecord = DB.getValue(node, "shortcut", "", "");
+
+	if sClass ~= m_sClass or sRecord ~= m_sRecord then
+		m_sClass = sClass;
+		m_sRecord = sRecord;
+		
+		local sInvList = DB.getPath(DB.getChild(node, "..."), "inventorylist") .. ".";
+		if sRecord:sub(1, #sInvList) == sInvList then
+			carried.setLink(DB.findNode(DB.getPath(sRecord, "carried")));
+		end
+	end
 end
 
 -- ===================================================================================================================
@@ -69,27 +87,10 @@ end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onLinkChanged()
-	local node = getDatabaseNode()
-	local sClass, sRecord = DB.getValue(node, "shortcut", "", "")
-
-	if sClass ~= m_sClass or sRecord ~= m_sRecord then
-		m_sClass = sClass
-		m_sRecord = sRecord
-		
-		local sInvList = DB.getPath(DB.getChild(node, "..."), "inventorylist") .. "."
-		if sRecord:sub(1, #sInvList) == sInvList then
-			carried.setLink(DB.findNode(DB.getPath(sRecord, "carried")))
-		end
-	end
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function onAttackChanged()
 	-- Debug.chat("FN: onAttackChanged in char_weapon")
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = nodeWeapon.getChild("...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...")
 	local nMod = DB.getValue(nodeWeapon, "atk_mod", 0)
 	local nStat, nSkill, nPenalty, nBonus = CharWeaponManager.getAttackBonus(nodeChar, nodeWeapon)
 
@@ -130,49 +131,49 @@ end
 -- ===================================================================================================================
 function onAttackAction(draginfo)
 	-- Debug.chat("FN: onAttackAction in char_weapon")
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = nodeWeapon.getChild("...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...")
 
 	-- Build basic attack action record
-	local rAction = CharWeaponManager.buildAttackAction(nodeChar, nodeWeapon)
+	local rAction = CharWeaponManager.buildAttackAction(nodeChar, nodeWeapon);
 	
 	-- Decrement ammo
-	CharWeaponManager.decrementAmmo(nodeChar, nodeWeapon)
+	CharWeaponManager.decrementAmmo(nodeChar, nodeWeapon);
 	
 	-- Perform action
-	local rActor = ActorManager.resolveActor(nodeChar)
-	ActionAttack.performRoll(draginfo, rActor, rAction)
-	return true
+	local rActor = ActorManager.resolveActor(nodeChar);
+	ActionAttack.performRoll(draginfo, rActor, rAction);
+	return true;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onDamageChanged()
 	-- Debug.chat("FN: onDamageChanged in char_weapon")
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = nodeWeapon.getChild("...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...")
 
 	-- Get weapon damage
-	local nDamage = tonumber(CharWeaponManager.buildDamageString(nodeChar, nodeWeapon))
+	local nDamage = tonumber(CharWeaponManager.buildDamageString(nodeChar, nodeWeapon));
 
 	-- Set control value
-	dmg_total.setValue(nDamage)
+	dmg_total.setValue(nDamage);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onDamageAction(draginfo)
 	-- Debug.chat("FN: onDamageAction in char_weapon")
-	local nodeWeapon = getDatabaseNode()
-	local nodeChar = nodeWeapon.getChild("...")
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...")
 
 	-- Build basic damage action record
-	local rAction = CharWeaponManager.buildDamageAction(nodeChar, nodeWeapon)
+	local rAction = CharWeaponManager.buildDamageAction(nodeChar, nodeWeapon);
 	
 	-- Perform damage action
-	local rActor = ActorManager.resolveActor(nodeChar)
-	ActionDamage.performRoll(draginfo, rActor, rAction)
-	return true
+	local rActor = ActorManager.resolveActor(nodeChar);
+	ActionDamage.performRoll(draginfo, rActor, rAction);
+	return true;
 end
 
 -- ===================================================================================================================
@@ -180,7 +181,7 @@ end
 function updateDefenseBonus()
 	-- Debug.chat("FN: updateDefenseBonus in char_weapon")
 	local nodeWeapon = getDatabaseNode()
-	local nodeChar = nodeWeapon.getChild("...")
+	local nodeChar = DB.getChild(nodeWeapon, "...")
 	local nDefenseBonus = 0
 	local nPropertyValue = 0
 

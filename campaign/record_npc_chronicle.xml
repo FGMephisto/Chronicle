@@ -30,11 +30,6 @@
 
 			<frame_record_content_tabbed name="contentframe" />
 
-			<!-- <ft_record name="text"> -->
-				<!-- <anchored to="contentframe" position="over" /> -->
-				<!-- <invisible /> -->
-			<!-- </ft_record> -->
-
 			<subwindow_record name="main_creature">
 				<class>npc_combat</class>
 			</subwindow_record>

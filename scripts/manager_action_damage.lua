@@ -1,14 +1,11 @@
 -- 
--- Please see the license.html file included with this distribution for
+-- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
--- File adjusted for Chronicle System.
 --
 
 OOB_MSGTYPE_APPLYDMG = "applydmg";
 OOB_MSGTYPE_APPLYDMGSTATE = "applydmgstate";
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMG, handleApplyDamage);
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMGSTATE, handleApplyDamageState);
@@ -18,31 +15,17 @@ function onInit()
 	ActionsManager.registerResultHandler("damage", onDamage);
 end
 
--- ===================================================================================================================
--- Modified
--- ===================================================================================================================
 function handleApplyDamage(msgOOB)
--- Step 12
-	-- Debug.chat("FN: handleApplyDamage in manager_action_damage")
-	local rActor = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
-	rActor.sWeaponQualities = msgOOB.sWeaponQualities
-
 	if rTarget then
 		rTarget.nOrder = msgOOB.nTargetOrder;
 	end
 	
 	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
-	ActionDamage.applyDamage(rActor, rTarget, rRoll);
+	ActionDamage.applyDamage(rSource, rTarget, rRoll);
 end
-
--- ===================================================================================================================
--- Modified
--- Communicate damage roll to Clients
--- ===================================================================================================================
-function notifyApplyDamage(rActor, rTarget, rRoll)
--- Step 11
-	-- Debug.chat("FN: notifyApplyDamage in manager_action_damage")
+function notifyApplyDamage(rSource, rTarget, rRoll)
 	if not rTarget then
 		return;
 	end
@@ -51,55 +34,40 @@ function notifyApplyDamage(rActor, rTarget, rRoll)
 
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionDamage.OOB_MSGTYPE_APPLYDMG;
-	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rActor);
+	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
 	msgOOB.nTargetOrder = rTarget.nOrder;
-	msgOOB.sWeaponQualities = rActor.sWeaponQualities
 
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
--- Modified
--- ===================================================================================================================
 function getRoll(rActor, rAction)
--- Step 2
-	-- Debug.chat("FN: getRoll in manager_action_damage")
 	local rRoll = {};
 	rRoll.sType = "damage";
 	rRoll.aDice = {};
 	rRoll.nMod = 0;
 	rRoll.bWeapon = rAction.bWeapon;
-	rRoll.nDoS = DB.getValue(rAction.nodeWeapon, "dmg_multiplier", "number", 0) + 1
-
-	-- ToDo: Do we need these?
+	
 	rRoll.sLabel = rAction.label;
 	rRoll.nOrder = rAction.order;
 	rRoll.sRange = rAction.range;
 	rRoll.range = rAction.range; -- Legacy
-
+	
 	rRoll.sDesc = "[DAMAGE";
-
-	-- Save sWeaponQualities to rActor to pass it down in the process
-	rActor.sWeaponQualities = DB.getValue(rAction.nodeWeapon, "wpn_qualities", "")
-
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
 	end
-
 	if rAction.range then
 		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range ..")";
 	end
 	rRoll.sDesc = rRoll.sDesc .. "] " .. rAction.label;
-
+	
 	-- Save the damage properties in the roll structure
 	rRoll.clauses = rAction.clauses;
-
+	
 	-- Add the dice and modifiers
 	for _,vClause in ipairs(rRoll.clauses) do
-		for _,vDie in ipairs(vClause.dice) do
-			table.insert(rRoll.aDice, vDie);
-		end
+		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, { dmgtype = vClause.dmgtype });
 		rRoll.nMod = rRoll.nMod + vClause.modifier;
 	end
 	
@@ -109,47 +77,39 @@ function getRoll(rActor, rAction)
 	
 	-- Encode the damage types
 	ActionDamage.encodeDamageTypes(rRoll);
-
+	
 	return rRoll;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function performRoll(draginfo, rActor, rAction)
 	local rRoll = ActionDamage.getRoll(rActor, rAction);
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function modDamage(rActor, rTarget, rRoll)
-	ActionDamage.setupModRoll(rRoll, rActor, rTarget);
+function modDamage(rSource, rTarget, rRoll)
+	ActionDamage.setupModRoll(rRoll, rSource, rTarget);
 
-	if rActor then
-		ActionDamage.applyAbilityEffectsToModRoll(rRoll, rActor, rTarget);
-		ActionDamage.applyDmgEffectsToModRoll(rRoll, rActor, rTarget);
+	if rSource then
+		ActionDamage.applyAbilityEffectsToModRoll(rRoll, rSource, rTarget);
+		ActionDamage.applyDmgEffectsToModRoll(rRoll, rSource, rTarget);
 		ActionDamage.applyEffectModNotificationToModRoll(rRoll);
 
-		ActionDamage.applyDmgTypeEffectsToModRoll(rRoll, rActor, rTarget);
+		ActionDamage.applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget);
 	end
 	
 	if rRoll.bCritical then
-		ActionDamage.applyCriticalToModRoll(rRoll, rActor, rTarget);
+		ActionDamage.applyCriticalToModRoll(rRoll, rSource, rTarget);
 	end
 	
-	if ActorManager.isRecordType(rActor, "npc") and OptionsManager.isOption("NPCD", "fixed") then
-		ActionDamage.applyFixedDamageOptionToModRoll(rRoll, rActor, rTarget);
+	if ActorManager.isRecordType(rSource, "npc") and OptionsManager.isOption("NPCD", "fixed") then
+		ActionDamage.applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget);
 	end
 
-	ActionDamage.applyModifierKeysToModRoll(rRoll, rActor, rTarget);
+	ActionDamage.applyModifierKeysToModRoll(rRoll, rSource, rTarget);
 	
 	ActionDamage.finalizeModRoll(rRoll);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onDamageRoll(rActor, rRoll)
+function onDamageRoll(rSource, rRoll)
 	-- Handle max damage
 	local bMax = rRoll.sDesc:match("%[MAX%]");
 	if bMax then
@@ -185,10 +145,7 @@ function onDamageRoll(rActor, rRoll)
 	
 	ActionDamage.decodeDamageTypes(rRoll, true);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onDamage(rActor, rTarget, rRoll)
+function onDamage(rSource, rTarget, rRoll)
 	-- Rebuild detail fields if dragging from chat window
 	if not rRoll.nOrder then
 		rRoll.nOrder = tonumber(rRoll.sDesc:match("%[DAMAGE.*#%d+")) or nil;
@@ -201,7 +158,7 @@ function onDamage(rActor, rTarget, rRoll)
 		rRoll.sLabel = StringManager.trim(rRoll.sDesc:match("%[DAMAGE.*%]([^%[]+)"));
 	end
 
-	local rMessage = ActionsManager.createActionMessage(rActor, rRoll);
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = string.gsub(rMessage.text, " %[MOD:[^]]*%]", "");
 
 	-- Send the chat message
@@ -216,20 +173,21 @@ function onDamage(rActor, rTarget, rRoll)
 	-- Apply damage to the PC or CT entry referenced
 	rRoll.nTotal = ActionsManager.total(rRoll);
 	rRoll.sDesc = rMessage.text;
-	ActionDamage.notifyApplyDamage(rActor, rTarget, rRoll);
+	ActionDamage.notifyApplyDamage(rSource, rTarget, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- MOD ROLL HELPERS
--- ===================================================================================================================
-function setupModRoll(rRoll, rActor, rTarget)
+--
+
+function setupModRoll(rRoll, rSource, rTarget)
 	ActionDamage.decodeDamageTypes(rRoll);
 	CombatManager2.addRightClickDiceToClauses(rRoll);
 	
 	rRoll.tNotifications = {};
 
 	rRoll.bCritical = rRoll.bCritical or ModifierManager.getKey("DMG_CRIT") or Input.isShiftPressed();
-	if ActionAttack.isCrit(rActor, rTarget) then
+	if ActionAttack.isCrit(rSource, rTarget) then
 		rRoll.bCritical = true;
 	end
 	rRoll.tAttackFilter = {};
@@ -244,13 +202,10 @@ function setupModRoll(rRoll, rActor, rTarget)
 	rRoll.tEffectDice = {};
 	rRoll.nEffectMod = 0;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyAbilityEffectsToModRoll(rRoll, rActor, rTarget)
+function applyAbilityEffectsToModRoll(rRoll, rSource, rTarget)
 	-- NOTE: Ability effects do not support targeting
 	for _,rClause in ipairs(rRoll.clauses) do
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rActor, rClause.stat);
+		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, rClause.stat);
 		if nBonusEffects > 0 then
 			rRoll.bEffects = true;
 			local nMult = rClause.statmult or 1;
@@ -263,11 +218,8 @@ function applyAbilityEffectsToModRoll(rRoll, rActor, rTarget)
 		end
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyDmgEffectsToModRoll(rRoll, rActor, rTarget)
-	local tDmgEffects, nDmgEffects = EffectManager5E.getEffectsBonusByType(rActor, "DMG", true, rRoll.tAttackFilter, rTarget);
+function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
+	local tDmgEffects, nDmgEffects = EffectManager5E.getEffectsBonusByType(rSource, "DMG", true, rRoll.tAttackFilter, rTarget);
 	if nDmgEffects > 0 then
 		local sEffectBaseType = "";
 		if #(rRoll.clauses) > 0 then
@@ -301,11 +253,6 @@ function applyDmgEffectsToModRoll(rRoll, rActor, rTarget)
 					if rClause.reroll then
 						table.insert(rClause.reroll, 0);
 					end
-					if vDie:sub(1,1) == "-" then
-						table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
-					else
-						table.insert(rRoll.aDice, "p" .. vDie:sub(2));
-					end
 				end
 
 				rRoll.nEffectMod = rRoll.nEffectMod + v.mod;
@@ -323,13 +270,16 @@ function applyDmgEffectsToModRoll(rRoll, rActor, rTarget)
 				rClause.dmgtype = table.concat(aEffectDmgType, ",");
 
 				table.insert(rRoll.clauses, rClause);
+
+				local tDiceData = {
+					dmgtype = rClause.dmgtype,
+					iconcolor = "FF00FF",
+				};
+				DiceRollManager.addDamageDice(rRoll.aDice, rClause.dice, tDiceData);
 			end
 		end
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function applyEffectModNotificationToModRoll(rRoll)
 	if rRoll.bEffects then
 		local sEffects = "";
@@ -342,12 +292,9 @@ function applyEffectModNotificationToModRoll(rRoll)
 		table.insert(rRoll.tNotifications, sEffects);
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyDmgTypeEffectsToModRoll(rRoll, rActor, rTarget)
+function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
 	local tAddDmgTypes = {};
-	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rActor, "DMGTYPE", nil, rTarget);
+	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rSource, "DMGTYPE", nil, rTarget);
 	for _,rEffectComp in ipairs(tDmgTypeEffects) do
 		for _,v in ipairs(rEffectComp.remainder) do
 			local tSplitDmgTypes = StringManager.split(v, ",", true);
@@ -375,27 +322,13 @@ function applyDmgTypeEffectsToModRoll(rRoll, rActor, rTarget)
 		table.insert(rRoll.tNotifications, sNotification);
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyCriticalToModRoll(rRoll, rActor, rTarget)
+function applyCriticalToModRoll(rRoll, rSource, rTarget)
 	table.insert(rRoll.tNotifications, "[CRITICAL]");
 	
 	-- Double the dice, and add extra critical dice
 	local aNewClauses = {};
-	local aNewDice = {};
 	local nMaxSides = 0;
 	local nMaxClause = 0;
-	local nMaxDieIndex = 0;
-
-	-- Insert the original dice
-	local nOldDieIndex = 1;
-	for _,vClause in ipairs(rRoll.clauses) do
-		for _,vDie in ipairs(vClause.dice) do
-			table.insert(aNewDice, rRoll.aDice[nOldDieIndex]);
-			nOldDieIndex = nOldDieIndex + 1;
-		end
-	end
 
 	-- Add critical dice by clause
 	for kClause,vClause in ipairs(rRoll.clauses) do
@@ -413,11 +346,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 			local aCritClauseDice = {};
 			local aCritClauseReroll = {};
 			for kDie,vDie in ipairs(vClause.dice) do
-				if vDie:sub(1,1) == "-" then
-					table.insert(aNewDice, "-g" .. vDie:sub(3));
-				else
-					table.insert(aNewDice, "g" .. vDie:sub(2));
-				end
 				table.insert(aCritClauseDice, vDie);
 				if vClause.reroll then
 					table.insert(aCritClauseReroll, vClause.reroll[kDie]);
@@ -447,7 +375,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 				
 				if bNewMax then
 					nMaxClause = #aNewClauses;
-					nMaxDieIndex = #aNewDice + 1;
 				end
 			end
 		end
@@ -455,7 +382,7 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 	if nMaxSides > 0 then
 		local nCritDice = 0;
 		if rRoll.bWeapon then
-			local sSourceNodeType, nodeSource = ActorManager.getTypeAndNode(rActor);
+			local sSourceNodeType, nodeSource = ActorManager.getTypeAndNode(rSource);
 			if nodeSource and (sSourceNodeType == "pc") then
 				if rRoll.sRange == "R" then
 					nCritDice = DB.getValue(nodeSource, "weapon.critdicebonus.ranged", 0);
@@ -467,7 +394,6 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 		
 		if nCritDice > 0 then
 			for i = 1, nCritDice do
-				table.insert(aNewDice, nMaxDieIndex, "g" .. nMaxSides);
 				table.insert(aNewClauses[nMaxClause].dice, "d" .. nMaxSides);
 				if aNewClauses[nMaxClause].reroll then
 					table.insert(aNewClauses[nMaxClause].reroll, aNewClauses[nMaxClause].reroll[1]);
@@ -478,13 +404,15 @@ function applyCriticalToModRoll(rRoll, rActor, rTarget)
 	local aFinalClauses = {};
 	for _,vClause in ipairs(aNewClauses) do
 		table.insert(rRoll.clauses, vClause);
-	end
-	rRoll.aDice = aNewDice;
-end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function applyFixedDamageOptionToModRoll(rRoll, rActor, rTarget)
+		local tDiceData = {
+			dmgtype = vClause.dmgtype,
+			iconcolor = "00FF00",
+		};
+		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, tDiceData);
+	end
+end
+function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
 	local aFixedClauses = {};
 	local aFixedDice = {};
 	local nFixedPositiveCount = 0;
@@ -513,17 +441,13 @@ function applyFixedDamageOptionToModRoll(rRoll, rActor, rTarget)
 			vClause.dice = {};
 			nFixedMod = nFixedMod + nClauseFixedMod;
 		else
-			for _,vDie in ipairs(vClause.dice) do
-				if vClause.bCritical then
-					if vDie:sub(1,1) == "-" then
-						table.insert(aFixedDice, "-g" .. vDie:sub(3));
-					else
-						table.insert(aFixedDice, "g" .. vDie:sub(2));
-					end
-				else
-					table.insert(aFixedDice, vDie);
-				end
+			local tDiceData = {
+				dmgtype = vClause.dmgtype,
+			};
+			if vClause.bCritical then
+				tDiceData.iconcolor = "00FF00";
 			end
+			DiceRollManager.addDamageDice(aFixedDice, vClause.dice, tDiceData);
 		end
 		
 		table.insert(aFixedClauses, vClause);
@@ -533,10 +457,7 @@ function applyFixedDamageOptionToModRoll(rRoll, rActor, rTarget)
 	rRoll.aDice = aFixedDice;
 	rRoll.nMod = rRoll.nMod + nFixedMod;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyModifierKeysToModRoll(rRoll, rActor, rTarget)
+function applyModifierKeysToModRoll(rRoll, rSource, rTarget)
 	if ModifierManager.getKey("DMG_MAX") then
 		table.insert(rRoll.tNotifications, "[MAX]");
 	end
@@ -544,9 +465,6 @@ function applyModifierKeysToModRoll(rRoll, rActor, rTarget)
 		table.insert(rRoll.tNotifications, "[HALF]");
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function finalizeModRoll(rRoll)
 	if #(rRoll.tNotifications) > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(rRoll.tNotifications, " ");
@@ -562,13 +480,13 @@ function finalizeModRoll(rRoll)
 	ActionsManager2.encodeDesktopMods(rRoll);
 end
 
--- ===================================================================================================================
+--
 -- APPLY DAMAGE EFFECT HELPERS
--- ===================================================================================================================
+--
+
 -- NOTE: Dice determined randomly, instead of rolled
--- ===================================================================================================================
-function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rActor, rTarget)
-	local tTargetedDamage = EffectManager5E.getEffectsBonusByType(rActor, "DMG", true, rDamageOutput.aDamageFilter, rTarget, true);
+function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
+	local tTargetedDamage = EffectManager5E.getEffectsBonusByType(rSource, "DMG", true, rDamageOutput.aDamageFilter, rTarget, true);
 
 	local nDamageEffectTotal = 0;
 	local nDamageEffectCount = 0;
@@ -610,12 +528,9 @@ function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rActor, rTarget)
 
 	rDamageOutput.nVal = rDamageOutput.nVal + nDamageEffectTotal;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rActor, rTarget)
+function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 	local tAddDmgTypes = {};
-	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rActor, "DMGTYPE", nil, rTarget, true);
+	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rSource, "DMGTYPE", nil, rTarget, true);
 	for _,rEffectComp in ipairs(tDmgTypeEffects) do
 		for _,v in ipairs(rEffectComp.remainder) do
 			local tSplitDmgTypes = StringManager.split(v, ",", true);
@@ -646,9 +561,10 @@ function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rActor, rTarge
 	end
 end
 
--- ===================================================================================================================
+--
 -- UTILITY FUNCTIONS
--- ===================================================================================================================
+--
+
 function encodeDamageTypes(rRoll)
 	for _,vClause in ipairs(rRoll.clauses) do
 		if vClause.dmgtype and vClause.dmgtype ~= "" then
@@ -657,9 +573,6 @@ function encodeDamageTypes(rRoll)
 		end
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function decodeDamageTypes(rRoll, bFinal)
 	-- Process each type clause in the damage description (INITIAL ROLL)
 	local nMainDieIndex = 0;
@@ -681,24 +594,25 @@ function decodeDamageTypes(rRoll, bFinal)
 		end
 		for kDie,vDie in ipairs(rClause.dice) do
 			nMainDieIndex = nMainDieIndex + 1;
-			if rRoll.aDice[nMainDieIndex] then
+			local tDie = rRoll.aDice[nMainDieIndex];
+			if tDie then
 				if bFinal and 
 						rClause.reroll and rClause.reroll[kDie] and 
-						rRoll.aDice[nMainDieIndex].result and 
-						(math.abs(rRoll.aDice[nMainDieIndex].result) <= rClause.reroll[kDie]) then
-					local nDieSides = tonumber(string.match(rRoll.aDice[nMainDieIndex].type, "[%-%+]?[a-z](%d+)")) or 0;
+						tDie.result and 
+						(math.abs(tDie.result) <= rClause.reroll[kDie]) then
+					local nDieSides = tonumber(string.match(tDie.type, "[%-%+]?[a-z](%d+)")) or 0;
 					if nDieSides > 0 then
-						table.insert(aRerollOutput, "D" .. nMainDieIndex .. "=" .. rRoll.aDice[nMainDieIndex].result);
+						table.insert(aRerollOutput, "D" .. nMainDieIndex .. "=" .. tDie.result);
 						local nSubtotal = math.random(nDieSides);
-						if rRoll.aDice[nMainDieIndex].result < 0 then
-							rRoll.aDice[nMainDieIndex].result = -nSubtotal;
+						if tDie.result < 0 then
+							tDie.result = -nSubtotal;
 						else
-							rRoll.aDice[nMainDieIndex].result = nSubtotal;
+							tDie.result = nSubtotal;
 						end
-						rRoll.aDice[nMainDieIndex].value = nil;
+						tDie.value = nil;
 					end
 				end
-				rClause.nTotal = rClause.nTotal + (rRoll.aDice[nMainDieIndex].result or 0);
+				rClause.nTotal = rClause.nTotal + (tDie.result or 0);
 			end
 		end
 		
@@ -823,9 +737,7 @@ function decodeDamageTypes(rRoll, bFinal)
 	end
 end
 
--- ===================================================================================================================
 -- Collapse damage clauses by damage type (in the original order, if possible)
--- ===================================================================================================================
 function getDamageStrings(clauses)
 	local aOrderedTypes = {};
 	local aDmgTypes = {};
@@ -850,9 +762,6 @@ function getDamageStrings(clauses)
 	
 	return aOrderedTypes;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function getDamageTypesFromString(sDamageTypes)
 	local sLower = string.lower(sDamageTypes);
 	local aSplit = StringManager.split(sLower, ",", true);
@@ -867,9 +776,10 @@ function getDamageTypesFromString(sDamageTypes)
 	return aDamageTypes;
 end
 
--- ===================================================================================================================
+--
 -- DAMAGE APPLICATION
--- ===================================================================================================================
+--
+
 function checkReductionTypeHelper(rMatch, aDmgType)
 	if not rMatch or (rMatch.mod ~= 0) then
 		return false;
@@ -886,9 +796,6 @@ function checkReductionTypeHelper(rMatch, aDmgType)
 	end
 	return true;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function checkReductionType(aReduction, aDmgType)
 	for _,sDmgType in pairs(aDmgType) do
 		if ActionDamage.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamage.checkReductionTypeHelper(aReduction["all"], aDmgType) then
@@ -898,9 +805,6 @@ function checkReductionType(aReduction, aDmgType)
 	
 	return false;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
 	if not rMatch or (rMatch.mod == 0) then
 		return 0;
@@ -933,9 +837,6 @@ function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
 	
 	return nAdjust;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function checkNumericalReductionType(aReduction, aDmgType, nLimit)
 	local nAdjust = 0;
 	
@@ -953,18 +854,15 @@ function checkNumericalReductionType(aReduction, aDmgType, nLimit)
 	
 	return nAdjust;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function getDamageAdjust(rActor, rTarget, nDamage, rDamageOutput)
+function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 	local nDamageAdjust = 0;
 	local bVulnerable = false;
 	local bResist = false;
 	
 	-- Get damage adjustment effects
-	local aVuln = ActorManager5E.getDamageVulnerabilities(rTarget, rActor);
-	local aResist = ActorManager5E.getDamageResistances(rTarget, rActor);
-	local aImmune = ActorManager5E.getDamageImmunities(rTarget, rActor);
+	local aVuln = ActorManager5E.getDamageVulnerabilities(rTarget, rSource);
+	local aResist = ActorManager5E.getDamageResistances(rTarget, rSource);
+	local aImmune = ActorManager5E.getDamageImmunities(rTarget, rSource);
 	
 	-- Handle immune all
 	if aImmune["all"] then
@@ -1061,8 +959,6 @@ function getDamageAdjust(rActor, rTarget, nDamage, rDamageOutput)
 	return nDamageAdjust, bVulnerable, bResist;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function decodeDamageText(nDamage, sDamageDesc)
 	local rDamageOutput = {};
 	
@@ -1129,9 +1025,7 @@ function decodeDamageText(nDamage, sDamageDesc)
 	return rDamageOutput;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function applyDamage(rActor, rTarget, rRoll)
+function applyDamage(rSource, rTarget, rRoll)
 	local sTargetNodeType, nodeTarget = ActorManager.getTypeAndNode(rTarget);
 	if not nodeTarget then
 		return;
@@ -1257,9 +1151,9 @@ function applyDamage(rActor, rTarget, rRoll)
 	-- Damage
 	else
 		-- Apply any targeted damage effects 
-		if rActor and rTarget and rTarget.nOrder then
-			ActionDamage.applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rActor, rTarget);
-			ActionDamage.applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rActor, rTarget);
+		if rSource and rTarget and rTarget.nOrder then
+			ActionDamage.applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget);
+			ActionDamage.applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarget);
 		end
 		
 		-- Handle avoidance/evasion and half damage
@@ -1267,7 +1161,7 @@ function applyDamage(rActor, rTarget, rRoll)
 		local isHalf = rRoll.sDesc:match("%[HALF%]");
 		local sAttack = rRoll.sDesc:match("%[DAMAGE[^]]*%] ([^[]+)");
 		if sAttack then
-			local sDamageState = ActionDamage.getDamageState(rActor, rTarget, StringManager.trim(sAttack));
+			local sDamageState = ActionDamage.getDamageState(rSource, rTarget, StringManager.trim(sAttack));
 			if sDamageState == "none" then
 				isAvoided = true;
 				bRemoveTarget = true;
@@ -1304,7 +1198,7 @@ function applyDamage(rActor, rTarget, rRoll)
 		
 		-- Apply damage type adjustments
 		rTarget.sSubtargetPath = rRoll.sSubtargetPath;
-		local nDamageAdjust, bVulnerable, bResist = ActionDamage.getDamageAdjust(rActor, rTarget, rDamageOutput.nVal, rDamageOutput);
+		local nDamageAdjust, bVulnerable, bResist = ActionDamage.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
 		local nAdjustedDamage = rDamageOutput.nVal + nDamageAdjust;
 		if nAdjustedDamage < 0 then
 			nAdjustedDamage = 0;
@@ -1389,7 +1283,7 @@ function applyDamage(rActor, rTarget, rRoll)
 				local aActualDamageTypes = StringManager.split(table.concat(aTempDamageTypes, ","), ",", true);
 				
 				-- Check target's effects for regeneration effects that match
-				for _,v in pairs(DB.getChildren(nodeTargetCT, "effects")) do
+				for _,v in ipairs(DB.getChildList(nodeTargetCT, "effects")) do
 					local nActive = DB.getValue(v, "isactive", 0);
 					if (nActive == 1) then
 						local bMatch = false;
@@ -1487,11 +1381,11 @@ function applyDamage(rActor, rTarget, rRoll)
 	rRoll.sDamageText = rDamageOutput.sTypeOutput;
 	rRoll.nTotal = rDamageOutput.nVal;
 	rRoll.sResults = table.concat(rDamageOutput.tNotifications, " ");
-	ActionDamage.messageDamage(rActor, rTarget, rRoll);
+	ActionDamage.messageDamage(rSource, rTarget, rRoll);
 
 	-- Remove target after applying damage
-	if bRemoveTarget and rActor and rTarget then
-		TargetingManager.removeTarget(ActorManager.getCTNodeName(rActor), ActorManager.getCTNodeName(rTarget));
+	if bRemoveTarget and rSource and rTarget then
+		TargetingManager.removeTarget(ActorManager.getCTNodeName(rSource), ActorManager.getCTNodeName(rTarget));
 	end
 
 	-- Check for required concentration checks
@@ -1504,10 +1398,7 @@ function applyDamage(rActor, rTarget, rRoll)
 		end
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function messageDamage(rActor, rTarget, rRoll)
+function messageDamage(rSource, rTarget, rRoll)
 	if not rTarget then
 		return;
 	end
@@ -1559,21 +1450,20 @@ function messageDamage(rActor, rTarget, rRoll)
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sResults);
 	end
 	
-	ActionsManager.outputResult(rRoll.bSecret, rActor, rTarget, msgLong, msgShort);
+	ActionsManager.outputResult(rRoll.bSecret, rSource, rTarget, msgLong, msgShort);
 end
 
--- ===================================================================================================================
+--
 -- TRACK DAMAGE STATE
--- ===================================================================================================================
+--
+
 local aDamageState = {};
 
--- ===================================================================================================================
--- ===================================================================================================================
-function applyDamageState(rActor, rTarget, sAttack, sState)
+function applyDamageState(rSource, rTarget, sAttack, sState)
 	local msgOOB = {};
 	msgOOB.type = OOB_MSGTYPE_APPLYDMGSTATE;
 	
-	msgOOB.sSourceNode = ActorManager.getCTNodeName(rActor);
+	msgOOB.sSourceNode = ActorManager.getCTNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCTNodeName(rTarget);
 	
 	msgOOB.sAttack = sAttack;
@@ -1581,27 +1471,21 @@ function applyDamageState(rActor, rTarget, sAttack, sState)
 
 	Comm.deliverOOBMessage(msgOOB, "");
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function handleApplyDamageState(msgOOB)
-	local rActor = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
 	
 	if Session.IsHost then
-		ActionDamage.setDamageState(rActor, rTarget, msgOOB.sAttack, msgOOB.sState);
+		ActionDamage.setDamageState(rSource, rTarget, msgOOB.sAttack, msgOOB.sState);
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function setDamageState(rActor, rTarget, sAttack, sState)
+function setDamageState(rSource, rTarget, sAttack, sState)
 	if not Session.IsHost then
-		ActionDamage.applyDamageState(rActor, rTarget, sAttack, sState);
+		ActionDamage.applyDamageState(rSource, rTarget, sAttack, sState);
 		return;
 	end
 	
-	local sSourceCT = ActorManager.getCTNodeName(rActor);
+	local sSourceCT = ActorManager.getCTNodeName(rSource);
 	local sTargetCT = ActorManager.getCTNodeName(rTarget);
 	if sSourceCT == "" or sTargetCT == "" then
 		return;
@@ -1618,11 +1502,8 @@ function setDamageState(rActor, rTarget, sAttack, sState)
 	end
 	aDamageState[sSourceCT][sAttack][sTargetCT] = sState;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function getDamageState(rActor, rTarget, sAttack)
-	local sSourceCT = ActorManager.getCTNodeName(rActor);
+function getDamageState(rSource, rTarget, sAttack)
+	local sSourceCT = ActorManager.getCTNodeName(rSource);
 	local sTargetCT = ActorManager.getCTNodeName(rTarget);
 	if sSourceCT == "" or sTargetCT == "" then
 		return "";

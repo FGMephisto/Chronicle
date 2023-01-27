@@ -6,16 +6,15 @@
 local bParsed = false;
 local aComponents = {};
 
+-- ===================================================================================================================
 -- The nDragMod and sDragLabel fields keep track of the entry under the cursor
+-- ===================================================================================================================
 local sDragLabel = nil;
 local nDragMod = nil;
 local bDragging = false;
 
--- Added to avoid crashes
-function onEnter()
-
-end
-
+-- ===================================================================================================================
+-- ===================================================================================================================
 function getCompletion(s)
 	-- Find a matching completion for the given string
 	for k,_ in pairs(DataCommon.skilldata) do
@@ -27,6 +26,8 @@ function getCompletion(s)
 	return "";
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function parseComponents()
 	aComponents = {};
 	
@@ -35,7 +36,7 @@ function parseComponents()
 	
 	-- Check each comma-separated string for a potential skill roll or auto-complete opportunity
 	for i = 1, #aClauses do
-		local nStarts, nEnds, sLabel, sSign, sMod = string.find(aClauses[i], "([%w%s\(\)]*[%w\(\)]+)%s*([%+%-–]?)(%d*)");
+		local nStarts, nEnds, sLabel, sSign, sMod = string.find(aClauses[i], "([%w%s%(%)]*[%w%(%)]+)%s*([%+%-–]?)(%d*)");
 		if nStarts then
 			-- Calculate modifier based on mod value and sign value, if any
 			local nAllowRoll = 0;
@@ -56,6 +57,8 @@ function parseComponents()
 	bParsed = true;
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onChar(nKeyCode)
 	bParsed = false;
 	
@@ -107,7 +110,9 @@ function onChar(nKeyCode)
 	end
 end
 
+-- ===================================================================================================================
 -- Reset selection when the cursor leaves the control
+-- ===================================================================================================================
 function onHover(bOnControl)
 	if bDragging or bOnControl then
 		return;
@@ -118,7 +123,9 @@ function onHover(bOnControl)
 	setSelectionPosition(0);
 end
 
+-- ===================================================================================================================
 -- Hilight skill hovered on
+-- ===================================================================================================================
 function onHoverUpdate(x, y)
 	if bDragging then
 		return;
@@ -148,6 +155,8 @@ function onHoverUpdate(x, y)
 	setHoverCursor("arrow");
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function action(draginfo)
 	if sDragLabel then
 		local rActor = ActorManager.resolveActor(window.getDatabaseNode());
@@ -155,11 +164,15 @@ function action(draginfo)
 	end
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onDoubleClick(x, y)
 	action();
 	return true;
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onDragStart(button, x, y, draginfo)
 	action(draginfo);
 
@@ -169,16 +182,22 @@ function onDragStart(button, x, y, draginfo)
 	return true;
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onDragEnd(draginfo)
 	bDragging = false;
 end
 
+-- ===================================================================================================================
 -- Suppress default processing to support dragging
+-- ===================================================================================================================
 function onClickDown(button, x, y)
 	return true;
 end
 
+-- ===================================================================================================================
 -- On mouse click, set focus, set cursor position and clear selection
+-- ===================================================================================================================
 function onClickRelease(button, x, y)
 	setFocus();
 	
@@ -187,4 +206,11 @@ function onClickRelease(button, x, y)
 	setCursorPosition(n);
 	
 	return true;
+end
+
+-- ===================================================================================================================
+-- Added to avoid crashes
+-- ===================================================================================================================
+function onEnter()
+
 end

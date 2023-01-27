@@ -23,7 +23,7 @@ function onInit()
 
 	-- Get correct nodeChar
 	local node = window.getDatabaseNode()
-	local nodeChar = node.getChild(actorpath[1])
+	local nodeChar = DB.getChild(node, actorpath[1])
 
 	-- Initialize sub-controls variables
 	local sControlName = ""
@@ -122,7 +122,7 @@ end
 function onClose()
 	-- Get correct nodeChar
 	local node = window.getDatabaseNode()
-	local nodeChar = node.getChild(actorpath[1])
+	local nodeChar = DB.getChild(node, actorpath[1])
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	-- Remove Ability and Skill handlers
@@ -135,7 +135,7 @@ end
 function onSourceUpdate(node)
 	-- Get correct nodeChar
 	local node = window.getDatabaseNode()
-	local nodeChar = node.getChild(actorpath[1])
+	local nodeChar = DB.getChild(node, actorpath[1])
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	-- Get Ability and Skill string values

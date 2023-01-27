@@ -6,7 +6,7 @@
 -->
 
 <root>
-	<!-- Section - Active (2022-08-16) -->
+	<!-- Section - Active -->
 	<windowclass name="client_ct_section_active_vehicle">
 		<script>
 			function updateHealthDisplay(sOption)

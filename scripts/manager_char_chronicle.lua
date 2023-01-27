@@ -206,13 +206,13 @@ function addProficiency(nodeChar, sType, sText)
 	end
 	
 	-- Make sure this item does not already exist
-	for _,vProf in pairs(nodeList.getChildren()) do
+	for _,vProf in pairs(DB.getChildren(nodeList) do
 		if DB.getValue(vProf, "name", "") == sText then
 			return vProf;
 		end
 	end
 	
-	local nodeEntry = nodeList.createChild();
+	local nodeEntry = DB.createChild(nodeList);
 	local sValue;
 	if sType == "armor" then
 		sValue = Interface.getString("char_label_addprof_armor");

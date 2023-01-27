@@ -65,7 +65,7 @@
 			<label_recordtype name="recordtype_label">
 				<script>
 					function onInit()
-						local sList = window.getDatabaseNode().getParent().getName()
+						local sList = DB.getName(DB.getParent(window.getDatabaseNode()));
 						
 						local sValue = ""
 						if sList == "skilllist" then

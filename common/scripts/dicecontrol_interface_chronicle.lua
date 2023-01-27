@@ -19,7 +19,7 @@ function action(draginfo)
 	local sType = self.rolltype
 	local sSkill = self.skill
 	local nodeSkill = window.getDatabaseNode()
-	local nodeActor = nodeSkill.getChild(sActorPath)
+	local nodeActor = DB.getChild(nodeSkill, sActorPath)
 	local rActor = ActorManager.resolveActor(nodeActor)
 
 	-- Determine what roll to perform based on sType

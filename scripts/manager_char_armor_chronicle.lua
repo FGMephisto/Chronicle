@@ -15,7 +15,7 @@ function addToArmorDB(nodeItem)
 
 	-- Determine whether to auto-equip armor
 	local bArmorAllowed = true
-	local nodeChar = nodeItem.getChild("...")
+	local nodeChar = DB.getChild(nodeItem, "...")
 
 	if bArmorAllowed then
 		local bArmorEquipped = false

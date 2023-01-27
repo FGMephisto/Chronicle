@@ -287,9 +287,9 @@
 		<nodelete />
 		<playercontrol />
 		<sheetdata>
-			<windowtitlebar_char name="title">
+			<windowtitlebar_charsheethelper name="title">
 				<prefix>char_combatcalc_title</prefix>
-			</windowtitlebar_char>
+			</windowtitlebar_charsheethelper>
 
 			<anchor_title_charsheethelper name="contentanchor" />
 

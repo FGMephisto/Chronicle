@@ -38,7 +38,7 @@ function handleClassSpecDrop(draginfo)
 		CampaignDataManager2.helperOldClassSpecializationCopy(draginfo.getDatabaseNode());
 		return true;
 	elseif LibraryData.isRecordDisplayClass("class", sClass) then
-		for _,nodeOldSpec in pairs(DB.getChildren(DB.getPath(sRecord, "abilities"))) do
+		for _,nodeOldSpec in ipairs(DB.getChildList(DB.getPath(sRecord, "abilities"))) do
 			CampaignDataManager2.helperOldClassSpecializationCopy(nodeOldSpec);
 		end
 		return true;
@@ -52,7 +52,7 @@ function handleRaceSubraceDrop(draginfo)
 
 	local sClass,sRecord = draginfo.getShortcutData();
 	if LibraryData.isRecordDisplayClass("race", sClass) then
-		for _,nodeOldSubrace in pairs(DB.getChildren(DB.getPath(sRecord, "subraces"))) do
+		for _,nodeOldSubrace in ipairs(DB.getChildList(DB.getPath(sRecord, "subraces"))) do
 			CampaignDataManager2.helperOldRaceSubraceCopy(nodeOldSubrace);
 		end
 		return true;
@@ -117,7 +117,7 @@ function updateNPCSpells(nodeNPC)
 	if not nodeNPC then
 		return;
 	end
-	if nodeNPC.isReadOnly() then
+	if DB.isReadOnly(nodeNPC) then
 		return;
 	end
 	
@@ -125,7 +125,7 @@ function updateNPCSpells(nodeNPC)
 		return;
 	end
 
-	for _,v in pairs(DB.getChildren(nodeNPC, "traits")) do
+	for _,v in ipairs(DB.getChildList(nodeNPC, "traits")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
 			updateNPCSpellcasting(nodeNPC, v);
@@ -134,7 +134,7 @@ function updateNPCSpells(nodeNPC)
 		end
 	end
 
-	for _,v in pairs(DB.getChildren(nodeNPC, "actions")) do
+	for _,v in ipairs(DB.getChildList(nodeNPC, "actions")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
 			updateNPCActionSpellcasting(nodeNPC, v);
@@ -178,11 +178,11 @@ function resetNPCSpellcastingSlots(nodeNPC, nodeTrait)
 	if not nodeNPC then
 		return;
 	end
-	if nodeNPC.isReadOnly() then
+	if DB.isReadOnly(nodeNPC) then
 		return;
 	end
 	
-	for _,v in pairs(DB.getChildren(nodeNPC, "traits")) do
+	for _,v in ipairs(DB.getChildList(nodeNPC, "traits")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
 			local rActor = ActorManager.resolveActor(nodeNPC);
@@ -258,7 +258,7 @@ function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 	-- See if we can find a matching node in any loaded module. If not, we're done.
 	local nodeRefSpell = nil;
 	if not nodeRefSpell then
-		for _,v in pairs(DB.getChildren("spell")) do
+		for _,v in ipairs(DB.getChildList("spell")) do
 			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
 			if sCleaned == sCheckCleaned then
 				nodeRefSpell = v;
@@ -267,7 +267,7 @@ function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 		end
 	end
 	if not nodeRefSpell then
-		for _,v in pairs(DB.getChildrenGlobal("reference.spelldata")) do
+		for _,v in ipairs(DB.getChildrenGlobal("reference.spelldata")) do
 			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
 			if sCleaned == sCheckCleaned then
 				nodeRefSpell = v;
@@ -276,7 +276,7 @@ function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 		end
 	end
 	if not nodeRefSpell then
-		for _,v in pairs(DB.getChildrenGlobal("spell")) do
+		for _,v in ipairs(DB.getChildrenGlobal("spell")) do
 			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
 			if sCleaned == sCheckCleaned then
 				nodeRefSpell = v;
@@ -370,7 +370,7 @@ function helperOldClassSpecializationCopy(nodeSource)
 		tFeatureLinks[sSourceFeatureLinkPath] = "";
 	end
 	local nodeFeatureList = DB.createChild(nodeTarget, "features");
-	for _,nodeSourceFeature in pairs(DB.getChildren(nodeClass, "features")) do
+	for _,nodeSourceFeature in ipairs(DB.getChildList(nodeClass, "features")) do
 		local sMatch = StringManager.trim(DB.getValue(nodeSourceFeature, "specialization", ""));
 		if sMatch == sClassSpec then
 			local nodeFeature = DB.createChild(nodeFeatureList);
@@ -412,7 +412,7 @@ function helperOldRaceSubraceCopy(nodeSource)
 		tTraitLinks[sSourceTraitLinkPath] = "";
 	end
 	local nodeTraitList = DB.createChild(nodeTarget, "traits");
-	for _,nodeSourceTrait in pairs(DB.getChildren(nodeSource, "traits")) do
+	for _,nodeSourceTrait in ipairs(DB.getChildList(nodeSource, "traits")) do
 		local nodeTrait = DB.createChild(nodeTraitList);
 		DB.setValue(nodeTrait, "name", "string", DB.getValue(nodeSourceTrait, "name", 0));
 		DB.setValue(nodeTrait, "text", "formattedtext", DB.getValue(nodeSourceTrait, "text", ""));

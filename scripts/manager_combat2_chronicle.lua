@@ -186,7 +186,7 @@ function parseNPCPower(rActor, nodePower, aEffects, bAllowSpellDataOverride)
 			local sRegen = "REGEN: " .. sRegenAmount
 			if #aRegenBlockTypes > 0 then
 				sRegen = sRegen .. " " .. table.concat(aRegenBlockTypes, ",")
-				EffectManager.addEffect("", "", nodePower.getChild("..."), { sName = sRegen, nDuration = 0, nGMOnly = 1 }, false)
+				EffectManager.addEffect("", "", DB.getChild(nodePower, "..."), { sName = sRegen, nDuration = 0, nGMOnly = 1 }, false)
 			else
 				table.insert(aEffects, sRegen)
 			end

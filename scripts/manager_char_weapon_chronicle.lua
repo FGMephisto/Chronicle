@@ -35,7 +35,7 @@ function addToWeaponDB(nodeItem)
 	end
 	
 	-- Get the weapon list we are going to add to
-	local nodeChar = nodeItem.getChild("...")
+	local nodeChar = DB.getChild(nodeItem, "...")
 	local nodeWeapons = nodeChar.createChild("weaponlist")
 
 	if not nodeWeapons then
@@ -177,8 +177,8 @@ end
 -- ===================================================================================================================
 function onItemIDChanged(nodeItemID)
 	-- Debug.chat("FN: onItemIDChanged in manager_char_weapon")
-	local nodeItem = nodeItemID.getChild("..")
-	local nodeChar = nodeItemID.getChild("....")
+	local nodeItem = DB.getChild(nodeItemID, "..")
+	local nodeChar = DB.getChild(nodeItemID, "....")
 	
 	local sPath = nodeItem.getPath()
 	

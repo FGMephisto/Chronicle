@@ -105,6 +105,7 @@
 	<script name="GameSystem" file="scripts/manager_gamesystem_chronicle.lua" />
 	<script name="ItemManager2" file="scripts/manager_item2_chronicle.lua" />
 	<script name="PowerManager" file="scripts/manager_power_chronicle.lua" />
+	<script name="PowerManager5E" file="scripts/manager_power_5E.lua" />
 	<script name="PartyManager2" file="scripts/manager_ps2_chronicle.lua" />
 	<script name="TokenManager2" file="scripts/manager_token2_chronicle.lua" />
 	<script name="VersionManager2" file="scripts/manager_version2_chronicle.lua" />

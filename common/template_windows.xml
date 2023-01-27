@@ -51,16 +51,6 @@
 			<disabled />
 		</genericcontrol>
 	</template>
-	<template name="anchor_title_charsheethelper">
-		<genericcontrol>
-			<anchored height="0">
-				<top parent="title" anchor="bottom" offset="0" />
-				<left parent="" anchor="left" offset="20" />
-				<right parent="" anchor="right" offset="-20" />
-			</anchored>
-			<disabled />
-		</genericcontrol>
-	</template>
 
 	<template name="tabs_charsheet">
 		<buttongroup_tabs name="tabs">
@@ -146,8 +136,8 @@
 	<template name="resize_charsheethelper">
 		<resize>
 			<anchored>
-				<right offset="-12" />
-				<bottom offset="-14" />
+				<right offset="-18" />
+				<bottom offset="-16" />
 			</anchored>
 		</resize>
 	</template>
@@ -253,8 +243,8 @@
 	<template name="close_charsheethelper">
 		<close>
 			<anchored>
-				<top offset="24" />
-				<right offset="-12" />
+				<top offset="20" />
+				<right offset="-20" />
 			</anchored>
 		</close>
 	</template>

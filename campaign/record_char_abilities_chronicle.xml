@@ -17,13 +17,13 @@
 				<tooltip textres="char_abilities_tooltip_edit" />
 				<script>
 					function onValueChanged()
-						local bEditMode = (getValue() == 1)
+						local bEditMode = (getValue() == 1);
 
-						window.contents.subwindow.feats.update()
+						window.contents.subwindow.feats.update();
 												 
 											   
 													  
-						window.contents.subwindow.languages.update()
+						window.contents.subwindow.languages.update();
 					end
 				</script>
 			</button_iedit>

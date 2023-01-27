@@ -102,7 +102,7 @@ function addPower(sClass, nodeSource, nodeCreature, sGroup)
 		DB.deleteChild(nodeNewPower, "level")
 		
 		-- Copy text to description
-		local nodeText = nodeNewPower.getChild("text")
+		local nodeText = DB.getChild(nodeNewPower, "text")
 		if nodeText then
 			local nodeDesc = nodeNewPower.createChild("description", "formattedtext")
 			DB.copyNode(nodeText, nodeDesc)

@@ -14,9 +14,9 @@
 		<script>
 			function onDrop(x, y, draginfo)
 				if contents.subwindow.weapons.onDrop(x, y, draginfo) then
-					return true
+					return true;
 				end
-				return false
+				return false;
 			end
 		</script>
 		<sheetdata>
@@ -25,7 +25,7 @@
 				<tooltip textres="char_tooltip_actionedit" />
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.weapons.update()
+						window.contents.subwindow.weapons.update();
 					end
 				</script>
 			</button_iedit>
@@ -36,7 +36,7 @@
 				<tooltip textres="char_tooltip_actionaddweapon" />
 				<script>
 					function onButtonPress()
-						window.contents.subwindow.weapons.addEntry(true)
+						window.contents.subwindow.weapons.addEntry(true);
 					end
 				</script>
 			</buttoncontrol>
@@ -53,7 +53,7 @@
 				<fastinit />
 			</subwindow>
 			<scrollbar_charcontents />
-	
+			
 			<button_stringcycler name="powermode">
 				<anchored position="insidebottomleft" width="80" offset="10,10" />
 				<parameters>
@@ -63,7 +63,7 @@
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.weapons.onModeChanged()
+						window.contents.subwindow.weapons.onModeChanged();
 					end
 				</script>
 			</button_stringcycler>
@@ -116,7 +116,7 @@
 				<tooltip textres="char_tooltip_dmg" />
 			</genericcontrol>
 
-			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
+			<!-- For compatibility reasons with 5E, we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
 			<basicnumber name="dmg" source="hp.wounds">
 				<anchored to="hp_icon" width="30" height="30">
 					<top anchor="top" offset="0" />
@@ -326,6 +326,7 @@
 				<anchored to="diceframe_dodge" />
 				<static textres="char_actions_label_dodge" />
 			</label_abilityscore>
+			
 			<!-- =================================================================================================================== -->
 			<!-- Weapons -->
 			<!-- =================================================================================================================== -->
@@ -354,7 +355,7 @@
 	<!-- =================================================================================================================== -->
 	<!-- Combat Details-->
 	<!-- =================================================================================================================== -->
-	<windowclass name="charsheet_combatcalc">
+	<windowclass name="char_weaponmeta">
 		<frame>charsheethelper</frame>
 		<placement>
 			<size width="500" height="240" />
@@ -362,9 +363,9 @@
 		<nodelete />
 		<playercontrol />
 		<sheetdata>
-			<windowtitlebar_char name="title">
-				<prefix>char_combatcalc_title</prefix>
-			</windowtitlebar_char>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>char_weaponmeta_title</prefix>
+			</windowtitlebar_charsheethelper>
 
 			<anchor_title_charsheethelper name="contentanchor" />
 

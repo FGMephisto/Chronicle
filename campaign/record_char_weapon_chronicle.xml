@@ -37,7 +37,7 @@
 				</anchored>
 			</button_idelete>
 
-			<button_details  name="activatedetail">
+			<button_details name="activatedetail">
 				<anchored to="rightanchor" width="20" height="20">
 					<top offset="8" />
 					<right anchor="left" relation="relative" offset="-3" />
@@ -65,15 +65,15 @@
 				<icon>spell_damage</icon>
 				<script>
 					function onInit()
-						setHoverCursor("hand")
+						setHoverCursor("hand");
 					end
 					
 					function onDoubleClick(x,y)
- 						return window.onDamageAction()
+						return window.onDamageAction();
 					end
 
 					function onDragStart(button, x, y, draginfo)
-						return window.onDamageAction(draginfo)
+						return window.onDamageAction(draginfo);
 					end
 
 					function onWheel(notches)
@@ -87,15 +87,15 @@
 				<readonly />
 				<script>
 					function onInit()
-						setHoverCursor("hand")
+						setHoverCursor("hand");
 					end
 					
 					function onDoubleClick(x,y)
- 						return window.onDamageAction()
+						return window.onDamageAction();
 					end
 
 					function onDragStart(button, x, y, draginfo)
-						return window.onDamageAction(draginfo)
+						return window.onDamageAction(draginfo);
 					end
 
 					function onWheel(notches)
@@ -247,9 +247,9 @@
 		<tooltip control="name" />
 
 		<sheetdata>
-			<windowtitlebar_char name="title">
+			<windowtitlebar_charsheethelper name="title">
 				<prefix>weapon_title</prefix>
-			</windowtitlebar_char>
+			</windowtitlebar_charsheethelper>
 
 			<anchor_title_charsheethelper name="contentanchor" />
 			

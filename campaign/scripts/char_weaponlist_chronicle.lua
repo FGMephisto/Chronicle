@@ -5,7 +5,7 @@
 --
 
 -- ===================================================================================================================
--- Modified
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
 	DB.addHandler(DB.getPath(getDatabaseNode()), "onChildAdded", onChildAdded);
@@ -14,18 +14,27 @@ function onInit()
 end
 
 -- ===================================================================================================================
--- Modified
+-- Adjusted
 -- ===================================================================================================================
 function onClose()
 	DB.removeHandler(DB.getPath(getDatabaseNode()), "onChildAdded", onChildAdded);
 end
 
 -- ===================================================================================================================
--- Modified
+-- Adjusted
 -- ===================================================================================================================
 function onChildAdded()
 	onModeChanged();
 	update();
+end
+
+-- ===================================================================================================================
+-- Disabled
+-- ===================================================================================================================
+function onProfChanged()
+	-- for _,w in pairs(getWindows()) do
+		-- w.onAttackChanged();
+	-- end
 end
 
 -- ===================================================================================================================
@@ -35,7 +44,7 @@ function onListChanged()
 end
 
 -- ===================================================================================================================
--- Modified
+-- Adjusted
 -- ===================================================================================================================
 function onModeChanged()
 	local bPrepMode = (DB.getValue(window.getDatabaseNode(), "powermode", "") ~= "combat");
@@ -48,6 +57,7 @@ function onModeChanged()
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function update()
 	-- Logic for button in the action section of CT
@@ -60,9 +70,9 @@ function update()
 
 	-- Logic for the button in the action section of PC/NPC sheet
 	if window.parentcontrol.window.actions_iedit then
-		local bEditMode = (window.parentcontrol.window.actions_iedit.getValue() == 1)
+		local bEditMode = (window.parentcontrol.window.actions_iedit.getValue() == 1);
 		for _,w in pairs(getWindows()) do
-			w.idelete.setVisibility(bEditMode)
+			w.idelete.setVisibility(bEditMode);
 		end
 	end
 end
