@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<string name="title_class_spell_views">Class Spell Lists</string>
+	<string name="title_class_spell_view">Spell List</string>
+
+	<windowclass name="class_spell_views_index">
+		<frame>referencelist</frame>
+		<placement>
+			<size width="450" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="450" height="450" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_reference</minimize>
+		<script file="campaign/scripts/class_spell_views_window.lua" />
+		<sheetdata>
+			<windowtitlebar name="reftitle">
+				<resource>title_class_spell_views</resource>
+			</windowtitlebar>
+			<anchor_reftitle name="contentanchor" />
+
+			<genericcontrol name="buttonanchor">
+				<anchored to="contentanchor" height="20" width="0">
+					<top anchor="bottom" relation="relative" />
+					<left offset="-5" />
+				</anchored>
+			</genericcontrol>
+			<button_class_spell_list />
+
+			<list_ref name="list">
+				<class>class_spell_view_item</class>
+				<sortby><control>name</control></sortby>
+			</list_ref>
+			<scrollbar_list name="scroll_list" />
+			
+			<filter_ref name="filter" />
+			
+			<resize_referencelist />
+			<close_referencelist />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="class_spell_view_item">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<linkc_list name="link" />
+			<stringc_list_link name="name" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="class_spell_view">
+		<frame>referencelist</frame>
+		<placement>
+			<size width="650" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="450" height="450" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			local _sClassKey = nil;
+			function onInit()
+				_sClassKey = DB.getName(getDatabaseNode());
+				self.refresh();
+			end
+
+			function onClose()
+				ListManager.onCloseWindow(self);
+			end
+
+			function refresh()
+				local rList = ClassSpellListManager.getClassSpellListViewRecord(_sClassKey);
+				ListManager.initViewFromRecord(self, rList);
+			end
+		</script>
+		<sheetdata>
+			<windowtitlebar name="reftitle">
+				<resource>title_class_spell_view</resource>
+			</windowtitlebar>
+			<anchor_reftitle name="contentanchor" />
+			
+			<anchor_refgroupedlist_label name="labelanchor" />
+	
+			<anchor_refgroupedlist_bottom name="bottomanchor" />
+
+			<filter_refgroupedlist name="filter" />
+
+			<anchor_reflist_paging name="pageanchor" />
+			<list_page_info name="page_info" />
+			<list_page_start name="page_start" />
+			<list_page_prev name="page_prev" />
+			<list_page_next name="page_next" />
+			<list_page_end name="page_end" />
+			
+			<list_refgroupedlist name="list" />
+			<scrollbar_list name="scroll_list" />
+	
+			<resize_referencelist />
+			<close_referencelist />
+		</sheetdata>
+	</windowclass>
+</root>

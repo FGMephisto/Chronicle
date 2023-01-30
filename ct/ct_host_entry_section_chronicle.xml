@@ -7,7 +7,7 @@
 
 <root>
 	<!-- =================================================================================================================== -->
-	<!-- Section - Effects (Original) -->
+	<!-- Section - Effects -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_effect" merge="join">
 		<sheetdata>
@@ -16,7 +16,8 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Section - Active (Original) -->
+	<!-- Section - Active -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_power">
 		<margins control="0,0,0,2" />
@@ -77,20 +78,14 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Section - Active (2022-08-16) -->
-	<!-- PC Attack -->
+	<!-- Section - Active -->
+	<!-- Adjusted - PC Attack -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_section_active">
 		<sheetdata>
 			<icon_ct_section name="icon_section">
 				<icon>button_sword_down</icon>
 			</icon_ct_section>
-
-			<!-- Init value for linking, not for display -->
-			<number_ct name="init_skill_misc" source="skilllist.quickness.misc">
-				<bounds>0,0,0,0</bounds>
-				<invisible />
-			</number_ct>
 
 			<anchor_ct_section name="anchor_section" />
 
@@ -184,19 +179,13 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- NPC Attack -->
+	<!-- Adjusted - NPC Attack -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_section_active_npc">
 		<sheetdata>
 			<icon_ct_section name="icon_section">
 				<icon>button_sword_down</icon>
 			</icon_ct_section>
-
-			<!-- Init value for linking, not for display -->
-			<number_ct name="init_skill_misc" source="skilllist.quickness.misc">
-				<bounds>0,0,0,0</bounds>
-				<invisible />
-			</number_ct>
 
 			<anchor_ct_section name="anchor_section" />
 
@@ -521,6 +510,7 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- Vehicle Attack Component Action - Not implemented -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_section_active_vehicle_component_action">
 		<margins control="0,0,0,2" />
@@ -538,8 +528,8 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Section - Defense (2022-08-16) -->
-	<!-- PC Defense -->
+	<!-- Section - Defense -->
+	<!-- Adjusted - PC Defense -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_section_defense">
 		<sheetdata>
@@ -682,7 +672,7 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- NPC Defense -->
+	<!-- Adjusted - NPC Defense -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_section_defense_npc">
 		<sheetdata>

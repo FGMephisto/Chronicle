@@ -33,7 +33,7 @@ function onInit()
 		[Interface.getString("skill_value_courage")] = { stat = "will" },
 		[Interface.getString("skill_value_crossbows")] = { stat = "marksmanship" },
 		[Interface.getString("skill_value_decipher")] = { stat = "cunning" },
-		[Interface.getString("skill_value_dedication")] = { stat = "will" }
+		[Interface.getString("skill_value_dedication")] = { stat = "will" },
 		[Interface.getString("skill_value_diagnosis")] = { stat = "healing" },
 		[Interface.getString("skill_value_disguise")] = { stat = "deception" },
 		[Interface.getString("skill_value_dodge")] = { stat = "agility", disarmorstealth = 1 },

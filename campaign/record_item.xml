@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="item">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="450" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="300" />
+			<dynamic />
+		</sizelimits>
+		<sharable />
+		<tooltip field="name" />
+		<minimize>minimized_item</minimize>
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>item_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>item_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_header" merge="join">
+		<margins control="0,0,0,2" />
+	</windowclass>
+
+	<windowclass name="item_main">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/item_main.lua" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="nonid_name_label">
+				<static textres="item_label_unidentified" />
+			</label_column>
+			<string_columnh name="nonid_name" />
+			
+			<label_column name="nonidentified_label">
+				<static textres="item_label_unidentifiednotes" />
+			</label_column>
+			<string_columnh name="nonidentified" />
+			
+			<line_column name="divider" />
+			
+			<label_column name="type_label">
+				<static textres="item_label_type" />
+			</label_column>
+			<string_columnh name="type">
+				<nohide />
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						window.update();
+					end
+				</script>
+			</string_columnh>
+
+			<label_column name="subtype_label">
+				<static textres="item_label_subtype" />
+			</label_column>
+			<string_columnh name="subtype">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						window.update();
+					end
+				</script>
+			</string_columnh>
+
+			<label_column name="rarity_label">
+				<static textres="item_label_rarity" />
+			</label_column>
+			<string_columnh name="rarity">
+				<delaykeyupdate />
+			</string_columnh>
+
+			<line_column name="divider2" />
+
+			<label_column name="cost_label">
+				<static textres="item_label_cost" />
+			</label_column>
+			<string_columnh name="cost" />
+
+			<label_column name="weight_label">
+				<static textres="item_label_weight" />
+			</label_column>
+			<number_columnh name="weight" />
+
+			<line_column name="divider3" />
+
+			<sub_column name="type_stats" />
+
+			<line_column name="divider4" />
+
+			<ft_columnh name="description" />
+
+			<sub_column name="type_lists" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_main_weapon">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				bonus.setReadOnly(bReadOnly);
+				damage.setReadOnly(bReadOnly);
+				properties.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="bonus_label">
+				<static textres="item_label_bonus" />
+			</label_column>
+			<number_columnh name="bonus">
+				<delaykeyupdate />
+				<displaysign />
+			</number_columnh>
+
+			<label_column name="damage_label">
+				<static textres="item_label_damage" />
+			</label_column>
+			<string_columnh name="damage" />
+
+			<label_column name="properties_label">
+				<static textres="item_label_properties" />
+			</label_column>
+			<string_columnh name="properties" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_main_armor">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				bonus.setReadOnly(bReadOnly);
+				ac.setReadOnly(bReadOnly);
+				dexbonus.setReadOnly(bReadOnly);
+				strength.setReadOnly(bReadOnly);
+				stealth.setReadOnly(bReadOnly);
+				properties.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="bonus_label">
+				<static textres="item_label_bonus" />
+			</label_column>
+			<number_columnh name="bonus">
+				<delaykeyupdate />
+				<displaysign />
+			</number_columnh>
+
+			<label_column name="ac_label">
+				<static textres="item_label_ac" />
+			</label_column>
+			<number_columnh name="ac">
+				<delaykeyupdate />
+			</number_columnh>
+
+			<label_column name="dexbonus_label">
+				<static textres="item_label_dexbonus" />
+			</label_column>
+			<string_columnh name="dexbonus">
+				<delaykeyupdate />
+			</string_columnh>
+
+			<label_column name="strength_label">
+				<static textres="item_label_strength" />
+			</label_column>
+			<string_columnh name="strength" />
+
+			<label_column name="stealth_label">
+				<static textres="item_label_stealth" />
+			</label_column>
+			<string_columnh name="stealth">
+				<delaykeyupdate />
+			</string_columnh>
+
+			<label_column name="properties_label">
+				<static textres="item_label_properties" />
+			</label_column>
+			<string_columnh name="properties" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_main_arcanefocus">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				bonus.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="bonus_label">
+				<static textres="item_label_bonus" />
+			</label_column>
+			<number_columnh name="bonus">
+				<delaykeyupdate />
+				<displaysign />
+			</number_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_main_vehicle">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				crew.setReadOnly(bReadOnly);
+				cover.setReadOnly(bReadOnly);
+				ac.setReadOnly(bReadOnly);
+				hp.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="crew_label">
+				<static textres="item_label_crew" />
+			</label_column>
+			<number_column name="crew" />
+
+			<label_column name="ac_label">
+				<static textres="ac" />
+				<tooltip textres="armorclass" />
+			</label_column>
+			<number_column name="ac">
+				<delaykeyupdate />
+			</number_column>
+
+			<label_column_right name="damagethreshold_label">
+				<anchored to="ac" />
+				<static textres="dt" />
+				<tooltip textres="damagethreshold" />
+			</label_column_right>
+			<number_column_right name="damagethreshold">
+				<anchored to="ac" />
+				<delaykeyupdate />
+			</number_column_right>
+
+			<label_column name="hp_label">
+				<static textres="item_label_hp" />
+			</label_column>
+			<number_column name="hp" />
+
+			<label_column_right name="cover_label">
+				<anchored to="hp" />
+				<static textres="item_label_cover" />
+			</label_column_right>
+			<button_stringcycler name="cover">
+				<anchored to="hp" width="40" height="20">
+					<top />
+					<right parent="" offset="-5" />
+				</anchored>
+				<parameters>
+					<labelsres>item_vehicle_component_cover_half|item_vehicle_component_cover_threequarter|item_vehicle_component_cover_full</labelsres>
+					<values>halfcover|threequartercover|fullcover</values>
+					<defaultlabelres>item_vehicle_component_cover_none</defaultlabelres>
+				</parameters>
+			</button_stringcycler>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="item_main_vehicle_actions">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				actions.update(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<header_column name="header_actions">
+				<static textres="vehicle_header_actions" />
+			</header_column>
+			<button_iedit name="actions_iedit">
+				<anchored to="header_actions" position="righthigh" offset="-20,0" />
+				<target>actions</target>
+			</button_iedit>
+			<button_iadd name="actions_iadd">
+				<anchored to="actions_iedit" position="lefthigh" offset="5,0" />
+				<target>actions</target>
+			</button_iadd>
+			<list_column name="actions">
+				<child merge="delete" />
+				<datasource>.actions</datasource>
+				<sortby><control>name</control></sortby>
+				<class>item_main_vehicle_action_entry</class>
+			</list_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="item_main_vehicle_action_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				name.setReadOnly(bReadOnly);
+				actions_load.setReadOnly(bReadOnly);
+				actions_aim.setReadOnly(bReadOnly);
+				actions_fire.setReadOnly(bReadOnly);
+				desc.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<genericcontrol name="rightanchor">
+				<anchored height="0" width="0">
+					<top />
+					<right />
+				</anchored>
+			</genericcontrol>
+			<button_idelete name="idelete">
+				<anchored>
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+			</button_idelete>
+
+			<stringfield name="name">
+				<anchored position="insidetopleft" offset="5,2">
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<frame name="rowshade" offset="5,2,5,2" />
+				<font>sheetlabel</font>
+				<multilinespacing>20</multilinespacing>
+				<empty textres="npc_empty_powername" />
+			</stringfield>
+
+			<basicnumber name="actions_load">
+				<anchored width="40" height="20">
+					<top parent="name" anchor="bottom" relation="relative" offset="5" />
+					<left offset="40" />
+				</anchored>
+			</basicnumber>
+			<label name="actions_load_label">
+				<anchored to="actions_load" position="lefthigh" offset="10,0" />
+				<static textres="item_label_load" />
+			</label>
+
+			<label name="actions_aim_label">
+				<anchored>
+					<top offset="27" />
+					<left anchor="center" offset="-40" />
+				</anchored>
+				<static textres="item_label_aim" />
+			</label>
+			<basicnumber name="actions_aim">
+				<anchored to="actions_aim_label" position="righthigh" offset="10,0" width="40" height="20" />
+			</basicnumber>
+
+			<basicnumber name="actions_fire">
+				<anchored position="insidetopright" offset="10,27" width="40" height="20" />
+			</basicnumber>
+			<label name="actions_fire_label">
+				<anchored to="actions_fire" position="lefthigh" offset="10,0" />
+				<static textres="item_label_fire" />
+			</label>
+
+			<basicstring name="desc">
+				<anchored>
+					<top parent="name" anchor="bottom" relation="relative" offset="5" />
+					<left offset="5" />
+					<right parent="" offset="-5" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</basicstring>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="item_main_vehicle_legacy">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				speed.setReadOnly(bReadOnly);
+				carryingcapacity.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="speed_label">
+				<static textres="item_label_speed" />
+			</label_column>
+			<string_columnh name="speed" />
+			
+			<label_column name="carryingcapacity_label">
+				<static textres="item_label_carryingcapacity" />
+			</label_column>
+			<string_columnh name="carryingcapacity" />
+		</sheetdata>
+	</windowclass>
+</root>

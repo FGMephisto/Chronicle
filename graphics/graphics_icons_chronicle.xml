@@ -8,30 +8,11 @@
 
 <root>
 	<!-- Common -->
-	<icon name="question" file="graphics/icons/question.png" />
-	<icon name="actions" file="graphics/icons/actions.png" />
-	<icon name="actions_down" file="graphics/icons/actions_down.png" />
 	<icon name="expand" file="graphics/icons/expand.png" />
 	<icon name="expand_down" file="graphics/icons/expand_down.png" />
 
-	<!-- Rolls -->
-	<icon name="roll_cast" file="graphics/icons/roll_cast.png" />
-	<icon name="roll_attack" file="graphics/icons/roll_attack.png" />
-	<icon name="roll_attack_miss" file="graphics/icons/roll_attack_miss.png" />
-	<icon name="roll_attack_hit" file="graphics/icons/roll_attack_hit.png" />
-	<icon name="roll_attack_crit" file="graphics/icons/roll_attack_crit.png" />
-	<icon name="roll_damage" file="graphics/icons/roll_damage.png" />
-	<icon name="roll_heal" file="graphics/icons/roll_heal.png" />
-
 	<!-- Character list -->
 	<icon name="charlist_inspiration" file="graphics/icons/charlist_inspiration.png" />
-
-	<!-- Powers -->
-	<icon name="usepower" file="graphics/icons/usepower.png" />
-	<icon name="spell_cast" file="graphics/icons/spell_cast.png" />
-	<icon name="spell_damage" file="graphics/icons/spell_damage.png" />
-	<icon name="spell_heal" file="graphics/icons/spell_heal.png" />
-	<icon name="spell_effect" file="graphics/icons/spell_effect.png" />
 
 	<!-- Combat Tracker -->
 	<icon name="ct_faction_empty" file="graphics/icons/ct_faction_empty.png" />
@@ -43,14 +24,13 @@
 	<icon name="visibilityon" file="graphics/icons/visibilityon.png" />
 	<icon name="visibilityoff" file="graphics/icons/visibilityoff.png" />
 	
-	<!-- Character Sheet - Modified -->
+	<!-- Character Sheet -->
 	<icon name="char_weapon_melee" file="graphics/icons/char_weapon_melee.png" />
 	<icon name="char_weapon_ranged" file="graphics/icons/char_weapon_ranged.png" />
 	<icon name="char_weapon_thrown" file="graphics/icons/char_weapon_thrown.png" />
 	<icon name="char_weapon_hand1" file="graphics/icons/char_weapon_hand1.png" />
 	<icon name="char_weapon_hand2" file="graphics/icons/char_weapon_hand2.png" />
 	<icon name="char_weapon_handoff" file="graphics/icons/char_weapon_handoff.png" />
-	<icon name="char_weapon_handoff_defense" file="graphics/icons_new/round-shield.png" />
 	<icon name="char_name" file="graphics/icons/char_name.png" />	
 	<icon name="char_race" file="graphics/icons/char_race.png" />
 	<icon name="char_background" file="graphics/icons/char_background.png" />
@@ -68,6 +48,7 @@
 	<icon name="char_abilities_purple" file="graphics/icons/char_abilities_purple.png" />
 	<icon name="char_abilities_green" file="graphics/icons/char_abilities_green.png" />
 	<icon name="char_armorcheck" file="graphics/icons/char_armorcheck.png" />
+	<icon name="char_attuned" file="graphics/icons/char_attuned.png" />
 
 	<icon name="char_inventory" file="graphics/icons/char_inventory.png" />		
 	<icon name="char_treasure" file="graphics/icons/char_inventory.png" />		
@@ -79,6 +60,11 @@
 	<icon name="minimized_charpowers" file="graphics/icons/minimized_charpowers.png" />
 	<icon name="minimized_charequipment" file="graphics/icons/minimized_charequipment.png" />
 	<icon name="minimized_charnotes" file="graphics/icons/minimized_charnotes.png" />
+
+	<!-- Powers -->
+	<icon name="power_weapon" file="graphics/icons/power_weapon.png" />
+	<icon name="power_casterspontaneous" file="graphics/icons/power_casterspontaneous.png" />
+	<icon name="power_casterprep" file="graphics/icons/power_casterprep.png" />
 
 	<!-- Override CoreRPG ruleset graphics -->
 
@@ -96,19 +82,44 @@
 	<!-- Dice tower -->
 	<icon name="dicetower_icon" file="graphics/icons/dicetower_icon.png" />
 
-	<!-- Custom - Ruleset -->
-	<icon name="rulesetlogo_chronicle" file="graphics/icons_new/chronicle_system_guild.png" />
+	<!-- Item Forge -->
+	<!-- <icon name="forge_transicon" file="graphics/forge/forge_trans.png" /> -->
+	<!-- <icon name="forge_blank" file="graphics/forge/forge_blank.png" /> -->
+	<!-- <icon name="forge_ok" file="graphics/forge/forge_ok.png" /> -->
+	<!-- <icon name="forge_error" file="graphics/forge/forge_error.png" /> -->
+	<!-- <icon name="forge_item_advgear" file="graphics/forge/item_advgear.png" /> -->
+	<!-- <icon name="forge_item_armor" file="graphics/forge/item_armor.png" /> -->
+	<!-- <icon name="forge_item_mount" file="graphics/forge/item_mount.png" /> -->
+	<!-- <icon name="forge_item_tool" file="graphics/forge/item_tool.png" /> -->
+	<!-- <icon name="forge_item_vehicle" file="graphics/forge/item_vehicle.png" /> -->
+	<!-- <icon name="forge_item_weapon" file="graphics/forge/item_weapon.png" /> -->
+	<!-- <icon name="forge_magicitem_armor" file="graphics/forge/magic_armor.png" /> -->
+	<!-- <icon name="forge_magicitem_potion" file="graphics/forge/magic_potion.png" /> -->
+	<!-- <icon name="forge_magicitem_ring" file="graphics/forge/magic_ring.png" /> -->
+	<!-- <icon name="forge_magicitem_rod" file="graphics/forge/magic_rod.png" /> -->
+	<!-- <icon name="forge_magicitem_scroll" file="graphics/forge/magic_scroll.png" /> -->
+	<!-- <icon name="forge_magicitem_staff" file="graphics/forge/magic_staff.png" /> -->
+	<!-- <icon name="forge_magicitem_wand" file="graphics/forge/magic_wand.png" /> -->
+	<!-- <icon name="forge_magicitem_weapon" file="graphics/forge/magic_weapon.png" /> -->
+	<!-- <icon name="forge_magicitem_wondrousitem" file="graphics/forge/magic_wondrousitem.png" /> -->
+	<!-- <icon name="forge_magicspell" file="graphics/forge/magic_spell.png" /> -->
 
-	<!-- Custom - Combat -->
-	<icon name="char_abdominal-armor" file="graphics/icons_new/abdominal-armor.png" />
-	<icon name="char_injuries" file="graphics/icons_new/arm-bandage.png" />
-	<icon name="char_trauma" file="graphics/icons_new/arm-sling.png" />
-	<!-- <icon name="char_armor" file="graphics/icons_new/breastplate.png" /> -->
-	<icon name="char_armor" file="graphics/icons_new/abdominal-armor.png" />
-	<icon name="char_health" file="graphics/icons_new/heart.png" />
-	<icon name="char_damage" file="graphics/icons_new/heart-minus.png" />
-	<icon name="char_fatigue" file="graphics/icons_new/oppression.png" />
-	<icon name="char_move" file="graphics/icons_new/walk.png" />
-	<icon name="char_sprint" file="graphics/icons_new/run.png" />
-	<icon name="char_cd" file="graphics/icons_new/surrounded-shield.png" />
+	<!-- Added - Character Sheet -->
+	<icon name="char_weapon_handoff_defense" file="graphics/icons_chronicle/round-shield.png" />
+
+	<!-- Added - Combat -->
+	<icon name="char_abdominal-armor" file="graphics/icons_chronicle/abdominal-armor.png" />
+	<icon name="char_injuries" file="graphics/icons_chronicle/arm-bandage.png" />
+	<icon name="char_trauma" file="graphics/icons_chronicle/arm-sling.png" />
+	<!-- <icon name="char_armor" file="graphics/icons_chronicle/breastplate.png" /> -->
+	<icon name="char_armor" file="graphics/icons_chronicle/abdominal-armor.png" />
+	<icon name="char_health" file="graphics/icons_chronicle/heart.png" />
+	<icon name="char_damage" file="graphics/icons_chronicle/heart-minus.png" />
+	<icon name="char_fatigue" file="graphics/icons_chronicle/oppression.png" />
+	<icon name="char_move" file="graphics/icons_chronicle/walk.png" />
+	<icon name="char_sprint" file="graphics/icons_chronicle/run.png" />
+	<icon name="char_cd" file="graphics/icons_chronicle/surrounded-shield.png" />
+
+	<!-- Added - Ruleset -->
+	<icon name="rulesetlogo_chronicle" file="graphics/icons_chronicle/chronicle_system_guild.png" />
 </root>

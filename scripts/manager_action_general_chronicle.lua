@@ -7,12 +7,12 @@
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
-	-- Debug.chat("FN: onInit in manager_action_general")
 	ActionsManager.registerModHandler("dice", modRoll);
 	ActionsManager.registerResultHandler("dice", onRoll);
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: modRoll in manager_action_general")
@@ -22,13 +22,14 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll.nPenalty = 0
 
 	-- Get Desktop modifications
-	ActionsManager2.encodeDesktopMods(rRoll)
+	ActionsManager2.encodeDesktopMods(rRoll);
 
 	-- Set maximum Bonus and Penalty Dice
-	rRoll = ActionResult.capDice(rRoll)
+	rRoll = ActionResult.capDice(rRoll);
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: onRoll in manager_action_general")
@@ -37,7 +38,5 @@ function onRoll(rSource, rTarget, rRoll)
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
-	Comm.deliverChatMessage(rMessage)
-
+	Comm.deliverChatMessage(rMessage);
 end
-

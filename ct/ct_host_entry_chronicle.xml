@@ -9,6 +9,7 @@
 <root>
 	<!-- =================================================================================================================== -->
 	<!-- Character entries -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ct_entry" merge="join">
 		<margins control="0,0,0,5" />
@@ -113,30 +114,6 @@
 
 			<sub_ct_section name="sub_active" insertbefore="sub_effects" />
 			<sub_ct_section name="sub_defense" insertbefore="sub_effects" />
-
-			<!-- =================================================================================================================== -->
-			<!-- Initiative -->
-			<!-- =================================================================================================================== -->
-			<!-- <number_ctentry_initresult name="initresult"> -->
-				<!-- <anchored><right offset="-15" /></anchored> -->
-			<!-- </number_ctentry_initresult> -->
-
-			<!-- <string_ct_entry_name name="name" /> -->
-			<!-- <string_ct_entry_name_nonid name="nonid_name" /> -->
-
-			<!-- Sections -->
-			<!-- <sub_ct_section name="sub_targets" /> -->
-			<!-- <sub_ct_section name="sub_space" /> -->
-			<!-- <sub_ct_section name="sub_active" /> -->
-			<!-- <sub_ct_section name="sub_defense" /> -->
-			<!-- <sub_ct_section name="sub_effects" /> -->
-
-			<!-- Quick labels -->
-			<!-- <string_ct_entry_targets name="summary_targets" /> -->
-			<!-- <string_ct_entry_effects name="summary_effects" /> -->
-
-			<!-- <spacer_ctentry_middle name="spacer" /> -->
-			<!-- <spacer_ctentry_active_bottom name="active_spacer_bottom" /> -->
 		</sheetdata>
 	</windowclass>
 </root>

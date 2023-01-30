@@ -437,6 +437,14 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onRollResolve(rActor, rTarget, rRoll, rMessage)
+	-- Don't show a total dice result
+	rMessage.dicedisplay = 0
+
+	-- ToDo: Just an experiment
+	-- rMessage.shortcuts = {};
+	-- table.insert(rMessage.shortcuts, { description = "sResultName", class = "encounter", recordname = ActorManager.getCTNodeName(rActor) });
+	-- Debug.chat("rMessage", rMessage)
+
 	Comm.deliverChatMessage(rMessage);
 	
 	if rTarget then

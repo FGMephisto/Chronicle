@@ -8,6 +8,7 @@
 
 <root>
 	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="combattracker_host" merge="join">
 		<frame>ctbox</frame>
@@ -26,10 +27,6 @@
 			<button_ctbox_host_header_visibility name="button_global_visibility">
 				<anchored to="header_vis" position="insidetopleft" offset="-5,2" width="22" height="22" />
 			</button_ctbox_host_header_visibility>
-
-			<!-- <spacer_ct_host_header_buttons name="spacer_buttons_header"> -->
-				<!-- <anchored width="168" /> -->
-			<!-- </spacer_ct_host_header_buttons> -->
 
 			<spacer_ct_host_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
 				<anchored width="63" />
