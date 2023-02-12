@@ -4,8 +4,9 @@
 -- File adjusted for Chronicle System
 --
 
--- ToDo: Change to show injuries and wounds on Token
 -- ===================================================================================================================
+-- ToDo: Change to show injuries and wounds on Token
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
 	TokenManager.addDefaultHealthFeatures(getHealthInfo, {"hptotal", "injuires", "trauma", "wounds"});

@@ -16,25 +16,25 @@ function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYHRFC, handleApplyHRFC);
 
 	ActionsManager.registerTargetingHandler("attack", onTargeting);
-	ActionsManager.registerModHandler("attack", modRoll);
-	ActionsManager.registerResultHandler("attack", onRoll);
+	ActionsManager.registerModHandler("attack", modAttack);
+	ActionsManager.registerResultHandler("attack", onAttack);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function handleApplyAttack(msgOOB)
 	-- Debug.chat("FN: handleApplyAttack in manager_action_attack")
-	local rActor = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
 
 	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
-	ActionAttack.applyAttack(rActor, rTarget, rRoll);
+	ActionAttack.applyAttack(rSource, rTarget, rRoll);
 end
 
 -- ===================================================================================================================
 -- Communicate attack roll to Clients
 -- ===================================================================================================================
-function notifyApplyAttack(rActor, rTarget, rRoll)
+function notifyApplyAttack(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: notifyApplyAttack in manager_action_attack")
 	if not rTarget then
 		return;
@@ -45,7 +45,7 @@ function notifyApplyAttack(rActor, rTarget, rRoll)
 	
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionAttack.OOB_MSGTYPE_APPLYATK;
-	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rActor);
+	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
 
 	Comm.deliverOOBMessage(msgOOB, "");
@@ -75,7 +75,7 @@ end
 -- ===================================================================================================================
 -- Handle "Remove On Miss" setting in options
 -- ===================================================================================================================
-function onTargeting(rActor, aTargeting, rRolls)
+function onTargeting(rSource, aTargeting, rRolls)
 	-- Debug.chat("FN: onTargeting in manager_action_attack")
 	local bRemoveOnMiss = false;
 	local sOptRMMT = OptionsManager.getOption("RMMT");
@@ -95,9 +95,6 @@ function onTargeting(rActor, aTargeting, rRolls)
 end
 
 -- ===================================================================================================================
--- Attack checks
--- ===================================================================================================================
--- This function is used to initialize Attack checks from Party Sheet
 -- ===================================================================================================================
 function performPartySheetVsRoll(draginfo, rActor, rAction)
 	-- Debug.chat("FN: performPartySheetVsRoll in manager_action_attack")
@@ -112,7 +109,7 @@ function performPartySheetVsRoll(draginfo, rActor, rAction)
 end
 
 -- ===================================================================================================================
--- This function is used to initialize Attack checks for a PC
+-- Adjusted
 -- ===================================================================================================================
 function performRoll(draginfo, rActor, rAction)
 	-- Debug.chat("FN: performRoll in manager_action_attack")
@@ -122,26 +119,26 @@ function performRoll(draginfo, rActor, rAction)
 end
 
 -- ===================================================================================================================
--- This function is used to build the inital rRoll record for Attack checks
+-- Adjusted
 -- ===================================================================================================================
 function getRoll(rActor, rAction)
 	-- Debug.chat("FN: getRoll in manager_action_attack")
 	-- Build rRoll
-	local rRoll = {}
-	rRoll.aDice = {}
-	rRoll.bWeapon = rAction.bWeapon
-	rRoll.sLabel = rAction.label
-	rRoll.sRange = rAction.range	
-	rRoll.sType = "attack"
-	rRoll.nTest = rAction.nStat or 0
-	rRoll.nBonus = rAction.nSkill or 0
-	rRoll.nPenalty = rAction.nPenalty or 0
-	rRoll.nDoS = 1
-	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor)
-	rRoll.nMod = rAction.nMod or 0
-	rRoll.nodeWeapon = rAction.nodeWeapon
+	local rRoll = {};
+	rRoll.aDice = {};
+	rRoll.bWeapon = rAction.bWeapon;
+	rRoll.sLabel = rAction.label;
+	rRoll.sRange = rAction.range;	
+	rRoll.sType = "attack";
+	rRoll.nTest = rAction.nStat or 0;
+	rRoll.nBonus = rAction.nSkill or 0;
+	rRoll.nPenalty = rAction.nPenalty or 0;
+	rRoll.nDoS = 1;
+	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor);
+	rRoll.nMod = rAction.nMod or 0;
+	rRoll.nodeWeapon = rAction.nodeWeapon;
 	
-	-- Save rAction as we need some of its data in function onRoll
+	-- Save rAction as we need some of its data in function onAttack
 	rAction2 = rAction
 	
 	-- Add Test Die to Dice Array. This is necessary to have the proper number of die show up on drag.
@@ -159,7 +156,7 @@ function getRoll(rActor, rAction)
 
 	-- Add Attack range type
 	if rAction.range then
-		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range .. ")"
+		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range .. ")";
 	end
 
 	-- Add weapon name
@@ -171,10 +168,10 @@ end
 -- ===================================================================================================================
 -- This function is used to modify the Roll record for Attack checks
 -- ===================================================================================================================
-function modRoll(rActor, rTarget, rRoll)
-	-- Debug.chat("FN: modRoll in manager_action_attack")
+function modAttack(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: modAttack in manager_action_attack")
 	-- Clear Critical
-	ActionAttack.clearCritState(rActor);
+	ActionAttack.clearCritState(rSource);
 
 	local aAddDesc = {};
 	local aAddDice = {};
@@ -186,14 +183,21 @@ function modRoll(rActor, rTarget, rRoll)
 	rRoll.nPenalty = tonumber(rRoll.nPenalty)
 	rRoll.nMod = tonumber(rRoll.nMod)
 
+	-- Check for opportunity attack
+	local bOpportunity = ModifierManager.getKey("ATT_OPP") or Input.isShiftPressed();
+
+	if bOpportunity then
+		table.insert(aAddDesc, "[OPPORTUNITY]");
+	end
+
 	-- Consider Health
-	ActionsManager2.encodeHealthMods(rActor, rRoll)
+	ActionsManager2.encodeHealthMods(rSource, rRoll)
 
 	-- Consider Desktop Modifications
 	ActionsManager2.encodeDesktopMods(rRoll)
 
 	-- Check applying Effects
-	if rActor then
+	if rSource then
 		local aAttackFilter = {}
 		local bEffects = false
 
@@ -229,7 +233,6 @@ function modRoll(rActor, rTarget, rRoll)
 		-- if CharWeaponManager.checkProperty(sWeaponQualities, WEAPON_PROP_TWOHANDED) == true and nWeaponHandling ~= 1 then
 			-- nPenalty = nPenalty + 2
 		-- end
-
 
 		-- Check for modifiers
 		-- Check for aim
@@ -314,38 +317,38 @@ function modRoll(rActor, rTarget, rRoll)
 		-- ToDo: Implement
 		local bEffects = false;
 		local nEffectCount;
-		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rActor, {"ATK"}, false, aAttackFilter, rTarget);
+		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"ATK"}, false, aAttackFilter, rTarget);
 		if (nEffectCount > 0) then
 			bEffects = true;
 		end
 
 		-- Get condition modifiers
 		-- ToDo: List all conditions
-		if EffectManager5E.hasEffectCondition(rActor, "Blinded") then
+		if EffectManager5E.hasEffectCondition(rSource, "Blinded") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Encumbered") then
+		if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Frightened") then
+		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Intoxicated") then
+		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Invisible") then
+		if EffectManager5E.hasEffectCondition(rSource, "Invisible") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Poisoned") then
+		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Prone") then
+		if EffectManager.hasCondition(rSource, "Prone") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Restrained") then
+		if EffectManager5E.hasEffectCondition(rSource, "Restrained") then
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rActor, "Unconscious") then
+		if EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
 			bEffects = true;
 		end
 
@@ -365,20 +368,21 @@ function modRoll(rActor, rTarget, rRoll)
 
 	-- Build description string
 	if #aAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ")
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
 
 	-- Apply collected nAddMod to rRoll.nMod
-	rRoll.nMod = rRoll.nMod + nAddMod
+	rRoll.nMod = rRoll.nMod + nAddMod;
 
 	-- Set maximum Bonus and Penalty Dice
 	rRoll = ActionResult.capDice(rRoll)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
-function onRoll(rActor, rTarget, rRoll)
-	-- Debug.chat("FN: onRoll in manager_action_attack")
+function onAttack(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: onAttack in manager_action_attack")
 	-- Rebuild detail fields if dragging from chat window
 	if not rRoll.sRange then
 		rRoll.sRange = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]");
@@ -387,13 +391,13 @@ function onRoll(rActor, rTarget, rRoll)
 		rRoll.sLabel = StringManager.trim(rRoll.sDesc:match("%[ATTACK.*%]([^%[]+)"));
 	end
 
-	local rMessage = ActionsManager.createActionMessage(rActor, rRoll)
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll)
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
 	-- Add message array to rRoll, this is required for DoS output
-	rRoll.aMessages = {}
+	rRoll.aMessages = {};
 
 	-- Determine Target Combat Defense and defense bonus effects
 	rRoll.nDefenseVal, rRoll.nAtkEffectsBonus, rRoll.nDefEffectsBonus = ActorManager5E.getDefenseValue(rSource, rTarget, rRoll);
@@ -423,44 +427,37 @@ function onRoll(rActor, rTarget, rRoll)
 		rMessage.text = rMessage.text .. " " .. table.concat(rRoll.aMessages, " ");
 	end
 
-	ActionAttack.onPreAttackResolve(rActor, rTarget, rRoll, rMessage);
-	ActionAttack.onRollResolve(rActor, rTarget, rRoll, rMessage);
-	ActionAttack.onPostAttackResolve(rActor, rTarget, rRoll, rMessage);
+	ActionAttack.onPreAttackResolve(rSource, rTarget, rRoll, rMessage);
+	ActionAttack.onAttackResolve(rSource, rTarget, rRoll, rMessage);
+	ActionAttack.onPostAttackResolve(rSource, rTarget, rRoll, rMessage);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onPreAttackResolve(rActor, rTarget, rRoll, rMessage)
+function onPreAttackResolve(rSource, rTarget, rRoll, rMessage)
 	-- Do nothing; location to override
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onRollResolve(rActor, rTarget, rRoll, rMessage)
-	-- Don't show a total dice result
-	rMessage.dicedisplay = 0
-
-	-- ToDo: Just an experiment
-	-- rMessage.shortcuts = {};
-	-- table.insert(rMessage.shortcuts, { description = "sResultName", class = "encounter", recordname = ActorManager.getCTNodeName(rActor) });
-	-- Debug.chat("rMessage", rMessage)
-
+function onAttackResolve(rSource, rTarget, rRoll, rMessage)
+	-- Debug.chat("FN: onAttackResolve in manager_action_attack")
 	Comm.deliverChatMessage(rMessage);
 	
 	if rTarget then
-		ActionAttack.notifyApplyAttack(rActor, rTarget, rRoll);
+		ActionAttack.notifyApplyAttack(rSource, rTarget, rRoll);
 	end
 	
 	-- TRACK CRITICAL STATE
 	if rRoll.sResult == "crit" then
-		ActionAttack.setCritState(rActor, rTarget);
+		ActionAttack.setCritState(rSource, rTarget);
 	end
 	
 	-- REMOVE TARGET ON MISS OPTION
 	if rTarget then
 		if (rRoll.sResult == "miss" or rRoll.sResult == "fumble") then
 			if rRoll.bRemoveOnMiss then
-				TargetingManager.removeTarget(ActorManager.getCTNodeName(rActor), ActorManager.getCTNodeName(rTarget));
+				TargetingManager.removeTarget(ActorManager.getCTNodeName(rSource), ActorManager.getCTNodeName(rTarget));
 			end
 		end
 	end
@@ -468,7 +465,7 @@ end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onPostAttackResolve(rActor, rTarget, rRoll, rMessage)
+function onPostAttackResolve(rSource, rTarget, rRoll, rMessage)
 	-- Debug.chat("FN: onPostAttackResolve in manager_action_attack")
 	-- HANDLE FUMBLE/CRIT HOUSE RULES
 	local sOptionHRFC = OptionsManager.getOption("HRFC");
@@ -482,25 +479,27 @@ end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function applyAttack(rActor, rTarget, rRoll)
+function applyAttack(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: applyAttack in manager_action_attack")
-	local msgShort = {font = "msgfont"};
-	local msgLong = {font = "msgfont"};
+	local msgShort = { font = "msgfont" };
+	local msgLong = { font = "msgfont" };
 	
+	-- Standard roll information
 	msgShort.text = "[Attack";
 	msgLong.text = "[Attack";
 
-	-- Getting attack type from rRoll
+	if rRoll.nOrder then
+		msgShort.text = string.format("%s #%d", msgShort.text, rRoll.nOrder);
+		msgLong.text = string.format("%s #%d", msgLong.text, rRoll.nOrder);
+	end
 	if (rRoll.sRange or "") ~= "" then
 		msgShort.text = string.format("%s (%s)", msgShort.text, rRoll.sRange);
 		msgLong.text = string.format("%s (%s)", msgLong.text, rRoll.sRange);
 	end
 
-	-- Adding attack type to message
 	msgShort.text = string.format("%s]", msgShort.text);
 	msgLong.text = string.format("%s]", msgLong.text);
 
-	-- Adding weapon name to message
 	if (rRoll.sLabel or "") ~= "" then
 		msgShort.text = string.format("%s %s", msgShort.text, rRoll.sLabel or "");
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sLabel or "");
@@ -511,7 +510,6 @@ function applyAttack(rActor, rTarget, rRoll)
 	msgShort.text = string.format("%s ->", msgShort.text);
 	msgLong.text = string.format("%s ->", msgLong.text);
 
-	-- Adding Target name to message
 	if rTarget then
 		local sTargetName;
 		if (rRoll.sSubtargetPath or "") ~= "" then
@@ -523,84 +521,84 @@ function applyAttack(rActor, rTarget, rRoll)
 		msgLong.text = string.format("%s [at %s]", msgLong.text, sTargetName);
 	end
 
-	if rRoll.sResults ~= "" then
-		msgShort.text = msgShort.text .. " -> " .. rRoll.sResults
-		msgLong.text = msgLong.text .. " -> " .. rRoll.sResults
-	end
-	
-	msgShort.icon = "roll_attack"
-	-- ToDo: Base this on rRoll.sResult instead of text string evaluation
-	if string.match(rRoll.sResults:upper(), "%[CRITICAL HIT%]") then
-		msgLong.icon = "roll_attack_crit"
-	elseif string.match(rRoll.sResults:upper(), "HIT%]") then
-		msgLong.icon = "roll_attack_hit"
-	elseif string.match(rRoll.sResults:upper(), "MISS%]") then
-		msgLong.icon = "roll_attack_miss"
+	-- Extra roll information
+	msgShort.icon = "roll_attack";
+	if (rRoll.sResults or "") ~= "" then
+		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sResults);
+		if rRoll.sResults:match("%[CRITICAL HIT%]") then
+			msgLong.icon = "roll_attack_crit";
+		elseif rRoll.sResults:match("HIT%]") then
+			msgLong.icon = "roll_attack_hit";
+		elseif rRoll.sResults:match("MISS%]") then
+			msgLong.icon = "roll_attack_miss";
+		else
+			msgLong.icon = "roll_attack";
+		end
 	else
-		msgLong.icon = "roll_attack"
+		msgLong.icon = "roll_attack";
 	end
-		
-	ActionsManager.outputResult(rRoll.bSecret, rActor, rTarget, msgLong, msgShort);
+
+	ActionsManager.outputResult(rRoll.bSecret, rSource, rTarget, msgLong, msgShort);
 end
 
 --
 --	CRIT STATE TRACKING
 --
 
-aCritState = {}
+aCritState = {};
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function setCritState(rActor, rTarget)
+function setCritState(rSource, rTarget)
 	-- Debug.chat("FN: setCritState in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rActor)
+	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
 	if sSourceCT == "" then
-		return
+		return;
 	end
-	local sTargetCT = ""
+	local sTargetCT = "";
 	if rTarget then
-		sTargetCT = ActorManager.getCTNodeName(rTarget)
+		sTargetCT = ActorManager.getCTNodeName(rTarget);
 	end
 	
 	if not aCritState[sSourceCT] then
-		aCritState[sSourceCT] = {}
+		aCritState[sSourceCT] = {};
 	end
-	table.insert(aCritState[sSourceCT], sTargetCT)
+	table.insert(aCritState[sSourceCT], sTargetCT);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function clearCritState(rActor)
+function clearCritState(rSource)
 	-- Debug.chat("FN: clearCritState in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rActor)
+	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
 	if sSourceCT ~= "" then
-		aCritState[sSourceCT] = nil
+		aCritState[sSourceCT] = nil;
 	end
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function isCrit(rActor, rTarget)
+function isCrit(rSource, rTarget)
 	-- Debug.chat("FN: isCrit in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rActor)
+	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
 	if sSourceCT == "" then
-		return
+		return;
 	end
-	local sTargetCT = ""
+	local sTargetCT = "";
 	if rTarget then
-		sTargetCT = ActorManager.getCTNodeName(rTarget)
+		sTargetCT = ActorManager.getCTNodeName(rTarget);
 	end
 
 	if not aCritState[sSourceCT] then
-		return false
+		return false;
 	end
 	
 	for k,v in ipairs(aCritState[sSourceCT]) do
 		if v == sTargetCT then
-			table.remove(aCritState[sSourceCT], k)
-			return true
+			table.remove(aCritState[sSourceCT], k);
+			return true;
 		end
 	end
 	
-	return false
+	return false;
 end

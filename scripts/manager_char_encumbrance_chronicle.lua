@@ -4,6 +4,7 @@
 --
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onTabletopInit()
 	-- DB.addHandler("charsheet.*.size", "onUpdate", CharEncumbranceManager5E.onSizeChange);
@@ -15,6 +16,7 @@ function onTabletopInit()
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onSizeChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "..");
@@ -22,6 +24,7 @@ function onSizeChange(nodeField)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onStrengthChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "....");
@@ -29,6 +32,7 @@ function onStrengthChange(nodeField)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onAbilityFieldChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "....");
@@ -36,6 +40,7 @@ function onAbilityFieldChange(nodeField)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onAbilityDelete(nodeList)
 	-- local nodeChar = DB.getChild(nodeList, "..");
@@ -43,6 +48,7 @@ function onAbilityDelete(nodeList)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function updateEncumbranceLimit(nodeChar)
 	-- if not DB.isOwner(nodeChar) then
@@ -69,6 +75,8 @@ function getEncumbranceMult(nodeChar)
 	if CharManager.hasTrait(nodeChar, CharManager.TRAIT_POWERFUL_BUILD) then
 		nActorSize = nActorSize + 1;
 	elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_HIPPO_BUILD) then
+		nActorSize = nActorSize + 1;
+	elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_LITTLE_GIANT) then
 		nActorSize = nActorSize + 1;
 	end
 	

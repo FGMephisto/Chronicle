@@ -5,6 +5,365 @@
 --
 
 -- ===================================================================================================================
+-- Abilities (database names)
+-- ===================================================================================================================
+abilities = {
+	"agility",
+	"animalhandling",
+	"athletics",
+	"awareness",
+	"cunning",
+	"deception",
+	"endurance",
+	"fighting",
+	"healing",
+	"language",
+	"knowledge",
+	"marksmanship",
+	"persuasion",
+	"status",
+	"stealth",
+	"survival",
+	"thievery",
+	"warfare",
+	"will"
+};
+
+-- ===================================================================================================================
+-- Abilities - Match full name to shorthand
+-- ===================================================================================================================
+ability_ltos = {
+	["agility"] = "AGI",
+	["animalhandling"] ="ANI",
+	["athletics"] = "ATH",
+	["awareness"] = "AWA",
+	["cunning"] = "CUN",
+	["deception"] = "DEC",
+	["endurance"] = "END",
+	["fighting"] = "FIG",
+	["healing"] = "HEA",
+	["language"] = "LAN",
+	["knowledge"] = "KNO",
+	["marksmanship"] = "MAR",
+	["persuasion"] = "PER",
+	["status"] = "STA",
+	["stealth"] = "STE",
+	["survival"] = "SUR",
+	["thievery"] = "THI",
+	["warfare"] = "WAR",
+	["will"] = "WIL"
+};
+
+-- ===================================================================================================================
+-- Abilities - Match shorthand to full name
+-- ===================================================================================================================
+ability_stol = {
+	["AGI"] = "agility",
+	["ANI"] = "animalhandling",
+	["ATH"] = "athletics",
+	["AWA"] = "awareness",
+	["CUN"] = "cunning",
+	["DEC"] = "deception",
+	["END"] = "endurance",
+	["FIG"] = "fighting",
+	["HEA"] = "healing",
+	["LAN"] = "language",
+	["KNO"] = "knowledge",
+	["MAR"] = "marksmanship",
+	["PER"] = "persuasion",
+	["STA"] = "status",
+	["STE"] = "stealth",
+	["SUR"] = "survival",
+	["THI"] = "thievery",
+	["WAR"] = "warfare",
+	["WIL"] = "will"
+};
+
+-- ===================================================================================================================
+-- Values for wound comparison
+-- ===================================================================================================================
+healthstatusfull = "healthy";
+healthstatushalf = "bloodied";
+healthstatuswounded = "wounded";
+
+-- ===================================================================================================================
+-- Values for alignment comparison
+-- ===================================================================================================================
+alignment_lawchaos = {
+	["lawful"] = 1,
+	["chaotic"] = 3,
+	["l"] = 1,
+	["c"] = 3,
+	["lg"] = 1,
+	["ln"] = 1,
+	["le"] = 1,
+	["cg"] = 3,
+	["cn"] = 3,
+	["ce"] = 3,
+};
+alignment_goodevil = {
+	["good"] = 1,
+	["evil"] = 3,
+	["g"] = 1,
+	["e"] = 3,
+	["lg"] = 1,
+	["le"] = 3,
+	["ng"] = 1,
+	["ne"] = 3,
+	["cg"] = 1,
+	["ce"] = 3,
+};
+alignment_neutral = "n";
+
+-- ===================================================================================================================
+-- Values for size comparison
+-- ===================================================================================================================
+creaturesize = {
+	["tiny"] = -2,
+	["small"] = -1,
+	["medium"] = 0,
+	["large"] = 1,
+	["huge"] = 2,
+	["gargantuan"] = 3,
+	["t"] = -2,
+	["s"] = -1,
+	["m"] = 0,
+	["l"] = 1,
+	["h"] = 2,
+	["g"] = 3,
+};
+
+-- ===================================================================================================================
+-- Values for creature type comparison
+-- ===================================================================================================================
+creaturedefaulttype = "humanoid";
+creaturehalftype = "half-";
+creaturehalftypesubrace = "human";
+-- NOTE: Multi-word types must come before single word types
+creaturetype = {
+	-- "aberration",
+	-- "beast",
+	-- "celestial",
+	-- "construct",
+	"dragon",
+	-- "elemental",
+	-- "fey",
+	-- "fiend",
+	"giant",
+	"humanoid",
+	-- "monstrosity",
+	-- "ooze",
+	-- "plant",
+	"undead",
+};
+-- NOTE: Multi-word types must come before single word types
+creaturesubtype = {
+	-- "living construct",
+	-- "aarakocra",
+	-- "bullywug",
+	-- "demon",
+	-- "devil",
+	-- "dragonborn",
+	"dwarf",
+	"elf", 
+	-- "gith",
+	-- "gnoll",
+	-- "gnome", 
+	-- "goblinoid",
+	-- "grimlock",
+	-- "halfling",
+	-- "human",
+	-- "kenku",
+	-- "kuo-toa",
+	-- "kobold",
+	-- "lizardfolk",
+	-- "merfolk",
+	-- "orc",
+	-- "quaggoth",
+	-- "sahuagin",
+	-- "shapechanger",
+	-- "thri-kreen",
+	-- "titan",
+	-- "troglodyte",
+	-- "yuan-ti",
+	-- "yugoloth",
+	"troll"
+};
+
+-- ===================================================================================================================
+-- Values supported in effect conditionals
+-- ===================================================================================================================
+conditionaltags = {
+};
+
+-- ===================================================================================================================
+-- Conditions supported in effect conditionals and for token widgets
+-- ===================================================================================================================
+conditions = {
+	"blinded", 
+	"deafened",
+	"encumbered",
+	"frightened", 
+	"grappled", 
+	"incapacitated",
+	"intoxicated",
+	"paralyzed",
+	"poisoned",
+	"prone", 
+	"restrained",
+	"stunned",
+	"unconscious"
+};
+
+-- ===================================================================================================================
+-- Bonus/penalty effect types for token widgets
+-- ===================================================================================================================
+bonuscomps = {
+	"INIT",
+	-- "CHECK",
+	-- "AC",
+	"ATK",
+	"DMG",
+	"HEAL",
+	-- "SAVE",
+	-- "STR",
+	-- "CON",
+	-- "DEX",
+	-- "INT",
+	-- "WIS",
+	-- "CHA",
+	"AGI",
+	"ANI",
+	"ATH",
+	"AWA",
+	"CUN",
+	"DEC",
+	"END",
+	"FIG",
+	"HEA",
+	"LAN",
+	"KNO",
+	"MAR",
+	"PER",
+	"STA",
+	"STE",
+	"SUR",
+	"THI",
+	"WAR",
+	"TESTD",
+	"BONUSD",
+	"DEF"
+};
+
+
+
+-- ===================================================================================================================
+-- Condition effect types for token widgets, i.e. icon displayed
+-- ===================================================================================================================
+condcomps = {
+	["blinded"] = "cond_blinded",
+	["charmed"] = "cond_charmed",
+	["deafened"] = "cond_deafened",
+	["encumbered"] = "cond_encumbered",
+	["frightened"] = "cond_frightened",
+	["grappled"] = "cond_grappled",
+	["incapacitated"] = "cond_paralyzed",
+	["invisible"] = "cond_invisible",
+	["paralyzed"] = "cond_paralyzed",
+	["petrified"] = "cond_paralyzed",
+	["prone"] = "cond_prone",
+	["poisoned"] = "cond_poisoned",
+	["restrained"] = "cond_restrained",
+	["stunned"] = "cond_stunned",
+	["unconscious"] = "cond_unconscious",
+	["intoxicated"] = "cond_intoxicated",
+
+	-- Similar to conditions
+	["cover"] = "cond_cover",
+	["scover"] = "cond_cover",
+};
+
+-- ===================================================================================================================
+-- Other visible effect types for token widgets
+-- ===================================================================================================================
+othercomps = {
+	["COVER"] = "cond_cover",
+	["SCOVER"] = "cond_cover",
+	["IMMUNE"] = "cond_immune",
+	-- ["RESIST"] = "cond_resistance",
+	-- ["VULN"] = "cond_vulnerable",
+	-- ["REGEN"] = "cond_regeneration",
+	["DMGO"] = "cond_bleed",
+};
+
+-- ===================================================================================================================
+-- Effect components which can be targeted
+-- ===================================================================================================================
+targetableeffectcomps = {
+	"COVER",
+	"SCOVER",
+	-- "AC",
+	-- "SAVE",
+	"ATK",
+	"DMG",
+	-- "IMMUNE",
+	-- "VULN",
+	-- "RESIST"
+};
+
+connectors = {
+	"and",
+	"or"
+};
+
+-- ===================================================================================================================
+-- Range types supported
+-- ===================================================================================================================
+rangetypes = {
+	"melee",
+	"ranged"
+};
+
+-- ===================================================================================================================
+-- Damage types supported
+-- ===================================================================================================================
+dmgtypes = {
+	"acid",		-- ENERGY TYPES
+	"cold",
+	"fire",
+	-- "force",
+	-- "lightning",
+	-- "necrotic",
+	"poison",
+	-- "psychic",
+	-- "radiant",
+	-- "thunder",
+	-- "adamantine", 	-- WEAPON PROPERTY DAMAGE TYPES
+	"bludgeoning",
+	-- "cold-forged iron",
+	"magic",
+	"piercing",
+	-- "silver",
+	"slashing",
+	-- "critical", -- SPECIAL DAMAGE TYPES
+};
+
+-- ===================================================================================================================
+specialdmgtypes = {
+	-- "critical",
+};
+
+-- ===================================================================================================================
+-- Bonus types supported in power descriptions
+-- ===================================================================================================================
+bonustypes = {
+};
+
+-- ===================================================================================================================
+stackablebonustypes = {
+};
+
+-- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
 	-- ===================================================================================================================
@@ -226,245 +585,4 @@ function onInit()
 		Interface.getString("skill_value_courage"),
 		Interface.getString("skill_value_dedication")
 	};
-
 end
-
--- ===================================================================================================================
--- Abilities list
--- ===================================================================================================================
-abilities = {
-	"agility",
-	"animalhandling",
-	"athletics",
-	"awareness",
-	"cunning",
-	"deception",
-	"endurance",
-	"fighting",
-	"healing",
-	"language",
-	"knowledge",
-	"marksmanship",
-	"persuasion",
-	"status",
-	"stealth",
-	"survival",
-	"thievery",
-	"warfare",
-	"will"
-};
-
--- ===================================================================================================================
--- Abilities - Match shorthand to full name
--- ===================================================================================================================
-ability_ltos = {
-	["agility"] = "AGI",
-	["animalhandling"] ="ANI",
-	["athletics"] = "ATH",
-	["awareness"] = "AWA",
-	["cunning"] = "CUN",
-	["deception"] = "DEC",
-	["endurance"] = "END",
-	["fighting"] = "FIG",
-	["healing"] = "HEA",
-	["language"] = "LAN",
-	["knowledge"] = "KNO",
-	["marksmanship"] = "MAR",
-	["persuasion"] = "PER",
-	["status"] = "STA",
-	["stealth"] = "STE",
-	["survival"] = "SUR",
-	["thievery"] = "THI",
-	["warfare"] = "WAR",
-	["will"] = "WIL"
-};
-
--- ===================================================================================================================
--- Abilities - Match full name to shorthand
--- ===================================================================================================================
-ability_stol = {
-	["AGI"] = "agility",
-	["ANI"] = "animalhandling",
-	["ATH"] = "athletics",
-	["AWA"] = "awareness",
-	["CUN"] = "cunning",
-	["DEC"] = "deception",
-	["END"] = "endurance",
-	["FIG"] = "fighting",
-	["HEA"] = "healing",
-	["LAN"] = "language",
-	["KNO"] = "knowledge",
-	["MAR"] = "marksmanship",
-	["PER"] = "persuasion",
-	["STA"] = "status",
-	["STE"] = "stealth",
-	["SUR"] = "survival",
-	["THI"] = "thievery",
-	["WAR"] = "warfare",
-	["WIL"] = "will"
-};
-
--- ===================================================================================================================
--- Values for wound comparison
--- ===================================================================================================================
-healthstatusfull = "healthy";
-healthstatushalf = "bloodied";
-healthstatuswounded = "wounded";
-
--- ===================================================================================================================
--- Values for size comparison
--- ===================================================================================================================
-creaturesize = {
-	["tiny"] = -2,
-	["small"] = -1,
-	["medium"] = 0,
-	["large"] = 1,
-	["huge"] = 2,
-	["gargantuan"] = 3,
-	["t"] = -2,
-	["s"] = -1,
-	["m"] = 0,
-	["l"] = 1,
-	["h"] = 2,
-	["g"] = 3,
-};
-
--- ===================================================================================================================
--- Values supported in effect conditionals
--- ===================================================================================================================
-conditionaltags = {
-};
-
--- ===================================================================================================================
--- Conditions supported in effect conditionals and for token widgets
--- ===================================================================================================================
-conditions = {
-	"blinded", 
-	"deafened",
-	"encumbered",
-	"frightened", 
-	"grappled", 
-	"incapacitated",
-	"intoxicated",
-	"paralyzed",
-	"poisoned",
-	"prone", 
-	"restrained",
-	"stunned",
-	"unconscious"
-};
-
--- ===================================================================================================================
--- Bonus/penalty effect types for token widgets
--- ===================================================================================================================
-bonuscomps = {
-	-- "AC",
-	"ATK",
-	"BONUSD",
-	-- "CHA",
-	"CHECK",
-	-- "CON",
-	"DEF",
-	-- "DEX",
-	"DMG",
-	"HEAL",
-	"INIT",
-	-- "INT",
-	-- "SAVE",
-	-- "STR",
-	"TESTD",
-	-- "WIS",
-};
-
--- ===================================================================================================================
--- Condition effect types for token widgets, i.e. icon displayed
--- ===================================================================================================================
-condcomps = {
-	["blinded"] = "cond_blinded",
-	["deafened"] = "cond_deafened",
-	["encumbered"] = "cond_encumbered",
-	["frightened"] = "cond_frightened",
-	["grappled"] = "cond_grappled",
-	["incapacitated"] = "cond_paralyzed",
-	["intoxicated"] = "cond_intoxicated",
-	["paralyzed"] = "cond_paralyzed",
-	["prone"] = "cond_prone",
-	["poisoned"] = "cond_poisoned",
-	["restrained"] = "cond_restrained",
-	["stunned"] = "cond_stunned",
-	["unconscious"] = "cond_unconscious",
-
-	-- Similar to conditions
-	["cover"] = "cond_cover",
-	["scover"] = "cond_cover",
-};
-
--- ===================================================================================================================
--- Other visible effect types for token widgets
--- ===================================================================================================================
-othercomps = {
-	["COVER"] = "cond_cover",
-	["SCOVER"] = "cond_cover",
-};
-
--- ===================================================================================================================
--- Effect components which can be targeted
--- ===================================================================================================================
-targetableeffectcomps = {
-	"COVER",
-	"SCOVER",
-	"ATK",
-	"DMG",
-};
-
-connectors = {
-	"and",
-	"or"
-};
-
--- ===================================================================================================================
--- Range types supported
--- ===================================================================================================================
-rangetypes = {
-	"melee",
-	"ranged"
-};
-
--- ===================================================================================================================
--- Damage types supported
--- ===================================================================================================================
-dmgtypes = {
-	"acid",		-- ENERGY TYPES
-	"cold",
-	"fire",
-	-- "force",
-	-- "lightning",
-	-- "necrotic",
-	"poison",
-	-- "psychic",
-	-- "radiant",
-	-- "thunder",
-	-- "adamantine", 	-- WEAPON PROPERTY DAMAGE TYPES
-	"bludgeoning",
-	-- "cold-forged iron",
-	"magic",
-	"piercing",
-	-- "silver",
-	"slashing",
-	-- "critical", -- SPECIAL DAMAGE TYPES
-};
-
--- ===================================================================================================================
-specialdmgtypes = {
-	-- "critical",
-};
-
--- ===================================================================================================================
--- Bonus types supported in power descriptions
--- ===================================================================================================================
-bonustypes = {
-};
-
--- ===================================================================================================================
-stackablebonustypes = {
-};

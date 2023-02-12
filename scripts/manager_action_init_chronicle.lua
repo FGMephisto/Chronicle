@@ -4,74 +4,64 @@
 -- File adjusted for Chronicle System
 --
 
-OOB_MSGTYPE_APPLYINIT = "applyinit"
+OOB_MSGTYPE_APPLYINIT = "applyinit";
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit)
+	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit);
 
-	ActionsManager.registerModHandler("init", modRoll)
-	ActionsManager.registerResultHandler("init", onRoll)
-	-- ActionsManager.registerResultHandler("init", onResolve)
+	ActionsManager.registerModHandler("init", modRoll);
+	ActionsManager.registerResultHandler("init", onResolve);
 end
 
 -- ===================================================================================================================
 -- Set Initiative result on CT
 -- ===================================================================================================================
 function handleApplyInit(msgOOB)
-	-- Debug.chat("FN: handleApplyInit in manager_action_init")
-	local rActor = ActorManager.resolveActor(msgOOB.sSourceNode)
-	local nTotal = tonumber(msgOOB.nTotal) or 0
+	Debug.chat("FN: handleApplyInit in manager_action_init")
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local nTotal = tonumber(msgOOB.nTotal) or 0;
 
-	DB.setValue(ActorManager.getCTNode(rActor), "initresult", "number", nTotal)
+	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
 end
 
 -- ===================================================================================================================
 -- Communicate initiative roll to Clients
 -- ===================================================================================================================
-function notifyApplyInit(rActor, nTotal)
-	-- Debug.chat("FN: notifyApplyInit in manager_action_init")
-	if not rActor then
-		return
+function notifyApplyInit(rSource, nTotal)
+	Debug.chat("FN notifyApplyInit in manager_action_init")
+	if not rSource then
+		return;
 	end
 
-	local msgOOB = {}
-	msgOOB.type = OOB_MSGTYPE_APPLYINIT
+	local msgOOB = {};
+	msgOOB.type = OOB_MSGTYPE_APPLYINIT;
 
-	msgOOB.nTotal = nTotal
+	msgOOB.nTotal = nTotal;
 
-	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rActor)
+	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 
-	Comm.deliverOOBMessage(msgOOB, "")
+	Comm.deliverOOBMessage(msgOOB, "");
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
-function performRoll(draginfo, rActor, bSecretRoll, bHideMessage)
-	-- Debug.chat("FN: performRoll in manager_action_init")
-	local rRoll = getRoll(rActor, bSecretRoll, bHideMessage)
-	
-	ActionsManager.performAction(draginfo, rActor, rRoll)
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function getRoll(rActor, bSecretRoll, bHideMessage)
-	-- Debug.chat("FN: getRoll in manager_action_init")
-	local rRoll = {}
-	rRoll.aDice = {}
-	rRoll.bSecret = bSecretRoll
-	rRoll.bHideMessage = bHideMessage
-	rRoll.sStat = "agility"
-	rRoll.sAbility = "Agility"
-	rRoll.sSkill = "Quickness"
-	rRoll.sType = "init"
-	rRoll.nTest = ActorManager5E.getAbilityScore(rActor, rRoll.sStat)
-	rRoll.nBonus = ActorManager5E.getSkillRank(rActor, rRoll.sSkill)
-	rRoll.nPenalty = 0
-	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor)
-	rRoll.nMod = 0
+function getRoll(rActor, bSecretRoll)
+	Debug.chat("FN getRoll in manager_action_init")
+	local rRoll = {};
+	rRoll.aDice = {};
+	rRoll.bSecret = bSecretRoll;
+	rRoll.sStat = "agility";
+	rRoll.sAbility = "Agility";
+	rRoll.sSkill = "Quickness";
+	rRoll.sType = "init";
+	rRoll.nTest = ActorManager5E.getAbilityScore(rActor, rRoll.sStat);
+	rRoll.nBonus = ActorManager5E.getSkillRank(rActor, rRoll.sSkill);
+	rRoll.nPenalty = 0;
+	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor);
+	rRoll.nMod = 0;
 
 	-- Add Test Die to Dice Array. This is necessary to have the proper number of die show up on drag.
 	for i = 1, rRoll.nTest do
@@ -86,13 +76,23 @@ function getRoll(rActor, bSecretRoll, bHideMessage)
 	-- Concatenate strings	
 	rRoll.sDesc = "[INITIATIVE] " .. rRoll.sAbility .. " (" .. rRoll.sSkill .. ")"
 
-	return rRoll
+	return rRoll;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function modRoll(rActor, rTarget, rRoll)
-	-- Debug.chat("FN: modRoll in manager_action_init")
+function performRoll(draginfo, rActor, bSecretRoll)
+	Debug.chat("FN performRoll in manager_action_init")
+	local rRoll = getRoll(rActor, bSecretRoll);
+	
+	ActionsManager.performAction(draginfo, rActor, rRoll);
+end
+
+-- ===================================================================================================================
+-- Adjusted
+-- ===================================================================================================================
+function modRoll(rSource, rTarget, rRoll)
+	Debug.chat("FN modRoll in manager_action_init")
 	local aAddDesc = {}
 	local aAddDice = {}
 	local nAddMod = 0
@@ -117,27 +117,26 @@ function modRoll(rActor, rTarget, rRoll)
 	ActionsManager2.encodeHealthMods(rActor, rRoll)
 
 	-- ToDo: Handle Effects
-	if rActor then
-		local bEffects, aEffectDice, nEffectMod  = getEffectAdjustments(rActor)
-
+	if rSource then
+		local bEffects, aEffectDice, nEffectMod = getEffectAdjustments(rSource);
 		if bEffects then
 			for _,vDie in ipairs(aEffectDice) do
 				if vDie:sub(1,1) == "-" then
-					table.insert(rRoll.aDice, "-p" .. vDie:sub(3))
+					table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
 				else
-					table.insert(rRoll.aDice, "p" .. vDie:sub(2))
+					table.insert(rRoll.aDice, "p" .. vDie:sub(2));
 				end
 			end
-			rRoll.nMod = rRoll.nMod + nEffectMod
+			rRoll.nMod = rRoll.nMod + nEffectMod;
 
-			local sEffects = ""
-			local sMod = StringManager.convertDiceToString(aEffectDice, nEffectMod, true)
+			local sEffects = "";
+			local sMod = StringManager.convertDiceToString(aEffectDice, nEffectMod, true);
 			if sMod ~= "" then
-				sEffects = "[" .. Interface.getString("effects_tag") .. " " .. sMod .. "] "
+				sEffects = "[" .. Interface.getString("effects_tag") .. " " .. sMod .. "]";
 			else
-				sEffects = "[" .. Interface.getString("effects_tag") .. "] "
+				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
 			end
-			rRoll.sDesc = rRoll.sDesc .. " " .. sEffects
+			rRoll.sDesc = rRoll.sDesc .. " " .. sEffects;
 		end
 	end
 
@@ -155,74 +154,70 @@ end
 
 -- ===================================================================================================================
 -- Returns effect existence, effect dice, effect mod
+-- Adjusted
 -- ===================================================================================================================
 function getEffectAdjustments(rActor)
+	Debug.chat("FN getEffectAdjustments in manager_action_init")
 	-- ToDo: Adjust to work with Chronicle
-	-- Debug.chat("FN: getEffectAdjustments in manager_action_init")
 	if not rActor then
-		return false, {}, 0, false, false
+		return false, {}, 0, false, false;
 	end
 	
 	-- Determine ability used - Only agility for this ruleset
-	local sActionStat = "agility"
+	local sActionStat = "agility";
 	
 	-- Initialize
-	local bEffects = false
-	local aEffectDice = {}
-	local nEffectMod = 0
+	local bEffects = false;
+	local aEffectDice = {};
+	local nEffectMod = 0;
 	
 	-- Determine general effect modifiers
-	local aInitDice, nInitMod, nInitCount = EffectManager5E.getEffectsBonus(rActor, {"INIT"})
+	local aInitDice, nInitMod, nInitCount = EffectManager5E.getEffectsBonus(rActor, {"INIT"});
 	if nInitCount > 0 then
-		bEffects = true
+		bEffects = true;
 		for _,vDie in ipairs(aInitDice) do
-			table.insert(aEffectDice, vDie)
+			table.insert(aEffectDice, vDie);
 		end
-		nEffectMod = nEffectMod + nInitMod
+		nEffectMod = nEffectMod + nInitMod;
 	end
 	
 	-- Get ability effect modifiers
-	local nAbilityMod, nAbilityEffects = ActorManager5E.getAbilityEffectsBonus(rActor, sActionStat)
+	local nAbilityMod, nAbilityEffects = ActorManager5E.getAbilityEffectsBonus(rActor, sActionStat);
 	if nAbilityEffects > 0 then
-		bEffects = true
-		nEffectMod = nEffectMod + nAbilityMod
+		bEffects = true;
 	end
 	
 	-- Ability check modifiers
-	local aCheckFilter = { sActionStat }
-	local aAbilityCheckDice, nAbilityCheckMod, nAbilityCheckCount = EffectManager5E.getEffectsBonus(rActor, {"CHECK"}, false, aCheckFilter)
+	local aCheckFilter = { sActionStat };
+	local aAbilityCheckDice, nAbilityCheckMod, nAbilityCheckCount = EffectManager5E.getEffectsBonus(rActor, {"CHECK"}, false, aCheckFilter);
 	if (nAbilityCheckCount > 0) then
-		bEffects = true
+		bEffects = true;
 		for _,vDie in ipairs(aAbilityCheckDice) do
-			table.insert(aEffectDice, vDie)
+			table.insert(aEffectDice, vDie);
 		end
-		nEffectMod = nEffectMod + nAbilityCheckMod
+		nEffectMod = nEffectMod + nAbilityCheckMod;
 	end
 	
 	-- Get exhaustion modifiers
-	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rActor, {"EXHAUSTION"}, true)
+	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rActor, {"EXHAUSTION"}, true);
 	if nExhaustCount > 0 then
-		bEffects = true
+		bEffects = true;
 		if nExhaustMod >= 1 then
 		end
 	end
 	
-	return bEffects, aEffectDice, nEffectMod
+	return bEffects, aEffectDice, nEffectMod;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function onRoll(rActor, rTarget, rRoll)
--- function onResolve(rActor, rTarget, rRoll)
-	-- Debug.chat("FN: onRoll in manager_action_init")
-	local rMessage = ActionsManager.createActionMessage(rActor, rRoll)
+function onResolve(rSource, rTarget, rRoll)
+	Debug.chat("FN onResolve in manager_action_init")
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
-	if not rRoll.bHideMessage then
-		Comm.deliverChatMessage(rMessage)
-	end
-
-	notifyApplyInit(rActor, tonumber(rRoll.nTotal))
+	Comm.deliverChatMessage(rMessage);
+	notifyApplyInit(rSource, tonumber(rRoll.nTotal));
 end

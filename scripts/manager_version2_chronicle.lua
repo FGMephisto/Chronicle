@@ -10,29 +10,29 @@ local rsmajorversion = 8;
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
-	if Session.IsHost or Session.IsLocal then
-		VersionManager2.updateCampaign();
+	if Session.IsHost then
+		updateCampaign();
 	end
 
-	DB.onAuxCharLoad = onCharImport;
-	DB.onImport = onImport;
-	Module.onModuleLoad = onModuleLoad;
+	DB.addEventHandler("onAuxCharLoad", onCharImport);
+	DB.addEventHandler("onImport", onImport);
+	Module.addEventHandler("onModuleLoad", onModuleLoad);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onCharImport(nodePC)
 	local _, _, aMajor, _ = DB.getImportRulesetVersion();
-	VersionManager2.updateChar(nodePC, aMajor[rsname]);
+	updateChar(nodePC, aMajor[rsname]);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onImport(node)
-	local apath = StringManager.split(node.getPath(), ".");
-	if #apath == 2 and apath[1] == "charsheet" then
+	local aPath = StringManager.split(DB.getPath(node), ".");
+	if #aPath == 2 and aPath[1] == "charsheet" then
 		local _, _, aMajor, _ = DB.getImportRulesetVersion();
-		VersionManager2.updateChar(node, aMajor[rsname]);
+		updateChar(node, aMajor[rsname]);
 	end
 end
 
@@ -40,7 +40,7 @@ end
 -- ===================================================================================================================
 function onModuleLoad(sModule)
 	local _, _, aMajor, _ = DB.getRulesetVersion(sModule);
-	VersionManager2.updateModule(sModule, aMajor[rsname]);
+	updateModule(sModule, aMajor[rsname]);
 end
 
 -- ===================================================================================================================

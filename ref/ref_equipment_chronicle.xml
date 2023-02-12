@@ -11,6 +11,7 @@
 	<!-- Weapon Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_weapon">
 		<frame>recordsheet</frame>
@@ -50,6 +51,7 @@
 	<!-- Armor Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_armor">
 		<frame>recordsheet</frame>
@@ -89,6 +91,7 @@
 	<!-- Equipment Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_equipment">
 		<frame>recordsheet</frame>
@@ -128,6 +131,7 @@
 	<!-- Mounts and Other Animals Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_mountsandotheranimals">
 		<frame>recordsheet</frame>
@@ -167,6 +171,7 @@
 	<!-- Waterborne Vehicles Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_waterbornevehicles">
 		<frame>recordsheet</frame>
@@ -206,6 +211,7 @@
 	<!-- Vehicle Description sheets -->
 	<!-- PRE-DEPRECATED (2022-08-16) -->
 	<!-- NOTE: Must maintain copy for old modules -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="reference_vehicle">
 		<frame>recordsheet</frame>

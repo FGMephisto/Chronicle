@@ -15,7 +15,7 @@ function action(draginfo)
 
 	-- Handle empty fields
 	if sSkill == nil then
-		return false
+		return false;
 	end
 	
 	-- Handing it over for roll execution
@@ -23,11 +23,11 @@ function action(draginfo)
 	ActionSkill.performPartySheetRoll(nil, rActor, sSkill)
 	ModifierManager.unlock(true)
 
-	return true
+	return true;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onButtonPress()
-	return action()
+	return action();
 end

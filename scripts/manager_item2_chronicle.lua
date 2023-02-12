@@ -5,6 +5,7 @@
 --
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
 	-- Debug.chat("FN: onInit in manager_item2")
@@ -75,14 +76,14 @@ function handleItemCleanupOnTransfer(rSourceItem, rTempItem, rTargetItem)
 end
 
 -- ===================================================================================================================
--- Custom
+-- Added
 -- ===================================================================================================================
 function getItemSourceTypeChronicle(vNode)
 	-- Debug.chat("FN: getItemSourceTypeChronicle in manager_item3")
 	local sNodePath = nil;
 
 	if type(vNode) == "databasenode" then
-		sNodePath = vNode.getPath();
+		sNodePath = DB.getPath(vNode);
 	elseif type(vNode) == "string" then
 		sNodePath = vNode;
 	end
@@ -91,7 +92,7 @@ function getItemSourceTypeChronicle(vNode)
 		return "";
 	end
 
-	for _, vMapping in ipairs(LibraryData.getMappings("charsheet")) do
+	for _,vMapping in ipairs(LibraryData.getMappings("charsheet")) do
 		if StringManager.startsWith(sNodePath, vMapping) then
 			return "charsheet";
 		end
@@ -105,13 +106,13 @@ function getItemSourceTypeChronicle(vNode)
 		end
 	end
 
-	for _, vMapping in ipairs(LibraryData.getMappings("item")) do
+	for _,vMapping in ipairs(LibraryData.getMappings("item")) do
 		if StringManager.startsWith(sNodePath, vMapping) then
 			return "item";
 		end
 	end
 
-	for _, vMapping in ipairs(LibraryData.getMappings("treasureparcel")) do
+	for _,vMapping in ipairs(LibraryData.getMappings("treasureparcel")) do
 		if StringManager.startsWith(sNodePath, vMapping) then
 			return "treasureparcel";
 		end

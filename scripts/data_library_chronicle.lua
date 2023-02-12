@@ -44,12 +44,69 @@ end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
+function getItemRarityValue(vNode)
+	local v = StringManager.trim(DB.getValue(vNode, "rarity", ""));
+	local sType = v:match("^[^(]+");
+	if sType then
+		v = StringManager.trim(sType);
+	end
+	v = StringManager.capitalize(v);
+	return v;
+end
+
+-- ===================================================================================================================
+-- ===================================================================================================================
+function getItemAttunementValue(vNode)
+	local v = StringManager.trim(DB.getValue(vNode, "rarity", "")):lower();
+	if v:match("%(requires attunement") then
+		return LibraryData.sFilterValueYes;
+	end
+	return LibraryData.sFilterValueNo;
+end
+
+-- ===================================================================================================================
+-- ===================================================================================================================
 function isItemIdentifiable(vNode)
 	local sBasePath = UtilityManager.getDataBaseNodePathSplit(vNode)
 	return (sBasePath ~= "reference");
 end
 
 -- ===================================================================================================================
+-- ===================================================================================================================
+function getSpellSourceValue(vNode)
+	if not vNode then
+		return {};
+	end
+	return StringManager.split(DB.getValue(vNode, "source", ""), ",", true);
+end
+
+-- ===================================================================================================================
+-- ===================================================================================================================
+function getSpellViewGroup(v)
+	if v and (v >= 1) and (v <= 9) then
+		return StringManager.ordinalize(v);
+	end
+	return Interface.getString("library_recordtype_value_spell_level_0_group");
+end
+
+-- ===================================================================================================================
+-- ===================================================================================================================
+function getSpellViewCastTime(vNode, vDefault)
+	if not vNode then
+		return vDefault;
+	end
+	local s = DB.getValue(vNode, "castingtime", vDefault);
+	if not s then
+		return vDefault;
+	end
+	if s:match("^%s*1 reaction") then
+		return "1 reaction";
+	end
+	return s;
+end
+
+-- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 aRecordOverrides = {
 	-- CoreRPG overrides
@@ -62,14 +119,15 @@ aRecordOverrides = {
 	["npc"] = { 
 		aDataMap = { "npc", "reference.npcdata" }, 
 		aGMListButtons = { "button_npc_byletter", "button_npc_bytype" },
+		-- aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
 		aCustomFilters = {
+			["CR"] = { sField = "cr", sType = "number", fSort = sortNPCCRValues },
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
 	},
 	["item"] = { 
 		fIsIdentifiable = isItemIdentifiable,
 		aDataMap = { "item", "reference.equipmentdata" },
-		fRecordDisplayClass = getItemRecordDisplayClass,
 		aRecordDisplayClasses = { "item", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
 		aGMListButtons = { "button_item_armor", "button_item_weapon" },
 		aPlayerListButtons = { "button_item_armor", "button_item_weapon" },
@@ -149,8 +207,7 @@ aListViews = {
 				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
 				{ sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=200, bWrapped=true },
 				{ sName = "crew", sType = "number", sHeadingRes = "item_label_crew", nWidth=40, bCentered=true },
-				-- ToDo: Do we need this?
-				-- { sName = "ac", sType = "number", sHeadingRes = "ac", sTooltipRes = "armorclass", nWidth=40, bCentered=true },
+				{ sName = "ac", sType = "number", sHeadingRes = "ac", sTooltipRes = "armorclass", nWidth=40, bCentered=true },
 				{ sName = "damagethreshold", sType = "number", sHeadingRes = "dt", sTooltipRes = "damagethreshold", nWidth=40, bCentered=true },
 				{ sName = "hp", sType = "number", sHeadingRes = "hp", sTooltipRes = "hitpoints", bCentered=true },
 			},
@@ -210,6 +267,7 @@ aListViews = {
 };
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
 	LibraryData.setCustomFilterHandler("item_isidentified", getItemIsIdentified);

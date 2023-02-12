@@ -13,8 +13,6 @@
 				<tooltip textres="char_abilities_tooltip_edit" />
 				<script>
 					function onValueChanged()
-						local bEditMode = (getValue() == 1);
-						
 						window.contents.subwindow.feats.update();
 						window.contents.subwindow.features.update();
 						window.contents.subwindow.traits.update();

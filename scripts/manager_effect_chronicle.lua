@@ -282,7 +282,7 @@ function removeEffectByType(nodeCT, sEffectType)
 	end
 	local aEffectsToDelete = {};
 
-	for _,nodeEffect in pairs(DB.getChildren(nodeCT, "effects")) do
+	for _,nodeEffect in ipairs(DB.getChildList(nodeCT, "effects")) do
 		local nActive = DB.getValue(nodeEffect, "isactive", 0);
 		if (nActive ~= 0) then
 			local s = DB.getValue(nodeEffect, "label", "");
@@ -329,14 +329,14 @@ function removeEffectByType(nodeCT, sEffectType)
 	end
 	
 	for _,v in ipairs(aEffectsToDelete) do
-		v.delete();
+		DB.deleteNode(v);
 	end
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function checkImmunities(rSource, rTarget, rEffect)
-	local aImmune = getEffectsByType(rTarget, "IMMUNE", {}, rSource);
+	local aImmuneConditions = ActorManager5E.getConditionImmunities(rTarget, rSource);
 	
 	if #aImmuneConditions == 0 then
 		return {};
@@ -428,6 +428,7 @@ function applyRecharge(nodeActor, nodeEffect, rEffectComp)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function evalAbilityHelper(rActor, sEffectAbility)
 	local sSign, sModifier, sTag = sEffectAbility:match("^%[([%+%-]?)([HTQ%d]?)([A-Z]+)%]$");
@@ -560,7 +561,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 	end
 	
 	-- Iterate through effects
-	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
+	for _,v in ipairs(DB.getChildList(ActorManager.getCTNode(rActor), "effects")) do
 		-- Check active
 		local nActive = DB.getValue(v, "isactive", 0);
 		if (nActive ~= 0) then
@@ -885,7 +886,7 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 	
 	-- Iterate through each effect
 	local aMatch = {};
-	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
+	for _,v in ipairs(DB.getChildList(ActorManager.getCTNode(rActor), "effects")) do
 		local nActive = DB.getValue(v, "isactive", 0);
 		if nActive ~= 0 then
 			-- Parse each effect label
@@ -957,7 +958,7 @@ function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
 	if not aIgnore then
 		aIgnore = {};
 	end
-	table.insert(aIgnore, nodeEffect.getPath());
+	table.insert(aIgnore, DB.getPath(nodeEffect));
 	
 	for _,v in ipairs(aConditions) do
 		local sLower = v:lower();
@@ -1030,9 +1031,9 @@ function checkConditionalHelper(rActor, sEffect, rTarget, aIgnore)
 		return false;
 	end
 	
-	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
+	for _,v in ipairs(DB.getChildList(ActorManager.getCTNode(rActor), "effects")) do
 		local nActive = DB.getValue(v, "isactive", 0);
-		if nActive ~= 0 and not StringManager.contains(aIgnore, v.getPath()) then
+		if nActive ~= 0 and not StringManager.contains(aIgnore, DB.getPath(v)) then
 			-- Parse each effect label
 			local sLabel = DB.getValue(v, "label", "");
 			local aEffectComps = EffectManager.parseEffect(sLabel);

@@ -113,7 +113,7 @@ function addPower(sClass, nodeSource, nodeCreature, sGroup)
 	
 	-- Parse power details to create actions
 	if DB.getChildCount(nodeNewPower, "actions") == 0 then
-		parsePCPower(nodeNewPower);
+		PowerManager.parsePCPower(nodeNewPower);
 	end
 
 	-- If PC, then make sure all spells are visible
@@ -158,7 +158,8 @@ function getPCPowerAction(nodeAction, sSubRoll)
 	if not nodeAction then
 		return;
 	end
-	local rActor = ActorManager.resolveActor(DB.getChild(nodeAction, "....."));
+	local nodePower = DB.getChild(nodeAction, "...");
+	local rActor = ActorManager.resolveActor(PowerManagerCore.getPowerActorNode(nodePower));
 	if not rActor then
 		return;
 	end
@@ -166,7 +167,7 @@ function getPCPowerAction(nodeAction, sSubRoll)
 	local rAction = {};
 	rAction.type = DB.getValue(nodeAction, "type", "");
 	rAction.label = DB.getValue(nodeAction, "...name", "");
-	rAction.order = getPCPowerActionOutputOrder(nodeAction);
+	rAction.order = PowerManager.getPCPowerActionOutputOrder(nodeAction);
 	
 	if rAction.type == "cast" then
 		rAction.subtype = sSubRoll;
@@ -259,9 +260,9 @@ function getPCPowerAction(nodeAction, sSubRoll)
 end
 
 function performPCPowerAction(draginfo, nodeAction, sSubRoll)
-	local rAction, rActor = getPCPowerAction(nodeAction, sSubRoll);
+	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction, sSubRoll);
 	if rAction then
-		performAction(draginfo, rActor, rAction, DB.getChild(nodeAction, "..."));
+		PowerManager.performAction(draginfo, rActor, rAction, DB.getChild(nodeAction, "..."));
 	end
 end
 
@@ -271,7 +272,7 @@ function getPCPowerCastActionText(nodeAction)
 
 	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
 	if rAction then
-		evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
+		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
 		
 		if (rAction.range or "") ~= "" then
 			if rAction.range == "R" then
@@ -298,7 +299,7 @@ function getPCPowerDamageActionText(nodeAction)
 	local aOutput = {};
 	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
 	if rAction then
-		evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
+		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
 		
 		local aDamage = ActionDamage.getDamageStrings(rAction.clauses);
 		for _,rDamage in ipairs(aDamage) do
@@ -318,7 +319,7 @@ function getPCPowerHealActionText(nodeAction)
 	
 	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
 	if rAction then
-		evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
+		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
 		
 		local aHealDice = {};
 		local nHealMod = 0;
@@ -487,7 +488,7 @@ function evalAction(rActor, nodePower, rAction)
 	if (rAction.type == "cast") or (rAction.type == "attack") then
 		if (rAction.base or "") == "group" then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup then
 				rAction.stat = aPowerGroup.sAtkStat;
@@ -497,7 +498,7 @@ function evalAction(rActor, nodePower, rAction)
 		end
 		if (rAction.stat or "") == "base" then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup then
 				rAction.stat = aPowerGroup.sStat or "";
@@ -514,7 +515,7 @@ function evalAction(rActor, nodePower, rAction)
 	if (rAction.type == "cast") or (rAction.type == "powersave") then
 		if (rAction.save or "") == "base" then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup then
 				rAction.save = aPowerGroup.sStat or "";
@@ -522,7 +523,7 @@ function evalAction(rActor, nodePower, rAction)
 		end
 		if (rAction.savebase or "") == "group" then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup then
 				rAction.savestat = aPowerGroup.sSaveDCStat;
@@ -532,7 +533,7 @@ function evalAction(rActor, nodePower, rAction)
 		end
 		if (rAction.savestat or "") == "base" then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup then
 				rAction.savestat = aPowerGroup.sSaveDCStat or "";
@@ -551,7 +552,7 @@ function evalAction(rActor, nodePower, rAction)
 			if (vClause.stat or "") ~= "" then
 				if vClause.stat == "base" then
 					if not aPowerGroup then
-						aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+						aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 					end
 					if aPowerGroup then
 						local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, aPowerGroup.sStat);
@@ -577,7 +578,7 @@ function evalAction(rActor, nodePower, rAction)
 	if (rAction.type == "effect") then
 		if rAction.sName:match("%[BASE%]") then
 			if not aPowerGroup then
-				aPowerGroup = getPowerGroupRecord(rActor, nodePower);
+				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup and aPowerGroup.sStat and DataCommon.ability_ltos[aPowerGroup.sStat] then
 				rAction.sName =  rAction.sName:gsub("%[BASE%]", "[" .. DataCommon.ability_ltos[aPowerGroup.sStat] .. "]");
@@ -953,7 +954,7 @@ function parseDamagePhrase(aWords, i)
 			table.insert(rDamageFixed.clauses, rDmgClause);
 			
 			for n = 2, #aAbilities do
-				table.insert(rDamageFixed.clauses, { dice = {}, modifier = 0, stat = aAbilities[i], dmgtype = sDmgType });
+				table.insert(rDamageFixed.clauses, { dice = {}, modifier = 0, stat = aAbilities[i], dmgtype = rDmgClause.dmgtype });
 			end
 		end
 	end
@@ -1368,7 +1369,7 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 				StringManager.isWord(aWords[i+9], "proficiency") and
 				StringManager.isWord(aWords[i+10], "bonus") then
 			
-			rSave = {};
+			local rSave = {};
 			rSave.startindex = i-4;
 			rSave.endindex = i+10;
 			rSave.label = sPowerName;
@@ -1692,7 +1693,7 @@ function parseEffects(sPowerName, aWords)
 		end
 		
 		if rCurrent then
-			parseEffectsAdd(aWords, i, rCurrent, effects);
+			PowerManager.parseEffectsAdd(aWords, i, rCurrent, effects);
 			rCurrent = nil;
 		end
 		
@@ -1700,7 +1701,7 @@ function parseEffects(sPowerName, aWords)
 	end
 
 	if rCurrent then
-		parseEffectsAdd(aWords, i - 1, rCurrent, effects);
+		PowerManager.parseEffectsAdd(aWords, i - 1, rCurrent, effects);
 	end
 	
 	-- Handle duration field in NPC spell translations
@@ -1741,7 +1742,7 @@ function parseEffects(sPowerName, aWords)
 					rConcentrate.startindex = i;
 					rConcentrate.endindex = j+1;
 
-					parseEffectsAdd(aWords, i, rConcentrate, effects);
+					PowerManager.parseEffectsAdd(aWords, i, rConcentrate, effects);
 				end
 			end
 		end
@@ -1816,15 +1817,15 @@ function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 	local aWords, aWordStats = StringManager.parseWords(sLocal, ".:;\n");
 	
 	-- Add/separate markers for end of sentence, end of clause and clause label separators
-	aWords, aWordStats = parseHelper(sPowerDesc, aWords, aWordStats);
+	aWords, aWordStats = PowerManager.parseHelper(sPowerDesc, aWords, aWordStats);
 	
 	-- Build master list of all power abilities
 	local aMasterAbilities = {};
-	consolidationHelper(aMasterAbilities, aWordStats, "attack", parseAttacks(sPowerName, aWords));
-	consolidationHelper(aMasterAbilities, aWordStats, "damage", parseDamages(sPowerName, aWords, bMagic));
-	consolidationHelper(aMasterAbilities, aWordStats, "heal", parseHeals(sPowerName, aWords));
-	consolidationHelper(aMasterAbilities, aWordStats, "powersave", parseSaves(sPowerName, aWords, bPC, bMagic));
-	consolidationHelper(aMasterAbilities, aWordStats, "effect", parseEffects(sPowerName, aWords));
+	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "attack", parseAttacks(sPowerName, aWords));
+	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "damage", parseDamages(sPowerName, aWords, bMagic));
+	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "heal", parseHeals(sPowerName, aWords));
+	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "powersave", parseSaves(sPowerName, aWords, bPC, bMagic));
+	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "effect", parseEffects(sPowerName, aWords));
 	
 	-- Sort the abilities
 	table.sort(aMasterAbilities, function(a,b) return a.startpos < b.startpos end)
@@ -1867,7 +1868,7 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 		end
 	end
 	
-	local aActions = parsePower(sPowerName, sPowerDesc, false, bMagic);
+	local aActions = PowerManager.parsePower(sPowerName, sPowerDesc, false, bMagic);
 	
 	if nodePower then
 		-- Make sure correct duration and concentration applied to NPC spell effects
@@ -2072,7 +2073,7 @@ function parsePCPower(nodePower)
 		
 		-- Parse the description
 		local sPowerDesc = DB.getValue(nodePower, "description", "");
-		local aActions = parsePower(sPowerName, sPowerDesc, true, bMagic);
+		local aActions = PowerManager.parsePower(sPowerName, sPowerDesc, true, bMagic);
 		
 		-- Handle effect duration based on spell
 		local bConcEffectFound = false;

@@ -8,7 +8,7 @@
 
 <root>
 	<!-- =================================================================================================================== -->
-	<!-- PS Main -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ps_main">
 		<script file="ps/scripts/ps_main.lua" />
@@ -107,8 +107,8 @@
 				<listmaxsize>10</listmaxsize>
 				<script>
 					function onInit()
-						super.onInit()
-						addItems(DataCommon.psabilitydata)
+						super.onInit();
+						addItems(DataCommon.psabilitydata);
 					end
 				</script>
 			</combobox>
@@ -154,8 +154,8 @@
 				<listmaxsize>10</listmaxsize>
 				<script>
 					function onInit()
-						super.onInit()
-						addItems(DataCommon.psskilldata)
+						super.onInit();
+						addItems(DataCommon.psskilldata);
 					end
 				</script>
 			</combobox>
@@ -168,6 +168,7 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ps_mainitem">
 		<margins control="0,0,0,10" />
@@ -177,17 +178,19 @@
 			<hlink name="link">
 				<script>
 					function onValueChanged()
-						window.portrait.update()
+						window.portrait.update();
 					end
 				</script>
 			</hlink>
-		
-			<portrait_base>
+			<hnx name="hptotal" />
+			<hnx name="wounds" />
+
+			<portrait_ps_base>
 				<bounds>10,10,40,40</bounds>
-			</portrait_base>
-			<portrait name="portrait">
+			</portrait_ps_base>
+			<portrait_ps name="portrait">
 				<bounds>10,10,40,40</bounds>
-			</portrait>
+			</portrait_ps>
 
 			<!-- =================================================================================================================== -->
 			<!-- Name Field -->

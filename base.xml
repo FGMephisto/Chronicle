@@ -28,7 +28,6 @@
 	<includefile source="campaign/record_char_abilities_chronicle.xml" />
 	<includefile source="campaign/record_char_actions_chronicle.xml" />
 	<includefile source="campaign/record_char_chronicle.xml" />
-	<includefile source="campaign/record_char_intrigue_chronicle.xml" />
 	<includefile source="campaign/record_char_inventory_chronicle.xml" />
 	<includefile source="campaign/record_char_notes_chronicle.xml" />
 	<includefile source="campaign/record_char_skills_chronicle.xml" />
@@ -39,6 +38,8 @@
 	<includefile source="campaign/record_item_chronicle.xml" />
 	<includefile source="campaign/record_npc_actions_chronicle.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
+	<includefile source="campaign/record_npc_weapon_chronicle.xml" />
+	<includefile source="campaign/record_power.xml" />
 	<includefile source="campaign/record_quest_chronicle.xml" />
 	<includefile source="campaign/record_skill_chronicle.xml" />
 	<includefile source="campaign/template_campaign_chronicle.xml" />
@@ -90,6 +91,7 @@
 	<script name="ActionDamage" file="scripts/manager_action_damage_chronicle.lua" />
 	<script name="ActionGeneral" file="scripts/manager_action_general_chronicle.lua" />
 	<script name="ActionInit" file="scripts/manager_action_init_chronicle.lua" />
+	<script name="ActionPower" file="scripts/manager_action_power.lua" />
 	<script name="ActionResult" file="scripts/manager_action_result_chronicle.lua" />
 	<script name="ActionSkill" file="scripts/manager_action_skill_chronicle.lua" />
 	<script name="ActionsManager2" file="scripts/manager_actions2_chronicle.lua" />
@@ -104,7 +106,7 @@
 	<script name="EffectManager5E" file="scripts/manager_effect_chronicle.lua" />
 	<script name="GameSystem" file="scripts/manager_gamesystem_chronicle.lua" />
 	<script name="ItemManager2" file="scripts/manager_item2_chronicle.lua" />
-	<script name="PowerManager" file="scripts/manager_power_chronicle.lua" />
+	<script name="PowerManager" file="scripts/manager_power.lua" />
 	<script name="PowerManager5E" file="scripts/manager_power_5E.lua" />
 	<script name="PartyManager2" file="scripts/manager_ps2_chronicle.lua" />
 	<script name="TokenManager2" file="scripts/manager_token2_chronicle.lua" />
@@ -114,6 +116,5 @@
 	<includefile source="strings/strings_chronicle.xml" />
 
 	<!-- Utility -->
-	<!-- <includefile source="utility/template_utility.xml" /> -->
 	<includefile source="utility/utility_effects.xml" />
 </root>
