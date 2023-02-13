@@ -83,7 +83,7 @@ function update()
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function onDrop(x, y, draginfo)
 	-- if WindowManager.getReadOnlyState(getDatabaseNode()) then
@@ -109,14 +109,14 @@ function onDrop(x, y, draginfo)
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function addSpellDrop(nodeSource, bInnate)
 	-- CampaignDataManager2.addNPCSpell(getDatabaseNode(), nodeSource, bInnate);
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function addAction(sName, sDesc)
 	-- local w = actions.createWindow();
@@ -127,7 +127,7 @@ function addAction(sName, sDesc)
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function addTrait(sName, sDesc)
 	-- local w = traits.createWindow();
@@ -135,4 +135,4 @@ function addTrait(sName, sDesc)
 		-- w.name.setValue(sName);
 		-- w.desc.setValue(sDesc);
 	-- end
-end													  
+end

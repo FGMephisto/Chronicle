@@ -43,6 +43,8 @@ function isArmor(nodeItem)
 	return (sTypeLower == "armor");
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function isShield(nodeItem)
 	local sSubtypeLower = StringManager.trim(DB.getValue(nodeItem, "subtype", "")):lower();
 	return (sSubtypeLower == "shield");

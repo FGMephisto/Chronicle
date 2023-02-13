@@ -11,12 +11,12 @@ function onInit()
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function onMenuSelection(selection)
-	if selection == 7 then
-		CampaignDataManager2.updateNPCSpells(getDatabaseNode());
-	end
+	-- if selection == 7 then
+		-- CampaignDataManager2.updateNPCSpells(getDatabaseNode());
+	-- end
 end
 
 -- ===================================================================================================================

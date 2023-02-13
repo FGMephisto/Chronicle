@@ -54,6 +54,7 @@ function onLinkChanged()
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onDataChanged()
 	-- Debug.chat("FN: onDataChanged in char_weapon")
@@ -86,6 +87,7 @@ function onDataChanged()
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onAttackChanged()
 	-- Debug.chat("FN: onAttackChanged in char_weapon")
@@ -121,10 +123,10 @@ function onAttackChanged()
 	end
 
 	-- Update controls
-	atk_dice_test.setValue(nStat)
-	atk_dice_bonus.setValue(nSkill)
-	atk_dice_penalty.setValue(nPenalty)
-	atk_total.setValue(nMod + nBonus)
+	atk_dice_test.setValue(nStat);
+	atk_dice_bonus.setValue(nSkill);
+	atk_dice_penalty.setValue(nPenalty);
+	atk_total.setValue(nMod + nBonus);
 end
 
 -- ===================================================================================================================
@@ -177,6 +179,7 @@ function onDamageAction(draginfo)
 end
 
 -- ===================================================================================================================
+-- Added
 -- ===================================================================================================================
 function updateDefenseBonus()
 	-- Debug.chat("FN: updateDefenseBonus in char_weapon")

@@ -863,20 +863,6 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
-	<!-- ToDo: Required? LUA file present for it -->
-	<!-- =================================================================================================================== -->
-	<template name="list_charinv">
-		<windowlist>
-			<child></child>
-			<child><backcolor>1A40301E</backcolor></child>
-			<datasource>.inventorylist</datasource>
-			<class>char_invitem</class>
-			<allowdelete />
-			<script file="campaign/scripts/char_invlist_chronicle.lua" />
-		</windowlist>
-	</template>
-	
-	<!-- =================================================================================================================== -->
 	<!-- Ability score combined with filter for skills -->
 	<!-- =================================================================================================================== -->
 	<template name="number_charabilityscore_filter">

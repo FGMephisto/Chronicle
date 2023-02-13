@@ -54,6 +54,9 @@ function onInit()
 		-- CharInventoryManager.registerFieldUpdateCallback("dexbonus", CharManager.onCharInventoryArmorCalcIfCarried);
 		-- CharInventoryManager.registerFieldUpdateCallback("stealth", CharManager.onCharInventoryArmorCalcIfCarried);
 		-- CharInventoryManager.registerFieldUpdateCallback("strength", CharManager.onCharInventoryArmorCalcIfCarried);
+		CharInventoryManager.registerFieldUpdateCallback("bulk", CharManager.onCharInventoryBulkCalc)
+		CharInventoryManager.registerFieldUpdateCallback("armor_penalty", CharManager.onCharInventoryArmorCalcIfCarried)
+		CharInventoryManager.registerFieldUpdateCallback("armor_rating", CharManager.onCharInventoryArmorCalcIfCarried)
 	end
 end
 
@@ -80,18 +83,20 @@ function onCharItemAdd(nodeItem)
 	
 	CharArmorManager.addToArmorDB(nodeItem);
 	CharWeaponManager.addToWeaponDB(nodeItem);
+	CharEncumbranceManager5E.calcItemBulk(DB.getChild(nodeItem, "..."));
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onCharItemDelete(nodeItem)
 	-- Debug.chat("FN: onCharItemDelete in manager_char")
 	CharArmorManager.removeFromArmorDB(nodeItem);
 	CharWeaponManager.removeFromWeaponDB(nodeItem);
+	CharEncumbranceManager5E.calcItemBulk(DB.getChild(nodeItem, "..."));
 end
 
 -- ===================================================================================================================
--- ToDo: Check
 -- ===================================================================================================================
 function onCharInventoryArmorCalcIfCarried(nodeItem, sField)
 	if DB.getValue(nodeItem, "carried", 0) == 2 then
@@ -100,12 +105,13 @@ function onCharInventoryArmorCalcIfCarried(nodeItem, sField)
 end
 
 -- ===================================================================================================================
--- ToDo: Check
+-- Adjusted
 -- ===================================================================================================================
 function onCharInventoryArmorCalc(nodeItem, sField)
 	if ItemManager.isArmor(nodeItem) then
 		local nodeChar = DB.getChild(nodeItem, "...");
 		CharArmorManager.calcItemArmorClass(nodeChar);
+		CharEncumbranceManager5E.calcItemBulk(nodeChar);
 	end
 end
 

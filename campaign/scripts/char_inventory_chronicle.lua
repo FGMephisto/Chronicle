@@ -5,7 +5,7 @@
 --
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function onInit()
 	-- OptionsManager.registerCallback("HREN", onHRENOptionChanged);
@@ -15,14 +15,14 @@ function onInit()
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function onClose()
 	-- OptionsManager.unregisterCallback("HREN", onHRENOptionChanged);
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function onHRENOptionChanged()
 	-- local sOptionHREN = OptionsManager.getOption("HREN");
@@ -34,28 +34,28 @@ function onHRENOptionChanged()
 end
 
 -- ===================================================================================================================
--- Adjusted
 -- ===================================================================================================================
 function onDrop(x, y, draginfo)
-	-- Debug.chat("FN: onDrop in char_inventory")
-	local sDragType = draginfo.getType()
-	local nodeCreature = getDatabaseNode()
+	return ItemManager.handleAnyDrop(getDatabaseNode(), draginfo);
+	
+	-- local sDragType = draginfo.getType()
+	-- local nodeCreature = getDatabaseNode()
 
-	if ActorManager.isPC(nodeCreature) then
-		return ItemManager.handleAnyDrop(nodeCreature, draginfo)
-	elseif sDragType == "shortcut" then
-		local sClass, sRecord = draginfo.getShortcutData()
-		if LibraryData.isRecordDisplayClass("item", sClass) then
-			local bTransferAll = false
-			local sTargetList = "inventorylist"
+	-- if ActorManager.isPC(nodeCreature) then
+		-- return ItemManager.handleAnyDrop(nodeCreature, draginfo);
+	-- elseif sDragType == "shortcut" then
+		-- local sClass, sRecord = draginfo.getShortcutData()
+		-- if LibraryData.isRecordDisplayClass("item", sClass) then
+			-- local bTransferAll = false
+			-- local sTargetList = "inventorylist"
 
-			return ItemManager.handleItem(nodeCreature, sTargetList, sClass, sRecord, bTransferAll)
-		end
-	end
+			-- return ItemManager.handleItem(nodeCreature, sTargetList, sClass, sRecord, bTransferAll)
+		-- end
+	-- end
 end
 
 -- ===================================================================================================================
--- Disabled
+-- Adjusted
 -- ===================================================================================================================
 function updateAttunement()
 	-- local nodeChar = getDatabaseNode();

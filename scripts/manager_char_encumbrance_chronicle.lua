@@ -67,42 +67,43 @@ function updateEncumbranceLimit(nodeChar)
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function getEncumbranceMult(nodeChar)
-	local rActor = ActorManager.resolveActor(nodeChar);
-	local nActorSize = ActorCommonManager.getCreatureSizeDnD5(rActor);
+	-- local rActor = ActorManager.resolveActor(nodeChar);
+	-- local nActorSize = ActorCommonManager.getCreatureSizeDnD5(rActor);
 
-	if CharManager.hasTrait(nodeChar, CharManager.TRAIT_POWERFUL_BUILD) then
-		nActorSize = nActorSize + 1;
-	elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_HIPPO_BUILD) then
-		nActorSize = nActorSize + 1;
-	elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_LITTLE_GIANT) then
-		nActorSize = nActorSize + 1;
-	end
+	-- if CharManager.hasTrait(nodeChar, CharManager.TRAIT_POWERFUL_BUILD) then
+		-- nActorSize = nActorSize + 1;
+	-- elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_HIPPO_BUILD) then
+		-- nActorSize = nActorSize + 1;
+	-- elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_LITTLE_GIANT) then
+		-- nActorSize = nActorSize + 1;
+	-- end
 	
-	local nMult = 1; -- Both Small and Medium use a multiplier of 1
-	if nActorSize == -2 then
-		nMult = 0.5;
-	elseif nActorSize > 0 then
-		nMult = 2 ^ nActorSize;
-	end
+	-- local nMult = 1; -- Both Small and Medium use a multiplier of 1
+	-- if nActorSize == -2 then
+		-- nMult = 0.5;
+	-- elseif nActorSize > 0 then
+		-- nMult = 2 ^ nActorSize;
+	-- end
 
-	if CharManager.hasFeature(nodeChar, CharManager.FEATURE_ASPECT_OF_THE_BEAR) then
-		nMult = nMult * 2;
-	end
+	-- if CharManager.hasFeature(nodeChar, CharManager.FEATURE_ASPECT_OF_THE_BEAR) then
+		-- nMult = nMult * 2;
+	-- end
 	
-	return nMult;
+	-- return nMult;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
-function updateBulk(nodeChar)
-	-- Debug.chat("FN: updateEncumbrance in manager_char")
+function calcItemBulk(nodeChar)
+	-- Debug.chat("FN: calcItemBulk in manager_char_encumberance")
 	local nBulkTotal = 0
 	local nCount, nBulk
 
 	for _,vNode in pairs(DB.getChildren(nodeChar, "inventorylist")) do
-		if DB.getValue(vNode, "carried", 0) ~= 0 then
+		if DB.getValue(vNode, "carried", 0) == 2 then
 			nCount = DB.getValue(vNode, "count", 0)
 
 			-- Get item quantities
