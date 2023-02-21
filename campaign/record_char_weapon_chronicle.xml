@@ -35,6 +35,7 @@
 					<top offset="8" />
 					<right anchor="left" offset="-2" />
 				</anchored>
+				<editmode>actions_iedit</editmode>
 			</button_idelete>
 
 			<button_details name="activatedetail">
@@ -478,7 +479,6 @@
 			</header_column>
 
 			<string_column_full name="wpn_qualities" />
-
 		</sheetdata>
 	</windowclass>
 </root>

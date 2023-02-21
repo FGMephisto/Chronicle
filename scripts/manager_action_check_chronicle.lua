@@ -12,6 +12,7 @@ function onInit()
 end
 
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function performPartySheetRoll(draginfo, rActor, sCheck)
 	-- Debug.chat("FN: performPartySheetRoll in manager_action_check")
@@ -149,7 +150,7 @@ function modRoll(rSource, rTarget, rRoll)
 			else
 				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
 			end
-			table.insert(aAddDesc, sEffects);
+			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
 

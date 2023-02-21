@@ -23,9 +23,8 @@
 				<activate />
 				<fastinit />
 			</subwindow>
-
+			
 			<scrollbar_charcontents />
-
 		</sheetdata>
 	</windowclass>
 
@@ -45,17 +44,25 @@
 				<static textres="char_label_inventory" />
 			</label_charframetop>
 
-			<label name="count_label">
-				<anchored to="invtitle" width="20">
+			<genericcontrol name="headeranchor">
+				<anchored to="invtitle" width="0" height="20">
 					<top anchor="bottom" relation="relative" offset="5" />
-					<left offset="-3" />
+					<left offset="-5" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<label name="count_label">
+				<anchored to="headeranchor" width="20">
+					<top />
+					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
 				<center />
 				<static>#</static>
 			</label>
 
 			<genericcontrol name="rightanchor">
-				<anchored to="invtitle" position="belowright" offset="-5,5" width="0" />
+				<anchored to="invtitle" position="belowright" offset="-5,5" width="0" height="20" />
 				<invisible />
 			</genericcontrol>
 
@@ -86,6 +93,15 @@
 				<tooltip textres="char_tooltip_itemweight" />
 			</label>
 
+			<!-- <genericcontrol name="attuned_header"> -->
+				<!-- <anchored to="rightanchor" width="20" height="20"> -->
+					<!-- <top /> -->
+					<!-- <right anchor="left" relation="relative" offset="-5" /> -->
+				<!-- </anchored> -->
+				<!-- <icon>char_attuned</icon> -->
+				<!-- <tooltip textres="char_inventory_tooltip_attuned" /> -->
+			<!-- </genericcontrol> -->
+
 			<label name="location_label">
 				<anchored to="rightanchor" width="80">
 					<top />
@@ -96,19 +112,14 @@
 			</label>
 
 			<label name="name_label">
-				<anchored to="invtitle">
-					<top anchor="bottom" offset="5" />
-					<left offset="55" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				<anchored to="headeranchor">
+					<top />
+					<left anchor="right" relation="current" offset="5" />
+					<right parent="rightanchor" anchor="left" relation="current" offset="-5" />
 				</anchored>
 				<static textres="char_label_itemname" />
 				<center />
 			</label>
-
-			<button_iedit name="inventorylist_iedit">
-				<anchored to="invtitle" position="insidetopright" offset="0,0"/>
-				<target>inventorylist</target>
-			</button_iedit>
 
 			<list_charinv name="inventorylist">
 				<anchored to="invtitle">
@@ -119,6 +130,35 @@
 				<noscroll />
 			</list_charinv>
 
+			<button_iadd name="inventorylist_iadd">
+				<anchored to="invtitle" position="insidetopright" offset="10,0"/>
+				<target>inventorylist</target>
+			</button_iadd>
+
+			<button_iedit name="inventorylist_iedit">
+				<anchored to="invtitle" position="insidetopright" offset="-10,0"/>
+				<target>inventorylist</target>
+			</button_iedit>
+			
+			<!-- <button_details name="button_invmeta"> -->
+				<!-- <anchored to="invtitle" position="insidetopright" offset="35,0" /> -->
+				<!-- <script> -->
+					<!-- function onButtonPress() -->
+						<!-- Interface.openWindow("charsheet_invmeta", window.getDatabaseNode()); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </button_details> -->
+			<!-- <genericcontrol name="attunecalcicon"> -->
+				<!-- <anchored to="button_invmeta" position="lefthigh" offset="55,0" width="20" height="20" /> -->
+				<!-- <icon>char_attuned</icon> -->
+			<!-- </genericcontrol> -->
+			<!-- <string_charinv_attunecalc name="attunecalc"> -->
+				<!-- <anchored to="attunecalcicon" position="righthigh" offset="0,0" height="20" /> -->
+			<!-- </string_charinv_attunecalc> -->
+			
+			<!-- =================================================================================================================== -->
+			<!-- Encumberance -->
+			<!-- =================================================================================================================== -->
 			<simplenumber name="encumbranceload" source="encumbrance.load">
 				<anchored to="invtitle" width="30" height="20">
 					<top anchor="bottom" relation="relative" offset="10" />
@@ -160,7 +200,7 @@
 			</label>
 
 			<!-- =================================================================================================================== -->
-			<!-- Money -->
+			<!-- Money section -->
 			<!-- =================================================================================================================== -->
 			<label_charframetop name="moneytitle">
 				<anchored to="invtitle" height="20">
@@ -176,6 +216,10 @@
 			<button_iadd_currencylist_inline name="currencylist_iadd" />
 			<button_iedit_currencylist_inline name="currencylist_iedit" />
 			<string_coinother_inline name="coinother" />
+
+			<!-- =================================================================================================================== -->
+			<!-- Encumberance section 5E - not used -->
+			<!-- =================================================================================================================== -->
 		</sheetdata>
 	</windowclass>
 
@@ -183,6 +227,7 @@
 	<!-- Inventory Item -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="char_invitem" merge="join">
+		<!-- <script file="campaign/scripts/char_invitem.lua" /> -->
 		<sheetdata>
 			<button_idelete name="idelete" merge="delete" />
 			<button_idelete name="idelete" insertbefore="carried">

@@ -581,7 +581,7 @@ function evalAction(rActor, nodePower, rAction)
 				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 			end
 			if aPowerGroup and aPowerGroup.sStat and DataCommon.ability_ltos[aPowerGroup.sStat] then
-				rAction.sName =  rAction.sName:gsub("%[BASE%]", "[" .. DataCommon.ability_ltos[aPowerGroup.sStat] .. "]");
+				rAction.sName =  rAction.sName:gsub("%[BASE%]", string.format("[%s]", DataCommon.ability_ltos[aPowerGroup.sStat]));
 			end
 		end
 		rAction.sName = EffectManager5E.evalEffect(rActor, rAction.sName);

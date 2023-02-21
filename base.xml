@@ -7,7 +7,7 @@
 -->
 
 <root version="3.0" release="9" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2022-10-19) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+	<announcement text="Chronicle System ruleset (v2023-02-21) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>
@@ -36,9 +36,7 @@
 	<includefile source="campaign/record_feat_chronicle.xml" />
 	<includefile source="campaign/record_image.xml" />
 	<includefile source="campaign/record_item_chronicle.xml" />
-	<includefile source="campaign/record_npc_actions_chronicle.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
-	<includefile source="campaign/record_npc_weapon_chronicle.xml" />
 	<includefile source="campaign/record_power.xml" />
 	<includefile source="campaign/record_quest_chronicle.xml" />
 	<includefile source="campaign/record_skill_chronicle.xml" />

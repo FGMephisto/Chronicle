@@ -249,7 +249,7 @@ function modRoll(rSource, rTarget, rRoll)
 			else
 				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
 			end
-			table.insert(aAddDesc, sEffects);
+			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
 

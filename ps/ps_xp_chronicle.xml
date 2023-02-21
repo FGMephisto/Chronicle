@@ -102,7 +102,7 @@
 					<top />
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
-				<target>encounters</target>
+				<edittarget>encounters</edittarget>
 			</button_iedit>
 
 			<filter name="encfilter">
@@ -175,7 +175,7 @@
 					<top />
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
-				<target>quests</target>
+				<edittarget>quests</edittarget>
 			</button_iedit>
 
 			<button_iadd name="quests_iadd">

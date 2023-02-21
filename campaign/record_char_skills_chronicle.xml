@@ -15,57 +15,51 @@
 			<button_iedit name="skills_iedit">
 				<anchored position="insidebottomright" offset="0,10" />
 				<tooltip textres="char_skills_tooltip_edit" />
-				<script>
-					function onValueChanged()
-						local bEditMode = (getValue() == 1);
-						window.contents.subwindow.skills.update();
-					end
-				</script>
+				<edittarget>contents</edittarget>
 			</button_iedit>
-
-			<subwindow name="abilities">
-				<anchored width="120">
-					<top offset="0" />
-					<bottom offset="-35" />
-					<left offset="0" />
-				</anchored>
-				<class>charsheet_skills_abilities</class>
-				<activate />
-				<fastinit />
-			</subwindow>
 
 			<subwindow name="contents">
 				<anchored>
 					<top offset="0" />
 					<bottom offset="-35" />
-					<left offset="115" />
+					<left offset="0" />
 					<right offset="-15" />
 				</anchored>
 				<class>charsheet_skills_contents</class>
 				<activate />
 				<fastinit />
 			</subwindow>
-
+			<scrollbar_charcontents />
 		</sheetdata>
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Skills Abilities -->
-	<!-- =================================================================================================================== -->
- 	<windowclass name="charsheet_skills_abilities">
+	<!-- =================================================================================================================== -->	
+ 	<windowclass name="charsheet_skills_contents">
 		<margins control="0,0,0,2" />
-
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					if sClass == "reference_skill" then
+						skills.addSkillReference(draginfo.getDatabaseNode());
+					end
+					return true;
+				end
+			end
+		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-		
+
 		<!-- =================================================================================================================== -->
 		<!-- Header Frame -->
 		<!-- =================================================================================================================== -->
-			<label_charframetop name="statstitle">
-				<anchored width="95" height="20">
-					<top parent="columnanchor" anchor="bottom" offset="15" />
-					<left offset="15" />
-				</anchored>
+			<label_charframetop name="stats_title">
+				<bounds>15,10,-10,20</bounds>
+				<!-- <anchored width="95" height="20"> -->
+					<!-- <top parent="columnanchor" anchor="bottom" offset="15" /> -->
+					<!-- <left offset="15" /> -->
+				<!-- </anchored> -->
 				<icons>char_senses</icons>
 				<static textres="char_label_abilities" />
 			</label_charframetop>
@@ -73,11 +67,11 @@
 		<!-- =================================================================================================================== -->
 		<!-- Abilities -->
 		<!-- =================================================================================================================== -->
-			<!-- Agility -->
+			<!-- Abilities - Row 1 -->
 			<number_charabilityscore_filter name="agility" source="abilities.agility.score">
-				<anchored to="statstitle">
+				<anchored to="stats_title" >
 					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<left offset="15" />
 				</anchored>
 				<target>agility</target>
 			</number_charabilityscore_filter>
@@ -87,11 +81,10 @@
 				<tooltip textres="char_skills_tooltip_agility" />
 			</label_abilityscore>
 
-			<!-- Animal Handling -->
 			<number_charabilityscore_filter name="animalhandling" source="abilities.animalhandling.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>animalhandling</target>
 			</number_charabilityscore_filter>
@@ -100,12 +93,11 @@
 				<static textres="ANI" />
 				<tooltip textres="char_skills_tooltip_animalhandling" />
 			</label_abilityscore>
-
-			<!-- Athletics -->
+		
 			<number_charabilityscore_filter name="athletics" source="abilities.athletics.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>athletics</target>
 			</number_charabilityscore_filter>
@@ -115,11 +107,10 @@
 				<tooltip textres="char_skills_tooltip_athletics" />
 			</label_abilityscore>
 
-			<!-- Awareness -->
 			<number_charabilityscore_filter name="awareness" source="abilities.awareness.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>awareness</target>
 			</number_charabilityscore_filter>
@@ -129,11 +120,10 @@
 				<tooltip textres="char_skills_tooltip_awareness" />
 			</label_abilityscore>
 
-			<!-- Cunning -->
 			<number_charabilityscore_filter name="cunning" source="abilities.cunning.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>cunning</target>
 			</number_charabilityscore_filter>
@@ -143,11 +133,10 @@
 				<tooltip textres="char_skills_tooltip_cunning" />
 			</label_abilityscore>
 
-			<!-- Deception -->
 			<number_charabilityscore_filter name="deception" source="abilities.deception.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>deception</target>
 			</number_charabilityscore_filter>
@@ -157,11 +146,10 @@
 				<tooltip textres="char_skills_tooltip_deception" />
 			</label_abilityscore>
 
-			<!-- Endurance -->
 			<number_charabilityscore_filter name="endurance" source="abilities.endurance.score">
 				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>endurance</target>
 			</number_charabilityscore_filter>
@@ -171,53 +159,11 @@
 				<tooltip textres="char_skills_tooltip_endurance" />
 			</label_abilityscore>
 
-			<!-- Fighting -->
-			<number_charabilityscore_filter name="fighting" source="abilities.fighting.score">
-				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
-				</anchored>
-				<target>fighting</target>
-			</number_charabilityscore_filter>
-			<label_abilityscore>
-				<anchored to="fighting" />
-				<static textres="FIG" />
-				<tooltip textres="char_skills_tooltip_fighting" />
-			</label_abilityscore>
-
-			<!-- Healing -->
-			<number_charabilityscore_filter name="healing" source="abilities.healing.score">
-				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
-				</anchored>
-				<target>healing</target>
-			</number_charabilityscore_filter>
-			<label_abilityscore>
-				<anchored to="healing" />
-				<static textres="HEA" />
-				<tooltip textres="char_skills_tooltip_healing" />
-			</label_abilityscore>
-
-			<!-- Knowledge -->
-			<number_charabilityscore_filter name="knowledge" source="abilities.knowledge.score">
-				<anchored to="agility">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
-				</anchored>
-				<target>knowledge</target>
-			</number_charabilityscore_filter>
-			<label_abilityscore>
-				<anchored to="knowledge" />
-				<static textres="KNO" />
-				<tooltip textres="char_skills_tooltip_knowledge" />
-			</label_abilityscore>
-
 			<!-- Button - Clear Filter Value -->
 			<label name="clearfilter">
 				<anchored to="agility" width="40" height="30">
 					<top anchor="top" offset="0" />
-					<left anchor="right" offset="15" />				
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<font>sheetlabelmini</font>
 				<frame name="fielddark" offset="7,5,7,5" />
@@ -237,11 +183,50 @@
 				<tooltip textres="char_skills_tooltip_clearfilter" />
 			</label_abilityscore>
 
-			<!-- Language -->
-			<number_charabilityscore_filter name="language" source="abilities.language.score">
-				<anchored to="clearfilter">
+			<!-- Abilities - Row 2 -->
+			<number_charabilityscore_filter name="fighting" source="abilities.fighting.score">
+				<anchored to="stats_title">
 					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<left offset="15" />
+				</anchored>
+				<target>fighting</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="fighting" />
+				<static textres="FIG" />
+				<tooltip textres="char_skills_tooltip_fighting" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="healing" source="abilities.healing.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>healing</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="healing" />
+				<static textres="HEA" />
+				<tooltip textres="char_skills_tooltip_healing" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="knowledge" source="abilities.knowledge.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>knowledge</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="knowledge" />
+				<static textres="KNO" />
+				<tooltip textres="char_skills_tooltip_knowledge" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="language" source="abilities.language.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>language</target>
 			</number_charabilityscore_filter>
@@ -251,11 +236,10 @@
 				<tooltip textres="char_skills_tooltip_language" />
 			</label_abilityscore>
 
-			<!-- Marksmanship -->
 			<number_charabilityscore_filter name="marksmanship" source="abilities.marksmanship.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>marksmanship</target>
 			</number_charabilityscore_filter>
@@ -265,11 +249,10 @@
 				<tooltip textres="char_skills_tooltip_marksmanship" />
 			</label_abilityscore>
 
-			<!-- Persuasion -->
 			<number_charabilityscore_filter name="persuasion" source="abilities.persuasion.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>persuasion</target>
 			</number_charabilityscore_filter>
@@ -279,11 +262,10 @@
 				<tooltip textres="char_skills_tooltip_persuasion" />
 			</label_abilityscore>
 
-			<!-- Status -->
 			<number_charabilityscore_filter name="status" source="abilities.status.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>status</target>
 			</number_charabilityscore_filter>
@@ -293,11 +275,10 @@
 				<tooltip textres="char_skills_tooltip_status" />
 			</label_abilityscore>
 
-			<!-- Stealth -->
 			<number_charabilityscore_filter name="stealth" source="abilities.stealth.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>stealth</target>
 			</number_charabilityscore_filter>
@@ -307,11 +288,11 @@
 				<tooltip textres="char_skills_tooltip_stealth" />
 			</label_abilityscore>
 
-			<!-- Survival -->
+			<!-- Abilities - Row 3 -->
 			<number_charabilityscore_filter name="survival" source="abilities.survival.score">
-				<anchored to="clearfilter">
+				<anchored to="stats_title">
 					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+					<left parent="knowledge" anchor="left" />
 				</anchored>
 				<target>survival</target>
 			</number_charabilityscore_filter>
@@ -321,11 +302,10 @@
 				<tooltip textres="char_skills_tooltip_survival" />
 			</label_abilityscore>
 
-			<!-- Thievery -->
 			<number_charabilityscore_filter name="thievery" source="abilities.thievery.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>thievery</target>
 			</number_charabilityscore_filter>
@@ -335,11 +315,10 @@
 				<tooltip textres="char_skills_tooltip_thievery" />
 			</label_abilityscore>
 
-			<!-- Warfare -->
 			<number_charabilityscore_filter name="warfare" source="abilities.warfare.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>warfare</target>
 			</number_charabilityscore_filter>
@@ -349,11 +328,10 @@
 				<tooltip textres="char_skills_tooltip_warfare" />
 			</label_abilityscore>
 
-			<!-- Will -->
 			<number_charabilityscore_filter name="will" source="abilities.will.score">
-				<anchored to="clearfilter">
-					<top anchor="bottom" relation="relative" offset="15" />
-					<left anchor="left" offset="0" />
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<target>will</target>
 			</number_charabilityscore_filter>
@@ -362,46 +340,24 @@
 				<static textres="WIL" />
 				<tooltip textres="char_skills_tooltip_will" />
 			</label_abilityscore>
-		</sheetdata>
-	</windowclass>
-
-	<!-- =================================================================================================================== -->
-	<!-- Windowclass Skills Contents -->
-	<!-- =================================================================================================================== -->	
- 	<windowclass name="charsheet_skills_contents">
-		<margins control="0,0,0,2" />
-		<script>
-			function onDrop(x, y, draginfo)
-				if draginfo.isType("shortcut") then
-					local sClass = draginfo.getShortcutData();
-					if sClass == "reference_skill" then
-						skills.addSkillReference(draginfo.getDatabaseNode());
-					end
-					return true;
-				end
-			end
-		</script>
-
-		<sheetdata>
-			<anchor_column name="columnanchor" />
-
-		<!-- =================================================================================================================== -->
-		<!-- Filter Control - Invisible -->
-		<!-- =================================================================================================================== -->
-			<hsc name="filter_ability" />
 
 		<!-- =================================================================================================================== -->
 		<!-- Header Frame -->
 		<!-- =================================================================================================================== -->
 			<label_charframetop name="skillstitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" offset="15" />
-					<left offset="30" />
-					<right offset="-10" />
+				<anchored to="stats_title" height="20">
+					<top anchor="bottom" relation="relative" offset="7" />
+					<left />
+					<right />
 				</anchored>
 				<icons>char_abilities_purple</icons>
 				<static textres="char_label_skills" />
 			</label_charframetop>
+
+		<!-- =================================================================================================================== -->
+		<!-- Filter Control - Invisible -->
+		<!-- =================================================================================================================== -->
+			<hsc name="filter_ability" />
 
 		<!-- =================================================================================================================== -->
 		<!-- Skill List Header -->
@@ -461,11 +417,6 @@
 			<button_iadd name="skills_iadd">
 				<anchored to="skillstitle" position="insidetopright" offset="0,0" />
 				<target>skills</target>
-				<script>
-					function onClickDown()
-						window.parentcontrol.window.contents.subwindow.filter_ability.setValue("")
-					end
-				</script>
 			</button_iadd>
 
 			<!-- =================================================================================================================== -->
@@ -521,6 +472,7 @@
 					<top />
 					<right anchor="left" offset="-2" />
 				</anchored>
+				<editmode>skills_iedit</editmode>
 			</button_idelete>
 
 			<!-- =================================================================================================================== -->
@@ -596,7 +548,7 @@
 			<string_textlistitem name="name">
 				<anchored to="rightanchor">
 					<top />
-					<left parent="" offset="0" />
+					<left parent="" offset="15" />
 					<right anchor="left" relation="relative" offset="-7" />
 				</anchored>
 				<multilinespacing>20</multilinespacing>

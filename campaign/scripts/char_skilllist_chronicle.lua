@@ -10,38 +10,7 @@ function onInit()
 	registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
 	
 	-- Construct default skills
-	constructDefaultSkills();
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onAbilityChanged()
-	for _,w in ipairs(getWindows()) do
-		if w.isCustom() then
-			w.idelete.setVisibility(bEditMode);
-		else
-			w.idelete.setVisibility(false);
-		end
-	end
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onListChanged()
-	update();
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function update()
-	local bEditMode = (window.parentcontrol.window.skills_iedit.getValue() == 1);
-	for _,w in ipairs(getWindows()) do
-		if w.isCustom() then
-			w.idelete.setVisibility(bEditMode);
-		else
-			w.idelete.setVisibility(false);
-		end
-	end
+	self.constructDefaultSkills();
 end
 
 -- ===================================================================================================================

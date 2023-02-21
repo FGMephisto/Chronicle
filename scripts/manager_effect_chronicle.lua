@@ -81,10 +81,10 @@ function onEffectTextEncode(rEffect)
 		end
 	end
 	if rEffect.sTargeting and rEffect.sTargeting ~= "" then
-		table.insert(aMessage, "[" .. rEffect.sTargeting:upper() .. "]");
+		table.insert(aMessage, string.format("[%s]", rEffect.sTargeting:upper()));
 	end
 	if rEffect.sApply and rEffect.sApply ~= "" then
-		table.insert(aMessage, "[" .. rEffect.sApply:upper() .. "]");
+		table.insert(aMessage, string.format("[%s]", rEffect.sApply:upper()));
 	end
 	
 	return table.concat(aMessage, " ");
@@ -1110,7 +1110,7 @@ function encodeEffectForCT(rEffect)
 		end
 	end
 	
-	return "[" .. table.concat(aMessage, " ") .. "]";
+	return string.format("[%s]", table.concat(aMessage, " "));
 end
 
 -- ===================================================================================================================

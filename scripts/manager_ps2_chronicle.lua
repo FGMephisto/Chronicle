@@ -190,17 +190,16 @@ function awardXP(nXP)
 	local msg = {font = "msgfont"};
 	msg.icon = "xp";
 	for _,v in ipairs(aParty) do
-		msg.text = "[" .. v.given .. " XP] -> " .. v.name;
+		msg.text = string.format("[%d XP] -> %s", v.given, v.name);
 		Comm.deliverChatMessage(msg);
 	end
 
 	msg.icon = "portrait_gm_token";
-	msg.text = Interface.getString("ps_message_xpaward") .. " (" .. nXP .. ")";
+	msg.text = string.format("%s (%d)", Interface.getString("ps_message_xpaward"), nXP);
 	Comm.deliverChatMessage(msg);
 end
 
 -- ===================================================================================================================
--- Adjusted
 -- ===================================================================================================================
 function awardXPtoPC(nXP, nodePC)
 	local nCharXP = DB.getValue(nodePC, "exp", 0);
@@ -209,7 +208,7 @@ function awardXPtoPC(nXP, nodePC)
 	
 	local msg = {font = "msgfont"};
 	msg.icon = "xp";
-	msg.text = "[" .. nXP .. " XP] -> " .. DB.getValue(nodePC, "name", "");
+	msg.text = string.format("[%d XP] -> %s", nXP, DB.getValue(nodePC, "name"));
 	Comm.deliverChatMessage(msg, "");
 
 	local sOwner = DB.getOwner(nodePC);

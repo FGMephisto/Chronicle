@@ -10,7 +10,7 @@ local bCheckingUsage = false;
 local bUpdatingGroups = false;
 
 function onInit()
-	updatePowerGroups();
+	self.updatePowerGroups();
 
 	local node = getDatabaseNode();
 	
@@ -107,8 +107,8 @@ function onAbilityChanged()
 end
 
 function onModeChanged()
-	rebuildGroups();
-	updateUses();
+	self.rebuildGroups();
+	self.updateUses();
 end
 
 function onDisplayChanged()
@@ -120,16 +120,16 @@ function onDisplayChanged()
 end
 
 function onUsesChanged()
-	rebuildGroups();
-	updateUses();
+	self.rebuildGroups();
+	self.updateUses();
 end
 
 function onGroupListChanged()
-	updatePowerGroups();
+	self.updatePowerGroups();
 end
 
 function onGroupTypeChanged()
-	updatePowerGroups();
+	self.updatePowerGroups();
 end
 
 function onGroupNameChanged(nodeGroupName)
@@ -164,16 +164,15 @@ function onGroupNameChanged(nodeGroupName)
 
 	bUpdatingGroups = false;
 	
-	updatePowerGroups();
+	self.updatePowerGroups();
 end
 
 function onPowerListChanged()
-	updatePowerGroups();
-	updateDisplay();
+	self.updatePowerGroups();
 end
 
 function onPowerGroupChanged(node)
-	updatePowerGroups();
+	self.updatePowerGroups();
 end
 
 function addPower(bFocus)
@@ -196,24 +195,13 @@ function addGroupPower(sGroup, nLevel)
 	return w;
 end
 
-function updateDisplay()
-	if parentcontrol.window.parentcontrol.window.actions_iedit then
-		local bEditMode = (parentcontrol.window.parentcontrol.window.actions_iedit.getValue() == 1);
-		for _,w in ipairs(powers.getWindows()) do
-			if w.getClass() ~= "power_group_header" then
-				w.idelete.setVisibility(bEditMode);
-			end
-		end
-	end
-end
-
 function updatePowerGroups()
 	if bUpdatingGroups then
 		return;
 	end
 	bUpdatingGroups = true;
 	
-	rebuildGroups();
+	self.rebuildGroups();
 
 	-- Determine all the groups accounted for by current powers
 	local aPowerGroups = {};
@@ -244,12 +232,12 @@ function updatePowerGroups()
 		end
 	end
 	
-	rebuildGroups();
+	self.rebuildGroups();
 
 	bUpdatingGroups = false;
 
-	updateHeaders();
-	updateUses();
+	self.updateHeaders();
+	self.updateUses();
 end
 
 function updateHeaders()
@@ -269,7 +257,7 @@ function updateHeaders()
 	local aCategoryWindows = {};
 	local aGroupShown = {};
 	for _,nodePower in ipairs(DB.getChildList(getDatabaseNode(), "powers")) do
-		local sCategory, sGroup, nLevel = getWindowSortByNode(nodePower);
+		local sCategory, sGroup, nLevel = self.getWindowSortByNode(nodePower);
 		
 		if not aCategoryWindows[sCategory] then
 			local wh = powers.createWindowWithClass("power_group_header");
@@ -297,15 +285,7 @@ function updateHeaders()
 end
 
 function onPowerWindowAdded(w)
-	updatePowerWindowDisplay(w);
-	updatePowerWindowUses(getDatabaseNode(), w);
-end
-
-function updatePowerWindowDisplay(w)
-	if parentcontrol.window.parentcontrol.window.actions_iedit then
-		local bEditMode = (parentcontrol.window.parentcontrol.window.actions_iedit.getValue() == 1);
-		w.idelete.setVisibility(bEditMode);
-	end
+	self.updatePowerWindowUses(getDatabaseNode(), w);
 end
 
 function updatePowerWindowUses(nodeChar, w)
@@ -486,7 +466,7 @@ function updateUses()
 	-- Show/hide powers based on findings
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() ~= "power_group_header" then
-			if updatePowerWindowUses(nodeChar, v) then
+			if self.updatePowerWindowUses(nodeChar, v) then
 				local sGroup = v.group.getValue();
 				local rGroup = aGroups[sGroup];
 				local bCaster = (rGroup and rGroup.grouptype ~= "");
@@ -548,7 +528,7 @@ function onDrop(x, y, draginfo)
 				end
 				PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode(), sGroup);
 				bUpdatingGroups = false;
-				onPowerGroupChanged();
+				self.onPowerGroupChanged();
 			else
 				ChatManager.SystemMessage(Interface.getString("module_message_missinglink_wildcard"));
 			end
@@ -558,28 +538,28 @@ function onDrop(x, y, draginfo)
 			bUpdatingGroups = true;
 			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
 			bUpdatingGroups = false;
-			onPowerGroupChanged();
+			self.onPowerGroupChanged();
 			return true;
 		end
 		if sClass == "reference_racialtrait" then
 			bUpdatingGroups = true;
 			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
 			bUpdatingGroups = false;
-			onPowerGroupChanged();
+			self.onPowerGroupChanged();
 			return true;
 		end
 		if sClass == "reference_feat" then
 			bUpdatingGroups = true;
 			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
 			bUpdatingGroups = false;
-			onPowerGroupChanged();
+			self.onPowerGroupChanged();
 			return true;
 		end
 		if sClass == "ref_ability" then
 			bUpdatingGroups = true;
 			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
 			bUpdatingGroups = false;
-			onPowerGroupChanged();
+			self.onPowerGroupChanged();
 			return true;
 		end
 	end
@@ -649,8 +629,8 @@ function getWindowSort(w)
 end
 
 function onSortCompare(w1, w2)
-	local vCategory1 = getWindowSort(w1);
-	local vCategory2 = getWindowSort(w2);
+	local vCategory1 = self.getWindowSort(w1);
+	local vCategory2 = self.getWindowSort(w2);
 	if vCategory1 ~= vCategory2 then
 		return vCategory1 > vCategory2;
 	end

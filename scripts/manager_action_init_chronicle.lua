@@ -19,7 +19,7 @@ end
 -- Set Initiative result on CT
 -- ===================================================================================================================
 function handleApplyInit(msgOOB)
-	Debug.chat("FN: handleApplyInit in manager_action_init")
+	-- Debug.chat("FN: handleApplyInit in manager_action_init")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local nTotal = tonumber(msgOOB.nTotal) or 0;
 
@@ -30,7 +30,7 @@ end
 -- Communicate initiative roll to Clients
 -- ===================================================================================================================
 function notifyApplyInit(rSource, nTotal)
-	Debug.chat("FN notifyApplyInit in manager_action_init")
+	-- Debug.chat("FN notifyApplyInit in manager_action_init")
 	if not rSource then
 		return;
 	end
@@ -49,7 +49,7 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function getRoll(rActor, bSecretRoll)
-	Debug.chat("FN getRoll in manager_action_init")
+	-- Debug.chat("FN getRoll in manager_action_init")
 	local rRoll = {};
 	rRoll.aDice = {};
 	rRoll.bSecret = bSecretRoll;
@@ -82,7 +82,7 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function performRoll(draginfo, rActor, bSecretRoll)
-	Debug.chat("FN performRoll in manager_action_init")
+	-- Debug.chat("FN performRoll in manager_action_init")
 	local rRoll = getRoll(rActor, bSecretRoll);
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
@@ -92,7 +92,7 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
-	Debug.chat("FN modRoll in manager_action_init")
+	-- Debug.chat("FN modRoll in manager_action_init")
 	local aAddDesc = {}
 	local aAddDice = {}
 	local nAddMod = 0
@@ -157,7 +157,7 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function getEffectAdjustments(rActor)
-	Debug.chat("FN getEffectAdjustments in manager_action_init")
+	-- Debug.chat("FN getEffectAdjustments in manager_action_init")
 	-- ToDo: Adjust to work with Chronicle
 	if not rActor then
 		return false, {}, 0, false, false;
@@ -212,12 +212,14 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onResolve(rSource, rTarget, rRoll)
-	Debug.chat("FN onResolve in manager_action_init")
+	-- Debug.chat("FN onResolve in manager_action_init")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
 	Comm.deliverChatMessage(rMessage);
-	notifyApplyInit(rSource, tonumber(rRoll.nTotal));
+	
+	local nTotal = ActionsManager.total(rRoll);
+	notifyApplyInit(rSource, nTotal);
 end

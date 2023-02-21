@@ -8,24 +8,13 @@
 
 <root>
 	<!-- =================================================================================================================== -->
-	<!-- Modified -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_abilities">
 		<sheetdata>
 			<button_iedit name="actions_iedit">
 				<anchored position="insidebottomright" offset="0,10" />
 				<tooltip textres="char_abilities_tooltip_edit" />
-				<script>
-					function onValueChanged()
-						local bEditMode = (getValue() == 1);
-
-						window.contents.subwindow.feats.update();
-												 
-											   
-													  
-						window.contents.subwindow.languages.update();
-					end
-				</script>
+				<edittarget>contents</edittarget>
 			</button_iedit>
 
 			<subwindow name="contents">
@@ -44,7 +33,7 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Modified -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_abilities_contents">
 		<margins control="0,0,0,2" />
@@ -109,7 +98,17 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Modified -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="char_language" merge="join">
+		<sheetdata>
+			<button_idelete name="idelete">
+				<editmode>actions_iedit</editmode>
+			</button_idelete>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="ability_item">
 		<margins control="0,0,0,2" />
@@ -133,6 +132,7 @@
 					<top />
 					<right anchor="left" offset="-5" />
 				</anchored>
+				<editmode>actions_iedit</editmode>
 			</button_idelete>
 			
 			<string_textlistitem name="name">

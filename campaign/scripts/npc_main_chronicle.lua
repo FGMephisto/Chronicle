@@ -19,6 +19,7 @@ end
 function onSummaryChanged()
 	local sSize = size.getValue();
 	local sType = type.getValue();
+	-- local sAlign = alignment.getValue();
 	
 	local aText = {};
 	if sSize ~= "" then
@@ -33,16 +34,6 @@ function onSummaryChanged()
 end
 
 -- ===================================================================================================================
--- ===================================================================================================================
-function updateControl(sControl, bReadOnly, bForceHide)
-	if not self[sControl] then
-		return false;
-	end
-
-	return self[sControl].update(bReadOnly, bForceHide);
-end
-
--- ===================================================================================================================
 -- Adjusted
 -- ===================================================================================================================
 function update()
@@ -51,35 +42,15 @@ function update()
 
 	local bSection1 = false;
 	if Session.IsHost then
-		if updateControl("nonid_name", bReadOnly) then bSection1 = true; end;
+		if WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly) then bSection1 = true; end;
 	else
-		updateControl("nonid_name", bReadOnly, true);
+		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
 	end
 	divider.setVisible(bSection1);
 
-	updateControl("size", bReadOnly, bReadOnly);
-	updateControl("type", bReadOnly, bReadOnly);
+	WindowManager.callSafeControlUpdate(self, "size", bReadOnly, bReadOnly);
+	WindowManager.callSafeControlUpdate(self, "type", bReadOnly, bReadOnly);
 	summary_label.setVisible(bReadOnly);
-
-	updateControl("agility", bReadOnly);
-	updateControl("animalhandling", bReadOnly);
-	updateControl("athletics", bReadOnly);
-	updateControl("awareness", bReadOnly);
-	updateControl("cunning", bReadOnly);
-	updateControl("deception", bReadOnly);
-	updateControl("endurance", bReadOnly);
-	updateControl("fighting", bReadOnly);
-	updateControl("healing", bReadOnly);
-	updateControl("language", bReadOnly);
-	updateControl("knowledge", bReadOnly);
-	updateControl("marksmanship", bReadOnly);
-	updateControl("persuasion", bReadOnly);
-	updateControl("status", bReadOnly);
-	updateControl("stealth", bReadOnly);
-	updateControl("survival", bReadOnly);
-	updateControl("thievery", bReadOnly);
-	updateControl("warfare", bReadOnly);
-	updateControl("will", bReadOnly);
 end
 
 -- ===================================================================================================================
@@ -99,7 +70,7 @@ function onDrop(x, y, draginfo)
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		-- elseif sClass == "reference_classfeature" then
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
-		-- elseif sClass == "reference_feat" then
+		-- if sClass == "reference_feat" then
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		-- elseif sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
 			-- addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));

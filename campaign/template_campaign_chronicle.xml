@@ -173,7 +173,7 @@
 	
 	<!-- =================================================================================================================== -->
 	<!-- =================================================================================================================== -->
-		<template name="label_npc_abilityscore">
+	<template name="label_npc_abilityscore">
 		<label_abilityscore />
 	</template>
 	
@@ -358,17 +358,6 @@
 					end
 				end
 				
-				function onListChanged()
-					update();
-				end
-
-				function update()
-					local bEditMode = (window.list_iedit.getValue() == 1);
-					for _,w in pairs(getWindows()) do
-						w.idelete.setVisibility(bEditMode);
-					end
-				end
-				
 				function addEntry(bFocus)
 					return createWindow();
 				end
@@ -428,6 +417,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="button_toggledetail">
 		<buttoncontrol>
@@ -445,37 +435,32 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Already covered -->
 	<!-- =================================================================================================================== -->
-	<template name="label_npc_abilityscore">
-		<label_abilityscore />
-	</template>
+	<!-- <template name="number_npc_abilityscore"> -->
+		<!-- <number_abilityscore> -->
+			<!-- <anchored to="statstitle" width="40" height="30"> -->
+				<!-- <top anchor="bottom" relation="relative" offset="18" /> -->
+				<!-- <left anchor="center" offset="-20" /> -->
+			<!-- </anchored> -->
+			<!-- <rollable /> -->
+			<!-- <script> -->
+				<!-- function action(draginfo) -->
+					<!-- local rActor = ActorManager.resolveActor(window.getDatabaseNode()); -->
+					<!-- ActionCheck.performRoll(draginfo, rActor, self.target[1]); -->
+					<!-- return true; -->
+				<!-- end -->
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="number_npc_abilityscore">
-		<number_abilityscore>
-			<anchored to="statstitle" width="40" height="30">
-				<top anchor="bottom" relation="relative" offset="18" />
-				<left anchor="center" offset="-20" />
-			</anchored>
-			<rollable />
-			<script>
-				function action(draginfo)
-					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
-					ActionCheck.performRoll(draginfo, rActor, self.target[1]);
-					return true;
-				end
-
-				function onDragStart(button, x, y, draginfo)
-					action(draginfo);
-					return true;
-				end
+				<!-- function onDragStart(button, x, y, draginfo) -->
+					<!-- action(draginfo); -->
+					<!-- return true; -->
+				<!-- end -->
 					
-				function onButtonPress()
-					action();
-					return true;
-				end
-			</script>
-		</number_abilityscore>
-	</template>
+				<!-- function onButtonPress() -->
+					<!-- action(); -->
+					<!-- return true; -->
+				<!-- end -->
+			<!-- </script> -->
+		<!-- </number_abilityscore> -->
+	<!-- </template> -->
 </root>

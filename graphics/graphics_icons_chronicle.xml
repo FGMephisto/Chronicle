@@ -119,6 +119,7 @@
 	<icon name="char_move" file="graphics/icons_chronicle/walk.png" />
 	<icon name="char_sprint" file="graphics/icons_chronicle/run.png" />
 	<icon name="char_cd" file="graphics/icons_chronicle/surrounded-shield.png" />
+	<icon name="spell_damage" file="graphics/icons/spell_damage.png" />
 
 	<!-- Added - Ruleset -->
 	<icon name="rulesetlogo_chronicle" file="graphics/icons_chronicle/chronicle_system_guild.png" />

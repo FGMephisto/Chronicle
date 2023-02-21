@@ -8,26 +8,36 @@
 
 <root>
 	<!-- =================================================================================================================== -->
-	<!-- Modified -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_actions">
 		<script>
 			function onDrop(x, y, draginfo)
+				-- if contents.subwindow.actions.subwindow.onDrop(x, y, draginfo) then
+					-- return true;
+				-- end
 				if contents.subwindow.weapons.onDrop(x, y, draginfo) then
 					return true;
 				end
 				return false;
+			end
+			
+			function onEditModeChanged()
+				-- local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
+
+				-- powermode_label.setVisible(not bEditMode);
+				-- powermode.setVisible(not bEditMode);
+				-- powerdisplay_label.setVisible(not bEditMode);
+				-- powerdisplaymode.setVisible(not bEditMode);
+				-- if bEditMode then
+					-- DB.setValue(getDatabaseNode(), "powermode", "string", "standard");
+				-- end
 			end
 		</script>
 		<sheetdata>
 			<button_iedit name="actions_iedit">
 				<anchored position="insidebottomright" offset="10,10" />
 				<tooltip textres="char_tooltip_actionedit" />
-				<script>
-					function onValueChanged()
-						window.contents.subwindow.weapons.update();
-					end
-				</script>
 			</button_iedit>
 
 			<buttoncontrol name="weapons_iadd">
@@ -63,7 +73,7 @@
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.weapons.onModeChanged();
+						window.contents.subwindow.onModeChanged();
 					end
 				</script>
 			</button_stringcycler>
@@ -71,10 +81,19 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
-	<!-- Modified -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_actions_contents">
 		<margins control="0,0,0,2" />
+		<script>
+			function onModeChanged()
+				weapons.onModeChanged();
+				
+				-- spellslots_prep.subwindow.onModeChanged();
+				-- spellslots_cast.subwindow.onModeChanged();
+				-- actions.subwindow.onModeChanged();
+			end
+		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
@@ -116,7 +135,7 @@
 				<tooltip textres="char_tooltip_dmg" />
 			</genericcontrol>
 
-			<!-- For compatibility reasons with 5E, we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
+			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
 			<basicnumber name="dmg" source="hp.wounds">
 				<anchored to="hp_icon" width="30" height="30">
 					<top anchor="top" offset="0" />

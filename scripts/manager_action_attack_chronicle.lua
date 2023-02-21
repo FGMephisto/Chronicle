@@ -128,7 +128,7 @@ function getRoll(rActor, rAction)
 	rRoll.aDice = {};
 	rRoll.bWeapon = rAction.bWeapon;
 	rRoll.sLabel = rAction.label;
-	rRoll.sRange = rAction.range;	
+	rRoll.sRange = rAction.range;
 	rRoll.sType = "attack";
 	rRoll.nTest = rAction.nStat or 0;
 	rRoll.nBonus = rAction.nSkill or 0;
@@ -362,7 +362,7 @@ function modAttack(rSource, rTarget, rRoll)
 			else
 				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
 			end
-			table.insert(aAddDesc, sEffects);
+			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
 
@@ -405,13 +405,12 @@ function onAttack(rSource, rTarget, rRoll)
 	if rRoll.nAtkEffectsBonus ~= 0 then
 		rRoll.nTotal = rRoll.nTotal + rRoll.nAtkEffectsBonus;
 		local sFormat = "[" .. Interface.getString("effects_tag") .. " %+d]"
-		table.insert(rRoll.aMessages, string.format(sFormat, rRoll.nAtkEffectsBonus));
+		table.insert(rRoll.aMessages, EffectManager.buildEffectOutput(rRoll.nAtkEffectsBonus));
 	end
 
 	if rRoll.nDefEffectsBonus ~= 0 then
 		rRoll.nDefenseVal = rRoll.nDefenseVal + rRoll.nDefEffectsBonus;
-		local sFormat = "[" .. Interface.getString("effects_def_tag") .. " %+d]"
-		table.insert(rRoll.aMessages, string.format(sFormat, rRoll.nDefEffectsBonus));
+		table.insert(rRoll.aMessages, string.format("[%s %+d]", Interface.getString("effects_def_tag"), rRoll.nDefEffectsBonus));
 	end
 
 	-- Determine degrees of success

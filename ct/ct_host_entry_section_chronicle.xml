@@ -268,11 +268,7 @@
 			<button_iedit name="actions_iedit">
 				<anchored position="insidetopright" offset="10,12" />
 				<tooltip textres="char_tooltip_actionedit" />
-				<script>
-					function onValueChanged()
-						window.actions.update()
-					end
-				</script>
+				<edittarget>actions</edittarget>
 			</button_iedit>
 
 			<buttoncontrol name="weapons_iadd">
@@ -804,20 +800,6 @@
 				<anchored to="will" position="lefthigh" offset="7,0" />
 				<static textres="WIL" />
 			</label>
-
-			<!-- =================================================================================================================== -->
-			<!-- Skills -->
-			<!-- =================================================================================================================== -->
-			<!-- <stringu name="skills"> -->
-				<!-- <anchored to="anchor_section"> -->
-					<!-- <top anchor="bottom" relation="relative" offset="10" /> -->
-					<!-- <left parent="icon_section" anchor="right" offset="40" /> -->
-					<!-- <right anchor="right" offset="-5" /> -->
-				<!-- </anchored>			 -->
-				<!-- <multilinespacing>20</multilinespacing> -->
-				<!-- <actorpath>....</actorpath> -->
-				<!-- <script file="campaign/scripts/npc_skill_chronicle.lua" /> -->
-			<!-- </stringu> -->
 
 			<frame_ct_section name="frame_section">
 				<anchored>

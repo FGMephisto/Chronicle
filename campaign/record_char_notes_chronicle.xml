@@ -42,13 +42,13 @@
 			<!-- =================================================================================================================== -->
 			<!-- Details -->
 			<!-- =================================================================================================================== -->
-			<label_charframetop name="detailstitle">
+			<metalplate name="detailstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
 					<left offset="15" />
 					<right offset="-10" />
 				</anchored>
-			</label_charframetop>
+			</metalplate>
 
 			<!-- =================================================================================================================== -->
 			<stringu name="ancestry">
@@ -111,8 +111,8 @@
 			<label_charframetop name="destinytitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="35" />
-					<left />
-					<right />
+					<left offset="15" />
+					<right offset="-10" />
 				</anchored>
 				<static textres="char_label_notes_destiny" />
 			</label_charframetop>
@@ -392,8 +392,8 @@
 			<label_charframetop name="appearancetitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
-					<left />
-					<right />
+					<left offset="15" />
+					<right offset="-10" />
 				</anchored>
 				<static textres="char_label_appearance" />
 			</label_charframetop>
@@ -413,8 +413,8 @@
 			<label_charframetop name="notestitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
-					<left />
-					<right />
+					<left offset="15" />
+					<right offset="-10" />
 				</anchored>
 				<static textres="char_label_notes" />
 			</label_charframetop>
@@ -434,8 +434,8 @@
 			<label_charframetop name="alliestitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
-					<left />
-					<right />
+					<left offset="15" />
+					<right offset="-10" />
 				</anchored>
 				<static textres="char_label_allies" />
 			</label_charframetop>
@@ -455,8 +455,8 @@
 			<label_charframetop name="historytitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
-					<left />
-					<right />
+					<left offset="15" />
+					<right offset="-10" />
 				</anchored>
 				<static textres="char_label_history" />
 			</label_charframetop>

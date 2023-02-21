@@ -29,24 +29,16 @@ function onSummaryChanged()
 	summary_label.setValue(StringManager.capitalize(table.concat(aText, " ")));
 end
 
-function updateControl(sControl, bReadOnly, bForceHide)
-	if not self[sControl] then
-		return false;
-	end
-	
-	return self[sControl].update(bReadOnly, bForceHide);
-end
-
 function update()
 	local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
 
 	local bSection1 = false;
-	if updateControl("shortdescription", bReadOnly) then bSection1 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "shortdescription", bReadOnly) then bSection1 = true; end;
 	
 	local bSection2 = false;
-	if updateControl("level", bReadOnly, bReadOnly) then bSection2 = true; end;
-	if updateControl("school", bReadOnly, bReadOnly) then bSection2 = true; end;
-	if updateControl("ritual", bReadOnly, bReadOnly) then bSection2 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "level", bReadOnly, bReadOnly) then bSection2 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "school", bReadOnly, bReadOnly) then bSection2 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "ritual", bReadOnly, bReadOnly) then bSection2 = true; end;
 	if (not bReadOnly) or (level.getValue() == 0 and school.getValue() == "") then
 		summary_label.setVisible(false);
 	else
@@ -55,14 +47,14 @@ function update()
 	end
 	
 	local bSection3 = false;
-	if updateControl("castingtime", bReadOnly) then bSection3 = true; end;
-	if updateControl("range", bReadOnly) then bSection3 = true; end;
-	if updateControl("components", bReadOnly) then bSection3 = true; end;
-	if updateControl("duration", bReadOnly) then bSection3 = true; end;
-	if updateControl("description", bReadOnly) then bSection3 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "castingtime", bReadOnly) then bSection3 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "range", bReadOnly) then bSection3 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "components", bReadOnly) then bSection3 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "duration", bReadOnly) then bSection3 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "description", bReadOnly) then bSection3 = true; end;
 
 	local bSection4 = false;
-	if updateControl("source", bReadOnly) then bSection4 = true; end;
+	if WindowManager.callSafeControlUpdate(self, "source", bReadOnly) then bSection4 = true; end;
 	
 	divider.setVisible(bSection1 and bSection2);
 	divider2.setVisible((bSection1 or bSection2) and bSection3);

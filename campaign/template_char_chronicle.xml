@@ -192,22 +192,6 @@
 	
 	<!-- =================================================================================================================== -->
 	<!-- =================================================================================================================== -->
-	<template name="button_charlevelup">
-		<button_text_large>
-			<state textres="char_button_levelup" />
-			<script>
-				function onInit()
-					setVisible(DB.isOwner(window.getDatabaseNode()));
-				end
-				function onButtonPress()
-					CharWizardManager.impCharacter(window.getDatabaseNode());
-				end
-			</script>
-		</button_text_large>
-	</template>
-	
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="number_charabilityscore">
 		<number_abilityscore>
 			<anchored to="statstitle" width="40" height="30">
@@ -448,23 +432,27 @@
 
 	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
+	<!-- ToDo: Adjust to Trauma? -->
 	<!-- =================================================================================================================== -->
 	<template name="number_charwounds">
 		<basicnumber>
 			<script>
 				function onInit()
-					super.onInit()
-					DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onSourceUpdate)
-					onSourceUpdate()
+					if super.onInit then
+						super.onInit();
+					end
+
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onValueChanged);
+					onValueChanged();
 				end
 				
 				function onClose()
-					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onSourceUpdate)
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onValueChanged);
 				end
 				
-				function onSourceUpdate()
+				function onValueChanged()
 					local rActor = ActorManager.resolveActor(window.getDatabaseNode())
-					setValue(ActorManager5E.getAbilityScore(rActor, "endurance")*3)
+					setValue(ActorManager5E.getAbilityScore(rActor, "endurance")*3);
 				end
 			</script>
 		</basicnumber>
@@ -658,16 +646,8 @@
 			<noscroll />
 			<script>
 				function onListChanged()
-					update();
 					if listheader and listheader[1] and not isVisible() then
 						window[listheader[1]].expand();
-					end
-				end
-
-				function update()
-					local bEdit = (window.parentcontrol.window.actions_iedit.getValue() == 1);
-					for _,w in ipairs(getWindows()) do
-						w.idelete.setVisibility(bEdit);
 					end
 				end
 
@@ -831,7 +811,7 @@
 	</template>
 
 	<!-- =================================================================================================================== -->
-	<!-- Button Degrees of Sucess -->
+	<!-- Added - Button Degrees of Sucess -->
 	<!-- =================================================================================================================== -->
 	<template name="button_dos">
 		<buttonfield>
@@ -863,7 +843,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
-	<!-- Ability score combined with filter for skills -->
+	<!-- Added - Ability score combined with filter for skills -->
 	<!-- =================================================================================================================== -->
 	<template name="number_charabilityscore_filter">
 		<number_abilityscore>
@@ -878,6 +858,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_charinjuries">
 		<basicnumber>
@@ -886,14 +867,7 @@
 	</template>
 
 	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="number_chartrauma">
-		<basicnumber>
-			<min value="0" />
-		</basicnumber>
-	</template>
-
-	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_charsprint">
 		<number_chartotal>
@@ -926,8 +900,18 @@
 			</script>
 		</number_chartotal>
 	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Added -->
+	<!-- =================================================================================================================== -->
+	<template name="number_chartrauma">
+		<basicnumber>
+			<min value="0" />
+		</basicnumber>
+	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_chartotalar">
 		<number_chartotal>
@@ -941,6 +925,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_chartotalic">
 		<number_chartotal>
@@ -956,6 +941,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_chartotaldp">
 		<number_linked>
@@ -970,6 +956,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_chartotalsp">
 		<number_linked>
@@ -982,6 +969,7 @@
 	</template>
 	
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_chartotalxp">
 		<number_linked>
@@ -994,6 +982,7 @@
 	</template>
 
 	<!-- =================================================================================================================== -->
+	<!-- Added -->
 	<!-- =================================================================================================================== -->
 	<template name="number_readonly">
 		<basicnumber>

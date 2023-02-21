@@ -9,6 +9,7 @@
 <root>
 	<!-- =================================================================================================================== -->
 	<!-- Charsheet -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet">
 		<frame>charsheet</frame>
@@ -26,59 +27,46 @@
 		<script file="campaign/scripts/char_chronicle.lua" />
 		<sheetdata>
 			<anchor_title_charsheet name="contentanchor" />
-
+			
 			<sub_charsheet_overview name="overview" />
-							  
+			
 			<sub_charsheet name="skills">
 				<class>charsheet_skills</class>
 			</sub_charsheet>
-
 			<sub_charsheet name="abilities">
 				<class>charsheet_abilities</class>
 			</sub_charsheet>
-
 			<sub_charsheet name="inventory">
 				<class>charsheet_inventory</class>
 			</sub_charsheet>
-
 			<sub_charsheet name="notes">
 				<class>charsheet_notes</class>
 			</sub_charsheet>
-
 			<sub_charsheet name="actions">
 				<class>charsheet_actions</class>
 			</sub_charsheet>
-
-			<!-- <sub_charsheet name="intrigue"> -->
-				<!-- <class>charsheet_intrigue</class> -->
-			<!-- </sub_charsheet> -->
 
 			<tabs_charsheet name="tabs">
 				<tab>
 					<icon>tab_skills</icon>
 					<subwindow>skills</subwindow>
 				</tab>
-
 				<tab>
 					<icon>tab_abilities</icon>
 					<subwindow>abilities</subwindow>
 				</tab>
-
 				<tab>
 					<icon>tab_inventory</icon>
 					<subwindow>inventory</subwindow>
 				</tab>
-
 				<tab>
 					<icon>tab_notes</icon>
 					<subwindow>notes</subwindow>
 				</tab>
-
 				<tab>
 					<icon>tab_actions</icon>
 					<subwindow>actions</subwindow>
 				</tab>
-
 				<activate>1</activate>
 			</tabs_charsheet>
 
@@ -88,8 +76,10 @@
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_overview">
+		<!-- <script file="campaign/scripts/char_overview.lua" /> -->
 		<sheetdata>
 			<genericcontrol name="portraitbase">
 				<anchored position="insidetopleft" offset="5,5" width="45" height="45" />

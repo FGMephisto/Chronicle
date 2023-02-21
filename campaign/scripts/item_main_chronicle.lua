@@ -34,20 +34,6 @@ function onDrop(x, y, draginfo)
 end
 
 -- ===================================================================================================================
--- ===================================================================================================================
-function updateControl(sControl, bReadOnly, bID)
-	if not self[sControl] then
-		return false;
-	end
-
-	if not bID then
-		return self[sControl].update(bReadOnly, true);
-	end
-
-	return self[sControl].update(bReadOnly);
-end
-
--- ===================================================================================================================
 -- Adjusted
 -- ===================================================================================================================
 function update()
@@ -66,26 +52,26 @@ function update()
 	local bSection1 = false;
 
 	if Session.IsHost then
-		if self.updateControl("nonid_name", bReadOnly, true) then bSection1 = true; end;
+		if WindowManager.callSafeControlUpdate(self, "nonidentified", bReadOnly) then bSection1 = true; end;
 	else
-		self.updateControl("nonid_name", false);
+		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
 	end
 
 	if (Session.IsHost or not bID) then
-		if self.updateControl("nonidentified", bReadOnly, true) then bSection1 = true; end;
+		if WindowManager.callSafeControlUpdate(self, "nonidentified", bReadOnly, bReadOnly) then bSection1 = true; end;
 	else
-		self.updateControl("nonidentified", false);
+		WindowManager.callSafeControlUpdate(self, "nonidentified", bReadOnly, true);
 	end
 
 	local bSection2 = false;
-	if self.updateControl("type", bReadOnly, bID) then bSection2 = true; end
-	if self.updateControl("subtype", bReadOnly, bID) then bSection2 = true; end
-	-- if self.updateControl("rarity", bReadOnly, bID and not bVehicleComponent) then bSection2 = true; end
+	if WindowManager.callSafeControlUpdate(self, "type", bReadOnly, not bID) then bSection2 = true; end
+	if WindowManager.callSafeControlUpdate(self, "subtype", bReadOnly, not bID) then bSection2 = true; end
+	-- if WindowManager.callSafeControlUpdate(self, "rarity", bReadOnly, not (bID and not bVehicleComponent)) then bSection2 = true; end
 	
 	local bSection3 = false;
-	if self.updateControl("bulk", bReadOnly, bID) then bSection3 = true; end
-	if self.updateControl("cost", bReadOnly, bID) then bSection3 = true; end
-	if self.updateControl("weight", bReadOnly, bID and not bVehicleComponent) then bSection3 = true; end
+	if WindowManager.callSafeControlUpdate(self, "bulk", bReadOnly, not bID) then bSection3 = true; end
+	if WindowManager.callSafeControlUpdate(self, "cost", bReadOnly, not bID) then bSection3 = true; end
+	if WindowManager.callSafeControlUpdate(self, "weight", bReadOnly, not (bID and not bVehicleComponent)) then bSection3 = true; end
 
 	local bSection4 = true;
 	if Session.IsHost or bID then 
@@ -163,6 +149,4 @@ function onClose()
 		DB.deleteChild(nodeRecord, "weapon_training")
 		DB.deleteChild(nodeRecord, "weapon_qualities")
 	end
-	
-	-- ToDo If not Vehicle
 end

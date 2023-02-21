@@ -27,6 +27,7 @@
 			<hsx name="size" />
 
 			<hnx name="init" />
+			<hnx name="init_skill_misc" source="skilllist.quickness.misc" />
 			<hnx name="move" source="speed.total" />
 			<hnx name="sprint" source="speed.sprint" />
 			<hnx name="cd" source="defenses.ac.total" />

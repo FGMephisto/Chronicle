@@ -10,6 +10,8 @@
 -- ===================================================================================================================
 function onInit()
 	self.update()
+	
+	-- Fill drop-down with values
 	weapon_speciality.addItems(DataCommon.wpnskilldata)
 end
 

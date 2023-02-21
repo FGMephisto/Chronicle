@@ -80,8 +80,8 @@ function getRoll(rActor, rAction)
 
 	rRoll.sDesc = "[DAMAGE";
 
-	-- Save sWeaponQualities to rSource to pass it down in the process
-	rSource.sWeaponQualities = DB.getValue(rAction.nodeWeapon, "wpn_qualities", "")
+	-- Save sWeaponQualities to rActor to pass it down in the process
+	rActor.sWeaponQualities = DB.getValue(rAction.nodeWeapon, "wpn_qualities", "")
 
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
@@ -145,6 +145,7 @@ function modDamage(rSource, rTarget, rRoll)
 	if ActorManager.isRecordType(rSource, "npc") and OptionsManager.isOption("NPCD", "fixed") then
 		ActionDamage.applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget);
 	end
+
 	ActionDamage.applyModifierKeysToModRoll(rRoll, rSource, rTarget);
 	
 	ActionDamage.finalizeModRoll(rRoll);
@@ -243,6 +244,10 @@ function setupModRoll(rRoll, rSource, rTarget)
 	-- ActionDamage.decodeDamageTypes(rRoll);
 	-- CombatManager2.addRightClickDiceToClauses(rRoll);
 
+											  
+									   
+												  
+ 
 	rRoll.tNotifications = {};
 
 	rRoll.bCritical = rRoll.bCritical or ModifierManager.getKey("DMG_CRIT") or Input.isShiftPressed();
@@ -373,7 +378,7 @@ function applyEffectModNotificationToModRoll(rRoll)
 		else
 			sEffects = "[" .. Interface.getString("effects_tag") .. "]";
 		end
-		table.insert(rRoll.tNotifications, sEffects);
+		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(sMod));
 	end
 end
 
@@ -407,8 +412,7 @@ function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
 			end
 		end
 
-		local sNotification = "[" .. Interface.getString("effects_tag") .. " " .. table.concat(tAddDmgTypes, ",") .. "]";
-		table.insert(rRoll.tNotifications, sNotification);
+		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(table.concat(tAddDmgTypes, ",")));
 	end
 end
 
@@ -588,6 +592,7 @@ end
 -- ===================================================================================================================
 -- APPLY DAMAGE EFFECT HELPERS
 -- ===================================================================================================================
+
 -- NOTE: Dice determined randomly, instead of rolled
 -- ===================================================================================================================
 function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
@@ -628,7 +633,7 @@ function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 		else
 			sNotification = "[" .. Interface.getString("effects_tag") .. "]";
 		end
-		table.insert(rDamageOutput.tNotifications, sNotification);
+		table.insert(rDamageOutput.tNotifications, EffectManager.buildEffectOutput(nDamageEffectTotal));
 	end
 
 	rDamageOutput.nVal = rDamageOutput.nVal + nDamageEffectTotal;
@@ -664,14 +669,14 @@ function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarg
 		end
 		rDamageOutput.aDamageTypes = tNewDmgTypes;
 
-		local sNotification = "[" .. Interface.getString("effects_tag") .. " " .. table.concat(tAddDmgTypes, ",") .. "]";
-		table.insert(rDamageOutput.tNotifications, sNotification);
+		table.insert(rDamageOutput.tNotifications, EffectManager.buildEffectOutput(table.concat(tAddDmgTypes, ",")));
 	end
 end
 
 -- ===================================================================================================================
 -- UTILITY FUNCTIONS
 -- ===================================================================================================================
+
 function encodeDamageTypes(rRoll)
 	for _,vClause in ipairs(rRoll.clauses) do
 		if vClause.dmgtype and vClause.dmgtype ~= "" then
@@ -894,6 +899,7 @@ end
 -- ===================================================================================================================
 -- DAMAGE APPLICATION
 -- ===================================================================================================================
+
 function checkReductionTypeHelper(rMatch, aDmgType)
 	if not rMatch or (rMatch.mod ~= 0) then
 		return false;
@@ -1183,14 +1189,24 @@ function applyDamage(rSource, rTarget, rRoll)
 		nWounds = DB.getValue(nodeTarget, "hp.wounds", 0);
 		nInjuries = DB.getValue(nodeTarget, "hp.injuries", 0);
 		nTrauma = DB.getValue(nodeTarget, "hp.trauma", 0);
+																				  
+												   
+												 
+												 
+																	 
+															   
 	-- elseif sTargetNodeType == "ct" and ActorManager.isRecordType(rTarget, "vehicle") then
 		-- if (rRoll.sSubtargetPath or "") ~= "" then
 			-- nTotalHP = DB.getValue(DB.getPath(rRoll.sSubtargetPath, "hp"), 0);
 			-- nWounds = DB.getValue(DB.getPath(rRoll.sSubtargetPath, "wounds"), 0);
+			   
 		-- else
 			-- nTotalHP = DB.getValue(nodeTarget, "hptotal", 0);
+												  
 			-- nWounds = DB.getValue(nodeTarget, "wounds", 0);
 		-- end
+						
+					 
 	else
 		return;
 	end
@@ -1204,6 +1220,7 @@ function applyDamage(rSource, rTarget, rRoll)
 	end
 
 	-- Prepare for notifications
+								
 	local bRemoveTarget = false;
 
 	-- Remember current health status
@@ -1218,37 +1235,246 @@ function applyDamage(rSource, rTarget, rRoll)
 	-- Is this needed?
 	rTarget.sSubtargetPath = rRoll.sSubtargetPath;
 	-- local nDamageAdjust, bVulnerable, bResist = ActionDamage.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
+															   
+	  
+									
+					  
+						  
+						  
+												   
+											  
+					 
+												   
+														   
+														
+	   
+	  
+   
+													
+																						 
+	   
+							 
+										   
+	
+																								 
+													   
+													  
+						
+	   
+	
+															
+										 
+	
+								 
 	local nAdjustedDamage = rDamageOutput.nVal
+																 
+	
+						
+													
+											   
+					  
+																   
+		
+	   
+	  
+	 
 
 	-- Get Total Armor Rating
 	nAR = DB.getValue(nodeTarget, "defenses.armor.total", 0)
+					  
+															   
+	  
+							
+										  
+   
+																								
+													  
+													 
+					   
+	  
+   
+														   
+										
+													
+   
+								
+										 
+																
+	 
 
 	-- Apply Piercing
 	if (nPiercing > 0) and (nAR > 0) then
 		table.insert(rDamageOutput.tNotifications, "[ARMOR PIERCED BY " .. nPiercing .."]")
 		nAR = nAR - nPiercing
+		  
+	 
+									   
 		if nAR <0 then
 			nAR = 0
+																						   
 		end
+  
+											 
+						  
+											   
+															   
+				 
+																								   
+								 
+					 
+						 
+											 
+				  
+						 
+											 
+				  
+	  
+	 
+				   
+														  
+														   
+										  
+	  
+						  
+					
+														
+						
+														   
+								
+															  
+						  
+				   
+																				
+					 
+		 
+					
+		
+	   
+	  
+																		
 	end
+  
+								  
+												
+																																
+															 
+							 
+					   
+	 
+				 
+							   
+															 
+	   
+																	   
+	  
+	 
+					 
+															  
+	 
+  
+												
+										 
+  
+										  
+											 
+									
+												
+				
+																	   
+	   
+										
+						
+															 
+	  
+	 
 
 	-- Apply armor damage reduction
 	if nAdjustedDamage <= nAR then
+							  
+							   
+   
+				  
+													
+   
+							   
+						
+							 
+									
+					   
+	  
+   
+								
+								
+								 
 		table.insert(rDamageOutput.tNotifications, "\n[ALL DEFLECTED BY ARMOR]")
 		nAdjustedDamage = 0
+					   
 	elseif nAR > 0 then
 		table.insert(rDamageOutput.tNotifications, "\n[" .. nAR .. " DEFLECTED BY ARMOR]")
+								   
+									
+										  
+		 
+										  
+		
+	   
+	   
 		nAdjustedDamage = nAdjustedDamage - nAR
+													 
 	end
+	  
+   
+							 
+													
 
+														
+					   
 	-- Avoid negative damage
 	if nAdjustedDamage < 0 then
 		nAdjustedDamage = 0;
+								  
+												   
+				  
+										
+		
+	   
+																								   
+	
+																 
+																  
+												   
+						   
+						   
+												 
+															 
+								 
+																			
+										  
+												   
+															   
+						
+			
+		   
+		  
+	   
+					 
+													 
+		  
+		 
+		
+	   
+	  
+	 
+  
+															 
+									   
+															  
 	end
 
 	-- Apply remaining damage
 	if nAdjustedDamage > 0 then
 		nWounds = math.max(nWounds + nAdjustedDamage, 0);
+					 
 	end
 
 	-- Update the damage output variable to reflect adjustments
@@ -1257,13 +1483,20 @@ function applyDamage(rSource, rTarget, rRoll)
 
 	-- Set health fields
 	if sTargetNodeType == "pc" then
+																						   
+																					 
+															 
 		DB.setValue(nodeTarget, "hp.wounds", "number", nWounds);
 	elseif ActorManager.isRecordType(rTarget, "npc") then
+																						
+																				  
+													   
 		DB.setValue(nodeTarget, "hp.wounds", "number", nWounds);
 	-- elseif ActorManager.isRecordType(rTarget, "vehicle") then
 		-- if (rRoll.sSubtargetPath or "") ~= "" then
 			-- DB.setValue(DB.getPath(rRoll.sSubtargetPath, "wounds"), "number", nWounds);
 		-- else
+														
 			-- DB.setValue(nodeTarget, "wounds", "number", nWounds);
 		-- end
 	end
@@ -1299,7 +1532,7 @@ function applyDamage(rSource, rTarget, rRoll)
 			bShowStatus = not OptionsManager.isOption("SHNPC", "off");
 		end
 		if bShowStatus then
-			table.insert(rDamageOutput.tNotifications, "[" .. Interface.getString("combat_tag_status") .. ": " .. sNewStatus .. "]");
+			table.insert(rDamageOutput.tNotifications, string.format("[%s: %s]", Interface.getString("combat_tag_status"), sNewStatus));
 		end
 	end
 
@@ -1322,6 +1555,13 @@ end
 -- ===================================================================================================================
 -- Adjusted
 -- ===================================================================================================================
+																		
+																
+	  
+												  
+	 
+	
+   
 function messageDamage(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: messageDamage in manager_action_damage")
 	-- Step 16
@@ -1345,7 +1585,6 @@ function messageDamage(rSource, rTarget, rRoll)
 		msgShort.text = string.format("%s %s", msgShort.text, rRoll.sLabel);
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sLabel);
 	end
-	msgShort.text = string.format("%s [%d]", msgLong.text, rRoll.nTotal or 0);
 	msgLong.text = string.format("%s [%d]", msgLong.text, rRoll.nTotal or 0);
 
 	-- Targeting information
@@ -1374,11 +1613,7 @@ function messageDamage(rSource, rTarget, rRoll)
 		msgLong.icon = "roll_damage";
 	end
 
-	-- msgShort.text = sTotal .. "Damage inflicted"
-	-- msgLong.text = sTotal .. " damage inflicted"
-
 	if (rRoll.sResults or "") ~= "" then
-		msgShort.txt = string.format("%s %s", msgLong.text, rRoll.sResults);
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sResults);
 	end
 
@@ -1408,7 +1643,7 @@ function applyDamageState(rSource, rTarget, sAttack, sState)
 	msgOOB.sTargetNode = ActorManager.getCTNodeName(rTarget);
 	
 	msgOOB.sAttack = sAttack;
-	-- msgOOB.sState = sState;
+	msgOOB.sState = sState;
 
 	Comm.deliverOOBMessage(msgOOB, "");
 end

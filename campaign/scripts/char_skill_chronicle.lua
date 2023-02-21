@@ -4,12 +4,10 @@
 -- File adjusted for Chronicle System
 --
 
-local iscustom = true;
-
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
-	setRadialOptions();
+	self.setRadialOptions();
 end
 
 -- ===================================================================================================================
@@ -21,13 +19,25 @@ function onMenuSelection(selection, subselection)
 end
 
 -- ===================================================================================================================
+-- ===================================================================================================================
+function onEditModeChanged()
+	local bEditMode = WindowManager.getEditMode(windowlist, "skills_iedit");
+	if self.isCustom() then
+		idelete.setVisibility(bEditMode);
+	else
+		idelete.setVisibility(false);
+	end
+end
+
+-- ===================================================================================================================
 -- This function is called to set the entry to non-custom or custom.
 -- Custom entries have configurable stats and editable labels.
 -- ===================================================================================================================
+local _bCustom = true;
 function setCustom(state)
-	iscustom = state;
+	_bCustom = state;
 	
-	if iscustom then
+	if _bCustom then
 		name.setEnabled(true);
 		name.setLine(true);
 	else
@@ -41,7 +51,7 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function isCustom()
-	return iscustom;
+	return _bCustom;
 end
 
 -- ===================================================================================================================
@@ -49,7 +59,7 @@ end
 function setRadialOptions()
 	resetMenuItems();
 
-	if iscustom then
+	if self.isCustom() then
 		registerMenuItem(Interface.getString("list_menu_deleteitem"), "delete", 6);
 		registerMenuItem(Interface.getString("list_menu_deleteconfirm"), "delete", 6, 7);
 	end

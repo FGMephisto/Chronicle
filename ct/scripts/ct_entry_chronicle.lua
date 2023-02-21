@@ -76,7 +76,7 @@ function linkPCFields()
 	-- Create Link to PC Skilllist items
 	for _, v in pairs(DB.getChildren(nodeChar, "skilllist")) do
 		if DB.getValue(v, "name", "") == sSkill then
-			-- init_skill_misc.setLink(v.createChild("misc", "number"), true)
+			init_skill_misc.setLink(DB.createChild(v, "misc", "number"), true)
 		end
 	end
 end
