@@ -4,8 +4,6 @@
 -- File adjusted for Chronicle System
 --
 
--- Not used any more
-
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
@@ -17,20 +15,20 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function onSummaryChanged()
-	local sSize = size.getValue();
-	local sType = type.getValue();
+	-- local sSize = size.getValue();
+	-- local sType = type.getValue();
 	-- local sAlign = alignment.getValue();
 	
-	local aText = {};
-	if sSize ~= "" then
-		table.insert(aText, sSize);
-	end
-	if sType ~= "" then
-		table.insert(aText, sType);
-	end
-	local sText = table.concat(aText, " ");
+	-- local aText = {};
+	-- if sSize ~= "" then
+		-- table.insert(aText, sSize);
+	-- end
+	-- if sType ~= "" then
+		-- table.insert(aText, sType);
+	-- end
+	-- local sText = table.concat(aText, " ");
 
-	summary_label.setValue(sText);
+	-- summary_label.setValue(sText);
 end
 
 -- ===================================================================================================================
@@ -46,11 +44,11 @@ function update()
 	else
 		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
 	end
-	divider.setVisible(bSection1);
+	-- divider.setVisible(bSection1);
 
-	WindowManager.callSafeControlUpdate(self, "size", bReadOnly, bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "type", bReadOnly, bReadOnly);
-	summary_label.setVisible(bReadOnly);
+	WindowManager.callSafeControlUpdate(self, "size", bReadOnly);
+	WindowManager.callSafeControlUpdate(self, "type", bReadOnly);
+	-- summary_label.setVisible(bReadOnly);
 end
 
 -- ===================================================================================================================
@@ -70,7 +68,7 @@ function onDrop(x, y, draginfo)
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		-- elseif sClass == "reference_classfeature" then
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
-		-- if sClass == "reference_feat" then
+		-- elseif sClass == "reference_feat" then
 			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		-- elseif sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
 			-- addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));

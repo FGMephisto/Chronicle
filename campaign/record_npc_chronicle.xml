@@ -13,10 +13,10 @@
 	<windowclass name="npc">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="525" height="633" />
+			<size width="525" height="640" />
 		</placement>
 		<sizelimits>
-			<minimum width="525" height="633" />
+			<minimum width="525" height="640" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_npc</minimize>
@@ -101,6 +101,18 @@
 	<!-- =================================================================================================================== -->
 	<windowclass name="npc_header" merge="join">
 		<margins control="0,0,0,2" />
+		<sheetdata>
+			<subwindow name="npc_header_contents">
+				<anchored height="80">
+					<top offset="40" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>npc_combat</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+		</sheetdata>
 	</windowclass>
 
 	<!-- =================================================================================================================== -->
@@ -116,19 +128,17 @@
 				<static textres="npc_label_unidentified" />
 			</label_column>
 			<string_columnh name="nonid_name" />
-
-			<line_column name="divider" />
 			
 			<label_column name="size_label">
 				<static textres="npc_label_size" />
 			</label_column>
 
 			<string_columnh name="size">
-				<script>
-					function onValueChanged()
-						window.onSummaryChanged();
-					end
-				</script>
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- window.onSummaryChanged(); -->
+					<!-- end -->
+				<!-- </script> -->
 			</string_columnh>
 			
 			<label_column name="type_label">
@@ -136,19 +146,12 @@
 			</label_column>
 			<string_columnh name="type">
 				<delaykeyupdate />
-				<script>
-					function onValueChanged()
-						window.onSummaryChanged();
-					end
-				</script>
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- window.onSummaryChanged(); -->
+					<!-- end -->
+				<!-- </script> -->
 			</string_columnh>
-
-			<label_column name="summary_label">
-				<anchored>
-					<top relation="relative" />
-				</anchored>
-				<font>reference-b-large</font>
-			</label_column>
 		</sheetdata>
 	</windowclass>
 
@@ -163,20 +166,9 @@
 				<edittarget>contents</edittarget>
 			</button_iedit>
 
-			<subwindow name="npc_header_contents">
-				<anchored height="100">
-					<top offset="0" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
-				<class>npc_combat</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-
 			<subwindow name="contents">
 				<anchored>
-					<top offset="100" />
+					<top offset="0" />
 					<bottom offset="-35" />
 					<left offset="0" />
 					<right offset="-15" />
