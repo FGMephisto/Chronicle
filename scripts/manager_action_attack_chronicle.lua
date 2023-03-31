@@ -318,6 +318,7 @@ function modAttack(rSource, rTarget, rRoll)
 		local bEffects = false;
 		local nEffectCount;
 		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"ATK"}, false, aAttackFilter, rTarget);
+
 		if (nEffectCount > 0) then
 			bEffects = true;
 		end

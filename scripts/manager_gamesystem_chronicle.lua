@@ -57,7 +57,10 @@ function onInit()
 	CharEncumbranceManager.addStandardCalc("Chronicle")
 	
 	-- Add death marker manager
-	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+	-- ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+	ImageDeathMarkerManager.setEnabled(true);
+	ImageDeathMarkerManager.registerGetCreatureTypeFunction(ActorCommonManager.getCreatureTypeDnD);
+	ImageDeathMarkerManager.registerCreatureTypes(DataCommon.creaturetype);
 
 	-- Languages
 	languages = {

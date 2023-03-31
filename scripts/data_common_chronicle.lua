@@ -142,7 +142,7 @@ creaturehalftypesubrace = "human";
 -- NOTE: Multi-word types must come before single word types
 creaturetype = {
 	-- "aberration",
-	-- "beast",
+	"beast",
 	-- "celestial",
 	-- "construct",
 	"dragon",

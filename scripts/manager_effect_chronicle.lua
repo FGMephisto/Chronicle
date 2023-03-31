@@ -509,7 +509,7 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function evalEffect(rActor, s)
-	-- Debug.chat("FN: evalEffect in manager_effect")
+	-- Debug.chat("FN:evalEffect in manager_effect")
 	if not s then
 		return "";
 	end
@@ -715,7 +715,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	local bonuses = {};
 	local penalties = {};
 	local nEffectCount = 0;
-	
+
 	for k, v in pairs(aEffectType) do
 		-- LOOK FOR EFFECTS THAT MATCH BONUSTYPE
 		local aEffectsByType = getEffectsByType(rActor, v, aFilter, rFilterActor, bTargetedOnly);
@@ -805,6 +805,7 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, bTargetedOnly)
+	-- Debug.chat("FN:getEffectsBonus in manager_effect")
 	if not rActor or not aEffectType then
 		if bModOnly then
 			return 0, 0;
@@ -865,20 +866,21 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	if bModOnly then
 		return nTotalMod, nEffectCount;
 	end
+
 	return aTotalDice, nTotalMod, nEffectCount;
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function hasEffectCondition(rActor, sEffect)
-	-- Debug.chat("FN: hasEffectCondition in manager_effect")
+	-- Debug.chat("FN:hasEffectCondition in manager_effect")
 	return hasEffect(rActor, sEffect, nil, false, true);
 end
 
 -- ===================================================================================================================
 -- ===================================================================================================================
 function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
-	-- Debug.chat("FN: hasEffect in manager_effect")
+	-- Debug.chat("FN:hasEffect in manager_effect")
 	if not sEffect or not rActor then
 		return false;
 	end
@@ -952,7 +954,7 @@ end
 -- ===================================================================================================================
 -- ===================================================================================================================
 function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
-	-- Debug.chat("FN: checkConditional in manager_effect")
+	-- Debug.chat("FN:checkConditional in manager_effect")
 	local bReturn = true;
 	
 	if not aIgnore then
