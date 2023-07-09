@@ -265,7 +265,7 @@
 		<button_details>
 			<script>
 				function onButtonPress()
-					Interface.openWindow("charsheet_combatcalc", window.getDatabaseNode());
+					Interface.openWindow("char_weaponmeta", window.getDatabaseNode());
 				end
 			</script>
 		</button_details>

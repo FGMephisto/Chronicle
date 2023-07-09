@@ -36,8 +36,8 @@ function onMenuSelection(item)
 end
 
 -- ===================================================================================================================
--- Create default skill selection
 -- Adjusted
+-- Create default skill selection
 -- ===================================================================================================================
 function constructDefaultSkills()
 	-- Debug.chat("FN: constructDefaultSkills in char_skilllist")
@@ -49,16 +49,16 @@ function constructDefaultSkills()
 		-- Get skill names from all existing list items
 		local sLabel = w.name.getValue();
 
-		-- Check if the skill name matches a skill maintained in DataCommon.lua (i.e. is not custom skill)
+		-- Check if the technical skill name matches a skill maintained in DataCommon.lua (i.e. is not custom skill)
 		if DataCommon.skilldata[sLabel] then
-			-- Add skill and window instance to entrymap table if the skill is not present yet else
-			-- store skill and window instance in entrymap table if the skill is already present
+			-- If the skill is not present on entrymap array, add the item windows instance with the skill as key
 			if not entrymap[sLabel] then
 				entrymap[sLabel] = { w };
 			else
+				-- If the skill is present on entrymap array, add the item windows instance to the skill
 				table.insert(entrymap[sLabel], w);
 			end
-		-- If the skill name does not match to a skill maintained in DataCommon.lua, consider item to be a custom skill
+		-- If the skill name does not match to a default skill, flag it as a custom skill
 		else
 			w.setCustom(true);
 		end
@@ -81,6 +81,8 @@ function constructDefaultSkills()
 				else
 					w.stat.setStringValue("");
 				end
+				
+				-- Add the item windows instance to the key
 				matches = { w };
 
 				-- Re-run the dicefield onInit to populate Ability and Skill values to the control required

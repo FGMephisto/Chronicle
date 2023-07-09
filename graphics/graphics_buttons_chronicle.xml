@@ -80,7 +80,7 @@
 	<icon name="button_ctnextactor" file="graphics/buttons/button_ctnextactor.png" />
 	<icon name="button_ctnextactor_down" file="graphics/buttons/button_ctnextactor_down.png" />
 
-	<!-- Weapons - Modified -->
+	<!-- Weapons - Adjusted -->
 	<icon name="button_success_degree_1" file="graphics/buttons_chronicle/degree_of_sucess_1.png" />
 	<icon name="button_success_degree_2" file="graphics/buttons_chronicle/degree_of_sucess_2.png" />
 	<icon name="button_success_degree_3" file="graphics/buttons_chronicle/degree_of_sucess_3.png" />

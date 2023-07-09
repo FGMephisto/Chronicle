@@ -38,6 +38,11 @@
 			<button_iedit name="actions_iedit">
 				<anchored position="insidebottomright" offset="10,10" />
 				<tooltip textres="char_tooltip_actionedit" />
+			
+							  
+												
+		
+			 
 			</button_iedit>
 
 			<buttoncontrol name="weapons_iadd">
@@ -214,7 +219,7 @@
 				<state icon="button_details" pressed="button_details_down" />
 				<script>
 					function onButtonPress()
-						Interface.openWindow("charsheet_combatcalc", window.getDatabaseNode())
+						Interface.openWindow("char_weaponmeta", window.getDatabaseNode())
 					end
 				</script>
 			</buttoncontrol>

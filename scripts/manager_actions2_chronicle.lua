@@ -193,6 +193,7 @@ function encodeArmorMods(rRoll)
 end
 
 -- ===================================================================================================================
+-- Added
 -- Convert input to lower case and removing all spaces from the string
 -- ===================================================================================================================
 function ConvertToTechnical(sInput)
