@@ -117,7 +117,7 @@ function getPowerCastRoll(rActor, rAction)
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
 	end
-	rRoll.sDesc = rRoll.sDesc .. "] " .. rAction.label;
+	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
 	
 	return rRoll;
 end
@@ -132,7 +132,7 @@ function getSaveVsRoll(rActor, rAction)
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
 	end
-	rRoll.sDesc = rRoll.sDesc .. "] " .. rAction.label;
+	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
 
 	local tAddDesc = {};
 	local bEffects = false;

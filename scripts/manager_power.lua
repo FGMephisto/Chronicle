@@ -1426,7 +1426,9 @@ end
 
 function parseEffectsAdd(aWords, i, rEffect, effects)
 	local nDurIndex = rEffect.endindex + 1;
-	if StringManager.isWord(aWords[nDurIndex], "by") 
+	if StringManager.isWord(aWords[nDurIndex], {"condition", "conditions"}) then
+		nDurIndex = nDurIndex + 1;
+	elseif StringManager.isWord(aWords[nDurIndex], "by") 
 			and StringManager.isWord(aWords[nDurIndex + 1], "the") then
 		nDurIndex = nDurIndex + 3;
 	end
@@ -1572,116 +1574,174 @@ function parseEffects(sPowerName, aWords)
 		elseif (i > 1) and StringManager.isWord(aWords[i], DataCommon.conditions) then
 			local bValidCondition = false;
 			local nConditionStart = i;
-			local j = i - 1;
-			
-			while aWords[j] do
-				if StringManager.isWord(aWords[j], "be") then
-					if StringManager.isWord(aWords[j-1], "or") then
-						bValidCondition = true;
-						nConditionStart = j;
-						break;
-					end
-				
-				elseif StringManager.isWord(aWords[j], "being") and
-						StringManager.isWord(aWords[j-1], "against") then
-					bValidCondition = true;
-					nConditionStart = j;
-					break;
-				
-				elseif StringManager.isWord(aWords[j], { "also", "magically" }) then
-				
-				-- Special handling: Blindness/Deafness
-				elseif StringManager.isWord(aWords[j], "or") and StringManager.isWord(aWords[j-1], DataCommon.conditions) and 
-						StringManager.isWord(aWords[j-2], "either") and StringManager.isWord(aWords[j-3], "is") then
-					bValidCondition = true;
-					break;
-					
-				elseif StringManager.isWord(aWords[j], { "while", "when", "cannot", "not", "if", "be", "or" }) then
-					bValidCondition = false;
-					break;
-				
-				elseif StringManager.isWord(aWords[j], { "target", "creature", "it" }) then
-					if StringManager.isWord(aWords[j-1], "the") then
-						j = j - 1;
-					end
-					nConditionStart = j;
-					
-				elseif StringManager.isWord(aWords[j], "and") then
-					if #effects == 0 then
-						break;
-					elseif effects[#effects].endindex ~= j - 1 then
-						if not StringManager.isWord(aWords[i], "unconscious") and not StringManager.isWord(aWords[j-1], "minutes") then
+
+			local bNewConditionText = false;
+			if StringManager.isWord(aWords[i+1], {"condition", "conditions"}) then
+				bNewConditionText = true;
+			elseif StringManager.isWord(aWords[i+1], "and") and 
+					StringManager.isWord(aWords[i+2], DataCommon.conditions) and
+					StringManager.isWord(aWords[i+3], "conditions") then
+				bNewConditionText = true;
+			end
+
+			if bNewConditionText then
+				local j = i - 1;
+				if StringManager.isWord(aWords[i+1], "conditions") and StringManager.isWord(aWords[i-1], "and") and StringManager.isWord(aWords[i-2], DataCommon.conditions) then
+					j = j - 2;
+					nConditionStart = i - 1;
+				end
+				if StringManager.isWord(aWords[j], "the") and StringManager.isWord(aWords[j - 1], { "has", "have"}) then
+					j = j - 2;
+					while aWords[j] do
+						if StringManager.isWord(aWords[j], "also") then
+							-- Skip
+
+						-- Standard positive leading words
+						elseif StringManager.isWord(aWords[j], {"or", "and"}) then
+							bValidCondition = true;
+
+						-- Conditional positive leading words
+						elseif StringManager.isWord(aWords[j], {"target", "creature"}) then
+							if StringManager.isWord(aWords[j-1], "the") then
+								j = j - 1;
+							end
+							if StringManager.isWord(aWords[j-1], {"if", "while"}) then
+								break;
+							end
+							bValidCondition = true;
+						
+						elseif StringManager.isWord(aWords[j], {"it", "you"}) then
+							if StringManager.isWord(aWords[j-1], {"if", "while"}) then
+								break;
+							end
+							bValidCondition = true;
+
+						-- Multi phrase
+						elseif StringManager.isWord(aWords[j], "damage") then
+							bValidCondition = true;
+
+						-- Special positive cases
+						elseif StringManager.isWord(aWords[j], "breathe") then
+							bValidCondition = true;
+
+						else
 							break;
 						end
-					end
-					bValidCondition = true;
-					nConditionStart = j;
-					
-				elseif StringManager.isWord(aWords[j], "is") then
-					if bValidCondition or StringManager.isWord(aWords[i], "prone") or
-							(StringManager.isWord(aWords[i], "invisible") and StringManager.isWord(aWords[j-1], {"wearing", "wears", "carrying", "carries"})) then
-						break;
-					end
-					bValidCondition = true;
-					nConditionStart = j;
-				
-				elseif StringManager.isWord(aWords[j], DataCommon.conditions) then
-					break;
 
-				elseif StringManager.isWord(aWords[i], "poisoned") then
-					if (StringManager.isWord(aWords[j], "instead") and StringManager.isWord(aWords[j-1], "is")) then
-						bValidCondition = true;
-						nConditionStart = j - 1;
-						break;
-					elseif StringManager.isWord(aWords[j], "become") then
+						j = j - 1;
+					end
+				end
+			else
+				local j = i - 1;
+				while aWords[j] do
+					if StringManager.isWord(aWords[j], "be") then
+						if StringManager.isWord(aWords[j-1], "or") then
+							bValidCondition = true;
+							nConditionStart = j;
+							break;
+						end
+					
+					elseif StringManager.isWord(aWords[j], "being") and
+							StringManager.isWord(aWords[j-1], "against") then
 						bValidCondition = true;
 						nConditionStart = j;
 						break;
-					end
-				
-				elseif StringManager.isWord(aWords[j], {"knock", "knocks", "knocked", "fall", "falls"}) and StringManager.isWord(aWords[i], "prone")  then
-					bValidCondition = true;
-					nConditionStart = j;
 					
-				elseif StringManager.isWord(aWords[j], {"knock", "knocks", "fall", "falls", "falling", "remain", "is"}) and StringManager.isWord(aWords[i], "unconscious") then
-					if StringManager.isWord(aWords[j], "falling") and StringManager.isWord(aWords[j-1], "of") and StringManager.isWord(aWords[j-2], "instead") then
-						break;
-					end
-					if StringManager.isWord(aWords[j], "fall") and StringManager.isWord(aWords[j-1], "you") and StringManager.isWord(aWords[j-1], "if") then
-						break;
-					end
-					if StringManager.isWord(aWords[j], "falls") and StringManager.isWord(aWords[j-1], "or") then
-						break;
-					end
-					bValidCondition = true;
-					nConditionStart = j;
-					if StringManager.isWord(aWords[j], "fall") and StringManager.isWord(aWords[j-1], "or") then
-						break;
-					end
+					elseif StringManager.isWord(aWords[j], { "also", "magically" }) then
 					
-				elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], "frightened")  then
-					bValidCondition = true;
-					nConditionStart = j;
-					break;
-					
-				elseif StringManager.isWord(aWords[j], {"turns", "become", "becomes"}) 
-						and StringManager.isWord(aWords[i], {"invisible"}) then
-					if StringManager.isWord(aWords[j-1], {"can't", "cannot"}) then
+					-- Special handling: Blindness/Deafness
+					elseif StringManager.isWord(aWords[j], "or") and StringManager.isWord(aWords[j-1], DataCommon.conditions) and 
+							StringManager.isWord(aWords[j-2], "either") and StringManager.isWord(aWords[j-3], "is") then
+						bValidCondition = true;
 						break;
-					end
-					bValidCondition = true;
-					nConditionStart = j;
-				
-				-- Special handling: Blindness/Deafness
-				elseif StringManager.isWord(aWords[j], "either") and StringManager.isWord(aWords[j-1], "is") then
-					bValidCondition = true;
-					break;
-				
-				else
-					break;
-				end
+						
+					elseif StringManager.isWord(aWords[j], { "while", "when", "cannot", "not", "if", "be", "or" }) then
+						bValidCondition = false;
+						break;
+					
+					elseif StringManager.isWord(aWords[j], { "target", "creature", "it" }) then
+						if StringManager.isWord(aWords[j-1], "the") then
+							j = j - 1;
+						end
+						nConditionStart = j;
+						
+					elseif StringManager.isWord(aWords[j], "and") then
+						if #effects == 0 then
+							break;
+						elseif effects[#effects].endindex ~= j - 1 then
+							if not StringManager.isWord(aWords[i], "unconscious") and not StringManager.isWord(aWords[j-1], "minutes") then
+								break;
+							end
+						end
+						bValidCondition = true;
+						nConditionStart = j;
+						
+					elseif StringManager.isWord(aWords[j], "is") then
+						if bValidCondition or StringManager.isWord(aWords[i], "prone") or
+								(StringManager.isWord(aWords[i], "invisible") and StringManager.isWord(aWords[j-1], {"wearing", "wears", "carrying", "carries"})) then
+							break;
+						end
+						bValidCondition = true;
+						nConditionStart = j;
+					
+					elseif StringManager.isWord(aWords[j], DataCommon.conditions) then
+						break;
 
-				j = j - 1;
+					elseif StringManager.isWord(aWords[i], "poisoned") then
+						if (StringManager.isWord(aWords[j], "instead") and StringManager.isWord(aWords[j-1], "is")) then
+							bValidCondition = true;
+							nConditionStart = j - 1;
+							break;
+						elseif StringManager.isWord(aWords[j], "become") then
+							bValidCondition = true;
+							nConditionStart = j;
+							break;
+						end
+					
+					elseif StringManager.isWord(aWords[j], {"knock", "knocks", "knocked", "fall", "falls"}) and StringManager.isWord(aWords[i], "prone")  then
+						bValidCondition = true;
+						nConditionStart = j;
+						
+					elseif StringManager.isWord(aWords[j], {"knock", "knocks", "fall", "falls", "falling", "remain", "is"}) and StringManager.isWord(aWords[i], "unconscious") then
+						if StringManager.isWord(aWords[j], "falling") and StringManager.isWord(aWords[j-1], "of") and StringManager.isWord(aWords[j-2], "instead") then
+							break;
+						end
+						if StringManager.isWord(aWords[j], "fall") and StringManager.isWord(aWords[j-1], "you") and StringManager.isWord(aWords[j-1], "if") then
+							break;
+						end
+						if StringManager.isWord(aWords[j], "falls") and StringManager.isWord(aWords[j-1], "or") then
+							break;
+						end
+						bValidCondition = true;
+						nConditionStart = j;
+						if StringManager.isWord(aWords[j], "fall") and StringManager.isWord(aWords[j-1], "or") then
+							break;
+						end
+						
+					elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], "frightened")  then
+						bValidCondition = true;
+						nConditionStart = j;
+						break;
+						
+					elseif StringManager.isWord(aWords[j], {"turns", "become", "becomes"}) 
+							and StringManager.isWord(aWords[i], {"invisible"}) then
+						if StringManager.isWord(aWords[j-1], {"can't", "cannot"}) then
+							break;
+						end
+						bValidCondition = true;
+						nConditionStart = j;
+					
+					-- Special handling: Blindness/Deafness
+					elseif StringManager.isWord(aWords[j], "either") and StringManager.isWord(aWords[j-1], "is") then
+						bValidCondition = true;
+						break;
+					
+					else
+						break;
+					end
+
+					j = j - 1;
+				end
 			end
 			
 			if bValidCondition then

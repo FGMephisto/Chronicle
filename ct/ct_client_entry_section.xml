@@ -38,9 +38,7 @@
 					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
 			</base_clientct_health>
-			<string_clientct_status name="status">
-				<frame name="cteffect" offset="5,2,5,2" />
-			</string_clientct_status>
+			<string_clientct_status name="status" />
 			<number_clientct_wounds name="wounds" />
 			<number_clientct_hp name="hp">
 				<anchored to="wounds" width="30" height="20">
@@ -61,7 +59,6 @@
 					<left offset="5" />
 					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
 				</anchored>
-				<frame name="cteffect" offset="5,2,5,2" />
 			</stringu>
 		</sheetdata>
 	</windowclass>

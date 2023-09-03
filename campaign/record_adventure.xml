@@ -44,19 +44,11 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="adventure_header">
-		<margins control="0,0,0,2" />
-		<script file="common/scripts/record_header_simple.lua" />
+	<windowclass name="adventure_header" copy="record_header_simple">
 		<sheetdata>
 			<link_record_header name="link">
 				<class>ref_adventure</class>
 			</link_record_header>
-
-			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked />
-			<button_record_locked />
-
-			<string_record_name name="name" />
 
 			<label_recordtype name="recordtype_label">
 				<static textres="ref_type_adventure" />

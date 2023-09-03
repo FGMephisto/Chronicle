@@ -34,7 +34,7 @@
 	<includefile source="campaign/record_char_weapon_chronicle.xml" />
 	<includefile source="campaign/record_encounter_chronicle.xml" />
 	<includefile source="campaign/record_feat_chronicle.xml" />
-	<includefile source="campaign/record_image.xml" />
+	<!-- <includefile source="campaign/record_image.xml" /> -->
 	<includefile source="campaign/record_item_chronicle.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
 	<includefile source="campaign/record_power.xml" />
@@ -77,10 +77,9 @@
 	<includefile source="ps/template_ps.xml" />
 
 	<!-- Reference -->
-	<includefile source="ref/ref_equipment_chronicle.xml" />
+	<!-- <includefile source="ref/ref_equipment_chronicle.xml" /> -->
 	<includefile source="ref/ref_equipment_list.xml" />
 	<includefile source="ref/ref_feat_list.xml" />
-	<includefile source="ref/template_ref.xml" />
 
 	<!-- Scripts -->
 	<script name="DataCommon" file="scripts/data_common_chronicle.lua" />

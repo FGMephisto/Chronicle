@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_feat">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="350" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="300" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_reference</minimize>
+		<tooltip field="name" />
+		<sharable />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>ref_feat_header</class>
+			</sub_record_header>
+
+			<frame_record_content />
+			
+			<ft_record name="text">
+				<anchored to="contentframe" position="over" />
+			</ft_record>
+			<scrollbar>
+				<anchored to="text" />
+				<target>text</target>
+			</scrollbar>
+			
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_feat_header" copy="record_header">
+		<sheetdata>
+			<button_ichat name="button_ichat" insertbefore="name" />
+			<label_recordtype name="recordtype_label" />
+		</sheetdata>
+	</windowclass>
+</root>

@@ -6,14 +6,6 @@
 -->
 
 <root>
-	<template name="sub_ps">
-		<subwindow>
-			<anchored to="contentanchor" position="below">
-				<bottom parent="" offset="-10" />
-			</anchored>
-		</subwindow>
-	</template>
-
 	<template name="anchor_partysheet_main_header">
 		<genericcontrol name="headeranchor">
 			<anchored height="35">
@@ -33,11 +25,6 @@
 			</anchored>
 			<gmvisibleonly />
 		</genericcontrol>
-	</template>
-	<template name="list_psmain_helper">
-		<windowlist>
-			<script file="ps/scripts/ps_list.lua" />
-		</windowlist>
 	</template>
 	<template name="list_psmain">
 		<list_psmain_helper name="list">
@@ -125,28 +112,6 @@
 		</windowlist>
 	</template>
 
-	<template name="string_ps">
-		<stringu>
-			<anchored height="20" />
-			<readonly />
-			<nodrag />
-			<nolinkwidget />
-			<script file="common/scripts/string_crosslink.lua" />
-		</stringu>
-	</template>
-
-	<template name="number_ps">
-		<number_static>
-			<anchored height="20" />
-		</number_static>
-	</template>
-	<template name="number_ps_linked">
-		<number_ps>
-			<nodrag />
-			<nolinkwidget />
-			<script file="common/scripts/number_crosslink.lua" />
-		</number_ps>
-	</template>
 	<template name="number_ps_ability">
 		<number_ps_linked>
 			<anchored width="25" height="20">

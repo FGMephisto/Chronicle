@@ -323,6 +323,10 @@
 		<placement>
 			<size width="430" height="290" />
 		</placement>
+		<sizelimits>
+			<minimum width="430" height="290" />
+			<dynamic />
+		</sizelimits>
 		<script file="campaign/scripts/power_groupdetail.lua" />
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
@@ -466,6 +470,7 @@
 				<delaykeyupdate />
 			</basicnumber>
 			
+			<resize_charsheethelper />
 			<close_charsheethelper />
 		</sheetdata>
 	</windowclass>
@@ -495,12 +500,12 @@
 				<anchored position="insidetopleft" offset="2,2" />
 			</button_poweraction>
 			<label name="castlabel">
-				<anchored to="castbutton" position="righthigh" offset="5,0" />
+				<anchored to="castbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_cast" />
 			</label>
 			
 			<button_poweraction name="attackbutton">
-				<anchored to="castlabel" position="righthigh" offset="15,0" />
+				<anchored to="castlabel" position="righthigh" offset="5,0" />
 				<icon normal="button_action_attack" pressed="button_action_attack_down" />
 				<subroll>atk</subroll>
 			</button_poweraction>
@@ -550,11 +555,11 @@
 				<icon normal="button_action_damage" pressed="button_action_damage_down" />
 			</button_poweraction>
 			<label name="damagelabel">
-				<anchored to="damagebutton" position="righthigh" offset="5,0" width="35" />
+				<anchored to="damagebutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_dmg" />
 			</label>
 			<string_poweractionview name="damageview">
-				<anchored to="damagelabel" position="righthigh" offset="20,0">
+				<anchored to="damagelabel" position="righthigh" offset="10,0">
 					<right parent="" offset="-5" />
 				</anchored>
 			</string_poweractionview>
@@ -583,11 +588,21 @@
 				<icon normal="button_action_heal" pressed="button_action_heal_down" />
 			</button_poweraction>
 			<label name="heallabel">
-				<anchored to="healbutton" position="righthigh" offset="5,0" width="35" />
+				<anchored to="healbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_heal" />
 			</label>
+			<button_iconcycler name="healtargeting">
+				<anchored to="heallabel" position="righthigh" offset="5,5" width="30" height="10" />
+				<parameters>
+					<icons>button_toggle_self</icons>
+					<values>self</values>
+					<tooltipsres>power_tooltip_targetself</tooltipsres>
+					<defaulticon>button_toggle_trgt</defaulticon>
+					<defaulttooltipres>power_tooltip_targetnormal</defaulttooltipres>
+				</parameters>
+			</button_iconcycler>
 			<string_poweractionview name="healview">
-				<anchored to="heallabel" position="righthigh" offset="20,0">
+				<anchored to="heallabel" position="righthigh" offset="40,0">
 					<right parent="" offset="-5" />
 				</anchored>
 			</string_poweractionview>
@@ -622,11 +637,21 @@
 				<icon normal="button_action_effect" pressed="button_action_effect_down" />
 			</button_poweraction>
 			<label name="effectlabel">
-				<anchored to="effectbutton" position="righthigh" offset="5,0" width="35" />
+				<anchored to="effectbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_effect" />
 			</label>
+			<button_iconcycler name="targeting">
+				<anchored to="effectlabel" position="righthigh" offset="5,5" width="30" height="10" />
+				<parameters>
+					<icons>button_toggle_self</icons>
+					<values>self</values>
+					<tooltipsres>power_tooltip_targetself</tooltipsres>
+					<defaulticon>button_toggle_trgt</defaulticon>
+					<defaulttooltipres>power_tooltip_targetnormal</defaulttooltipres>
+				</parameters>
+			</button_iconcycler>
 			<string_poweractionview name="effectview">
-				<anchored to="effectbutton" position="righthigh" offset="60,0">
+				<anchored to="effectlabel" position="righthigh" offset="40,0">
 					<right parent="" offset="-65" />
 				</anchored>
 			</string_poweractionview>
@@ -667,11 +692,10 @@
 			<close_recordsheet />
 		</sheetdata>
 	</windowclass>
-	<windowclass name="power_header">
-		<margins control="0,0,0,2" />
+	<windowclass name="power_header" copy="record_header_simple">
 		<script>
 			function onInit()
-				update();
+				self.update();
 
 				local bIsCharNode = false;
 				local node = getDatabaseNode();
@@ -699,9 +723,7 @@
 				<class>power</class>
 			</link_record_header>
 			
-			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked />
-			<button_record_locked />
+			<button_ichat name="button_ichat" insertbefore="name" />
 
 			<string_record_name name="name">
 				<empty textres="library_recordtype_empty_spell" />

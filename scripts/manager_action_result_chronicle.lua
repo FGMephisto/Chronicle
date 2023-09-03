@@ -54,6 +54,11 @@ end
 -- ===================================================================================================================
 function DropDice(rRoll)
 	-- Debug.chat("FN: DropDice in manager_action_result")
+	
+	-- Prevent errors if generic dices are thrown
+	if rRoll.nBonus == nil then  rRoll.nBonus = 0 end;
+	if rRoll.nPenalty == nil then  rRoll.nPenalty = 0 end;
+	
 	rRoll.nBonus = tonumber(rRoll.nBonus)
 	rRoll.nPenalty = tonumber(rRoll.nPenalty)
 	local nDiceDrop = rRoll.nBonus + rRoll.nPenalty

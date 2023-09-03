@@ -455,7 +455,6 @@ function updateUses()
 				if nLevel >= 1 and nLevel <= PowerManager.SPELL_LEVELS then
 					aCharSlots[nLevel].nCount = (aCharSlots[nLevel].nCount or 0) + 1;
 					aCharSlots[nLevel].nTotalPrepared = (aCharSlots[nLevel].nTotalPrepared or 0) + math.min(nPrepared, 1);
-					aCharSlots[nLevel].nTotalCast = DB.getValue(nodeChar, "powermeta.spellslots" .. nLevel .. ".used", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. nLevel .. ".used", 0);
 				end
 			end
 		end
@@ -598,7 +597,10 @@ function rebuildGroups()
 	end
 	
 	for i = 1, PowerManager.SPELL_LEVELS do
-		aCharSlots[i] = { nMax = DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".max", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".max", 0) };
+		aCharSlots[i] = { 
+			nMax = DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".max", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".max", 0),
+			nTotalCast = DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".used", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".used", 0),
+		};
 	end
 end
 
