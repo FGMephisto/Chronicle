@@ -6,43 +6,36 @@
 -->
 
 <root>
-	<windowclass name="quest_header" copy="record_header">
+	<windowclass name="quest_stats" merge="join">
 		<script>
 			function update()
+				super.update();
+
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				
-				name.setReadOnly(bReadOnly);
 				cr.setReadOnly(bReadOnly);
 				xp.setReadOnly(bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<string_record_name name="name">
-				<tabtarget next="cr" />
-			</string_record_name>
-
-			<label name="cr_label">
-				<anchored>
-					<top parent="name" anchor="bottom" offset="7" />
-					<left offset="15" />
-				</anchored>
+			<label_column name="cr_label" insertbefore="description_header">
 				<static textres="cr" />
-			</label>
-			<basicstring name="cr">
-				<anchored to="cr_label" position="righthigh" offset="10,0" width="20" height="20" />
-				<tabtarget next="exp" prev="name" />
-				<description textres="cr" />
-			</basicstring>
-			<basicnumber name="xp">
-				<anchored height="20" width="65">
-					<top parent="name" anchor="bottom" offset="7" />
-					<right offset="-5" />
+			</label_column>
+			<string_column_left name="cr" insertbefore="description_header">
+				<anchored width="40">
+					<left parent="cr_label" anchor="right" offset="15" />
 				</anchored>
-			</basicnumber>
-			<label>
-				<anchored to="xp" position="lefthigh" offset="10,0" />
+				<frame name="fielddark" offset="7,5,7,5" merge="replace" />
+				<font>sheetnumber</font>
+				<center />
+			</string_column_left>
+
+			<label_column_right name="xp_label" insertbefore="description_header">
+				<anchored to="cr" />
 				<static textres="xp" />
-			</label>
+			</label_column_right>
+			<number_column_right name="xp" insertbefore="description_header">
+				<anchored to="cr" />
+			</number_column_right>
 		</sheetdata>
 	</windowclass>
 </root>

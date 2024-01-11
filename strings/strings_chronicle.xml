@@ -187,6 +187,10 @@
 	<string name="ps_menu_awardxp">Award XP</string>
 	<string name="ps_message_xpaward">Awarded XP to the Party.</string>
 
+	<!-- Party Sheet - Added -->
+	<string name="ps_label_skills">Skills</string>
+	<string name="ps_default_groupskill">Acrobatics</string>
+	
 	<!-- Modifiers -->
 	<string name="modifier_label_PLUS1">+1D</string>
 	<string name="modifier_label_PLUS2">+2D</string>

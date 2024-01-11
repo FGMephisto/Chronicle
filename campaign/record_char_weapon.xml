@@ -85,7 +85,7 @@
 
 					function onDoubleClick(x,y)
 						return window.onAttackAction();
-					end			
+					end
 
 					function onDragStart(button, x, y, draginfo)
 						return window.onAttackAction(draginfo);
@@ -318,7 +318,6 @@
 			</button_iedit>
 			<button_iadd name="list_iadd">
 				<anchored to="list_iedit" position="lefthigh" offset="5,0" />
-				<target>list</target>
 			</button_iadd>
 
 			<list_editor name="list">

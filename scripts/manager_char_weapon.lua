@@ -53,9 +53,6 @@ function addToWeaponDB(nodeItem)
 		sName = DB.getValue(nodeItem, "name", "");
 	else
 		sName = DB.getValue(nodeItem, "nonid_name", "");
-		if sName == "" then
-			sName = Interface.getString("item_unidentified");
-		end
 		sName = "** " .. sName .. " **";
 	end
 	local nBonus = 0;
@@ -278,9 +275,6 @@ function checkWeaponIDChange(nodeWeapon)
 		sName = DB.getValue(nodeItem, "name", "");
 	else
 		sName = DB.getValue(nodeItem, "nonid_name", "");
-		if sName == "" then
-			sName = Interface.getString("item_unidentified");
-		end
 		sName = "** " .. sName .. " **";
 	end
 	DB.setValue(nodeWeapon, "name", "string", sName);

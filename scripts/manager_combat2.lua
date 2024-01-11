@@ -656,9 +656,9 @@ function getEntryInitRecord(nodeEntry)
 end
 function rollRandomInit(tInit)
 	local nInitResult = math.random(20);
-	if bADV and not bDIS then
+	if tInit.bADV and not tInit.bDIS then
 		nInitResult = math.max(nInitResult, math.random(20));
-	elseif bDIS and not bADV then
+	elseif tInit.bDIS and not tInit.bADV then
 		nInitResult = math.min(nInitResult, math.random(20));
 	end
 	return nInitResult + (tInit.nMod or 0);

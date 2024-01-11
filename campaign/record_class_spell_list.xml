@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_class_spell_list">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="350" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="300" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_reference</minimize>
+		<tooltip field="name" />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>ref_class_spell_list_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>ref_class_spell_list_main</class>
+				<activate />
+			</subwindow_record>
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+			
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_class_spell_list_header" copy="record_header" />
+	<windowclass name="ref_class_spell_list_main">
+		<margins control="0,0,0,7" />
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "power" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = spells.addEntry();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+							end
+							return true;
+						end
+					end
+				end
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				spells.update(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<header_column name="spells_header">
+				<static textres="class_spell_list_header_spells"/>
+				<center />
+			</header_column>
+			<button_iedit name="spells_iedit">
+				<anchored to="spells_header" position="righthigh" offset="-20,0" />
+				<target>spells</target>
+			</button_iedit>
+			<button_iadd name="spells_iadd">
+				<anchored to="spells_iedit" position="lefthigh" offset="5,0" />
+				<target>spells</target>
+			</button_iadd>
+			<list_column name="spells">
+				<datasource>.spells</datasource>
+				<class>ref_class_spell</class>
+				<sortby><control>level</control><control>name</control></sortby>
+			</list_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_class_spell">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				level.setReadOnly(bReadOnly);
+				name.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_column_right name="rightanchor" />
+			<genericcontrol name="rightspacer">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+			<button_listitem_column_delete name="idelete" />
+
+			<basicnumber name="level">
+				<anchored position="insidetopleft" offset="5,2" height="20" width="20" />
+			</basicnumber>
+			<string_listitem_column_name name="name">
+				<anchored offset="35,2" />
+				<empty textres="library_recordtype_empty_spell" />
+			</string_listitem_column_name>
+		</sheetdata>
+	</windowclass>
+</root>

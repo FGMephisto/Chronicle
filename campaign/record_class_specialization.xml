@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_class_specialization">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="350" height="350" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="300" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_reference</minimize>
+		<tooltip field="name" />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>ref_class_specialization_header</class>
+			</sub_record_header>
+
+			<frame_record_content_tabbed name="contentframe" />
+
+			<ft_record name="text">
+				<anchored to="contentframe" position="over" />
+				<invisible />
+			</ft_record>
+			<subwindow_record name="main">
+				<class>ref_class_specialization_stats</class>
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>text</target>
+			</scrollbar_record>
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+			
+			<tabs_recordsheet name="tabs">
+				<tab>
+					<icon>tab_main</icon>
+					<subwindow>text</subwindow>
+				</tab>
+				<tab>
+					<icon>tab_other</icon>
+					<subwindow>main</subwindow>
+				</tab>
+			</tabs_recordsheet>
+			
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_class_specialization_header" copy="record_header" />
+	<windowclass name="ref_class_specialization_stats">
+		<margins control="0,0,0,7" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				class.setReadOnly(bReadOnly);
+				features.update(bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.addEntry();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="class_label">
+				<static textres="class_specialization_label_class" />
+			</label_column>
+			<string_columnh name="class" />
+
+			<header_column name="features_header">
+				<static textres="class_header_features"/>
+				<center />
+			</header_column>
+			<button_iedit name="features_iedit">
+				<anchored to="features_header" position="righthigh" offset="-20,0" />
+				<target>features</target>
+			</button_iedit>
+			<button_iadd name="features_iadd">
+				<anchored to="features_iedit" position="lefthigh" offset="5,0" />
+				<target>features</target>
+			</button_iadd>
+			<list_column name="features">
+				<datasource>.features</datasource>
+				<class>ref_class_feature</class>
+				<sortby><control>level</control><control>name</control></sortby>
+			</list_column>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Legacy embedded class specializations -->
+	<windowclass name="reference_classability" copy="record_window_text">
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>ref_classability_header</class>
+			</sub_record_header>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_classability_header" copy="record_header_simple">
+		<sheetdata>
+			<link_record_header name="link">
+				<class>reference_classability</class>
+			</link_record_header>
+
+			<string_record_name name="name">
+				<empty textres="library_recordtype_empty_class_specialization" />
+			</string_record_name>
+			<label_recordtype name="recordtype_label">
+				<static textres="library_recordtype_label_class_specialization" />
+			</label_recordtype>	
+		</sheetdata>
+	</windowclass>
+</root>

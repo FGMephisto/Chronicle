@@ -48,7 +48,7 @@
 						Interface.openWindow("char_weapon_editor", window.getDatabaseNode());
 					end
 				</script>
-			</button_details >
+			</button_details>
 
 			<!-- =================================================================================================================== -->
 			<!-- Damage Field -->

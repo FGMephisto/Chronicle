@@ -6,33 +6,6 @@
 -->
 
 <root>
-	<!-- DEPRECATED - 2023-04-04 (Short Release) - 2023-05-30 (Chat Notice) -->
-	<template name="windowtitlebar_char">
-		<windowtitlebar name="title">
-			<bounds merge="replace">0,10,-1,40</bounds>
-			<field>name</field>
-			<font>windowtitle</font>
-			<script>
-				function onInit()
-					if super and super.onInit then
-						super.onInit();
-					end
-					Debug.console("windowtitlebar_char template - DEPRECATED - 2023-04-04 - Use windowtitlebar_charsheethelper instead");
-					ChatManager.SystemMessage("windowtitlebar_char template - DEPRECATED - 2023-04-04 - Contact ruleset/extension/forge author");
-				end
-				function setValue(sTitle)
-					if widgetTitle then
-						if prefix then
-							sTitle = Interface.getString(prefix[1]) .. " - " .. sTitle;
-						end
-						widgetTitle.setText(sTitle);
-						updatePosition();
-					end
-				end
-			</script>
-		</windowtitlebar>
-	</template>
-
 	<template name="sub_charsheet_overview">
 		<subwindow>
 			<anchored position="insidetopleft" offset="15,20" height="52">

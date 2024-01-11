@@ -6,40 +6,13 @@
 -->
 
 <root>
-	<windowclass name="ref_ability">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
-		<sizelimits>
-			<minimum width="300" height="300" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
+	<windowclass name="ref_ability" copy="record_window_text">
 		<sheetdata>
-			<hs name="type" />
-
 			<sub_record_header name="header">
 				<class>ability_header</class>
 			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
-			
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<empty textres="ft_empty" hideonreadonly="true" />
-			</ft_record>
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="ability_header" copy="record_header_simple">
 		<sheetdata>
 			<link_record_header name="link">

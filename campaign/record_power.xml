@@ -661,41 +661,20 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="power">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
-		<sizelimits>
-			<minimum width="300" height="300" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
+	<windowclass name="power" copy="record_window">
 		<sheetdata>
 			<sub_record_header name="header">
 				<class>power_header</class>
 			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
 			<subwindow_record name="content">
 				<class>power_stats</class>
-				<activate />
 			</subwindow_record>
-			<scrollbar_record>
-				<target>content</target>
-			</scrollbar_record>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
 		</sheetdata>
 	</windowclass>
-	<windowclass name="power_header" copy="record_header_simple">
+	<windowclass name="power_header" copy="record_header">
 		<script>
 			function onInit()
-				self.update();
+				super.onInit();
 
 				local bIsCharNode = false;
 				local node = getDatabaseNode();
@@ -713,24 +692,9 @@
 					recordtype_label.setValue(sGroup);
 				end
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				name.setReadOnly(bReadOnly);
-			end
 		</script>
 		<sheetdata>
-			<link_record_header name="link">
-				<class>power</class>
-			</link_record_header>
-			
 			<button_ichat name="button_ichat" insertbefore="name" />
-
-			<string_record_name name="name">
-				<empty textres="library_recordtype_empty_spell" />
-			</string_record_name>
-			<label_recordtype name="recordtype_label">
-				<static textres="ref_type_spell" />
-			</label_recordtype>	
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_stats">

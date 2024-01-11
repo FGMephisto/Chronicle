@@ -30,7 +30,7 @@
 		<script>
 			function onInit()
 				local sModule = UtilityManager.getNodeModule(getDatabaseNode());
-				ListManager.toggleRecordView("item", "gear", "reference.armor@" .. sModule);
+				ListManager.toggleRecordView("item", "gear", "reference.gear@" .. sModule);
 				close();
 			end
 		</script>
@@ -40,7 +40,7 @@
 		<script>
 			function onInit()
 				local sModule = UtilityManager.getNodeModule(getDatabaseNode());
-				ListManager.toggleRecordView("item", "vehiclemount", "reference.armor@" .. sModule);
+				ListManager.toggleRecordView("item", "vehiclemount", "reference.vehiclemount@" .. sModule);
 				close();
 			end
 		</script>
@@ -50,7 +50,7 @@
 		<script>
 			function onInit()
 				local sModule = UtilityManager.getNodeModule(getDatabaseNode());
-				ListManager.toggleRecordView("item", "vehiclewater", "reference.armor@" .. sModule);
+				ListManager.toggleRecordView("item", "vehiclewater", "reference.vehiclewater@" .. sModule);
 				close();
 			end
 		</script>

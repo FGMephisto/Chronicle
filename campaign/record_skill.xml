@@ -6,51 +6,26 @@
 -->
 
 <root>
-	<windowclass name="reference_skill">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="200" />
-		</placement>
-		<sizelimits>
-			<minimum width="300" height="300" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
+	<windowclass name="reference_skill" copy="record_window">
 		<sheetdata>
 			<sub_record_header name="header">
 				<class>ref_skill_header</class>
 			</sub_record_header>
-
-			<frame_record_content />
-			
-			<subwindow_record name="main">
+			<subwindow_record name="content">
 				<class>skill_main</class>
-				<activate />
 			</subwindow_record>
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
 		</sheetdata>
 	</windowclass>
-	
 	<windowclass name="ref_skill_header" copy="record_header">
 		<sheetdata>
 			<button_ichat name="button_ichat" insertbefore="name" />
-			<label_recordtype name="recordtype_label" />
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="skill_main">
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				update();
+				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());

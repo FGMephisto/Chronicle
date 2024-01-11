@@ -12,57 +12,32 @@
 		</basicstring>
 	</template>
 
-	<windowclass name="ref_adventure">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="550" height="300" />
-		</placement>
-		<sizelimits>
-			<minimum width="550" height="300" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
+	<windowclass name="ref_adventure" copy="record_window">
 		<sheetdata>
 			<sub_record_header name="header">
 				<class>adventure_header</class>
 			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
-
-			<subwindow_record name="main">
+			<subwindow_record name="content">
 				<class>adventure_main</class>
-				<activate />
 			</subwindow_record>
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-
-			<resize_recordsheet />
-			<close_recordsheet />
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="adventure_header" copy="record_header_simple">
 		<sheetdata>
 			<link_record_header name="link">
 				<class>ref_adventure</class>
 			</link_record_header>
-
 			<label_recordtype name="recordtype_label">
 				<static textres="ref_type_adventure" />
 			</label_recordtype>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="adventure_main">
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				update();
+				self.update();
 			end
-
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
 

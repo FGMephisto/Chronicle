@@ -198,7 +198,7 @@ aListViews = {
 		["byletter"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRe = "npc_grouped_tooltip_cr", bCentered=true },
+				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
 			},
 			aFilters = { },
 			aGroups = { { sDBField = "name", nLength = 1 } },
@@ -207,7 +207,7 @@ aListViews = {
 		["bycr"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRe = "npc_grouped_tooltip_cr", bCentered=true },
+				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
 			},
 			aFilters = { },
 			aGroups = { { sDBField = "cr", sPrefix = "CR" } },
@@ -217,7 +217,7 @@ aListViews = {
 		["bytype"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRe = "npc_grouped_tooltip_cr", bCentered=true },
+				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
 			},
 			aFilters = { },
 			aGroups = { { sDBField = "type" } },

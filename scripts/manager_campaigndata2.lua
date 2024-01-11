@@ -20,9 +20,7 @@ function handleSpellDrop(draginfo)
 	local sRootMapping = LibraryData.getRootMapping("spell");
 	local sClass, sRecord = draginfo.getShortcutData();
 	if ((sClass == "reference_spell") or (sClass == "power")) and ((sRootMapping or "") ~= "") then
-		local nodeSource = DB.findNode(sRecord);
-		local nodeTarget = DB.createChild(sRootMapping);
-		DB.copyNode(nodeSource, nodeTarget);
+		local nodeTarget = DB.createChildAndCopy(sRootMapping, DB.findNode(sRecord));
 		DB.setValue(nodeTarget, "locked", "number", 1);
 		return true;
 	end

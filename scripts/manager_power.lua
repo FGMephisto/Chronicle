@@ -81,13 +81,10 @@ function addPower(sClass, nodeSource, nodeCreature, sGroup)
 	end
 	
 	-- Create the new power entry
-	local nodeNewPower = DB.createChild(nodePowers);
+	local nodeNewPower = DB.createChildAndCopy(nodePowers, nodeSource);
 	if not nodeNewPower then
 		return nil;
 	end
-	
-	-- Copy the power details over
-	DB.copyNode(nodeSource, nodeNewPower);
 	
 	-- Determine group setting
 	if sGroup then

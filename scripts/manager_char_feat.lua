@@ -47,15 +47,13 @@ function helperAddFeatStandard(rAdd)
 		return nil;
 	end
 
-	local nodeNewFeat = DB.createChild(nodeFeatList);
+	local nodeNewFeat = DB.createChildAndCopy(nodeFeatList, rAdd.nodeSource);
 	if not nodeNewFeat then
 		return nil;
 	end
 
-	CharManager.outputUserMessage("char_abilities_message_featadd", rAdd.sSourceName, rAdd.sCharName);
-
-	DB.copyNode(rAdd.nodeSource, nodeNewFeat);
 	DB.setValue(nodeNewFeat, "locked", "number", 1);
+	CharManager.outputUserMessage("char_abilities_message_featadd", rAdd.sSourceName, rAdd.sCharName);
 
 	return nodeNewFeat;
 end

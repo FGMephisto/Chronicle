@@ -85,7 +85,7 @@
 
 			<button_text>
 				<anchored to="encounters" position="aboveleft" offset="10,15" width="60" height="20" />
-				<state textres="ps_label_award" />
+				<static textres="ps_label_award" />
 				<script>
 					function onButtonPress()
 						PartyManager2.awardEncountersToParty();
@@ -158,7 +158,7 @@
 
 			<button_text>
 				<anchored to="quests" position="aboveleft" offset="10,15" width="60" height="20" />
-				<state textres="ps_label_award" />
+				<static textres="ps_label_award" />
 				<script>
 					function onButtonPress()
 						PartyManager2.awardQuestsToParty();

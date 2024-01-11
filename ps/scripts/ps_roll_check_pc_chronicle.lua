@@ -10,7 +10,7 @@ function action(draginfo)
 	-- Get actor
 	local rActor = ActorManager.resolveActor(window.link.getTargetDatabaseNode())
 
-	-- Get the selected skill from the button control
+	-- Get the selected ability from the button control
 	local sAbility = window.pccheckselected.getValue()
 
 	-- Handle empty fields

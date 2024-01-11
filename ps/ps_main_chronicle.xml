@@ -10,101 +10,97 @@
 	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
-	<windowclass name="ps_main">
-		<script file="ps/scripts/ps_main.lua" />
+	<windowclass name="ps_main_labels">
 		<sheetdata>
-			<anchor_partysheet_main_header />
-
-			<!-- =================================================================================================================== -->
-			<!-- Header Line -->
-			<!-- =================================================================================================================== -->
-			<label_ps name="namelabel">
-				<anchored to="headeranchor" position="insidetopleft" offset="55,0" width="85" />
+			<label_list_content_base name="namelabel">
+				<anchored position="insidetopleft" offset="55,0" width="180" />
 				<static textres="ps_label_name" />
 				<center />
-			</label_ps>
-
-			<label_ps name="hplabel">
-				<anchored to="headeranchor" position="insidetopleft" offset="247,0" width="45" />
-				<static textres="hp" />
+			</label_list_content_base>
+			
+			<label_list_content_base name="hplabel">
+				<anchored position="insidetopleft" offset="245,0" width="40" />
+				<!-- <anchored to="headeranchor" position="insidetopleft" offset="247,0" width="45" /> -->
+				<static textres="ps_label_hp" />
 				<center />
-			</label_ps>
-
-			<label_ps name="abilitieslabel">
-				<anchored to="headeranchor" position="insidetopleft" offset="279,0" width="190" />
+			</label_list_content_base>
+			
+			<label_list_content_base name="abilitieslabel">
+				<anchored position="insidetopleft" offset="326,0" width="120" />
+				<!-- <anchored to="headeranchor" position="insidetopleft" offset="279,0" width="190" /> -->
 				<static textres="ps_label_abilities" />
 				<center />
-			</label_ps>
-
-			<!-- =================================================================================================================== -->
-			<button_iedit name="list_iedit">
-				<anchored to="headeranchor" position="insidetopright" offset="10,5" />
-				<target>list</target>
-				<gmvisibleonly />
-				<edittarget>list</edittarget>
-			</button_iedit>
-
-			<list_psmain name="list" />
-			<scrollbar_list name="scrollbar_list" />
-
-			<anchor_partysheet_main_footer />
-
-			<!-- =================================================================================================================== -->
-			<!-- Anchor for Check Frames -->
-			<!-- =================================================================================================================== -->
+			</label_list_content_base>
+			
+			<label_list_content_base name="skillslabel">
+				<anchored position="insidetopleft" offset="486,0" width="120" />
+				<!-- <anchored to="headeranchor" position="insidetopleft" offset="279,0" width="190" /> -->
+				<static textres="ps_label_skills" />
+				<center />
+			</label_list_content_base>
+		</sheetdata>
+	</windowclass>
+	
+	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ps_main_rolls">
+		<margins control="0,0,0,10" />
+		<script>
+			function onInit()
+				OptionsManager.registerCallback("REVL", update);
+				self.update();
+			end
+			function onClose()
+				OptionsManager.unregisterCallback("REVL", update);
+			end
+			function update()
+				hiderollresults.setVisible(OptionsManager.isOption("REVL", "on"));
+			end
+		</script>
+		<sheetdata>
 			<genericcontrol name="leftanchor">
-				<anchored to="footeranchor" position="insidetopleft" width="0" height="20" />
+				<anchored position="insidetopleft" offset="0,10" width="0" height="20" />
 				<disabled />
 			</genericcontrol>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Hide/Show Button -->
 			<!-- =================================================================================================================== -->
 			<buttonfield name="hiderollresults">
-				<anchored to="leftanchor" width="20" height="20">
+				<anchored to="leftanchor" height="20" width="20">
 					<top />
-					<left anchor="right" relation="relative" offset="15" />
+					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
-				<frame name="fielddark" offset="10,10,10,10" />
+				<frame name="fielddark" offset="10,8,10,6" />
 				<state icon="visibilityon" tooltipres="ps_tooltip_showrollon" />
 				<state icon="visibilityoff" tooltipres="ps_tooltip_showrolloff" />
-				<gmvisibleonly />
 			</buttonfield>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Ability Check Frame -->
 			<!-- =================================================================================================================== -->
 			<genericcontrol name="checkframe">
-				<anchored to="leftanchor" width="260" height="20">
+				<anchored to="leftanchor" height="20" width="260">
 					<top />
 					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<frame name="groupbox" offset="10,10,10,10" />
-				<gmvisibleonly />
 			</genericcontrol>
-
+			
 			<button_roll name="checkroll">
-				<anchored to="checkframe" position="insideleft" height="" offset="2,0" />
+				<anchored to="checkframe" position="insidetopleft" offset="5,0" />
 				<script file="ps/scripts/ps_roll_check_chronicle.lua" />
-				<gmvisibleonly />
 			</button_roll>
-
+			
 			<label name="checklabel">
-				<anchored to="checkroll">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="2" />
-				</anchored>
+				<anchored to="checkroll" position="righthigh" width="60" offset="3,0" />
 				<static textres="ps_label_groupcheck" />
-				<gmvisibleonly />
 			</label>
-
+			
 			<combobox name="checkselected">
-				<anchored to="checkroll" width="120" height="20">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="checklabel" position="righthigh" offset="10,0" width="100" height="20" />
 				<default textres="ps_default_groupability" />
-				<gmvisibleonly />
 				<listmaxsize>10</listmaxsize>
 				<script>
 					function onInit()
@@ -113,45 +109,41 @@
 					end
 				</script>
 			</combobox>
-
+			
+			<label name="checkdclabel">
+				<anchored to="checkselected" position="righthigh" offset="10,0" />
+				<static textres="dc" />
+			</label>
+			
 			<basicnumber name="checkdc">
-				<anchored to="checkframe" position="insideright" width="30" offset="2,0" />
-				<gmvisibleonly />
+				<anchored to="checkdclabel" position="righthigh" offset="10,0" width="30" height="20" />
 			</basicnumber>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Skill Check Frame -->
 			<!-- =================================================================================================================== -->
 			<genericcontrol name="skillframe">
-				<anchored to="leftanchor" width="260" height="20">
+				<!-- <anchored to="checkframe" position="right" offset="0,15" height="20" width="245" /> -->
+				<anchored to="leftanchor" height="20" width="260">
 					<top />
 					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<frame name="groupbox" offset="10,10,10,10" />
-				<gmvisibleonly />
 			</genericcontrol>
-
+			
 			<button_roll name="skillroll">
-				<anchored to="skillframe" position="insideleft" height="" offset="2,0" />
+				<anchored to="skillframe" position="insidetopleft" offset="5,0" />
 				<script file="ps/scripts/ps_roll_skill.lua" />
-				<gmvisibleonly />
 			</button_roll>
-
+			
 			<label name="skilllabel">
-				<anchored to="skillroll">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="2" />
-				</anchored>
+				<anchored to="skillroll" position="righthigh" width="60" offset="3,0" />
 				<static textres="ps_label_groupskill" />
-				<gmvisibleonly />
-			</label>	
-
+			</label>
+			
 			<combobox name="skillselected">
-				<anchored to="skillroll" width="120" height="20">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
-				<gmvisibleonly />
+				<anchored to="skilllabel" position="righthigh" offset="10,0" width="110" height="20" />
+				<default textres="ps_default_groupskill" />
 				<listmaxsize>10</listmaxsize>
 				<script>
 					function onInit()
@@ -160,14 +152,18 @@
 					end
 				</script>
 			</combobox>
-
+			
+			<label name="skilldclabel">
+				<anchored to="skillselected" position="righthigh" offset="10,0" />
+				<static textres="dc" />
+			</label>
+			
 			<basicnumber name="skilldc">
-				<anchored to="skillframe" position="insideright" width="30" offset="2,0" />
-				<gmvisibleonly />
-			</basicnumber>
+				<anchored to="skilldclabel" position="righthigh" offset="10,0" width="30" height="20" />
+			</basicnumber>			
 		</sheetdata>
 	</windowclass>
-
+	
 	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
@@ -184,14 +180,14 @@
 			</hlink>
 			<hnx name="hptotal" />
 			<hnx name="wounds" />
-
+			
 			<portrait_ps_base>
 				<bounds>10,10,40,40</bounds>
 			</portrait_ps_base>
 			<portrait_ps name="portrait">
 				<bounds>10,10,40,40</bounds>
 			</portrait_ps>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Name Field -->
 			<!-- =================================================================================================================== -->
@@ -199,7 +195,7 @@
 				<anchored position="insidetopleft" offset="55,10" width="180" />
 				<empty textres="library_recordtype_empty_charsheet" />
 			</string_ps>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Health Bar -->
 			<!-- =================================================================================================================== -->
@@ -209,21 +205,21 @@
 				<textprefix><textres>ps_label_hp</textres></textprefix>
 				<healthbar />
 			</progressbar>
-
+			
 			<progressbar name="injuries_bar">
 				<anchored position="insidetopleft" offset="258,10" width="10" height="40" />
 				<source><max>endurance</max><used>injuries</used></source>
 				<textprefix><textres>ps_label_injuries</textres></textprefix>
 				<healthbar />
 			</progressbar>
-
+			
 			<progressbar name="trauma_bar">
 				<anchored position="insidetopleft" offset="271,10" width="10" height="40" />
 				<source><max>endurance</max><used>trauma</used></source>
 				<textprefix><textres>ps_label_trauma</textres></textprefix>
 				<healthbar />
 			</progressbar>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Ability Check -->
 			<!-- =================================================================================================================== -->
@@ -233,16 +229,14 @@
 					<left anchor="right" relation="relative" offset="15" />
 				</anchored>
 				<script file="ps/scripts/ps_roll_check_pc_chronicle.lua" />
-				<gmvisibleonly />
 			</button_roll>
-
+			
 			<combobox name="pccheckselected">
 				<anchored to="pccheckroll" width="120" height="20">
 					<top anchor="top" offset="0" />
 					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
-				<default textres="ps_default_groupability" />
-				<gmvisibleonly />
+				<default textres="ps_default_groupskill" />
 				<listmaxsize>3</listmaxsize>
 				<listdirection>down</listdirection>
 				<script>
@@ -252,7 +246,7 @@
 					end
 				</script>
 			</combobox>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Skill Check -->
 			<!-- =================================================================================================================== -->
@@ -262,15 +256,14 @@
 					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
 				<script file="ps/scripts/ps_roll_skill_pc_chronicle.lua" />
-				<gmvisibleonly />
 			</button_roll>
-
+			
 			<combobox name="pcskillselected">
 				<anchored to="pcskillroll" width="120" height="20">
 					<top anchor="top" offset="0" />
 					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
-				<gmvisibleonly />
+				<default textres="ps_default_groupability" />
 				<listmaxsize>3</listmaxsize>
 				<listdirection>down</listdirection>
 				<script>
@@ -280,7 +273,7 @@
 					end
 				</script>
 			</combobox>
-
+			
 			<!-- =================================================================================================================== -->
 			<!-- Delete button -->
 			<!-- =================================================================================================================== -->
@@ -288,6 +281,36 @@
 				<anchored position="insidetopright" offset="10,10" />
 				<editmode>list_iedit</editmode>
 			</button_idelete>
+		</sheetdata>
+	</windowclass>
+	
+	<!-- =================================================================================================================== -->
+	<!-- CoreRPG - Adjusted -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="ps_main_content">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_top name="sub_labels">
+				<anchored height="40" />
+				<class>ps_main_labels</class>
+			</sub_content_top>
+			
+			<button_iedit name="list_iedit">
+				<anchored to="sub_labels" position="insidetopright" offset="25,0" />
+				<edittarget>list</edittarget>
+				<gmvisibleonly />
+			</button_iedit>
+
+			<list_content name="list">
+				<datasource>.partyinformation</datasource>
+				<class>ps_mainitem</class>
+				<sortby><control>name</control></sortby>
+				<allowdelete />
+				<empty font="list-empty" textres="ps_emptylist" />
+			</list_content>
+			<scrollbar_content_list />
 		</sheetdata>
 	</windowclass>
 </root>

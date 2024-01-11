@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<string name="charwizard_window_title">Character Wizard</string>
+	<string name="charwizard_window_title_levelup">Character Level Up</string>
+	<string name="charwizard_label_home">Home</string>
+	<string name="charwizard_label_race">Race</string>
+	<string name="charwizard_label_class">Class</string>
+	<string name="charwizard_label_abilities">Abilities</string>
+	<string name="charwizard_label_background">Background</string>
+	<string name="charwizard_label_equipment">Equipment</string>
+	<string name="charwizard_label_commit">Commit</string>
+	<string name="charwizard_label_save">Save</string>
+
+	<string name="charwizard_label_raceselection">Race Selection</string>
+	<string name="charwizard_label_subraceselection">Subrace Selection</string>
+	<string name="charwizard_label_changerace">Change Race</string>
+	<string name="charwizard_label_changesubrace">Change Subrace</string>
+	<string name="charwizard_label_changebackground">Change Background</string>
+
+	<string name="charwizard_label_class_add">Add Class</string>
+	<string name="charwizard_label_class_levelup">Level Up</string>
+	<string name="charwizard_label_class_cancel">Cancel</string>
+
+	<string name="charwizard_label_equipment_changemethod">Change Method/Reset</string>
+	<string name="charwizard_label_equipment_selectstartkit">Select Starting Kit</string>
+	<string name="charwizard_label_equipment_selectstartwealth">Select Starting Wealth</string>
+
+	<string name="charwizard_label_features">Features</string>
+	<string name="charwizard_label_spells">Spells</string>
+	<string name="charwizard_label_prepare">Prepare</string>
+
+	<string name="charwizard_label_weapon">Weapons</string>
+	<string name="charwizard_label_gear">Gear</string>
+	<string name="charwizard_label_armor">Armor</string>
+
+	<string name="charwizard_home_sources_header">Sources</string>
+	<string name="module_use">Use</string>
+
+	<string name="charwizard_spell_learn">Learn</string>
+	<string name="charwizard_spell_unlearn">Unlearn</string>
+
+	<string name="charwizard_label_add">Add</string>
+	<string name="charwizard_label_remove">Remove</string>
+	<string name="charwizard_empty_list">No items available to select.</string>
+	<string name="charwizard_empty_inventory">No items currently added to inventory.</string>
+
+	<string name="charwizard_title_class">CLASS(ES)</string>
+	<string name="charwizard_label_filtersource">Source</string>
+	<string name="charwizard_label_filtername">Name</string>
+	<string name="charwizard_label_level">Level</string>
+	<string name="charwizard_label_cantrips">Cantrips:</string>
+	<string name="charwizard_label_preparedspells">Prepared Spells:</string>
+	<string name="charwizard_label_knownspells">Known Spells:</string>
+	<string name="charwizard_header_spellsknown">Known</string>
+	<string name="charwizard_header_spells">Spells</string>
+	<string name="charwizard_title_abilityscores">ABILITY SCORES</string>
+	<string name="charwizard_label_method">Method</string>
+	<string name="charwizard_label_pointsremaining">Points Remaining</string>
+	<string name="charwizard_label_asi">ASI</string>
+	<string name="charwizard_label_override">Override</string>
+	<string name="charwizard_title_equipment">EQUIPMENT</string>
+	<string name="charwizard_label_startingwealth">Starting Wealth</string>
+	<string name="charwizard_header_currentinventory">Current Inventory</string>
+	<string name="charwizard_header_backgroundkit">Background Kit</string>
+	<string name="charwizard_header_classkit">Class Kit</string>
+	<string name="charwizard_header_additems">Add Items</string>
+	<string name="charwizard_label_warnings">WARNINGS</string>
+	<string name="charwizard_title_summary">SUMMARY</string>
+	<string name="charwizard_label_base">Base</string>
+</root>
