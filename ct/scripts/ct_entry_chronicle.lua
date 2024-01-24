@@ -4,15 +4,11 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	super.onInit();
 	self.onHealthChanged();
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onHealthChanged()
 	local rActor = ActorManager.resolveActor(getDatabaseNode());
 	local _,sStatus,sColor = ActorHealthManager.getHealthInfo(rActor);
@@ -30,11 +26,11 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function linkPCFields()
-	-- Debug.chat("FN: linkPCFields")
+	super.linkPCFields();
+
 	local nodeChar = link.getTargetDatabaseNode();
 
 	if nodeChar then
-		name.setLink(DB.createChild(nodeChar, "name", "string"), true);
 		-- senses.setLink(DB.createChild(nodeChar, "senses", "string"), true);
 
 		hptotal.setLink(DB.createChild(nodeChar, "hp.total", "number"));

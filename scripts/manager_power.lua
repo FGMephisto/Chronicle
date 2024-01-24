@@ -923,8 +923,6 @@ function parseDamagePhrase(aWords, i)
 			rDamageFixed.startindex = nStart;
 			rDamageFixed.endindex = j;
 			
-			rDamageFixed.label = sPowerName;
-			
 			rDamageFixed.clauses = {};
 			local rDmgClause = {};
 			rDmgClause.dice, rDmgClause.modifier = StringManager.convertStringToDice(table.concat(aDamageDice, ""));
@@ -1928,7 +1926,7 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 	local aActions = PowerManager.parsePower(sPowerName, sPowerDesc, false, bMagic);
 	
 	if nodePower then
-		-- Make sure correct duration and concentration applied to NPC spell effects
+		-- Make sure correct duration applied to NPC spell effects
 		if StringManager.contains({"spells", "innatespells"}, DB.getName(DB.getParent(nodePower))) then
 			local sPowerDesc = DB.getValue(nodePower, "desc", ""):lower();
 			local sDuration, sTempUnits = sPowerDesc:match("duration: concentration, up to (%d+) (%w+)");
@@ -1947,9 +1945,6 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 					for _,v in ipairs(aActions) do
 						if v.type == "effect" then
 							if ((v.nDuration or 0) == 0) and (nDuration ~= 0) and (v.sName ~= "Prone") then
-								if bConcentration then
-									v.sName = v.sName .. "; (C)";
-								end
 								v.nDuration = nDuration;
 								v.sUnits = sDurationUnits;
 							end

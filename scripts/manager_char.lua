@@ -294,7 +294,7 @@ function onAbilitySelectComplete(aSelection, rAbilitySelectMeta)
 		for _,vSelect in ipairs(rAbilitySelectMeta.tAbilitySelect) do
 			if vSelect.bOther then
 				if not vSelect.aAbilities or (#vSelect.aAbilities == 0) then 
-					tAbilitySelect[1].aAbilities = CharManager.getFullAbilitySelectList(); 
+					vSelect.aAbilities = CharManager.getFullAbilitySelectList(); 
 				end
 				local aNewAbilities = {};
 				for _,vAbility in ipairs(vSelect.aAbilities) do

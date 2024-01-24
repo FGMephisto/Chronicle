@@ -4,8 +4,6 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	super.onInit();
 	OptionsManager.registerCallback("SHPC", updateHealthDisplay);
@@ -13,8 +11,6 @@ function onInit()
 	self.updateHealthDisplay();
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onClose()
 	super.onClose();
 	OptionsManager.unregisterCallback("SHPC", updateHealthDisplay);

@@ -520,10 +520,10 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 		if EffectManager5E.hasEffect(rAttacker, "Invisible", rDefender, true) then
 			bADV = true;
 		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAtracker) then
+		if EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAttacker) then
 			bADV = true;
 		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAtracker) then
+		if EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAttacker) then
 			bDIS = true;
 		end
 		if EffectManager5E.hasEffect(rDefender, "Invisible", rAttacker) then

@@ -16,6 +16,8 @@ function onInit()
 		registerMenuItem(Interface.getString("menu_initclear"), "pointer_circle", 7, 4);
 
 		registerMenuItem(Interface.getString("menu_rest"), "lockvisibilityon", 8);
+		-- registerMenuItem(Interface.getString("menu_restshort"), "pointer_cone", 8, 8);
+		-- registerMenuItem(Interface.getString("menu_restlong"), "pointer_circle", 8, 6);
 
 		registerMenuItem(Interface.getString("ct_menu_itemdelete"), "delete", 3);
 		registerMenuItem(Interface.getString("ct_menu_itemdeletenonfriendly"), "delete", 3, 1);
@@ -27,14 +29,10 @@ function onInit()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onClickDown(button, x, y)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onClickRelease(button, x, y)
 	if button == 1 then
 		Interface.openRadialMenu();
@@ -45,7 +43,7 @@ end
 -- ===================================================================================================================
 -- Adjusted
 -- ===================================================================================================================
-function onMenuSelection(selection, subselection, subsubselection)
+function onMenuSelection(selection, subselection)
 	if Session.IsHost then
 		if selection == 7 then
 			if subselection == 4 then

@@ -106,10 +106,6 @@ end
 function performRoll(draginfo, rActor, sSave)
 	local rRoll = getRoll(rActor, sSave);
 	
-	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
-		rRoll.bSecret = true;
-	end
-
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 function getRoll(rActor, sSave)
@@ -564,7 +560,7 @@ function applySystemShockRoll(rSource, rAction)
 		local rRoll = { sType = "systemshockresult", aDice = { "d10" }, nMod = 0 };
 		rRoll.sDesc = "[SYSTEM SHOCK RESULT]";
 		rRoll.bSecret = rAction.bSecret;
-		ActionsManager.performAction(draginfo, rSource, rRoll);
+		ActionsManager.performAction(nil, rSource, rRoll);
 	end
 end
 

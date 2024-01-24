@@ -7,52 +7,7 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
 	<!-- GM combat tracker window -->
-	<!-- =================================================================================================================== -->
-	<template name="anchor_ctbox_host_header">
-		<genericcontrol name="headeranchor">
-			<anchored to="contentanchor" height="26">
-				<top anchor="bottom" relation="relative" offset="3" />
-				<left />
-				<right />
-			</anchored>
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="anchor_ct_host_label_right">
-		<genericcontrol name="rightanchor">
-			<anchored to="headeranchor" position="insidetopright" offset="0,3" width="0" height="0" />
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="frame_ctbox_host_header_visibility">
-		<metalplate name="header_vis">
-			<anchored to="headeranchor" height="26" width="14">
-				<top />
-				<left offset="8" />
-			</anchored>
-		</metalplate>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="frame_ctbox_host_header_labels">
-		<metalplate name="header_labels">
-			<anchored to="headeranchor" height="26">
-				<top />
-				<left offset="42" />
-				<right />
-			</anchored>
-		</metalplate>
-	</template>
-
 	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
@@ -65,168 +20,8 @@
 		</metalplate>
 	</template>
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="button_ct_friendfoe">
-		<genericcontrol>
-			<anchored width="35" height="32" />
-			<cursor hover="hand" />
-			<script>
-				function onDragStart(button, x, y, draginfo)
-					draginfo.setType("combattrackerff");
-					draginfo.setIcon(icon[1]);
-					draginfo.setStringData(value[1]);
-
-					return true;
-				end
-			</script>
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="label_ct_host_rounds">
-		<metalplate>
-			<anchored height="24">
-				<bottom offset="-22" />
-				<right parent="contentanchor" offset="-95" />
-			</anchored>
-			<static textres="ct_label_round" />
-		</metalplate>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="number_ct_host_rounds">
-		<simplenumber name="round">
-			<anchored width="40" height="24">
-				<bottom offset="-22" />
-				<right parent="contentanchor" offset="-40" />
-			</anchored>
-			<frame name="metalplate" offset="5,2,5,2" />
-			<font>subwindowtitle</font>
-		</simplenumber>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="button_ct_nextround">
-		<buttoncontrol>
-			<anchored width="35" height="32">
-				<bottom offset="-18" />
-				<right parent="contentanchor" />
-			</anchored>
-			<icon normal="button_ctnextround" pressed="button_ctnextround_down" />
-			<tooltip textres="ct_tooltip_nextround" />
-			<script>
-				function onInit()
-					registerMenuItem(Interface.getString("ct_menu_round5"), "num5", 4);
-					registerMenuItem(Interface.getString("ct_menu_round10"), "num10", 5);
-					registerMenuItem(Interface.getString("ct_menu_round15"), "num15", 6);
-					registerMenuItem(Interface.getString("ct_menu_round20"), "num20", 7);
-				end
-				
-				function onMenuSelection(selection)
-					if selection == 4 then
-						CombatManager.nextRound(5);
-					elseif selection == 5 then
-						CombatManager.nextRound(10);
-					elseif selection == 6 then
-						CombatManager.nextRound(15);
-					elseif selection == 7 then
-						CombatManager.nextRound(20);
-					end
-				end
-				
-				function onButtonPress()
-					CombatManager.nextRound(1);
-				end
-				
-				function onDragStart(button, x, y, draginfo)
-					draginfo.setType("combattrackernextround");
-					draginfo.setIcon("button_ctnextround");
-					
-					return true;
-				end
-			</script>
-		</buttoncontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Player combat tracker window -->
-	<!-- =================================================================================================================== -->
-	<template name="anchor_ctbox_client_header">
-		<genericcontrol name="headeranchor">
-			<anchored to="contentanchor" height="26">
-				<top anchor="bottom" relation="relative" offset="3" />
-				<left offset="5"/>
-				<right />
-			</anchored>
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="anchor_ct_client_label_right">
-		<genericcontrol name="rightanchor">
-			<anchored to="headeranchor" position="insidetopright" offset="0,3" width="0" height="0" />
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="frame_ctbox_client_header">
-		<metalplate>
-			<anchored to="headeranchor" position="over" />
-		</metalplate>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="label_ct_client_rounds">
-		<metalplate>
-			<anchored height="24">
-				<bottom offset="-22" />
-				<right parent="contentanchor" offset="-55" />
-			</anchored>
-			<static textres="ct_label_round" />
-		</metalplate>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="number_ct_client_rounds">
-		<simplenumber name="round">
-			<anchored width="40" height="24">
-				<bottom offset="-22" />
-				<right parent="contentanchor" />
-			</anchored>
-			<frame name="metalplate" offset="5,2,5,2" />
-			<font>subwindowtitle</font>
-		</simplenumber>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- General combat tracker entry -->
-	<!-- =================================================================================================================== -->
-	<template name="button_ct_section">
-		<buttoncontrol>
-			<anchored merge="replace" to="rightanchor" width="25" height="25">
-				<top offset="-3" />
-				<right anchor="left" relation="relative" offset="0" />
-			</anchored>
-			<script>
-				function onValueChanged()
-					window.onSectionChanged(target[1]);
-				end
-			</script>
-		</buttoncontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
 	<!-- GM combat tracker entry -->
+	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<template name="number_ct_ability">
@@ -249,9 +44,7 @@
 			</script>
 		</number_ct>
 	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
+	
 	<template name="number_ct_init">
 		<number_ct>
 			<displaysign />
@@ -274,34 +67,7 @@
 		</number_ct>
 	</template>
 
-	<!-- =================================================================================================================== -->
 	<!-- Player combat tracker entry -->
-	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
-	<template name="base_clientct_health">
-		<genericcontrol name="healthbase">
-			<anchored to="rightanchor" width="190" height="20">
-				<top />
-				<right anchor="left" relation="relative" offset="-10" />
-			</anchored>
-			<disabled />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<template name="string_clientct_status">
-		<simplestring name="status">
-			<anchored to="healthbase" position="over" />
-			<frame name="fieldlight" offset="7,5,7,5" />
-			<center />
-			<static />
-			<invisible />
-		</simplestring>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="number_clientct_wounds">
 		<number_ct_static name="wounds">
 			<anchored to="healthbase" width="30" height="20">
@@ -316,9 +82,7 @@
 			</script>
 		</number_ct_static>
 	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
+	
 	<template name="number_clientct_hptemp">
 		<number_ct_static name="hptemp">
 			<anchored to="wounds" width="30" height="20">
@@ -333,10 +97,7 @@
 			</script>
 		</number_ct_static>
 	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
+	
 	<template name="number_clientct_hp">
 		<number_ct_static name="hptotal">
 			<anchored to="fatigue" width="30" height="20">
@@ -352,9 +113,7 @@
 		</number_ct_static>
 	</template>
 
-	<!-- =================================================================================================================== -->
 	<!-- Player combat tracker entry -->
-	<!-- =================================================================================================================== -->
 	<template name="list_clientct_section_active_vehicle_components">
 		<windowlist>
 			<anchored position="insidetopright" offset="0,4">
@@ -366,18 +125,7 @@
 		</windowlist>
 	</template>
 
-	<!-- =================================================================================================================== -->
-	<!-- Section internals -->
-	<!-- =================================================================================================================== -->
-	<template name="icon_ct_section">
-		<genericcontrol>
-			<anchored position="insidetopleft" offset="0,8" width="25" height="25" />
-		</genericcontrol>
-	</template>
-
-	<!-- =================================================================================================================== -->
 	<!-- Section - Active -->
-	<!-- =================================================================================================================== -->
 	<template name="list_ct_section_actions">
 		<list_ct_section_labeled>
 			<class>ct_power</class>
@@ -385,26 +133,14 @@
 		</list_ct_section_labeled>
 	</template>
 
-	<!-- =================================================================================================================== -->
 	<!-- Section - Defense -->
-	<!-- =================================================================================================================== -->
-	<template name="button_ct_section_defense">
-		<button_ct_section>
-			<tooltip textres="ct_tooltip_defense" />
-			<state icon="button_fist" merge="add" />
-			<state icon="button_fist_down" merge="add" />
-			<target>defense</target>
-		</button_ct_section>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="label_ct_ability">
 		<label>
 			<anchored position="lefthigh" offset="10,0" />
 		</label>
 	</template>
 
+	<!-- GM combat tracker entry -->
 	<!-- =================================================================================================================== -->
 	<!-- Added -->
 	<!-- =================================================================================================================== -->
@@ -485,4 +221,30 @@
 			</script>
 		</number_ct>
 	</template>
+
+	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
+	<!-- =================================================================================================================== -->
+	<!-- <template name="base_clientct_health"> -->
+		<!-- <genericcontrol name="healthbase"> -->
+			<!-- <anchored to="rightanchor" width="190" height="20"> -->
+				<!-- <top /> -->
+				<!-- <right anchor="left" relation="relative" offset="-10" /> -->
+			<!-- </anchored> -->
+			<!-- <disabled /> -->
+		<!-- </genericcontrol> -->
+	<!-- </template> -->
+
+	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
+	<!-- =================================================================================================================== -->
+	<!-- <template name="string_clientct_status"> -->
+		<!-- <simplestring name="status"> -->
+			<!-- <anchored to="healthbase" position="over" /> -->
+			<!-- <frame name="fieldlight" offset="7,5,7,5" /> -->
+			<!-- <center /> -->
+			<!-- <static /> -->
+			<!-- <invisible /> -->
+		<!-- </simplestring> -->
+	<!-- </template> -->
 </root>

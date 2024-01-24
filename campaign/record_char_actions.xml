@@ -205,9 +205,6 @@
 	
 	<windowclass name="char_weaponmeta">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="400" height="175" />
-		</placement>
 		<sizelimits>
 			<minimum width="400" height="175" />
 			<dynamic />

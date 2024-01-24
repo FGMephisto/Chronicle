@@ -8,7 +8,7 @@
 <root>
 	<template name="sub_charsheet_overview">
 		<subwindow>
-			<anchored position="insidetopleft" offset="15,20" height="52">
+			<anchored position="insidetopleft" offset="15,20">
 				<right offset="-30" />
 			</anchored>
 			<activate />
@@ -18,7 +18,9 @@
 	</template>
 	<template name="sub_charsheet">
 		<subwindow>
-			<anchored position="insidetopleft" offset="15,75">
+			<anchored>
+				<left offset="15" />
+				<top parent="overview" anchor="bottom" offset="0" />
 				<right offset="-30" />
 				<bottom offset="-20" />
 			</anchored>

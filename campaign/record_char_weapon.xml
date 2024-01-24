@@ -85,7 +85,7 @@
 
 					function onDoubleClick(x,y)
 						return window.onAttackAction();
-					end
+					end			
 
 					function onDragStart(button, x, y, draginfo)
 						return window.onAttackAction(draginfo);
@@ -200,9 +200,6 @@
 
 	<windowclass name="char_weapon_editor">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="380" height="350" />
-		</placement>
 		<sizelimits>
 			<minimum width="380" height="350" />
 			<dynamic />

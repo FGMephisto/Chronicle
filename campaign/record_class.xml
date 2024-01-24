@@ -36,9 +36,6 @@
 	
 	<windowclass name="reference_class">
 		<frame>recordsheet</frame>
-		<placement>
-			<size width="400" height="400" />
-		</placement>
 		<sizelimits>
 			<minimum width="350" height="350" />
 			<dynamic />

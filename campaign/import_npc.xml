@@ -1,9 +1,6 @@
 <root>
 	<windowclass name="import_npc">
 		<frame>utilitybox</frame>
-		<placement>
-			<size width="1000" height="600"/>
-		</placement>
 		<sizelimits>
 			<minimum width="800" height="600"/>
 			<dynamic/>

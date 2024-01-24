@@ -8,11 +8,8 @@
 <root>
 	<windowclass name="npc">
 		<frame>recordsheet</frame>
-		<placement>
-			<size width="500" height="550" />
-		</placement>
 		<sizelimits>
-			<minimum width="500" height="400" />
+			<minimum width="500" height="500" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_npc</minimize>
@@ -300,9 +297,9 @@
 			<label_column name="skills_label">
 				<static textres="npc_label_skills" />
 			</label_column>
-			<string_columnh name="skills" >
+			<string_columnh_multiroll name="skills" >
 				<script file="campaign/scripts/npc_skill.lua" />
-			</string_columnh>
+			</string_columnh_multiroll>
 			
 			<label_column name="damagevulnerabilities_label">
 				<static textres="npc_label_damagevulnerabilities" />

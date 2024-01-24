@@ -7,11 +7,6 @@
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
-	ColorManager.setSidebarCategoryIconColor("A3A29D");
-	ColorManager.setSidebarCategoryTextColor("A3A29D");
-	ColorManager.setSidebarRecordIconColor("332A25");
-	ColorManager.setSidebarRecordTextColor("332A25");
-
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
 	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
 

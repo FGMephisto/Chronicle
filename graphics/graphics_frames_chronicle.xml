@@ -22,11 +22,4 @@
 		<bitmap file="graphics/frames_chronicle/desktop.png" />
 		<middle rect="0,0,512,512" />
 	</framedef>
-
-	<framedef name="shortcuts">
-		<bitmap file="graphics/frames_chronicle/desktop.png" />
-		<left rect="512,0,25,512" />
-		<middle rect="537,0,50,512" />
-		<right rect="587,0,25,512" />
-	</framedef>
 </root>

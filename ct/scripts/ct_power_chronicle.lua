@@ -10,17 +10,11 @@ local rPower = nil;
 local hoverAbility = nil;
 local clickAbility = nil;
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onValueChanged()
-	-- Debug.chat("FN: onValueChanged in ct_power")
 	parsed = false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onHover(oncontrol)
-	-- Debug.chat("FN: onHover in ct_power")
 	if dragging then
 		return;
 	end
@@ -35,10 +29,7 @@ function onHover(oncontrol)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onHoverUpdate(x, y)
-
 	-- If we're typing or dragging, then exit
 	if dragging then
 		return;
@@ -80,20 +71,14 @@ function onHoverUpdate(x, y)
 	setHoverCursor("arrow");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onClickDown(button, x, y)
-	-- Debug.chat("FN: onClickDown in ct_power")
 	-- Suppress default processing to support dragging
 	clickAbility = hoverAbility;
 	
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onClickRelease(button, x, y)
-	-- Debug.chat("FN: onClickRelease in ct_power")
 	-- Enable edit mode on mouse release
 	setFocus();
 	
@@ -105,10 +90,7 @@ function onClickRelease(button, x, y)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function getActor()
-	-- Debug.chat("FN: getActor in ct_power")
 	local nodeActor = nil;
 	local node = getDatabaseNode();
 	if node then
@@ -117,10 +99,7 @@ function getActor()
 	return ActorManager.resolveActor(nodeActor);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function rechargePower(rPower)
-	-- Debug.chat("FN: rechargePower in ct_power")
 	if rPower and rPower.sUsage == "USED" then
 		local s = string.sub(getValue(), 1, rPower.nUsageStart - 2) .. string.sub(getValue(), rPower.nUsageEnd + 1);
 		setValue(s);
@@ -130,10 +109,7 @@ function rechargePower(rPower)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function usePower(rPower)
-	-- Debug.chat("FN: usePower in ct_power")
 	if rPower and rPower.sUsage and rPower.sUsage ~= "USED" then
 		local s = string.sub(getValue(), 1, rPower.nUsageEnd) .. "[USED]" .. string.sub(getValue(), rPower.nUsageEnd + 1);
 		setValue(s);
@@ -150,7 +126,6 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function actionAbility(draginfo, rAction)
-	-- Debug.chat("FN: actionAbility in ct_power")
 	local bResult = true;
 	-- USAGE
 	if rAction.sType == "usage" then
@@ -165,11 +140,19 @@ function actionAbility(draginfo, rAction)
 	elseif rAction.sType == "attack" then
 		ActionAttack.performRoll(draginfo, getActor(), rAction);
 		usePower(rPower);
+	-- SAVE VS
+	-- elseif rAction.sType == "powersave" then
+		-- ActionPower.performSaveVsRoll(draginfo, getActor(), rAction);
+		-- usePower(rPower);
 	-- DAMAGE
 	elseif rAction.sType == "damage" then
 		-- ToDo nodeWeapon is missing
 		ActionDamage.performRoll(draginfo, getActor(), rAction);
 		usePower(rPower);
+	-- HEAL
+	-- elseif rAction.sType == "heal" then
+		-- ActionHeal.performRoll(draginfo, getActor(), rAction);
+		-- usePower(rPower);
 	-- EFFECT
 	elseif rAction.sType == "effect" then
 		ActionEffect.performRoll(draginfo, getActor(), rAction);
@@ -179,19 +162,13 @@ function actionAbility(draginfo, rAction)
 	return bResult;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onDoubleClick(x, y)
-	-- Debug.chat("FN: onDoubleClick in ct_power")
 	if hoverAbility then
 		return actionAbility(nil, rPower.aAbilities[hoverAbility]);
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onDragStart(button, x, y, draginfo)
-	-- Debug.chat("FN: onDragStart in ct_power")
 	dragging = false;
 	if clickAbility then
 		dragging = actionAbility(draginfo, rPower.aAbilities[clickAbility]);
@@ -200,10 +177,7 @@ function onDragStart(button, x, y, draginfo)
 	return dragging;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onDragEnd(dragdata)
-	-- Debug.chat("FN: onDragEnd in ct_power")
 	setCursorPosition(0);
 	dragging = false;
 end

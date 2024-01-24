@@ -18,7 +18,7 @@
 			<minimum width="600" height="600" />
 			<dynamic />
 		</sizelimits>
-		<script file="ct/scripts/clientct_window_chronicle.lua" />
+		<script file="ct/scripts/clientct_window_dnd.lua" />
 		<sheetdata>
 			<spacer_ct_client_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
 				<anchored width="5" />

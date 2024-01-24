@@ -17,9 +17,6 @@
 
 	<windowclass name="vehicle">
 		<frame>recordsheet</frame>
-		<placement>
-			<size width="500" height="550" />
-		</placement>
 		<sizelimits>
 			<minimum width="500" height="400" />
 			<dynamic />

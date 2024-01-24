@@ -8,11 +8,8 @@
 <root>
 	<windowclass name="reference_subrace">
 		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
 		<sizelimits>
-			<minimum width="300" height="300" />
+			<minimum width="350" height="350" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_reference</minimize>

@@ -1,9 +1,6 @@
 <root>
 	<windowclass name="import_race">
 		<frame>utilitybox</frame>
-		<placement>
-			<size width="600" height="600"/>
-		</placement>
 		<sizelimits>
 			<minimum width="600" height="600"/>
 			<dynamic/>

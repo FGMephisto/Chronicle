@@ -8,18 +8,16 @@ function onInit()
 	ActionsManager.registerResultHandler("skill", onRoll);
 end
 
+function getNPCRoll(rActor, sSkill, nSkill)
+	return {
+		sType = "skill",
+		aDice = { "d20" },
+		sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill),
+		nMod = nSkill,
+	};
+end
 function performNPCRoll(draginfo, rActor, sSkill, nSkill)
-	local rRoll = {};
-	rRoll.sType = "skill";
-	rRoll.aDice = { "d20" };
-	
-	rRoll.sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill);
-	rRoll.nMod = nSkill;
-
-	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
-		rRoll.bSecret = true;
-	end
-	
+	local rRoll = getNPCRoll(rActor, sSkill, nSkill);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
@@ -55,10 +53,6 @@ end
 
 function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
 	local rRoll = getRoll(rActor, nodeSkill, nTargetDC, bSecretRoll);
-	
-	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
-		rRoll.bSecret = true;
-	end
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end

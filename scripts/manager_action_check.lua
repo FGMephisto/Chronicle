@@ -27,10 +27,6 @@ end
 function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
 	local rRoll = getRoll(rActor, sCheck, nTargetDC, bSecretRoll);
 	
-	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
-		rRoll.bSecret = true;
-	end
-	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 

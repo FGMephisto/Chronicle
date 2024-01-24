@@ -612,9 +612,6 @@
 
 	<windowclass name="charsheet_classes">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="470" height="300" />
-		</placement>
 		<sizelimits>
 			<minimum width="470" height="300" />
 			<dynamic />
@@ -878,9 +875,6 @@
 
 	<windowclass name="charsheet_combatcalc">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="500" height="220" />
-		</placement>
 		<sizelimits>
 			<minimum width="500" height="220" />
 			<dynamic />
@@ -1073,9 +1067,6 @@
 	
 	<windowclass name="charsheet_healthcalc">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="400" height="120" />
-		</placement>
 		<sizelimits>
 			<minimum width="400" height="120" />
 			<dynamic />

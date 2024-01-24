@@ -95,7 +95,7 @@ function checkFeatAdjustments(nodeChar, sText)
 				else
 					-- PHB - Resilient
 					local nAdj, sAbilityMax = sText:match("[Ii]ncrease the chosen ability score by (%d+), to a maximum of (%d+)");
-					if nAdj and nAbilityMax then
+					if nAdj and sAbilityMax then
 						local nAbilityAdj = tonumber(nAdj) or 1;
 						local nAbilityMax = tonumber(sAbilityMax) or 20;
 						local tAbilitySelect = { { nAbilityAdj = nAbilityAdj, nAbilityMax = nAbilityMax, bSaveProfAdd = true } };

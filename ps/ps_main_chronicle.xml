@@ -101,7 +101,8 @@
 			<combobox name="checkselected">
 				<anchored to="checklabel" position="righthigh" offset="10,0" width="100" height="20" />
 				<default textres="ps_default_groupability" />
-				<listmaxsize>10</listmaxsize>
+				<listdirection>down</listdirection>
+				<listmaxsize>5</listmaxsize>
 				<script>
 					function onInit()
 						super.onInit();
@@ -144,7 +145,8 @@
 			<combobox name="skillselected">
 				<anchored to="skilllabel" position="righthigh" offset="10,0" width="110" height="20" />
 				<default textres="ps_default_groupskill" />
-				<listmaxsize>10</listmaxsize>
+				<listmaxsize>5</listmaxsize>
+				<listdirection>down</listdirection>
 				<script>
 					function onInit()
 						super.onInit();
@@ -281,36 +283,6 @@
 				<anchored position="insidetopright" offset="10,10" />
 				<editmode>list_iedit</editmode>
 			</button_idelete>
-		</sheetdata>
-	</windowclass>
-	
-	<!-- =================================================================================================================== -->
-	<!-- CoreRPG - Adjusted -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="ps_main_content">
-		<sheetdata>
-			<anchor_content_top />
-			<anchor_content_bottom />
-
-			<sub_content_top name="sub_labels">
-				<anchored height="40" />
-				<class>ps_main_labels</class>
-			</sub_content_top>
-			
-			<button_iedit name="list_iedit">
-				<anchored to="sub_labels" position="insidetopright" offset="25,0" />
-				<edittarget>list</edittarget>
-				<gmvisibleonly />
-			</button_iedit>
-
-			<list_content name="list">
-				<datasource>.partyinformation</datasource>
-				<class>ps_mainitem</class>
-				<sortby><control>name</control></sortby>
-				<allowdelete />
-				<empty font="list-empty" textres="ps_emptylist" />
-			</list_content>
-			<scrollbar_content_list />
 		</sheetdata>
 	</windowclass>
 </root>

@@ -249,9 +249,6 @@
 
 	<windowclass name="charsheet_invmeta">
 		<frame>charsheethelper</frame>
-		<placement>
-			<size width="400" height="145" />
-		</placement>
 		<sizelimits>
 			<minimum width="400" height="145" />
 			<dynamic />

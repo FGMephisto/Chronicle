@@ -7,7 +7,7 @@
 
 <root>
 	<string name="charwizard_window_title">Character Wizard</string>
-	<string name="charwizard_window_title_levelup">Character Level Up</string>
+	<string name="charwizard_levelup_window_title">Character Level Up</string>
 	<string name="charwizard_label_home">Home</string>
 	<string name="charwizard_label_race">Race</string>
 	<string name="charwizard_label_class">Class</string>

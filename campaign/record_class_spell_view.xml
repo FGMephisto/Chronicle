@@ -11,9 +11,6 @@
 
 	<windowclass name="class_spell_views_index">
 		<frame>referencelist</frame>
-		<placement>
-			<size width="450" height="450" />
-		</placement>
 		<sizelimits>
 			<minimum width="450" height="450" />
 			<dynamic />
@@ -61,9 +58,6 @@
 
 	<windowclass name="class_spell_view">
 		<frame>referencelist</frame>
-		<placement>
-			<size width="650" height="450" />
-		</placement>
 		<sizelimits>
 			<minimum width="450" height="450" />
 			<dynamic />

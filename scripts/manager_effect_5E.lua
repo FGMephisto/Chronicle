@@ -43,7 +43,7 @@ function onEffectAddIgnoreCheck(nodeCT, rEffect)
 			return string.format("%s ['%s'] -> [%s]", Interface.getString("effect_label"), sOriginal, Interface.getString("effect_status_targetimmune"));
 		else
 			local sMessage = string.format("%s ['%s'] -> [%s] [%s]", Interface.getString("effect_label"), sOriginal, Interface.getString("effect_status_targetpartialimmune"), table.concat(aCancelled, ","));
-			EffectManager.message(sMessage, nodeCT, false, sUser);
+			EffectManager.message(sMessage, nodeCT, false);
 		end
 	end
 	return nil;
@@ -282,7 +282,7 @@ function removeEffectByType(nodeCT, sEffectType)
 				if rEffectComp.type == "IFT" then
 					break;
 				elseif rEffectComp.type == "IF" then
-					local rActor = ActorManager.resolveActor(nodeActor);
+					local rActor = ActorManager.resolveActor(nodeCT);
 					if not checkConditional(rActor, nodeEffect, rEffectComp.remainder) then
 						break;
 					end

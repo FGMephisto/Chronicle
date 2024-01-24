@@ -11,32 +11,16 @@
 	<!-- Adjusted -->
 	<!-- =================================================================================================================== -->
 	<windowclass name="combattracker_host" merge="join">
-		<frame>ctbox</frame>
-		<placement>
-			<size width="770" height="500" />
-		</placement>
 		<sizelimits>
-			<minimum width="770" height="500" />
-			<dynamic />
+			<minimum width="770" />
 		</sizelimits>
-		<script file="ct/scripts/ct_window_chronicle.lua" />
+		<script file="ct/scripts/ct_window_dnd.lua" />
 		<sheetdata>
-			<!-- =================================================================================================================== -->
-			<!-- NPC Global Visibility -->
-			<!-- =================================================================================================================== -->
-			<button_ctbox_host_header_visibility name="button_global_visibility">
-				<anchored to="header_vis" position="insidetopleft" offset="-5,2" width="22" height="22" />
-			</button_ctbox_host_header_visibility>
-
 			<spacer_ct_host_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
-				<anchored width="63" />
+				<anchored width="43" />
 			</spacer_ct_host_header_buttons>
 
-			<!-- =================================================================================================================== -->
 			<!-- Header Labels -->
-			<!-- =================================================================================================================== -->
-			<frame_ctbox_host_header_labels name="header_labels" insertbefore="rightanchor" />
-
 			<label_ct_right name="label_wounds" insertbefore="label_init">
 				<center />
 				<static textres="ct_label_wounds" />
