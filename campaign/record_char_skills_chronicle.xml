@@ -7,9 +7,6 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- Charsheet Skills -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_skills">
 		<sheetdata>
 			<button_iedit name="skills_iedit">
@@ -33,8 +30,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->	
  	<windowclass name="charsheet_skills_contents">
 		<margins control="0,0,0,2" />
 		<script>
@@ -54,7 +49,7 @@
 		<!-- =================================================================================================================== -->
 		<!-- Header Frame -->
 		<!-- =================================================================================================================== -->
-			<label_charframetop name="stats_title">
+			<label_charframetop name="statstitle">
 				<bounds>15,10,-10,20</bounds>
 				<!-- <anchored width="95" height="20"> -->
 					<!-- <top parent="columnanchor" anchor="bottom" offset="15" /> -->
@@ -69,7 +64,7 @@
 		<!-- =================================================================================================================== -->
 			<!-- Abilities - Row 1 -->
 			<number_charabilityscore_filter name="agility" source="abilities.agility.score">
-				<anchored to="stats_title" >
+				<anchored to="statstitle" >
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left offset="15" />
 				</anchored>
@@ -185,7 +180,7 @@
 
 			<!-- Abilities - Row 2 -->
 			<number_charabilityscore_filter name="fighting" source="abilities.fighting.score">
-				<anchored to="stats_title">
+				<anchored to="statstitle">
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left offset="15" />
 				</anchored>
@@ -290,7 +285,7 @@
 
 			<!-- Abilities - Row 3 -->
 			<number_charabilityscore_filter name="survival" source="abilities.survival.score">
-				<anchored to="stats_title">
+				<anchored to="statstitle">
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left parent="knowledge" anchor="left" />
 				</anchored>
@@ -345,7 +340,7 @@
 		<!-- Header Frame -->
 		<!-- =================================================================================================================== -->
 			<label_charframetop name="skillstitle">
-				<anchored to="stats_title" height="20">
+				<anchored to="statstitle" height="20">
 					<top anchor="bottom" relation="relative" offset="7" />
 					<left />
 					<right />

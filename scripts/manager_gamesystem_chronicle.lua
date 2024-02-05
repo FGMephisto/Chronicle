@@ -4,16 +4,13 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
 -- Ruleset action types
--- Adjusted
--- ===================================================================================================================
 actions = {
 	["dice"] = { bUseModStack = true },
 	["table"] = { },
 	["cast"] = { sTargeting = "each" },
 	["castsave"] = { sTargeting = "each" },
-	["death"] = { },
+	["death"] = { bUseModStack = true },
 	["death_auto"] = { },
 	["concentration"] = { },
 	["powersave"] = { sTargeting = "each" },
@@ -53,14 +50,15 @@ currencyDefault = "Silver";
 -- Adjusted
 -- ===================================================================================================================
 function onInit()	
+	VisionManager.addVisionType(Interface.getString("vision_darkvision_superior"), "darkvision");
+	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
+	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
+
+	-- Add death marker manager
+	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+
 	-- Add ruleset to supported rulesets for Encumberance calculation
 	CharEncumbranceManager.addStandardCalc("Chronicle")
-	
-	-- Add death marker manager
-	-- ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
-	ImageDeathMarkerManager.setEnabled(true);
-	ImageDeathMarkerManager.registerGetCreatureTypeFunction(ActorCommonManager.getCreatureTypeDnD);
-	ImageDeathMarkerManager.registerCreatureTypes(DataCommon.creaturetype);
 
 	-- Languages
 	languages = {

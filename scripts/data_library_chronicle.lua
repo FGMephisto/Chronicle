@@ -150,6 +150,19 @@ aRecordOverrides = {
 };
 
 aListViews = {
+	["skilllist"] = {
+		["armor"] = {
+			aColumns = {
+				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
+			},
+			aFilters = { 
+				-- { sDBField = "type", vFilterValue = "Armor" }, 
+				-- { sCustom = "item_isidentified" } 
+			},
+			aGroups = { { sDBField = "groupid" } },
+			aGroupValueOrder = { "10", "20", "30" },
+		},
+	},
 	["npc"] = {
 		["byletter"] = {
 			aColumns = {
