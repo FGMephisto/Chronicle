@@ -6,12 +6,6 @@
 -->
 
 <root>
-	<windowclass name="item_header" merge="join">
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
-
 	<windowclass name="item_main">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/item_main.lua" />

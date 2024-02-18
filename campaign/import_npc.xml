@@ -13,11 +13,10 @@
 		<sheetdata>
 			<windowtitlebar_utilitybox name="title" />
 			<windowmenubar_utilitybox name="menubar" />
-			<resize_utilitybox />
 
  			<anchor_content_utilitybox_top />
-
 			<anchor_content_utilitybox_bottom />
+
 			<button_text_content_center_bottom name="button_import">
 				<state textres="button_import" />
 				<script>
@@ -69,6 +68,8 @@
 				<anchored to="description" />
 				<target>description</target>
 			</scrollbar>		
+
+			<resize_utilitybox />
 		</sheetdata>
 	</windowclass>
 </root>

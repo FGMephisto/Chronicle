@@ -54,7 +54,7 @@ end
 function openSkillLink()
 	local nodeSkill = RecordManager.findRecordByStringI("skill", "name", name.getValue());
 	if nodeSkill then
-		Interface.openWindow("ref_ability", nodeSkill);
+		Interface.openWindow(LibraryData.getRecordDisplayClass("skill"), nodeSkill);
 	else
 		Interface.openWindow("ref_ability", getDatabaseNode());
 	end

@@ -180,29 +180,6 @@
 		</basicnumber>
 	</template>
 
-	<template name="button_enc_refreshcr">
-		<button_refresh>
-			<anchored to="cr" position="rightlow" offset="5,0" />
-			<tooltip textres="enc_tooltip_refreshcr" />
-			<script>
-				function onButtonPress()
-					CombatManager2.calcBattleCR(window.getDatabaseNode());
-				end
-			</script>
-		</button_refresh>
-	</template>
-	<template name="button_enc_refreshxp">
-		<button_refresh>
-			<anchored to="exp" position="rightlow" offset="5,0" />
-			<tooltip textres="enc_tooltip_refreshxp" />
-			<script>
-				function onButtonPress()
-					CombatManager2.calcBattleXP(window.getDatabaseNode());
-				end
-			</script>
-		</button_refresh>
-	</template>
-
 	<template name="list_editor">
 		<windowlist name="list">
 			<anchored>

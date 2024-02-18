@@ -34,59 +34,23 @@
 		</linkcontrol>
 	</template>
 	
-	<windowclass name="reference_class">
-		<frame>recordsheet</frame>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_class_header</class>
-			</sub_record_header>
-
-			<frame_record_content_tabbed name="contentframe" />
-
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<invisible />
-			</ft_record>
-			<subwindow_record name="content">
-				<class>ref_class_stats</class>
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-			<scrollbar_record>
-				<target>content</target>
-			</scrollbar_record>
-			
-			<tabs_recordsheet name="tabs">
-				<tab>
-					<icon>tab_main</icon>
-					<subwindow>text</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_other</icon>
-					<subwindow>content</subwindow>
-				</tab>
-			</tabs_recordsheet>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
+	<windowclass name="reference_class" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_class_main</class>
+			<embed />
+		</tab>
 	</windowclass>
-	<windowclass name="ref_class_header" copy="record_header">
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_class_stats">
+	<windowclass name="reference_class_header" copy="record_header" />
+
+	<windowclass name="reference_class_main">
 		<margins control="0,0,0,7" />
 		<script>
 			function onInit()
@@ -277,7 +241,6 @@
 			</list_column>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="ref_class_feature">
 		<margins control="0,0,0,2" />
 		<script>
@@ -317,61 +280,29 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="reference_classproficiency" copy="record_window_text_string">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_classproficiency_header</class>
-			</sub_record_header>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_classproficiency_header" copy="record_header_simple">
-		<sheetdata>
-			<link_record_header name="link">
-				<class>reference_classproficiency</class>
-			</link_record_header>
-
-			<string_record_name name="name">
-				<empty textres="library_recordtype_empty_classproficiency" />
-			</string_record_name>
-			<label_recordtype name="recordtype_label">
-				<static textres="ref_type_classproficiency" />
-			</label_recordtype>	
-		</sheetdata>
+	<windowclass name="reference_classproficiency" copy="record_window_text_string" />
+	<windowclass name="reference_classproficiency_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_classproficiency</name_emptyres>
 	</windowclass>
 
 	<windowclass name="reference_classfeature" copy="record_window">
 		<script>
 			function onInit()
-				local node = getDatabaseNode();
-				local nodeContainerRecord = DB.getChild(node, "...");
-				local sRecordType = LibraryData.getRecordTypeFromRecordPath(DB.getPath(nodeContainerRecord));
+				super.onInit();
+
+				local sRecordType = WindowManager.getRecordType(self);
 				if sRecordType == "class" then
-					content.setValue("ref_classfeature_stats", node);
+					content.setValue("ref_classfeature_stats", getDatabaseNode());
 				else
-					content.setValue("ref_classfeature_stats_specialization", node);
+					content.setValue("ref_classfeature_stats_specialization", getDatabaseNode());
 				end
 			end
 		</script>
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_classfeature_header</class>
-			</sub_record_header>
-		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_classfeature_header" copy="record_header_simple">
-		<sheetdata>
-			<link_record_header name="link">
-				<class>reference_classfeature</class>
-			</link_record_header>
-
-			<string_record_name name="name">
-				<empty textres="library_recordtype_empty_classfeature" />
-			</string_record_name>
-			<label_recordtype name="recordtype_label">
-				<static textres="ref_type_feature" />
-			</label_recordtype>	
-		</sheetdata>
+	<windowclass name="reference_classfeature_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_classfeature</name_emptyres>
 	</windowclass>
+	
 	<windowclass name="ref_classfeature_stats_specialization">
 		<margins control="0,0,0,7" />
 		<script>

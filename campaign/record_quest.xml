@@ -6,7 +6,7 @@
 -->
 
 <root>
-	<windowclass name="quest_stats" merge="join">
+	<windowclass name="quest_main" merge="join">
 		<script>
 			function update()
 				super.update();

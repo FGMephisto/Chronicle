@@ -114,6 +114,9 @@ aRecordOverrides = {
 			["Rarity"] = { sField = "rarity", fGetValue = getItemRarityValue },
 			["Attunement?"] = { sField = "rarity", fGetValue = getItemAttunementValue },
 		},
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	
 	-- New record types
@@ -130,6 +133,9 @@ aRecordOverrides = {
 		bExport = true, 
 		aDataMap = { "background", "reference.backgrounddata" }, 
 		sRecordDisplayClass = "reference_background", 
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	["class"] = {
 		bExport = true,
@@ -137,6 +143,9 @@ aRecordOverrides = {
 		sRecordDisplayClass = "reference_class", 
 		aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
 		aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	["class_specialization"] = {
 		bExport = true, 
@@ -158,6 +167,9 @@ aRecordOverrides = {
 		bExport = true, 
 		aDataMap = { "feat", "reference.featdata" }, 
 		sRecordDisplayClass = "reference_feat", 
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	["race"] = {
 		bExport = true, 
@@ -166,6 +178,9 @@ aRecordOverrides = {
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_race_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	["race_subrace"] = {
 		bExport = true, 
@@ -180,6 +195,9 @@ aRecordOverrides = {
 		bExport = true, 
 		aDataMap = { "skill", "reference.skilldata" }, 
 		sRecordDisplayClass = "reference_skill", 
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 	},
 	["spell"] = {
 		bExport = true, 
@@ -189,6 +207,9 @@ aRecordOverrides = {
 			["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
 			["Level"] = { sField = "level", sType = "number" },
 			["Ritual"] = { sField = "ritual", sType = "boolean" },
+		},
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 };

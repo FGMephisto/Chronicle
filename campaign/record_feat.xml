@@ -6,16 +6,6 @@
 -->
 
 <root>
-	<windowclass name="reference_feat" copy="record_window_text">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_feat_header</class>
-			</sub_record_header>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_feat_header" copy="record_header">
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
+	<windowclass name="reference_feat" copy="record_window_text" />
+	<windowclass name="reference_feat_header" copy="record_header" />
 </root>

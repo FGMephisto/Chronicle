@@ -6,59 +6,23 @@
 -->
 
 <root>
-	<windowclass name="reference_background">
-		<frame>recordsheet</frame>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_background_header</class>
-			</sub_record_header>
-
-			<frame_record_content_tabbed name="contentframe" />
-
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<invisible />
-			</ft_record>
-			<subwindow_record name="content">
-				<class>ref_background_stats</class>
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-			<scrollbar_record>
-				<target>content</target>
-			</scrollbar_record>
-			
-			<tabs_recordsheet name="tabs">
-				<tab>
-					<icon>tab_main</icon>
-					<subwindow>text</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_other</icon>
-					<subwindow>content</subwindow>
-				</tab>
-			</tabs_recordsheet>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
+	<windowclass name="reference_background" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_background_main</class>
+			<embed />
+		</tab>
 	</windowclass>
-	<windowclass name="ref_background_header" copy="record_header">
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_background_stats">
+	<windowclass name="reference_background_header" copy="record_header" />
+
+	<windowclass name="reference_background_main">
 		<margins control="0,0,0,7" />
 		<script>
 			function onInit()
@@ -114,7 +78,6 @@
 			</list_column>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="ref_background_feature">
 		<margins control="0,0,0,2" />
 		<sheetdata>
@@ -130,25 +93,8 @@
 		</sheetdata>
 	</windowclass>
 	
-	<windowclass name="reference_backgroundfeature" copy="record_window_text">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_backgroundfeature_header</class>
-			</sub_record_header>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_backgroundfeature_header" copy="record_header_simple">
-		<sheetdata>
-			<link_record_header name="link">
-				<class>reference_backgroundfeature</class>
-			</link_record_header>
-
-			<string_record_name name="name">
-				<empty textres="library_recordtype_empty_backgroundfeature" />
-			</string_record_name>
-			<label_recordtype name="recordtype_label">
-				<static textres="ref_type_backgroundfeature" />
-			</label_recordtype>	
-		</sheetdata>
+	<windowclass name="reference_backgroundfeature" copy="record_window_text" />
+	<windowclass name="reference_backgroundfeature_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_backgroundfeature</name_emptyres>
 	</windowclass>
 </root>

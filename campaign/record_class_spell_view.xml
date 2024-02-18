@@ -22,14 +22,14 @@
 				<resource>title_class_spell_views</resource>
 			</windowtitlebar_referencelist>
 			<windowmenubar_referencelist name="menubar" />
-			<resize_referencelist />
 
 			<anchor_content_referencelist_top />
+			<anchor_content_referencelist_bottom />
+
 			<sub_content_top name="sub_buttons">
 				<class>class_spell_views_index_buttons</class>
 			</sub_content_top>
 
-			<anchor_content_referencelist_bottom />
 			<filter_content_bottom name="filter" />
 
 			<list_content_framed_groupbox_alternating_filtered name="list">
@@ -37,6 +37,8 @@
 				<sortby><control>name</control></sortby>
 			</list_content_framed_groupbox_alternating_filtered>
 			<scrollbar_content_list />
+
+			<resize_referencelist />
 		</sheetdata>
 	</windowclass>
 	<windowclass name="class_spell_views_index_buttons">
@@ -81,11 +83,10 @@
 				<resource>title_class_spell_view</resource>
 			</windowtitlebar_referencelist>
 			<windowmenubar_referencelist name="menubar" />
-			<resize_referencelist />
 
 			<anchor_content_referencelist_top />
-
 			<anchor_content_referencelist_bottom />
+
 			<filter_content_bottom name="filter" />
 			<sub_content_paging name="sub_paging" />
 
@@ -95,6 +96,8 @@
 				<readonly />
 			</list_content_framed_groupbox>
 			<scrollbar_content_list />
+
+			<resize_referencelist />
 		</sheetdata>
 	</windowclass>
 </root>

@@ -6,36 +6,10 @@
 -->
 
 <root>
-	<windowclass name="reference_class_spell_list">
-		<frame>recordsheet</frame>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_class_spell_list_header</class>
-			</sub_record_header>
+	<windowclass name="reference_class_spell_list" copy="record_window" />
+	<windowclass name="reference_class_spell_list_header" copy="record_header" />
 
-			<frame_record_content name="contentframe" />
-
-			<subwindow_record name="main">
-				<class>ref_class_spell_list_main</class>
-				<activate />
-			</subwindow_record>
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_class_spell_list_header" copy="record_header" />
-	<windowclass name="ref_class_spell_list_main">
+	<windowclass name="reference_class_spell_list_main">
 		<margins control="0,0,0,7" />
 		<script>
 			function onDrop(x, y, draginfo)

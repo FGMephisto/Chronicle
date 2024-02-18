@@ -6,22 +6,10 @@
 -->
 
 <root>
-	<windowclass name="reference_skill" copy="record_window">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_skill_header</class>
-			</sub_record_header>
-			<subwindow_record name="content">
-				<class>skill_main</class>
-			</subwindow_record>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_skill_header" copy="record_header">
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="skill_main">
+	<windowclass name="reference_skill" copy="record_window" />
+	<windowclass name="reference_skill_header" copy="record_header" />
+
+	<windowclass name="reference_skill_main">
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()

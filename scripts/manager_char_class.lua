@@ -406,7 +406,9 @@ function helperAddClassFeatures(rAdd)
 	end
 
 	-- Add class features
-	CharClassManager.helperAddClassFeaturesWorker(nodeClass, rAdd);
+	if not rAdd.bNewSpecAdd then
+		CharClassManager.helperAddClassBaseFeaturesWorker(nodeClass, rAdd);
+	end
 
 	-- Add external class specialization features
 	local sClassSpec = CharClassManager.getCharClassSpecialization(rAdd.nodeChar, rAdd.sSourceName);
@@ -417,19 +419,25 @@ function helperAddClassFeatures(rAdd)
 				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
 			end
 		end
+	else
+		RecordManager.callForEachRecordByStringI("class", "name", rAdd.sSourceName, CharClassManager.helperAddClassSpecFeaturesWorker, rAdd);
 	end
 end
-function helperAddClassFeaturesWorker(nodeClass, rAdd)
+function helperAddClassBaseFeaturesWorker(nodeClass, rAdd)
 	for _,vFeature in ipairs(DB.getChildList(nodeClass, "features")) do
 		if (DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
 			local sFeatureSpec = StringManager.trim(DB.getValue(vFeature, "specialization", ""));
-			local bAddFeature;
 			if sFeatureSpec == "" then
-				bAddFeature = not rAdd.bNewSpecAdd;
-			else
-				bAddFeature = CharClassManager.hasCharClassSpecialization(rAdd.nodeChar, sFeatureSpec);
+				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
 			end
-			if bAddFeature then
+		end
+	end
+end
+function helperAddClassSpecFeaturesWorker(nodeClass, rAdd)
+	for _,vFeature in ipairs(DB.getChildList(nodeClass, "features")) do
+		if (DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
+			local sFeatureSpec = StringManager.trim(DB.getValue(vFeature, "specialization", ""));
+			if (sFeatureSpec ~= "") and CharClassManager.hasCharClassSpecialization(rAdd.nodeChar, sFeatureSpec) then
 				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
 			end
 		end

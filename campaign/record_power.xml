@@ -658,43 +658,10 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="power" copy="record_window">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>power_header</class>
-			</sub_record_header>
-			<subwindow_record name="content">
-				<class>power_stats</class>
-			</subwindow_record>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="power_header" copy="record_header">
-		<script>
-			function onInit()
-				super.onInit();
+	<windowclass name="power" copy="record_window" />
+	<windowclass name="power_header" copy="record_header" />
 
-				local bIsCharNode = false;
-				local node = getDatabaseNode();
-				local sNodePath = DB.getPath(node);
-				for _,vMapping in ipairs(LibraryData.getMappings("charsheet")) do
-					if StringManager.startsWith(sNodePath, vMapping) then
-						bIsCharNode = true;
-					end
-				end
-				if bIsCharNode then
-					local sGroup = DB.getValue(getDatabaseNode(), "group", "");
-					if sGroup == "" then
-						sGroup = Interface.getString("char_label_powers");
-					end
-					recordtype_label.setValue(sGroup);
-				end
-			end
-		</script>
-		<sheetdata>
-			<button_ichat name="button_ichat" insertbefore="name" />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="power_stats">
+	<windowclass name="power_main">
 		<margins control="0,0,0,7" />
 		<script file="campaign/scripts/power_main.lua" />
 		<sheetdata>
@@ -782,5 +749,6 @@
 			</string_columnh>
 		</sheetdata>
 	</windowclass>
+	
 	<windowclass name="reference_spell" copy="power" />
 </root>

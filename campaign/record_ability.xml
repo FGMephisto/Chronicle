@@ -6,45 +6,33 @@
 -->
 
 <root>
-	<windowclass name="ref_ability" copy="record_window_text">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ability_header</class>
-			</sub_record_header>
-		</sheetdata>
+	<windowclass name="ref_ability" copy="record_window_text" ruleset="5E">
+		<windowmenu>
+			<showlink />
+			<right>chat_output</right>
+		</windowmenu>
 	</windowclass>
-	<windowclass name="ability_header" copy="record_header_simple">
+	<windowclass name="ref_ability_header" copy="record_header">
 		<sheetdata>
-			<link_record_header name="link">
-				<class>ref_ability</class>
-			</link_record_header>
-
-			<button_ichat name="button_ichat" insertbefore="name" />
-
-			<label_recordtype name="recordtype_label">
+			<icon_record_type name="recordtype" insertbefore="name">
 				<script>
-					function onInit()
+					function getRecordType()
 						local sList = DB.getName(DB.getParent(window.getDatabaseNode()));
-						
-						local sValue = "";
 						if sList == "skilllist" then
-							sValue = LibraryData.getSingleDisplayText("skill");
+							return "skill";
 						elseif sList == "proficiencylist" then
-							sValue = Interface.getString("ref_type_proficiency");
+							return "";
 						elseif sList == "featlist" then
-							sValue = LibraryData.getSingleDisplayText("feat");
+							return "feat";
 						elseif sList == "featurelist" then
-							sValue = Interface.getString("ref_type_feature");
+							return "";
 						elseif sList == "traitlist" then
-							sValue = Interface.getString("ref_type_trait");
+							return "";
 						end
-						
-						setValue(sValue);
-						
-						super.onInit();
-					end 
+						return "";
+					end
 				</script>
-			</label_recordtype>
+			</icon_record_type>
 		</sheetdata>
 	</windowclass>
 </root>

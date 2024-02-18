@@ -6,54 +6,23 @@
 -->
 
 <root>
-	<windowclass name="reference_class_specialization">
-		<frame>recordsheet</frame>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_class_specialization_header</class>
-			</sub_record_header>
-
-			<frame_record_content_tabbed name="contentframe" />
-
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<invisible />
-			</ft_record>
-			<subwindow_record name="main">
-				<class>ref_class_specialization_stats</class>
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-			
-			<tabs_recordsheet name="tabs">
-				<tab>
-					<icon>tab_main</icon>
-					<subwindow>text</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_other</icon>
-					<subwindow>main</subwindow>
-				</tab>
-			</tabs_recordsheet>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
+	<windowclass name="reference_class_specialization" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_class_specialization_main</class>
+			<embed />
+		</tab>
 	</windowclass>
-	<windowclass name="ref_class_specialization_header" copy="record_header" />
-	<windowclass name="ref_class_specialization_stats">
+	<windowclass name="reference_class_specialization_header" copy="record_header" />
+	
+	<windowclass name="reference_class_specialization_main">
 		<margins control="0,0,0,7" />
 		<script>
 			function onInit()
@@ -112,25 +81,8 @@
 	</windowclass>
 
 	<!-- Legacy embedded class specializations -->
-	<windowclass name="reference_classability" copy="record_window_text">
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_classability_header</class>
-			</sub_record_header>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_classability_header" copy="record_header_simple">
-		<sheetdata>
-			<link_record_header name="link">
-				<class>reference_classability</class>
-			</link_record_header>
-
-			<string_record_name name="name">
-				<empty textres="library_recordtype_empty_class_specialization" />
-			</string_record_name>
-			<label_recordtype name="recordtype_label">
-				<static textres="library_recordtype_label_class_specialization" />
-			</label_recordtype>	
-		</sheetdata>
+	<windowclass name="reference_classability" copy="record_window_text" />
+	<windowclass name="reference_classability_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_class_specialization</name_emptyres>
 	</windowclass>
 </root>
