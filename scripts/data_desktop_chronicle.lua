@@ -65,20 +65,20 @@ _tDataModuleSets =
 	["client"] =
 	{
 		{
-			name = "Chronicle Ruleset Data",
+			name = "Chronicle Data",
 			modules =
 			{
-				{ name = "Chronicle Ruleset Data", displayname = "Chronicle Ruleset Data" },
+				{ name = "Chronicle Data", displayname = "Chronicle Data" },
 			},
 		},
 	},
 	["host"] =
 	{
 		{
-			name = "Chronicle Ruleset Data",
+			name = "Chronicle Data",
 			modules =
 			{
-				{ name = "Chronicle Ruleset Data", displayname = "Chronicle Ruleset Data" },
+				{ name = "Chronicle Data", displayname = "Chronicle Data" },
 			},
 		},
 	},

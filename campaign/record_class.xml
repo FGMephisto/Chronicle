@@ -290,7 +290,9 @@
 			function onInit()
 				super.onInit();
 
-				local sRecordType = WindowManager.getRecordType(self);
+				local node = getDatabaseNode();
+				local nodeContainerRecord = DB.getChild(node, "...");
+				local sRecordType = LibraryData.getRecordTypeFromRecordPath(DB.getPath(nodeContainerRecord));
 				if sRecordType == "class" then
 					content.setValue("ref_classfeature_stats", getDatabaseNode());
 				else

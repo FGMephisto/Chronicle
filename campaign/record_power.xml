@@ -750,5 +750,14 @@
 		</sheetdata>
 	</windowclass>
 	
-	<windowclass name="reference_spell" copy="power" />
+	<windowclass name="reference_spell" copy="record_window">
+		<sheetdata>
+			<sub_content_framed_groupbox_top name="header">
+				<class>power_header</class>
+			</sub_content_framed_groupbox_top>
+			<sub_content_framed_groupbox name="content">
+				<class>power_main</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
 </root>

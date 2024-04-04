@@ -6,11 +6,9 @@
 function onInit()
 	update();
 end
-
 function VisDataCleared()
 	update();
 end
-
 function InvisDataAdded()
 	update();
 end

@@ -39,7 +39,7 @@
 				super.onLockChanged();
 				if not Session.IsHost then
 					local bID = LibraryData.getIDState("npc", getDatabaseNode(), true);
-					tabs.setVisibility(bID);
+					tabs.setVisible(bID);
 				end
 			end
 		</script>

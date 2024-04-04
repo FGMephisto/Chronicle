@@ -45,11 +45,15 @@ currencies = {
 currencyDefault = "GP";
 
 function onInit()	
+	CharEncumbranceManager.addStandardCalc();
+	CombatListManager.registerStandardInitSupport();
+	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+	SoundsetManager.registerStandardSettingsCastAndAttack();
+	SoundsetManager.setRecordTypeDropCallback("spell", SoundsetManager.handleStandardSpellDrop);
+
 	VisionManager.addVisionType(Interface.getString("vision_darkvision_superior"), "darkvision");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
-
-	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
 
 	-- Languages
 	languages = {

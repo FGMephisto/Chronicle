@@ -15,11 +15,7 @@ end
 
 function onEditModeChanged()
 	local bEditMode = WindowManager.getEditMode(windowlist, "skills_iedit");
-	if self.isCustom() then
-		idelete.setVisibility(bEditMode);
-	else
-		idelete.setVisibility(false);
-	end
+	idelete.setVisible(self.isCustom() and bEditMode);
 end
 
 -- This function is called to set the entry to non-custom or custom.

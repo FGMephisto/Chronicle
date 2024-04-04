@@ -56,7 +56,7 @@ function setHeaderCategory(rGroup, sGroup, nLevel, bAllowDelete)
 		group.setValue(sGroup);
 		setNode(rGroup.node);
 		if bAllowDelete then
-			idelete.setVisibility(true);
+			idelete.setVisible(true);
 		end
 	end
 end

@@ -67,12 +67,16 @@ function onRecharge(rSource, rTarget, rRoll)
 			DB.deleteNode(nodeTargetEffect);
 
 			-- Remove the [USED] marker from attack line
-			for _, nodeAttack in ipairs(DB.getChildList(nodeEffectsList, "..actions")) do
-				local sAttack = DB.getValue(nodeAttack, "value", "");
-				local rPower = CombatManager2.parseAttackLine(sAttack);
-				if rPower and rPower.sUsage and rPower.name == sRecharge then
-					local sNew = string.sub(sAttack, 1, rPower.nUsageStart - 2) .. string.sub(sAttack, rPower.nUsageEnd + 1);
-					DB.setValue(nodeAttack, "value", "string", sNew);
+			for _,sLocation in ipairs({ "..actions", "..reactions", "..bonusactions" }) do
+				for _, nodeAttack in ipairs(DB.getChildList(nodeEffectsList, sLocation)) do
+					local sAttack = DB.getValue(nodeAttack, "value", "");
+					if sAttack:match("%[USED%]") then
+						local rPower = CombatManager2.parseAttackLine(sAttack);
+						if rPower and rPower.sUsage and rPower.name == sRecharge then
+							local sNew = string.sub(sAttack, 1, rPower.nUsageStart - 2) .. string.sub(sAttack, rPower.nUsageEnd + 1);
+							DB.setValue(nodeAttack, "value", "string", sNew);
+						end
+					end
 				end
 			end
 		end

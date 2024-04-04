@@ -12,7 +12,14 @@
 		</basicstring>
 	</template>
 
-	<windowclass name="ref_adventure" copy="record_window" />
+	<windowclass name="ref_adventure" copy="record_window">
+		<placement>
+			<size width="530" height="620" />
+		</placement>
+		<sizelimits>
+			<minimum width="530" height="620" />
+		</sizelimits>
+	</windowclass>
 	<windowclass name="ref_adventure_header" copy="record_header" />
 
 	<windowclass name="ref_adventure_main">
