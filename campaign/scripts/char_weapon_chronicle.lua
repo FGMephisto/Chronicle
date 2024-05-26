@@ -22,7 +22,9 @@ function onInit()
 	onDataChanged();
 end
 
+
 -- ===================================================================================================================
+-- Adjusted
 -- ===================================================================================================================
 function onClose()
 	local nodeWeapon = getDatabaseNode();
@@ -36,8 +38,6 @@ end
 local m_sClass = "";
 local m_sRecord = "";
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onLinkChanged()
 	local node = getDatabaseNode();
 	local sClass, sRecord = DB.getValue(node, "shortcut", "", "");
@@ -90,7 +90,6 @@ end
 -- Adjusted
 -- ===================================================================================================================
 function onAttackChanged()
-	-- Debug.chat("FN: onAttackChanged in char_weapon")
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
 	local nMod = DB.getValue(nodeWeapon, "atk_mod", 0)
@@ -129,10 +128,7 @@ function onAttackChanged()
 	atk_total.setValue(nMod + nBonus);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onAttackAction(draginfo)
-	-- Debug.chat("FN: onAttackAction in char_weapon")
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
 
@@ -140,7 +136,9 @@ function onAttackAction(draginfo)
 	local rAction = CharWeaponManager.buildAttackAction(nodeChar, nodeWeapon);
 	
 	-- Decrement ammo
-	CharWeaponManager.decrementAmmo(nodeChar, nodeWeapon);
+	if rAction.range == "R" then
+		CharWeaponManager.decrementAmmo(nodeChar, nodeWeapon);
+	end
 	
 	-- Perform action
 	local rActor = ActorManager.resolveActor(nodeChar);
@@ -148,10 +146,7 @@ function onAttackAction(draginfo)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onDamageChanged()
-	-- Debug.chat("FN: onDamageChanged in char_weapon")
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
 
@@ -162,10 +157,7 @@ function onDamageChanged()
 	dmg_total.setValue(nDamage);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onDamageAction(draginfo)
-	-- Debug.chat("FN: onDamageAction in char_weapon")
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
 

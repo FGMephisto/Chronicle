@@ -18,7 +18,7 @@ function action(draginfo)
 	ModifierManager.lock();
 	for _,v in pairs(tParty) do
 		-- Convert to lower case and removing all spaces from the string
-		ActionCheck.performPartySheetRoll(nil, v, ActionsManager2.ConvertToTechnical(sAbilityStat));
+		ActionCheck.performPartySheetRoll(nil, v, StringManager.simplify(sAbilityStat));
 	end
 	ModifierManager.unlock(true);
 	return true;

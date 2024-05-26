@@ -174,7 +174,7 @@ function getAbilityScore(rActor, sAbility)
 	local nStatScore = -1;
 
 	-- Convert input to lower case and removing all spaces from the string
-	sAbility = ActionsManager2.ConvertToTechnical(sAbility)
+	sAbility = StringManager.simplify(sAbility)
 
 	-- Get Ability score
 	nStatScore = DB.getValue(nodeActor, "abilities." .. sAbility .. ".score", 0);
@@ -872,27 +872,19 @@ end
 -- Added
 -- ===================================================================================================================
 function getSkillRank(rActor, sSkill)
-	-- Return -1 if no Skill or "Dash" as Skill was handed over
-	if not sSkill or sSkill == "-" or sSkill == "None" then
-		return -1
-	end
-
-	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
-
-	if not nodeActor then
-		return -1
-	end
-
 	local nSkillRank = -1
 	local nodeSkill = nil
 
+	if not sSkill or sSkill == "-" or sSkill == "None" then return -1 end;
+	if not nodeActor then return -1 end;
+
 	-- Convert input to lower case and removing all spaces from the string
-	sSkill = ActionsManager2.ConvertToTechnical(sSkill)
+	sSkill = StringManager.simplify(sSkill)
 
 	-- Get Skill node
 	for _, vSkill in pairs(DB.getChildren(nodeActor, "skilllist")) do
-		if ActionsManager2.ConvertToTechnical(DB.getValue(vSkill, "name", "")) == sSkill then
+		if StringManager.simplify(DB.getValue(vSkill, "name", "")) == sSkill then
 			nodeSkill = vSkill
 			break
 		end

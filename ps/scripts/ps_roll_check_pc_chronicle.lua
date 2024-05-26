@@ -19,7 +19,7 @@ function action(draginfo)
 	end
 
 	-- Convert to lower case and removing all spaces from the string
-	local sStat = ActionsManager2.ConvertToTechnical(sAbility)
+	local sStat = StringManager.simplify(sAbility)
 
 	-- Handing it over for roll execution
 	ModifierManager.lock()

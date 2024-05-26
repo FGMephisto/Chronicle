@@ -575,7 +575,7 @@ end
 function getAttackBonus(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: getAttackBonus in manager_char_weapon")
 	local sAbility = DB.getValue(nodeWeapon, "atk_stat", 0)
-	local sSkill = ActionsManager2.ConvertToTechnical(DB.getValue(nodeWeapon, "atk_skill", ""))
+	local sSkill = StringManager.simplify(DB.getValue(nodeWeapon, "atk_skill", ""))
 	local nStat = ActorManager5E.getAbilityScore(nodeChar, sAbility)
 	local nSkill = ActorManager5E.getSkillRank(nodeChar, sSkill)
 	local nTraining = DB.getValue(nodeWeapon, "wpn_training", 0)

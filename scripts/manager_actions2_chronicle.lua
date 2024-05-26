@@ -191,12 +191,3 @@ function encodeArmorMods(rRoll)
 		end
 	end
 end
-
--- ===================================================================================================================
--- Added
--- Convert input to lower case and removing all spaces from the string
--- ===================================================================================================================
-function ConvertToTechnical(sInput)
-	local sOutput = sInput:gsub("%s+", ""):lower()
-	return sOutput
-end
