@@ -9,15 +9,15 @@ VEHICLE_TYPE_LAND = "land";
 tStandardVehicleConditionImmunities = { "blinded", "charmed", "deafened", "frightened", "intoxicated", "paralyzed", "petrified", "poisoned", "stunned", "unconscious" };
 tStandardVehicleDamageImmunities = { "poison", "psychic" };
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	initActorHealth();
 end
 
--- ===================================================================================================================
+--
 --	HEALTH
--- ===================================================================================================================
+--
 function initActorHealth()
 	ActorHealthManager.registerStatusHealthColor(ActorHealthManager.STATUS_UNCONSCIOUS, ColorManager.COLOR_HEALTH_DYING_OR_DEAD);
 
@@ -25,7 +25,7 @@ function initActorHealth()
 	ActorHealthManager.getWoundPercent = getWoundPercent;
 end
 
--- ===================================================================================================================
+--
 -- NOTE: Always default to using CT node as primary to make sure 
 --		that all bars and statuses are synchronized in combat tracker
 --		(Cross-link network updates between PC and CT fields can occur in either order, 
@@ -33,7 +33,7 @@ end
 -- NOTE 2: We can not use default effect checking in this function;
 -- 		as it will cause endless loop with conditionals that check health
 -- Adjusted
--- ===================================================================================================================
+--
 function getWoundPercent(v)
 	local rActor = ActorManager.resolveActor(v);
 
@@ -71,9 +71,9 @@ function getWoundPercent(v)
 	return nPercentWounded, sStatus;
 end
 
--- ===================================================================================================================
+--
 -- Set color for damage
--- ===================================================================================================================
+--
 function getPCSheetWoundColor(nodePC)
 	local nHP = 0;
 	local nWounds = 0;
@@ -92,9 +92,9 @@ function getPCSheetWoundColor(nodePC)
 	return sColor;
 end
 
--- ===================================================================================================================
+--
 --	ABILITY SCORES
--- ===================================================================================================================
+--
 -- ToDo: Adjust
 function getAbilityEffectsBonus(rActor, sAbility)
 	if not rActor or ((sAbility or "") == "") then
@@ -136,8 +136,8 @@ function getAbilityEffectsBonus(rActor, sAbility)
 	return nAbilityMod, nAbilityEffects;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getClassLevel(nodeActor, sValue)
 	local sClassName = DataCommon.class_valuetoname[sValue];
 	if not sClassName then
@@ -154,9 +154,9 @@ function getClassLevel(nodeActor, sValue)
 	return 0;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getAbilityScore(rActor, sAbility)
 	-- Return -1 if no Ability was handed over
 	if not sAbility then
@@ -182,8 +182,8 @@ function getAbilityScore(rActor, sAbility)
 	return nStatScore
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getAbilityBonus(rActor, sAbility)
 	if (sAbility or "") == "" then
 		return 0;
@@ -216,9 +216,9 @@ function getAbilityBonus(rActor, sAbility)
 	return nStatVal;
 end
 
--- ===================================================================================================================
+--
 --	DEFENSES
--- ===================================================================================================================
+--
 function getSave(rActor, sSave)
 	local bADV = false;
 	local bDIS = false;
@@ -272,8 +272,8 @@ function getSave(rActor, sSave)
 	return nValue, bADV, bDIS, table.concat(aAddText, " ");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getCheck(rActor, sCheck, sSkill)
 	local bADV = false;
 	local bDIS = false;
@@ -308,8 +308,8 @@ function getCheck(rActor, sCheck, sSkill)
 	return nValue, bADV, bDIS, table.concat(aAddText, " ");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDefenseAdvantage(rAttacker, rDefender, aAttackFilter)
 	if not rDefender then
 		return false, false;
@@ -425,9 +425,9 @@ function getDefenseAdvantage(rAttacker, rDefender, aAttackFilter)
 	return bADV, bDIS;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getDefenseValue(rAttacker, rDefender, rRoll)
 	if not rDefender or not rRoll then
 		return nil, 0, 0, false, false;
@@ -538,8 +538,8 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	return nDefense, 0, nDefenseEffectMod;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageThreshold(rActor)
 	local nResult = 0;
 
@@ -560,8 +560,8 @@ function getDamageThreshold(rActor)
 	return nResult;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getMishapThreshold(rActor)
 	local nResult = 0;
 
@@ -577,8 +577,8 @@ function getMishapThreshold(rActor)
 	return nResult;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageVulnerabilities(rActor, rSource)
 	local tResults = {};
 
@@ -595,8 +595,8 @@ function getDamageVulnerabilities(rActor, rSource)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageResistances(rActor, rSource)
 	local tResults = {};
 
@@ -613,8 +613,8 @@ function getDamageResistances(rActor, rSource)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageImmunities(rActor, rSource)
 	local tResults = {};
 
@@ -642,8 +642,8 @@ function getDamageImmunities(rActor, rSource)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function parseDamageVulnResistImmuneHelper(rActor, sField)
 	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if not nodeActor then
@@ -704,8 +704,8 @@ function parseDamageVulnResistImmuneHelper(rActor, sField)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageVulnResistImmuneEffectHelper(rActor, sEffectType, rSource)
 	local tResults = {};
 
@@ -735,8 +735,8 @@ function getDamageVulnResistImmuneEffectHelper(rActor, sEffectType, rSource)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getConditionImmunities(rActor, rSource)
 	local tResults = {};
 
@@ -762,8 +762,8 @@ function getConditionImmunities(rActor, rSource)
 	return tResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getNonPCActorConditionImmunitiesHelper(rActor)
 	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if not nodeActor then
@@ -796,9 +796,9 @@ function getNonPCActorConditionImmunitiesHelper(rActor)
 	return tResults;
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getArmorPenalty(rActor)
 	local nAP = 0
 
@@ -816,9 +816,9 @@ function getArmorPenalty(rActor)
 	return nAP
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getHealthFatigue(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -833,9 +833,9 @@ function getHealthFatigue(rActor)
 	return nInjuries
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getHealthInjuries(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -851,9 +851,9 @@ function getHealthInjuries(rActor)
 	return nInjuries
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getHealthTrauma(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -868,9 +868,9 @@ function getHealthTrauma(rActor)
 	return nTrauma
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getSkillRank(rActor, sSkill)
 	local nodeActor = ActorManager.getCreatureNode(rActor)
 	local nSkillRank = -1

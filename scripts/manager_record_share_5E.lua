@@ -43,10 +43,10 @@ function handleSpellShare(node, tOutput)
 	table.insert(tOutput, "");
 	table.insert(tOutput, string.format("%s: %s", Interface.getString("level"), DB.getText(node, "level", 0) .. " " .. DB.getText(node, "school", "")));
 	table.insert(tOutput, "");
-	table.insert(tOutput, string.format("%s: %s", Interface.getString("ref_label_castingtime"), DB.getText(node, "castingtime", "")));
-	table.insert(tOutput, string.format("%s: %s", Interface.getString("ref_label_range"), DB.getText(node, "range", "")));
-	table.insert(tOutput, string.format("%s: %s", Interface.getString("ref_label_components"), DB.getText(node, "components", "")));
-	table.insert(tOutput, string.format("%s: %s", Interface.getString("ref_label_duration"), DB.getText(node, "duration", "")));
+	table.insert(tOutput, string.format("%s: %s", Interface.getString("spell_label_castingtime"), DB.getText(node, "castingtime", "")));
+	table.insert(tOutput, string.format("%s: %s", Interface.getString("spell_label_range"), DB.getText(node, "range", "")));
+	table.insert(tOutput, string.format("%s: %s", Interface.getString("spell_label_components"), DB.getText(node, "components", "")));
+	table.insert(tOutput, string.format("%s: %s", Interface.getString("spell_label_duration"), DB.getText(node, "duration", "")));
 
 	local sText = DB.getText(node, "description", "");
 	if sText ~= "" then
@@ -57,6 +57,6 @@ function handleSpellShare(node, tOutput)
 	local sSource = DB.getText(node, "source", "");
 	if sSource ~= "" then
 		table.insert(tOutput, "");
-		table.insert(tOutput, string.format("%s: %s", Interface.getString("ref_label_source"), sSource));
+		table.insert(tOutput, string.format("%s: %s", Interface.getString("spell_label_source"), sSource));
 	end
 end

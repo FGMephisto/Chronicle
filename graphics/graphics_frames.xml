@@ -7,7 +7,7 @@
 
 <root>
 	<framedef name="abilityscore">
-		<bitmap file="graphics/frames/hotkeytitlebox.png" />
+		<bitmap file="graphics/frames/abilityscore.png" />
 		<offset>10,5,10,5</offset>
 	</framedef>
 	<framedef name="acicon">

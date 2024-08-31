@@ -12,9 +12,8 @@
 				<right offset="-40" />
 			</anchored>
 			<script>
-				function onVisUpdate(bLocalShow, bReadOnly)
-					super.onVisUpdate(bLocalShow, bReadOnly);
-					window[getName() .. "_link"].setVisible(bLocalShow);
+				function onVisibilityChanged()
+					window[getName() .. "_link"].setVisible(isVisible());
 				end
 			</script>
 		</string_columnh>

@@ -283,21 +283,6 @@
 			<default>1</default>
 		</button_prof>
 	</template>
-	<template name="button_weaponprof">
-		<button_prof>
-			<anchored position="insidebottomright" offset="0,2" width="12" height="12" />
-			<default>1</default>
-		</button_prof>
-	</template>
-	<template name="button_skillprof">
-		<buttonfield>
-			<anchored width="12" height="12" />
-			<state icon="button_prof" tooltipres="char_tooltip_prof_off" />
-			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" />
-			<state icon="button_prof_double" tooltipres="char_tooltip_prof_double" />
-			<state icon="button_prof_half" tooltipres="char_tooltip_prof_half" />
-		</buttonfield>
-	</template>
 	
 	<template name="number_chartotalnomod">
 		<number_linked_framed>
@@ -423,40 +408,6 @@
 			<source><name>speed.misc</name><op>+</op></source>
 		</number_chartotal>
 	</template>
-	
-	<template name="list_charweapon">
-		<windowlist>
-			<datasource>.weaponlist</datasource>
-			<sortby><control>name</control></sortby>
-			<allowcreate />
-			<allowdelete />
-			<script file="campaign/scripts/char_weaponlist.lua" />
-		</windowlist>
-	</template>
-	<template name="state_charweapontype">
-		<buttonfield>
-			<anchored width="30" height="30" />
-			<state icon="char_weapon_melee" tooltipres="char_tooltip_weapontypemelee" />
-			<state icon="char_weapon_ranged" tooltipres="char_tooltip_weapontyperanged" />
-			<state icon="char_weapon_thrown" tooltipres="char_tooltip_weapontypethrown" />
-		</buttonfield>
-	</template>
-	<template name="state_charweaponhand">
-		<buttonfield>
-			<anchored width="30" height="30" />
-			<state icon="char_weapon_hand1" tooltipres="char_tooltip_weaponhand1" />
-			<state icon="char_weapon_hand2" tooltipres="char_tooltip_weaponhand2" />
-			<state icon="char_weapon_handoff" tooltipres="char_tooltip_weaponhandoff" />
-		</buttonfield>
-	</template>
-	<template name="state_charammocounter">
-		<buttongroup_counter>
-			<sourcefields>
-				<maximum>maxammo</maximum>
-				<current>ammo</current>
-			</sourcefields>
-		</buttongroup_counter>
-	</template>
 
 	<template name="list_abilities">
 		<list_text>
@@ -472,34 +423,10 @@
 						window[listheader[1]].expand();
 					end
 				end
-
-				function addEntry(bFocus)
-					local w = createWindow();
-					if bFocus then
-						w.name.setFocus();
-					end
-					return w;
-				end
 			</script>
 		</list_text>
 	</template>
 
-	<template name="button_char_skills_iedit">
-		<button_iedit_base>
-			<script>
-				function onInit()
-					local node = window.getDatabaseNode();
-					if not node or DB.isReadOnly(node) then
-						setVisible(false);
-					end
-				end
-				
-				function onValueChanged()
-					window.contents.subwindow.skills.update();
-				end
-			</script>
-		</button_iedit_base>
-	</template>
 	<template name="number_charskill">
 		<basicnumber>
 			<anchored width="32" height="20" />
@@ -575,6 +502,15 @@
 			</script>
 		</number_linked_framed>
 	</template>
+	<template name="button_skillprof">
+		<buttonfield>
+			<anchored width="12" height="12" />
+			<state icon="button_prof" tooltipres="char_tooltip_prof_off" />
+			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" />
+			<state icon="button_prof_double" tooltipres="char_tooltip_prof_double" />
+			<state icon="button_prof_half" tooltipres="char_tooltip_prof_half" />
+		</buttonfield>
+	</template>
 
 	<template name="string_charinv_attunecalc">
 		<stringcontrol>
@@ -587,5 +523,45 @@
 		<stringu>
 			<multilinespacing>20</multilinespacing>
 		</stringu>
+	</template>
+	
+	<template name="list_charweapon">
+		<windowlist>
+			<datasource>.weaponlist</datasource>
+			<sortby><control>name</control></sortby>
+			<allowcreate />
+			<allowdelete />
+			<script file="campaign/scripts/char_weaponlist.lua" />
+		</windowlist>
+	</template>
+	<template name="state_charweapontype">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_melee" tooltipres="char_tooltip_weapontypemelee" />
+			<state icon="char_weapon_ranged" tooltipres="char_tooltip_weapontyperanged" />
+			<state icon="char_weapon_thrown" tooltipres="char_tooltip_weapontypethrown" />
+		</buttonfield>
+	</template>
+	<template name="state_charweaponhand">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_hand1" tooltipres="char_tooltip_weaponhand1" />
+			<state icon="char_weapon_hand2" tooltipres="char_tooltip_weaponhand2" />
+			<state icon="char_weapon_handoff" tooltipres="char_tooltip_weaponhandoff" />
+		</buttonfield>
+	</template>
+	<template name="button_weaponprof">
+		<button_prof>
+			<anchored position="insidebottomright" offset="0,2" width="12" height="12" />
+			<default>1</default>
+		</button_prof>
+	</template>
+	<template name="state_charammocounter">
+		<buttongroup_counter>
+			<sourcefields>
+				<maximum>maxammo</maximum>
+				<current>ammo</current>
+			</sourcefields>
+		</buttongroup_counter>
 	</template>
 </root>

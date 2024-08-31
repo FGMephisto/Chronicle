@@ -233,7 +233,7 @@ function addClass(nodeChar, sClass, sRecord, bWizard)
 end
 function helperAddClassMain(rAdd)
 	-- Notification
-	CharManager.outputUserMessage("char_abilities_message_classadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_classadd", rAdd.sSourceName, rAdd.sCharName);
 
 	-- Store caster levels before level and feature additions 
 	-- in order to calc spell slot upgrades correctly
@@ -287,7 +287,7 @@ function helperAddClassHP(rAdd)
 		end
 	end
 	if not bHDFound then
-		CharManager.outputUserMessage("char_error_addclasshd");
+		ChatManager.SystemMessageResource("char_error_addclasshd");
 	end
 
 	if rAdd.bNewCharClass then
@@ -301,12 +301,12 @@ function helperAddClassHP(rAdd)
 		local nAddHP = math.max((nHDMult * nHDSides) + nConBonus, 1);
 		nHP = nHP + nAddHP;
 
-		CharManager.outputUserMessage("char_abilities_message_hpaddmax", rAdd.sSourceName, rAdd.sCharName, nAddHP);
+		ChatManager.SystemMessageResource("char_abilities_message_hpaddmax", rAdd.sSourceName, rAdd.sCharName, nAddHP);
 	else
 		local nAddHP = math.max(math.floor(((nHDMult * (nHDSides + 1)) / 2) + 0.5) + nConBonus, 1);
 		nHP = nHP + nAddHP;
 
-		CharManager.outputUserMessage("char_abilities_message_hpaddavg", rAdd.sSourceName, rAdd.sCharName, nAddHP);
+		ChatManager.SystemMessageResource("char_abilities_message_hpaddavg", rAdd.sSourceName, rAdd.sCharName, nAddHP);
 	end
 	DB.setValue(rAdd.nodeChar, "hp.total", "number", nHP);
 
@@ -365,7 +365,7 @@ function helperAddClassSpecializationChoice(rAdd)
 end
 function callbackAddClassSpecializationChoice(tSelection, rAdd)
 	if not tSelection or (#tSelection ~= 1) then
-		CharManager.outputUserMessage("char_error_addclassspecialization");
+		ChatManager.SystemMessageResource("char_error_addclassspecialization");
 		return;
 	end
 
@@ -379,7 +379,7 @@ function helperAddClassSpecialization(rAdd)
 
 	local tClassSpec = CharClassManager.getClassSpecializationRecord(rAdd.sSourceName, rAdd.sClassSpecChoice);
 	if not tClassSpec then
-		CharManager.outputUserMessage("char_error_missingclassspecialization");
+		ChatManager.SystemMessageResource("char_error_missingclassspecialization");
 		return;
 	end
 
@@ -486,7 +486,7 @@ function addClassProficiency(nodeChar, sClass, sRecord, bWizard)
 			local sProfLower = StringManager.trim(sProf):lower();
 			if StringManager.contains(DataCommon.abilities, sProfLower) then
 				DB.setValue(rAdd.nodeChar, "abilities." .. sProfLower .. ".saveprof", "number", 1);
-				CharManager.outputUserMessage("char_abilities_message_saveadd", sProf, rAdd.sCharName);
+				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sProf, rAdd.sCharName);
 			end
 		end
 	end
@@ -506,7 +506,7 @@ function addClassProficiency(nodeChar, sClass, sRecord, bWizard)
 		elseif rAdd.sSourceType == "skills" then
 			local nPicks, tSkills = CharManager.parseSkillProficiencyText(rAdd.nodeSource);
 			if nPicks == 0 then
-				CharManager.outputUserMessage("char_error_addskill");
+				ChatManager.SystemMessageResource("char_error_addskill");
 				return nil;
 			end
 			CharManager.pickSkills(rAdd.nodeChar, tSkills, nPicks);
@@ -594,7 +594,7 @@ function helperAddClassFeatureStandard(rAdd)
 	end
 
 	DB.setValue(nodeNewFeature, "locked", "number", 1);
-	CharManager.outputUserMessage("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
 
 	return nodeNewFeature;
 end
@@ -875,7 +875,7 @@ function applyDraconicResilience(nodeChar)
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
 	
-	CharManager.outputUserMessage("char_abilities_message_hpaddfeature", StringManager.capitalizeAll(CharManager.FEATURE_DRACONIC_RESILIENCE), DB.getValue(nodeChar, "name", ""), nAddHP);
+	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeature", StringManager.capitalizeAll(CharManager.FEATURE_DRACONIC_RESILIENCE), DB.getValue(nodeChar, "name", ""), nAddHP);
 end
 function applyAttunementAdjust(nodeChar, n)
 	local nCurrentClassAttune = DB.getValue(nodeChar, "attunement.class", 0);

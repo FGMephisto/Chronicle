@@ -7,7 +7,7 @@
 -->
 
 <root version="3.0" release="9" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2023-02-21) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+	<announcement text="Chronicle System ruleset (v2024-08-14) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>
@@ -24,7 +24,7 @@
 
 	<!-- Graphics -->
 	<includefile source="graphics/graphics_fonts.xml" />
-	<includefile source="graphics/graphics_frames_chronicle.xml" />
+	<includefile source="graphics/graphics_frames.xml" />
 	<includefile source="graphics/graphics_icons_chronicle.xml" />
 	<includefile source="graphics/graphics_buttons_chronicle.xml" />
 
@@ -50,7 +50,7 @@
 	<includefile source="campaign/template_campaign_chronicle.xml" />
 	<includefile source="campaign/template_char_chronicle.xml" />
 	<includefile source="campaign/template_power.xml" />
-	
+
 	<includefile source="campaign/campaign_chars.xml" />
 	<includefile source="campaign/record_char_chronicle.xml" />
 	<!-- <includefile source="campaign/record_char_main.xml" /> -->
@@ -64,10 +64,10 @@
 	<includefile source="campaign/record_ability_chronicle.xml" />
 	<includefile source="campaign/record_adventure.xml" />
 
-	<includefile source="campaign/record_npc_chronicle.xml" />
-	<includefile source="campaign/record_encounter_chronicle.xml" />
+	<includefile source="campaign/record_battle.xml" />
 	<includefile source="campaign/record_item_chronicle.xml" />
 	<includefile source="campaign/record_itemtemplate.xml" />
+	<includefile source="campaign/record_npc_chronicle.xml" />
 	<includefile source="campaign/record_quest_chronicle.xml" />
 	<includefile source="campaign/record_vehicle.xml" />
 
@@ -125,17 +125,16 @@
 	<!-- Party sheet -->
 	<includefile source="ps/template_ps.xml" />
 	<includefile source="ps/ps_main_chronicle.xml" />
-	<includefile source="ps/ps_xp_chronicle.xml" />
-	<!-- <includefile source="ps/ps.xml" /> -->
+	<includefile source="ps/ps_xp.xml" />
 
 	<!-- High-level scripts -->
 	<script name="DataCommon" file="scripts/data_common_chronicle.lua" />
 	<script name="GameSystem" file="scripts/manager_gamesystem_chronicle.lua" />
 	<script name="CampaignDataManager2" file="scripts/manager_campaigndata2.lua" />
 	<!-- <script name="DataSpell" file="scripts/data_spell.lua" /> -->
-	
+
 	<!-- <script name="CharacterListManager_Inspiration" file="scripts/manager_charlist_inspiration.lua" /> -->
-	
+
 	<script name="ActorManager5E" file="scripts/manager_actor_chronicle.lua" />
 	<script name="CharManager" file="scripts/manager_char_chronicle.lua" />
 	<script name="CharArmorManager" file="scripts/manager_char_armor_chronicle.lua" />
@@ -148,6 +147,7 @@
 	<script name="CharWeaponManager" file="scripts/manager_char_weapon_chronicle.lua" />
 	<script name="ClassSpellListManager" file="scripts/manager_class_spell_list.lua" />
 	<script name="CombatManager2" file="scripts/manager_combat2_chronicle.lua" />
+	<script name="DiceManager5E" file="scripts/manager_dice_chronicle.lua" />
 	<script name="EffectManager5E" file="scripts/manager_effect_chronicle.lua" />
 	<script name="ForgeManagerItem" file="scripts/manager_forge_item.lua" />
 	<script name="ItemManager2" file="scripts/manager_item2_chronicle.lua" />
@@ -160,7 +160,7 @@
 
 	<script name="ActionsManager2" file="scripts/manager_actions2_chronicle.lua" />
 	<script name="ActionGeneral" file="scripts/manager_action_general_chronicle.lua" />
-
+	
 	<script name="ActionAttack" file="scripts/manager_action_attack_chronicle.lua" />
 	<script name="ActionCheck" file="scripts/manager_action_check_chronicle.lua" />
 	<script name="ActionDamage" file="scripts/manager_action_damage_chronicle.lua" />

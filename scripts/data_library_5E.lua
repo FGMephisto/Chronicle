@@ -48,9 +48,9 @@ end
 function getItemAttunementValue(vNode)
 	local v = StringManager.trim(DB.getValue(vNode, "rarity", "")):lower();
 	if v:match("%(requires attunement") then
-		return LibraryData.sFilterValueYes;
+		return Interface.getString("library_recordtype_filter_yes");
 	end
-	return LibraryData.sFilterValueNo;
+	return Interface.getString("library_recordtype_filter_no");
 end
 
 function isItemIdentifiable(vNode)
@@ -121,92 +121,113 @@ aRecordOverrides = {
 	
 	-- New record types
 	["itemtemplate"] = { 
-		bExport = true,
-		bHidden = true,
 		aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
 		aGMListButtons = { "button_forge_item"  };
+		tOptions = {
+			bExport = true,
+			bHidden = true,
+		},
 		aCustomFilters = {
 			["Type"] = { sField = "type" },
 		},
 	},
 	["background"] = {
-		bExport = true, 
 		aDataMap = { "background", "reference.backgrounddata" }, 
 		sRecordDisplayClass = "reference_background", 
+		tOptions = {
+			bExport = true,
+		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 	["class"] = {
-		bExport = true,
 		aDataMap = { "class", "reference.classdata" }, 
 		sRecordDisplayClass = "reference_class", 
 		aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
 		aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
+		tOptions = {
+			bExport = true,
+		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 	["class_specialization"] = {
-		bExport = true, 
-		bHidden = true,
 		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
 		sRecordDisplayClass = "reference_class_specialization", 
+		tOptions = {
+			bExport = true,
+			bHidden = true,
+		},
 		aCustomFilters = {
 			["Class"] = { sField = "class" },
 		},
 	},
 	["class_spell_list"] = {
-		bExport = true, 
-		bExportListSkip = true,
-		bHidden = true,
 		aDataMap = { "class_spell_list", "reference.class_spell_listdata" }, 
 		sRecordDisplayClass = "reference_class_spell_list", 
+		tOptions = {
+			bExport = true,
+			bExportListSkip = true,
+			bHidden = true,
+		},
 	},
 	["feat"] = {
-		bExport = true, 
 		aDataMap = { "feat", "reference.featdata" }, 
 		sRecordDisplayClass = "reference_feat", 
+		tOptions = {
+			bExport = true,
+		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 	["race"] = {
-		bExport = true, 
 		aDataMap = { "race", "reference.racedata" }, 
 		sRecordDisplayClass = "reference_race", 
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_race_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
+		tOptions = {
+			bExport = true,
+		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 	["race_subrace"] = {
-		bExport = true, 
-		bHidden = true,
 		aDataMap = { "race_subrace", "reference.race_subracedata" }, 
 		sRecordDisplayClass = "reference_subrace", 
+		tOptions = {
+			bExport = true,
+			bHidden = true,
+		},
 		aCustomFilters = {
 			["Race"] = { sField = "race" },
 		},
 	},
 	["skill"] = {
-		bExport = true, 
 		aDataMap = { "skill", "reference.skilldata" }, 
 		sRecordDisplayClass = "reference_skill", 
+		tOptions = {
+			bExport = true,
+		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
 	},
 	["spell"] = {
-		bExport = true, 
 		aDataMap = { "spell", "reference.spelldata" }, 
-		sRecordDisplayClass = "power", 
+		aRecordDisplayClasses = { "power", "reference_spell" },
 		aCustomFilters = {
 			["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
 			["Level"] = { sField = "level", sType = "number" },
 			["Ritual"] = { sField = "ritual", sType = "boolean" },
+		},
+		tOptions = {
+			bExport = true,
+			bPicture = true,
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },

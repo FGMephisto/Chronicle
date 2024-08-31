@@ -13,7 +13,7 @@ function addBackground(nodeChar, sClass, sRecord, bWizard)
 end
 function helperAddBackgroundMain(rAdd)
 	-- Notification
-	CharManager.outputUserMessage("char_abilities_message_backgroundadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_backgroundadd", rAdd.sSourceName, rAdd.sCharName);
 
 	-- Add the name and link to the main character sheet
 	DB.setValue(rAdd.nodeChar, "background", "string", rAdd.sSourceName);
@@ -175,7 +175,7 @@ function helperAddBackgroundFeatureStandard(rAdd)
 	end
 
 	DB.setValue(nodeNewFeature, "locked", "number", 1);
-	CharManager.outputUserMessage("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
 
 	return nodeNewFeature;
 end

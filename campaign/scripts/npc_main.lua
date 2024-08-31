@@ -4,8 +4,15 @@
 --
 
 function onInit()
-	onSummaryChanged();
-	update();
+	self.onSummaryChanged();
+	self.update();
+	registerMenuItem(Interface.getString("npc_menu_parsespells"), "radial_magicwand", 7);
+end
+
+function onMenuSelection(selection)
+	if selection == 7 then
+		CampaignDataManager2.updateNPCSpells(getDatabaseNode());
+	end
 end
 
 function onSummaryChanged()
@@ -36,14 +43,6 @@ end
 function update()
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
-
-	local bSection1 = false;
-	if Session.IsHost then
-		if WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly) then bSection1 = true; end;
-	else
-		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
-	end
-	divider.setVisible(bSection1);
 
 	WindowManager.callSafeControlUpdate(self, "size", bReadOnly, bReadOnly);
 	WindowManager.callSafeControlUpdate(self, "type", bReadOnly, bReadOnly);

@@ -4,11 +4,8 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function onInit()
-	-- Debug.chat("FN: onInit in manager_item2")
 	ItemManager.isPack = isPack;
 
 	ItemManager.isArmor = isArmor;
@@ -18,11 +15,10 @@ function onInit()
 	ItemManager.registerCleanupTransferHandler(handleItemCleanupOnTransfer);
 
 	-- Replacing CoreRPG function with new function
-	ItemManager.getItemSourceType = getItemSourceTypeChronicle
+	-- ToDo Check if it can be removed
+	-- ItemManager.getItemSourceType = getItemSourceTypeChronicle
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function isPack(nodeItem)
 	local sTypeLower = StringManager.trim(DB.getValue(nodeItem, "type", "")):lower();
 	local sSubtypeLower = StringManager.trim(DB.getValue(nodeItem, "subtype", "")):lower();
@@ -36,22 +32,16 @@ function isPack(nodeItem)
 	return bIsPack;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function isArmor(nodeItem)
 	local sTypeLower = StringManager.trim(DB.getValue(nodeItem, "type", "")):lower();
 	return (sTypeLower == "armor");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function isShield(nodeItem)
 	local sSubtypeLower = StringManager.trim(DB.getValue(nodeItem, "subtype", "")):lower();
 	return (sSubtypeLower == "shield");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function isWeapon(nodeItem)
 	local sTypeLower = StringManager.trim(DB.getValue(nodeItem, "type", "")):lower();
 	local sSubtypeLower = StringManager.trim(DB.getValue(nodeItem, "subtype", "")):lower();
@@ -65,8 +55,6 @@ function isWeapon(nodeItem)
 	return bIsWeapon;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function handleItemCleanupOnTransfer(rSourceItem, rTempItem, rTargetItem)
 	if rSourceItem.sClass ~= "item" then
 		if rSourceItem.sClass == "reference_magicitem" then
@@ -77,11 +65,8 @@ function handleItemCleanupOnTransfer(rSourceItem, rTempItem, rTargetItem)
 	end
 end
 
--- ===================================================================================================================
 -- Added
--- ===================================================================================================================
 function getItemSourceTypeChronicle(vNode)
-	-- Debug.chat("FN: getItemSourceTypeChronicle in manager_item3")
 	local sNodePath = nil;
 
 	if type(vNode) == "databasenode" then

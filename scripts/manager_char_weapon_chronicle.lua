@@ -21,12 +21,12 @@ function onInit()
 	DB.addHandler("charsheet.*.inventorylist.*.isidentified", "onUpdate", onItemIDChanged);
 end
 
--- ===================================================================================================================
+--
 -- Weapon inventory management
--- ===================================================================================================================
+--
 -- Add weapon data to Weapon Action List if a weapon is dropped to the Inventory List
 -- Adjusted
--- ===================================================================================================================
+--
 function addToWeaponDB(nodeItem)
 	-- Debug.chat("FN: addToWeaponDB in manager_char_weapon")
 
@@ -150,8 +150,8 @@ function addToWeaponDB(nodeItem)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function removeFromWeaponDB(nodeItem)
 	-- Debug.chat("FN: removeFromWeaponDB in manager_char_weapon")
 	if not nodeItem then
@@ -173,9 +173,9 @@ function removeFromWeaponDB(nodeItem)
 	return bFound;
 end
 
--- ===================================================================================================================
+--
 --	Identification handling
--- ===================================================================================================================
+--
 function onItemIDChanged(nodeItemID)
 	-- Debug.chat("FN: onItemIDChanged in manager_char_weapon")
 	local nodeItem = DB.getChild(nodeItemID, "..");
@@ -191,10 +191,10 @@ function onItemIDChanged(nodeItemID)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Change weapon name in Weapon DB if the items "identified" value changes
 -- Adjusted
--- ===================================================================================================================
+--
 function checkWeaponIDChange(nodeWeapon)
 	-- Debug.chat("FN: checkWeaponIDChange in manager_char_weapon")
 	local _,sRecord = DB.getValue(nodeWeapon, "shortcut", "", "");
@@ -238,11 +238,11 @@ function checkWeaponIDChange(nodeWeapon)
 	end
 end
 
--- ===================================================================================================================
+--
 --	Property helpers
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getRange(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: getRange in manager_char_weapon")
 	local nType = DB.getValue(nodeWeapon, "wpn_type", 0);
@@ -253,9 +253,9 @@ function getRange(nodeChar, nodeWeapon)
 	return "M";
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getCritRange(nodeChar, nodeWeapon)
 	-- local nCritThreshold = 20;
 
@@ -274,9 +274,9 @@ function getCritRange(nodeChar, nodeWeapon)
 	-- return nCritThreshold;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function checkProperty(v, sTargetProperty)
 	-- Debug.chat("FN: checkProperty in manager_char_weapon")
 	local sProperties;
@@ -306,9 +306,9 @@ function checkProperty(v, sTargetProperty)
 	return false;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getProperty(v, sTargetPattern)
 	-- Debug.chat("FN: getProperty in manager_char_weapon")
 	local sProperties;
@@ -339,8 +339,8 @@ function getProperty(v, sTargetPattern)
 	return nil;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getPropertyNumber(v, sTargetPattern)
 	-- Debug.chat("FN: getPropertyNumber in manager_char_weapon")
 	local sProp = getProperty(v, sTargetPattern);
@@ -354,9 +354,9 @@ end
 
 
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getAttackAbility(nodeChar, nodeWeapon)
 	-- local sAbility = DB.getValue(nodeWeapon, "attackstat", "");
 	-- if sAbility ~= "" then
@@ -381,9 +381,9 @@ function getAttackAbility(nodeChar, nodeWeapon)
 	-- return "strength";
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getAttackBonus(nodeChar, nodeWeapon)
 	-- local sAbility = getAttackAbility(nodeChar, nodeWeapon);
 	
@@ -396,9 +396,9 @@ function getAttackBonus(nodeChar, nodeWeapon)
 	-- return nMod, sAbility;
 end
 
--- ===================================================================================================================
+--
 --	Action helpers
--- ===================================================================================================================
+--
 function buildAttackAction(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: buildAttackAction in manager_char_weapon")
 	local rAction = {};
@@ -412,9 +412,9 @@ function buildAttackAction(nodeChar, nodeWeapon)
 	return rAction;
 end
 
--- ===================================================================================================================
+--
 --	Action helpers
--- ===================================================================================================================
+--
 function decrementAmmo(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: decrementAmmo in manager_char_weapon")
 	local nMaxAmmo = DB.getValue(nodeWeapon, "maxammo", 0);
@@ -430,8 +430,8 @@ function decrementAmmo(nodeChar, nodeWeapon)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageBaseAbility(nodeChar, nodeWeapon)
 	local sAbility = "";
 
@@ -464,11 +464,11 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	return sAbility;
 end
 
--- ===================================================================================================================
+--
 -- Damage functions
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getDamageClauses(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: getDamageClauses in manager_char_weapon.lua")
 	local rActor = ActorManager.resolveActor(nodeChar);
@@ -518,8 +518,8 @@ function getDamageClauses(nodeChar, nodeWeapon)
 	return clauses;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function buildDamageAction(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: buildDamageAction in manager_char_weapon")
 	-- Build basic damage action record
@@ -552,8 +552,8 @@ function buildDamageAction(nodeChar, nodeWeapon)
 end
 
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function buildDamageString(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: buildDamageString in manager_char_weapon")
 	local aDamage = {};
@@ -569,9 +569,9 @@ function buildDamageString(nodeChar, nodeWeapon)
 	return table.concat(aDamage, "\n");
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function getAttackBonus(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: getAttackBonus in manager_char_weapon")
 	local sAbility = DB.getValue(nodeWeapon, "atk_stat", 0)
@@ -593,10 +593,10 @@ function getAttackBonus(nodeChar, nodeWeapon)
 	return nStat, nSkill, nPenalty, nBonus, sAbility, sSkill
 end
 
--- ===================================================================================================================
+--
 -- Added
 -- ToDo Check against checkProperty
--- ===================================================================================================================
+--
 function getPropertyValue(v, sTargetProperty)
 	-- Debug.chat("FN: getPropertyValue in manager_char_weapon")
 	local sQualities

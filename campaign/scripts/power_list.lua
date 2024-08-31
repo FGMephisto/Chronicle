@@ -9,22 +9,11 @@ function onInit()
 	local sPath = getDatabaseNode();
 	DB.addHandler(sPath, "onChildAdded", onChildListChanged);
 	DB.addHandler(sPath, "onChildDeleted", onChildListChanged);
-
-	if not isReadOnly() then
-		registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
-	end
 end
-
 function onClose()
 	local sPath = getDatabaseNode();
 	DB.removeHandler(sPath, "onChildAdded", onChildListChanged);
 	DB.removeHandler(sPath, "onChildDeleted", onChildListChanged);
-end
-
-function onMenuSelection(selection)
-	if selection == 5 then
-		addEntry(true);
-	end
 end
 
 function addEntry(bFocus)
@@ -40,7 +29,6 @@ end
 function onChildListChanged()
 	window.onPowerListChanged();
 end
-
 function onChildWindowAdded(w)
 	window.onPowerWindowAdded(w);
 end

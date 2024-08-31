@@ -53,12 +53,6 @@ function onInit()
 	end
 end
 
-function outputUserMessage(sResource, ...)
-	local sFormat = Interface.getString(sResource);
-	local sMsg = string.format(sFormat, ...);
-	ChatManager.SystemMessage(sMsg);
-end
-
 --
 --	CALLBACK REGISTRATIONS
 --
@@ -284,7 +278,7 @@ function onAbilitySelectComplete(aSelection, rAbilitySelectMeta)
 			local sAbilityLower = StringManager.trim(sAbility):lower();
 			if StringManager.contains(DataCommon.abilities, sAbilityLower) then
 				DB.setValue(rAbilitySelectMeta.nodeChar, "abilities." .. sAbilityLower .. ".saveprof", "number", 1);
-				CharManager.outputUserMessage("char_abilities_message_saveadd", sAbility, DB.getValue(rAbilitySelectMeta.nodeChar, "name", ""));
+				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sAbility, DB.getValue(rAbilitySelectMeta.nodeChar, "name", ""));
 			end
 		end
 	end
@@ -320,7 +314,7 @@ function addAbilityAdjustment(nodeChar, sAbility, nAdj, nAbilityMax)
 		end
 		if nNewScore ~= nCurrent then
 			DB.setValue(nodeChar, sPath, "number", nNewScore);
-			CharManager.outputUserMessage("char_abilities_message_abilityadd", StringManager.capitalize(k), nNewScore - nCurrent, DB.getValue(nodeChar, "name", ""));
+			ChatManager.SystemMessageResource("char_abilities_message_abilityadd", StringManager.capitalize(k), nNewScore - nCurrent, DB.getValue(nodeChar, "name", ""));
 		end
 	end
 end
@@ -364,7 +358,7 @@ function addProficiency(nodeChar, sType, sText)
 	DB.setValue(nodeEntry, "name", "string", sValue);
 
 	-- Announce
-	CharManager.outputUserMessage("char_abilities_message_profadd", DB.getValue(nodeEntry, "name", ""), DB.getValue(nodeChar, "name", ""));
+	ChatManager.SystemMessageResource("char_abilities_message_profadd", DB.getValue(nodeEntry, "name", ""), DB.getValue(nodeChar, "name", ""));
 	return nodeEntry;
 end
 
@@ -400,7 +394,7 @@ function helperAddSkill(nodeChar, sSkill, nProficient)
 	end
 
 	-- Announce
-	CharManager.outputUserMessage("char_abilities_message_skilladd", DB.getValue(nodeSkill, "name", ""), DB.getValue(nodeChar, "name", ""));
+	ChatManager.SystemMessageResource("char_abilities_message_skilladd", DB.getValue(nodeSkill, "name", ""), DB.getValue(nodeChar, "name", ""));
 	return nodeSkill;
 end
 
@@ -579,7 +573,7 @@ function addLanguage(nodeChar, sLanguage)
 	DB.setValue(vNew, "name", "string", sLanguage);
 
 	-- Announce
-	CharManager.outputUserMessage("char_abilities_message_languageadd", DB.getValue(vNew, "name", ""), DB.getValue(nodeChar, "name", ""));
+	ChatManager.SystemMessageResource("char_abilities_message_languageadd", DB.getValue(vNew, "name", ""), DB.getValue(nodeChar, "name", ""));
 	return true;
 end
 
@@ -613,7 +607,7 @@ function addAdventure(nodeChar, sClass, sRecord)
 	DB.setValue(vNew, "locked", "number", 1);
 	
 	-- Notify
-	CharManager.outputUserMessage("char_logs_message_adventureadd", DB.getValue(nodeSource, "name", ""), DB.getValue(nodeChar, "name", ""));
+	ChatManager.SystemMessageResource("char_logs_message_adventureadd", DB.getValue(nodeSource, "name", ""), DB.getValue(nodeChar, "name", ""));
 end
 
 function hasTrait(nodeChar, sTrait)
@@ -713,6 +707,7 @@ function helperCheckActionsAdd(nodeChar, nodeSource, sSanitizedName, sPowerGroup
 	if not nodeSource then
 		return;
 	end
+
 	local tAction = CharWizardDataAction.parsedata[sSanitizedName];
 	if not tAction then
 		return;

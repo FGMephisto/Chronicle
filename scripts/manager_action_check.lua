@@ -33,7 +33,7 @@ end
 function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
 	local rRoll = {};
 	rRoll.sType = "check";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	local nMod, bADV, bDIS, sAddText = ActorManager5E.getCheck(rActor, sCheck:lower());
 	rRoll.nMod = nMod;
 	

@@ -35,9 +35,9 @@
 -- FEAT_TOUGH = "tough";
 -- FEAT_WAR_CASTER = "war caster";
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onInit()
 	ItemManager.setCustomCharAdd(onCharItemAdd);
 	ItemManager.setCustomCharRemove(onCharItemDelete);
@@ -60,17 +60,17 @@ function onInit()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function outputUserMessage(sResource, ...)
 	local sFormat = Interface.getString(sResource);
 	local sMsg = string.format(sFormat, ...);
 	ChatManager.SystemMessage(sMsg);
 end
 
--- ===================================================================================================================
+--
 -- ITEM/FOCUS MANAGEMENT
--- ===================================================================================================================
+--
 function onCharItemAdd(nodeItem)
 	-- Debug.chat("FN: onCharItemAdd in manager_char")
 	local sTypeLower = StringManager.trim(DB.getValue(DB.getPath(nodeItem, "type"), "")):lower();
@@ -86,9 +86,9 @@ function onCharItemAdd(nodeItem)
 	CharEncumbranceManager5E.calcItemBulk(DB.getChild(nodeItem, "..."));
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onCharItemDelete(nodeItem)
 	-- Debug.chat("FN: onCharItemDelete in manager_char")
 	CharArmorManager.removeFromArmorDB(nodeItem);
@@ -96,17 +96,17 @@ function onCharItemDelete(nodeItem)
 	CharEncumbranceManager5E.calcItemBulk(DB.getChild(nodeItem, "..."));
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onCharInventoryArmorCalcIfCarried(nodeItem, sField)
 	if DB.getValue(nodeItem, "carried", 0) == 2 then
 		CharManager.onCharInventoryArmorCalc(nodeItem, sField);
 	end
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onCharInventoryArmorCalc(nodeItem, sField)
 	if ItemManager.isArmor(nodeItem) then
 		local nodeChar = DB.getChild(nodeItem, "...");
@@ -115,28 +115,28 @@ function onCharInventoryArmorCalc(nodeItem, sField)
 	end
 end
 
--- ===================================================================================================================
+--
 -- ACTIONS
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function rest(nodeChar, bLong)
 	-- Debug.chat("FN: rest in manager_char")
 	CharManager.resetHealth(nodeChar, bLong);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function resetHealth(nodeChar, bLong)
 	-- Debug.chat("FN: resetHealth in manager_char")
 	-- Reset damage
 	DB.setValue(nodeChar, "hp.wounds", "number", 0);
 end
 
--- ===================================================================================================================
+--
 -- CHARACTER SHEET DROPS
--- ===================================================================================================================
+--
 function addInfoDB(nodeChar, sClass, sRecord)
 	-- Debug.chat("FN: addInfoDB in manager_char")
 	-- Validate parameters
@@ -176,8 +176,8 @@ function addInfoDB(nodeChar, sClass, sRecord)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getFullAbilitySelectList()
 	-- Debug.chat("FN: getFullAbilitySelectList in manager_char")
 	local aAbilities = {};
@@ -187,8 +187,8 @@ function getFullAbilitySelectList()
 	return aAbilities;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onAbilitySelectDialog(nodeChar, tAbilitySelect)
 	-- Debug.chat("FN: onAbilitySelectDialog in manager_char")
 	if #tAbilitySelect == 0 then
@@ -214,8 +214,8 @@ function onAbilitySelectDialog(nodeChar, tAbilitySelect)
 	wSelect.requestSelection(sTitle, sMessage, tAbilitySelect[1].aAbilities, onAbilitySelectComplete, rAbilitySelectMeta, nPicks, nil, true);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onAbilitySelectComplete(aSelection, rAbilitySelectMeta)
 	-- Debug.chat("FN: onAbilitySelectComplete in manager_char")
 	local rAbilitySelect = rAbilitySelectMeta.tAbilitySelect[1];
@@ -251,8 +251,8 @@ function onAbilitySelectComplete(aSelection, rAbilitySelectMeta)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function addAbilityAdjustment(nodeChar, sAbility, nAdj, nAbilityMax)
 	local k = StringManager.trim(sAbility):lower();
 	if StringManager.contains(DataCommon.abilities, k) then
@@ -269,8 +269,8 @@ function addAbilityAdjustment(nodeChar, sAbility, nAdj, nAbilityMax)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onSkillSelect(aSelection, rSkillAdd)
 	-- For each selected skill, add it to the character
 	for _,sSkill in ipairs(aSelection) do
@@ -278,8 +278,8 @@ function onSkillSelect(aSelection, rSkillAdd)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function addProficiency(nodeChar, sType, sText)
 	-- Get the list we are going to add to
 	local nodeList = DB.createChild(nodeChar, "proficiencylist");
@@ -316,8 +316,8 @@ function addProficiency(nodeChar, sType, sText)
 	return nodeEntry;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function helperAddSkill(nodeChar, sSkill, nProficient)
 	-- Get the list we are going to add to
 	local nodeList = DB.createChild(nodeChar, "skilllist");
@@ -354,8 +354,8 @@ function helperAddSkill(nodeChar, sSkill, nProficient)
 	return nodeSkill;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function parseSkillProficiencyText(nodeSkillProf)
 	if not nodeSkillProf then
 		return 0, {};
@@ -388,8 +388,8 @@ function parseSkillProficiencyText(nodeSkillProf)
 	return nPicks, tSkills;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function parseSkillsFromString(sSkills)
 	local aSkills = {};
 	sSkills = sSkills:gsub("and ", "");
@@ -405,8 +405,8 @@ function parseSkillsFromString(sSkills)
 	return aSkills;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function pickSkills(nodeChar, aSkills, nPicks, nProf)
 	-- Check for empty or missing skill list, then use full list
 	if not aSkills then 
@@ -441,8 +441,8 @@ function pickSkills(nodeChar, aSkills, nPicks, nProf)
 	wSelect.requestSelection (sTitle, sMessage, aSkills, CharManager.onSkillSelect, rSkillAdd, nPicks);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function checkSkillProficiencies(nodeChar, sText)
 	-- Tabaxi - Cat's Talent - Volo
 	local sSkill, sSkill2 = sText:match("proficiency in the ([%w%s]+) and ([%w%s]+) skills");
@@ -509,8 +509,8 @@ function checkSkillProficiencies(nodeChar, sText)
 	return false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function addLanguage(nodeChar, sLanguage)
 	-- Get the list we are going to add to
 	local nodeList = DB.createChild(nodeChar, "languagelist");
@@ -536,8 +536,8 @@ function addLanguage(nodeChar, sLanguage)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function addSkill(nodeChar, sClass, sRecord)
 	local nodeSource = DB.findNode(sRecord);
 	if not nodeSource then
@@ -551,8 +551,8 @@ function addSkill(nodeChar, sClass, sRecord)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function addAdventure(nodeChar, sClass, sRecord)
 	local nodeSource = DB.findNode(sRecord);
 	if not nodeSource then
@@ -574,14 +574,14 @@ function addAdventure(nodeChar, sClass, sRecord)
 	CharManager.outputUserMessage("char_logs_message_adventureadd", DB.getValue(nodeSource, "name", ""), DB.getValue(nodeChar, "name", ""));
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function hasTrait(nodeChar, sTrait)
 	return (CharManager.getTraitRecord(nodeChar, sTrait) ~= nil);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getTraitRecord(nodeChar, sTrait)
 	if (sTrait or "") == "" then
 		return nil;
@@ -597,8 +597,8 @@ function getTraitRecord(nodeChar, sTrait)
 	return nil;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function hasFeature(nodeChar, sFeature)
 	if (sFeature or "") == "" then
 		return false;
@@ -615,14 +615,14 @@ function hasFeature(nodeChar, sFeature)
 	return false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function hasFeat(nodeChar, sFeat)
 	return (CharManager.getFeatRecord(nodeChar, sFeat) ~= nil);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getFeatRecord(nodeChar, sFeat)
 	if (sFeat or "") == "" then
 		return nil;
@@ -638,8 +638,8 @@ function getFeatRecord(nodeChar, sFeat)
 	return nil;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function convertSingleNumberTextToNumber(s)
 	if s then
 		if s == "one" then return 1; end
@@ -655,8 +655,8 @@ function convertSingleNumberTextToNumber(s)
 	return 0;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard)
 	if not nodeChar or ((sClass or "") == "") or ((sRecord or "") == "") then
 		return nil;
@@ -682,8 +682,8 @@ function helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard)
 	return rAdd;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function helperCheckActionsAdd(nodeChar, nodeSource, sSanitizedName, sPowerGroup)
 	if not nodeSource then
 		return;
@@ -719,8 +719,8 @@ function helperCheckActionsAdd(nodeChar, nodeSource, sSanitizedName, sPowerGroup
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function helperAddActions(rActionsAdd)
 	local nodePowerList = DB.createChild(rActionsAdd.nodeChar, "powers");
 	if not nodePowerList then
@@ -873,8 +873,8 @@ function helperAddActions(rActionsAdd)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function helperParseAbilitySpells(nodeSource)
 	local tAbilitySpells = {};
 

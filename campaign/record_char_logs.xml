@@ -98,15 +98,6 @@
 				<datasource>.adventurelist</datasource>
 				<class>adventure_item</class>
 				<sortby mergerule="replace"><control>name</control></sortby>
-				<script>
-					function addEntry(bFocus)
-						local w = createWindow();
-						if bFocus then
-							w.name.setFocus();
-						end
-						return w;
-					end
-				</script>
 			</list_text>
 			<button_iadd name="adventurelist_iadd">
 				<anchored to="adventurestitle" position="insidetopright" offset="5,0" />

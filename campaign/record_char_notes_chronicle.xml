@@ -7,9 +7,9 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<!-- Charsheet Notes -->
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<windowclass name="charsheet_notes">
 		<sheetdata>
 
@@ -30,18 +30,18 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<!-- Notes - Content -->
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<windowclass name="charsheet_notes_contents">
 		<margins control="0,0,0,2" />
 
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Details -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<metalplate name="detailstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
@@ -50,7 +50,7 @@
 				</anchored>
 			</metalplate>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<stringu name="ancestry">
 				<anchored to="detailstitle" position="insidetopleft" offset="0,25" width="70" height="20" />
 				<center />
@@ -61,7 +61,7 @@
 				<static textres="char_label_ancestry" />
 			</label_charfieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<stringu name="gender">
 				<anchored to="ancestry" position="righthigh" offset="15,0" width="70" height="20" />
 				<center />
@@ -72,7 +72,7 @@
 				<static textres="char_label_gender" />
 			</label_charfieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<stringu name="age">
 				<anchored to="gender" position="righthigh" offset="15,0" width="70" height="20" />
 				<center />
@@ -83,7 +83,7 @@
 				<static textres="char_label_age" />
 			</label_charfieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<stringu name="height">
 				<anchored to="age" position="righthigh" offset="15,0" width="70" height="20" />
 				<center />
@@ -94,7 +94,7 @@
 				<static textres="char_label_height" />
 			</label_charfieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<stringu name="size">
 				<anchored to="height" position="righthigh" offset="15,0" width="70" height="20" />
 				<center />
@@ -105,9 +105,9 @@
 				<static textres="char_label_size" />
 			</label_charfieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- XP & Destiny & Sorcery -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label_charframetop name="destinytitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="35" />
@@ -117,9 +117,9 @@
 				<static textres="char_label_notes_destiny" />
 			</label_charframetop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Destiny Points -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label name="label_dpdetail">
 				<anchored width="100">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -240,9 +240,9 @@
 				<static textres="char_label_dp_spent" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Sorcery Points -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label name="label_spdetail">
 				<anchored width="100">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -323,9 +323,9 @@
 				<static textres="char_label_sp_burned" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Experiance Points -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label name="label_xpdetail">
 				<anchored width="100">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -386,9 +386,9 @@
 				<static textres="char_label_xp_invested" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Appearance -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label_charframetop name="appearancetitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
@@ -407,9 +407,9 @@
 				<multilinespacing>20</multilinespacing>
 			</stringu>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Notes -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label_charframetop name="notestitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
@@ -428,9 +428,9 @@
 				<multilinespacing>20</multilinespacing>
 			</stringu>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Allies & Enemies -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label_charframetop name="alliestitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
@@ -449,9 +449,9 @@
 				<multilinespacing>20</multilinespacing>
 			</stringu>
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Personal History -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<label_charframetop name="historytitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />

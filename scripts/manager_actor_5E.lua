@@ -17,7 +17,7 @@ end
 -- 
 
 function initActorHealth()
-	ActorHealthManager.registerStatusHealthColor(ActorHealthManager.STATUS_UNCONSCIOUS, ColorManager.COLOR_HEALTH_DYING_OR_DEAD);
+	ActorHealthManager.registerStatusHealthColor(ActorHealthManager.STATUS_UNCONSCIOUS, ColorManager.getUIColor("health_dyingordead"));
 
 	ActorHealthManager.getWoundPercent = getWoundPercent;
 end

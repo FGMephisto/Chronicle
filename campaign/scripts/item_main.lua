@@ -35,11 +35,6 @@ function update()
 	local bLegacyVehicle = (sTypeLower == "waterborne vehicles") or (sTypeLower == "mounts and other animals");
 	
 	local bSection1 = false;
-	if Session.IsHost then
-		if WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly) then bSection1 = true; end;
-	else
-		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
-	end
 	if (Session.IsHost or not bID) then
 		if WindowManager.callSafeControlUpdate(self, "nonidentified", bReadOnly) then bSection1 = true; end;
 	else

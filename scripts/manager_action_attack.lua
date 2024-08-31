@@ -90,7 +90,7 @@ function getRoll(rActor, rAction)
 	-- Build basic roll
 	local rRoll = {};
 	rRoll.sType = "attack";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	rRoll.nMod = rAction.modifier or 0;
 	rRoll.bWeapon = rAction.bWeapon;
 	

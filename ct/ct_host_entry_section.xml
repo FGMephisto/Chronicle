@@ -33,16 +33,11 @@
 		</sheetdata>
 	</windowclass>
 	<windowclass name="ct_power_detail" copy="record_window" />
-	<windowclass name="ct_power_detail_main">
-		<script>
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				desc.setReadOnly(bReadOnly);
-			end
-		</script>
+	<windowclass name="ct_power_detail_main" copy="record_context_text_base">
+		<target>desc</target>
+		<skipid />
 		<sheetdata>
-			<anchor_content_top />
-			<string_content_noframe_top name="desc" />
+			<string_content_noframe_noscroll_top name="desc" />
 		</sheetdata>
 	</windowclass>
 

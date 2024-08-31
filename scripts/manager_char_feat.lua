@@ -53,7 +53,7 @@ function helperAddFeatStandard(rAdd)
 	end
 
 	DB.setValue(nodeNewFeat, "locked", "number", 1);
-	CharManager.outputUserMessage("char_abilities_message_featadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_featadd", rAdd.sSourceName, rAdd.sCharName);
 
 	return nodeNewFeat;
 end
@@ -189,7 +189,7 @@ function checkFeatAdjustments(nodeChar, sText)
 		nInitAdj = tonumber(sInitAdj) or 0;
 		if nInitAdj ~= 0 then
 			DB.setValue(nodeChar, "initiative.misc", "number", DB.getValue(nodeChar, "initiative.misc", 0) + nInitAdj);
-			CharManager.outputUserMessage("char_abilities_message_initadd", nInitAdj, DB.getValue(nodeChar, "name", ""));
+			ChatManager.SystemMessageResource("char_abilities_message_initadd", nInitAdj, DB.getValue(nodeChar, "name", ""));
 		end
 	end
 	
@@ -200,7 +200,7 @@ function checkFeatAdjustments(nodeChar, sText)
 		nPassiveAdj = tonumber(sPassiveAdj) or 0;
 		if nPassiveAdj ~= 0 then
 			DB.setValue(nodeChar, "perceptionmodifier", "number", DB.getValue(nodeChar, "perceptionmodifier", 0) + nPassiveAdj);
-			CharManager.outputUserMessage("char_abilities_message_passiveadd", nPassiveAdj, DB.getValue(nodeChar, "name", ""));
+			ChatManager.SystemMessageResource("char_abilities_message_passiveadd", nPassiveAdj, DB.getValue(nodeChar, "name", ""));
 		end
 	end
 	
@@ -214,7 +214,7 @@ function checkFeatAdjustments(nodeChar, sText)
 	nSpeedAdj = tonumber(sSpeedAdj) or 0;
 	if nSpeedAdj > 0 then
 		DB.setValue(nodeChar, "speed.misc", "number", DB.getValue(nodeChar, "speed.misc", 0) + nSpeedAdj);
-		CharManager.outputUserMessage("char_abilities_message_basespeedadj", nSpeedAdj, DB.getValue(nodeChar, "name", ""));
+		ChatManager.SystemMessageResource("char_abilities_message_basespeedadj", nSpeedAdj, DB.getValue(nodeChar, "name", ""));
 	end
 end
 function applyTough(nodeChar, bInitialAdd)
@@ -227,5 +227,5 @@ function applyTough(nodeChar, bInitialAdd)
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
 	
-	CharManager.outputUserMessage("char_abilities_message_hpaddfeat", StringManager.capitalizeAll(CharManager.FEAT_TOUGH), DB.getValue(nodeChar, "name", ""), nAddHP);
+	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeat", StringManager.capitalizeAll(CharManager.FEAT_TOUGH), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

@@ -10,7 +10,7 @@ end
 function performRoll(draginfo, rActor, sRecharge, nRecharge, bGMOnly, nodeEffect)
 	local rRoll = {};
 	rRoll.sType = "recharge";
-	rRoll.aDice = { "d6" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d6" }, rActor);
 	rRoll.nMod = 0;
 	
 	rRoll.sDesc = "[RECHARGE " .. nRecharge .. "+] " .. StringManager.capitalizeAll(sRecharge);
@@ -67,7 +67,7 @@ function onRecharge(rSource, rTarget, rRoll)
 			DB.deleteNode(nodeTargetEffect);
 
 			-- Remove the [USED] marker from attack line
-			for _,sLocation in ipairs({ "..actions", "..reactions", "..bonusactions" }) do
+			for _,sLocation in ipairs({ "..actions", "..reactions", "..bonusactions", "..legendaryactions", "..lairactions" }) do
 				for _, nodeAttack in ipairs(DB.getChildList(nodeEffectsList, sLocation)) do
 					local sAttack = DB.getValue(nodeAttack, "value", "");
 					if sAttack:match("%[USED%]") then

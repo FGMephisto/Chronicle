@@ -68,10 +68,15 @@
 					<top />
 					<right anchor="left" relation="relative" offset="-10" />
 				</anchored>
-				<color>0000AA</color>
 				<hideonvalue value="0" />
 				<tabtarget prev="hptotal" next="wounds" />
 				<script>
+					function onInit()
+						if super and super.onInit then
+							super.onInit();
+						end
+						setColor(ColorManager.getUIColor("health_shield"));
+					end
 					function handleDrop(draginfo)
 						if draginfo.getNumberData() &gt; 0 then
 							setValue(draginfo.getNumberData());

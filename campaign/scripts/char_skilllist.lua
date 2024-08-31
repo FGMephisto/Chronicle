@@ -3,25 +3,16 @@
 -- attribution and copyright information.
 --
 
+local _bInitialized = false;
+
 function onInit()
-	registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
-	
-	-- Construct default skills
 	self.constructDefaultSkills();
+	_bInitialized = true;
 end
 
-function addEntry(bFocus)
-	local w = createWindow();
-	w.setCustom(true);
-	if bFocus and w then
-		w.name.setFocus();
-	end
-	return w;
-end
-
-function onMenuSelection(item)
-	if item == 5 then
-		addEntry(true);
+function onChildWindowCreated(w)
+	if _bInitialized then
+		w.setCustom(true);
 	end
 end
 

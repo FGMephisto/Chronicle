@@ -45,15 +45,25 @@ function getRoll(rActor, bSecretRoll)
 	rRoll.bSecret = bSecretRoll;
 
 	-- Determine the modifier and ability to use for this roll
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
+	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if nodeActor then
-		if sNodeType == "pc" then
+		if ActorManager.isPC(rActor) then
 			rRoll.nMod = DB.getValue(nodeActor, "initiative.total", 0);
+
+			-- Check for armor non-proficiency
+			if DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0 then
+				rRoll.sDesc = rRoll.sDesc .. " " .. Interface.getString("roll_msg_armor_nonprof");
+				bDIS = true;
+			end
 		else
 			rRoll.nMod = DB.getValue(nodeActor, "init", 0);
 		end
 	end
-	
+
+	if bDIS then
+		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
+	end
+
 	return rRoll;
 end
 

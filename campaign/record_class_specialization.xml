@@ -39,7 +39,7 @@
 					if sClass == "reference_classfeature" then
 						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
 						if not bReadOnly then
-							local w = features.addEntry();
+							local w = features.createWindow();
 							if w then
 								local node = w.getDatabaseNode();
 								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));

@@ -4,9 +4,9 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onInit()
 	if Session.IsHost then
 		registerMenuItem(Interface.getString("menu_init"), "turn", 7);
@@ -40,9 +40,9 @@ function onClickRelease(button, x, y)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onMenuSelection(selection, subselection)
 	if Session.IsHost then
 		if selection == 7 then

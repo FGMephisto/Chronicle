@@ -9,12 +9,13 @@ function onInit()
 end
 
 function getNPCRoll(rActor, sSkill, nSkill)
-	return {
+	local rRoll = {
 		sType = "skill",
-		aDice = { "d20" },
+		aDice = DiceRollManager.getActorDice({ "d20" }, rActor),
 		sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill),
 		nMod = nSkill,
 	};
+	return rRoll;
 end
 function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	local rRoll = getNPCRoll(rActor, sSkill, nSkill);
@@ -60,7 +61,7 @@ end
 function getRoll(rActor, nodeSkill)
 	local rRoll = {};
 	rRoll.sType = "skill";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	
 	local sSkill = DB.getValue(nodeSkill, "name", "");
 	local sAbility = DB.getValue(nodeSkill, "stat", "");
@@ -103,7 +104,7 @@ end
 function getUnlistedRoll(rActor, sSkill)
 	local rRoll = {};
 	rRoll.sType = "skill";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	rRoll.nMod = 0;
 	
 	local nMod = 0;

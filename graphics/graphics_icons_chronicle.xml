@@ -22,35 +22,27 @@
 	<icon name="char_weapon_hand2" file="graphics/icons/char_weapon_hand2.png" />
 	<icon name="char_weapon_handoff" file="graphics/icons/char_weapon_handoff.png" />	
 	
-	<icon name="char_name" file="graphics/icons/char_name.png" />	
-	<icon name="char_race" file="graphics/icons/char_race.png" />
-	<icon name="char_background" file="graphics/icons/char_background.png" />
-	<icon name="char_class" file="graphics/icons/char_class.png" />
-	<icon name="char_stats" file="graphics/icons/char_stats.png" />
-	<icon name="char_init" file="graphics/icons/char_init.png" />		
-	<icon name="char_attacks" file="graphics/icons/char_attacks.png" />
-	<icon name="char_powers" file="graphics/icons/char_powers.png" />	
-	<icon name="char_senses" file="graphics/icons/char_senses.png" />		
-	<icon name="char_abilities" file="graphics/icons/char_abilities.png" />
-	<icon name="char_abilities_red" file="graphics/icons/char_abilities_red.png" />
-	<icon name="char_abilities_blue" file="graphics/icons/char_abilities_blue.png" />
-	<icon name="char_abilities_orange" file="graphics/icons/char_abilities_orange.png" />
-	<icon name="char_abilities_purple" file="graphics/icons/char_abilities_purple.png" />
-	<icon name="char_abilities_green" file="graphics/icons/char_abilities_green.png" />
+	<icon name="char_name" file="graphics/icons/char_left_frame.png" />	
+	<icon name="char_race" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_background" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_class" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_stats" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_init" file="graphics/icons/char_left_frame.png" />		
+	<icon name="char_attacks" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_powers" file="graphics/icons/char_left_frame.png" />	
+	<icon name="char_senses" file="graphics/icons/char_left_frame.png" />		
+	<icon name="char_abilities" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_abilities_red" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_abilities_blue" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_abilities_orange" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_abilities_purple" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_abilities_green" file="graphics/icons/char_left_frame.png" />
+	<icon name="char_inventory" file="graphics/icons/char_left_frame.png" />		
+	<icon name="char_treasure" file="graphics/icons/char_left_frame.png" />		
+	<icon name="char_notes" file="graphics/icons/char_left_frame.png" />		
 
 	<icon name="char_armorcheck" file="graphics/icons/char_armorcheck.png" />
 	<icon name="char_attuned" file="graphics/icons/char_attuned.png" />
-
-	<icon name="char_inventory" file="graphics/icons/char_inventory.png" />		
-	<icon name="char_treasure" file="graphics/icons/char_inventory.png" />		
-	<icon name="char_notes" file="graphics/icons/char_notes.png" />	
-
-	<!-- Powers -->
-	<icon name="power_weapon" file="graphics/icons/power_weapon.png" />
-	<icon name="power_casterspontaneous" file="graphics/icons/power_casterspontaneous.png" />
-	<icon name="power_casterprep" file="graphics/icons/power_casterprep.png" />
-	
-	<!-- Override CoreRPG ruleset graphics -->
 
 	<!-- Item Forge -->
 	<!-- <icon name="forge_transicon" file="graphics/forge/forge_trans.png" /> -->
@@ -81,7 +73,6 @@
 	<icon name="char_abdominal-armor" file="graphics/icons_chronicle/abdominal-armor.png" />
 	<icon name="char_injuries" file="graphics/icons_chronicle/arm-bandage.png" />
 	<icon name="char_trauma" file="graphics/icons_chronicle/arm-sling.png" />
-	<!-- <icon name="char_armor" file="graphics/icons_chronicle/breastplate.png" /> -->
 	<icon name="char_armor" file="graphics/icons_chronicle/abdominal-armor.png" />
 	<icon name="char_health" file="graphics/icons_chronicle/heart.png" />
 	<icon name="char_damage" file="graphics/icons_chronicle/heart-minus.png" />

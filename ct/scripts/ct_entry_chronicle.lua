@@ -21,10 +21,10 @@ function onHealthChanged()
 	end
 end
 
--- ===================================================================================================================
+--
 -- This function links the CT values to the PC database values
 -- Adjusted
--- ===================================================================================================================
+--
 function linkPCFields()
 	super.linkPCFields();
 

@@ -59,8 +59,8 @@ function updateTextWidget(c, n)
 		if not widget then
 			widget = c.addTextWidget({
 				name = "inspirationtext", 
-				font = "mini_name", text = "", 
-				position = CHARLIST_WIDGET_POSITION, x = CHARLIST_WIDGET_X, y = CHARLIST_WIDGET_Y + 2,
+				font = "sheetlabel", text = "", 
+				position = CHARLIST_WIDGET_POSITION, x = CHARLIST_WIDGET_X, y = CHARLIST_WIDGET_Y,
 			});
 		end
 		widget.setText(n);

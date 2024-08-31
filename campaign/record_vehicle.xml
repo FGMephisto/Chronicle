@@ -23,13 +23,15 @@
 			<class>record_content_text</class>
 			<embed />
 		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
 		<script>
-			function onInit()
-				super.onInit();
-				self.onIDChanged();
-			end
 			function onIDChanged()
-				super.onLockChanged();
+				super.onIDChanged();
 				if not Session.IsHost then
 					local bID = LibraryData.getIDState("npc", getDatabaseNode(), true);
 					tabs.setVisible(bID);
@@ -42,13 +44,6 @@
 		<script file="campaign/scripts/vehicle_main.lua" />
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-
-			<label_column name="nonid_name_label">
-				<static textres="npc_label_unidentified" />
-			</label_column>
-			<string_columnh name="nonid_name" />
-
-			<line_column name="divider" />
 
 			<label_column name="type_label">
 				<static textres="npc_label_type" />
@@ -81,9 +76,9 @@
 				<static textres="armorclass" />
 			</label_column>
 			<number_column name="ac" />
-			<string_column_npc_remainder name="actext">
+			<string_column_remainder name="actext">
 				<anchored to="ac" />
-			</string_column_npc_remainder>
+			</string_column_remainder>
 
 			<label_column name="hp_label">
 				<static textres="hitpoints" />
@@ -116,23 +111,23 @@
 				<static textres="npc_label_damagevulnerabilities" />
 				<tooltip textres="npc_tooltip_damagevulnerabilities" />
 			</label_column>
-			<string_columnh_npc_specialdef name="damagevulnerabilities" />
+			<string_columnh name="damagevulnerabilities" />
 
 			<label_column name="damageresistances_label">
 				<static textres="npc_label_damageresistances" />
 				<tooltip textres="npc_tooltip_damageresistances" />
 			</label_column>
-			<string_columnh_npc_specialdef name="damageresistances" />
+			<string_columnh name="damageresistances" />
 
 			<label_column name="damageimmunities_label">
 				<static textres="npc_label_damageimmunities" />
 				<tooltip textres="npc_tooltip_damageimmunities" />
 			</label_column>
-			<string_columnh_npc_specialdef name="damageimmunities">
+			<string_columnh name="damageimmunities">
 				<anchored>
 					<right offset="-20" />
 				</anchored>
-			</string_columnh_npc_specialdef>
+			</string_columnh>
 			<button_checkbox name="disablestandarddamageimmunities">
 				<anchored to="damageimmunities" position="righthigh" width="20" height="20" />
 				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
@@ -142,11 +137,11 @@
 				<static textres="npc_label_conditionimmunities" />
 				<tooltip textres="npc_tooltip_conditionimmunities" />
 			</label_column>
-			<string_columnh_npc_specialdef name="conditionimmunities">
+			<string_columnh name="conditionimmunities">
 				<anchored>
 					<right offset="-20" />
 				</anchored>
-			</string_columnh_npc_specialdef>
+			</string_columnh>
 			<button_checkbox name="disablestandardconditionimmunities">
 				<anchored to="conditionimmunities" position="righthigh" width="20" height="20" />
 				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
@@ -334,7 +329,7 @@
 				<datasource>.components</datasource>
 				<class>vehicle_combat_component</class>
 				<script>
-					function onEntryAdded(w)
+					function onChildWindowCreated(w)
 						DB.setValue(w.getDatabaseNode(), "type", "string", "Vehicle Component");
 					end
 				</script>

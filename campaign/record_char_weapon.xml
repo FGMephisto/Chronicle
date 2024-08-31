@@ -238,13 +238,13 @@
 				local sDragType = draginfo.getType();
 				
 				if sDragType == "dice" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					for _, vDie in ipairs(draginfo.getDiceData()) do
 						w.dice.addDie(vDie.type);
 					end
 					return true;
 				elseif sDragType == "number" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					w.bonus.setValue(draginfo.getNumberData());
 					return true;
 				end
@@ -320,22 +320,12 @@
 			<list_editor name="list">
 				<datasource>.damagelist</datasource>
 				<class>char_weapon_damage_entry</class>
+				<childfocus>type</childfocus>
 				<script>
-					function addEntry(bFocus)
-						local bWasEmpty = isEmpty();
-						
-						local w = createWindow();
-						if w then
-							if bWasEmpty then
-								w.stat.setStringValue("base");
-							end
-						
-							if bFocus then
-								w.type.setFocus();
-							end
+					function onChildWindowCreated(w)
+						if getWindowCount() == 1 then
+							w.stat.setStringValue("base");
 						end
-						
-						return w;
 					end
 				</script>
 			</list_editor>

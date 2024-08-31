@@ -4,9 +4,6 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onInit()
 	CombatManager.setCustomSort(CombatManager.sortfuncDnD);
 
@@ -14,26 +11,27 @@ function onInit()
 	CombatManager.setCustomTurnStart(onTurnStart);
 	CombatManager.setCustomCombatReset(resetInit);
 
-	-- CombatRecordManager.addStandardVehicleCombatRecordType();
+	CombatRecordManager.addStandardVehicleCombatRecordType();
 
+	ActorCommonManager.setDefaultSpaceReachFromActorSizeKey("5E");
+	ActorCommonManager.setRecordTypeSpaceReachCallback("charsheet", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	ActorCommonManager.setRecordTypeSpaceReachCallback("npc", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	ActorCommonManager.setRecordTypeSpaceReachCallback("vehicle", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	CombatRecordManager.setRecordTypePostAddCallback("npc", onNPCPostAdd);
-	-- CombatRecordManager.setRecordTypePostAddCallback("vehicle", onVehiclePostAdd);
+	CombatRecordManager.setRecordTypePostAddCallback("vehicle", onVehiclePostAdd);
 end
 
--- ===================================================================================================================
+--
 -- TURN FUNCTIONS
--- ===================================================================================================================
+--
+
 function onRoundStart(nCurrent)
 	if OptionsManager.isOption("HRIR", "on") then
 		CombatManager2.rollInit();
 	end
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function onTurnStart(nodeEntry)
 	-- if not nodeEntry then
 		-- return;
@@ -61,9 +59,10 @@ function onTurnStart(nodeEntry)
 	-- end
 end
 
--- ===================================================================================================================
+--
 -- ADD FUNCTIONS
--- ===================================================================================================================
+--
+
 function parseResistances(sResistances)
 	local aResults = {};
 	sResistances = sResistances:lower();
@@ -113,24 +112,74 @@ function parseResistances(sResistances)
 	return aResults;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onNPCPostAdd(tCustom)
 	-- Parameter validation
 	if not tCustom.nodeRecord or not tCustom.nodeCT then
 		return;
 	end
 
+	-- Fill in spells
+	-- CampaignDataManager2.updateNPCSpells(tCustom.nodeCT);
+	-- CampaignDataManager2.resetNPCSpellcastingSlots(tCustom.nodeCT);
 	-- Set current hit points
 	local nHP = DB.getValue(tCustom.nodeRecord, "hp", 0);
+	-- local sOptHRNH = OptionsManager.getOption("HRNH");
+	-- if sOptHRNH == "max" then
+		-- local sHD = CombatManager2.onNPCPostAddGetHDStringHelper(tCustom.nodeRecord);
+		-- if sHD ~= "" then
+			-- nHP = StringManager.evalDiceString(sHD, true, true);
+		-- end
+	-- elseif sOptHRNH == "random" then
+		-- local sHD = CombatManager2.onNPCPostAddGetHDStringHelper(tCustom.nodeRecord);
+		-- if sHD ~= "" then
+			-- nHP = math.max(StringManager.evalDiceString(sHD, true), 1);
+		-- end
+	-- end
 	DB.setValue(tCustom.nodeCT, "hptotal", "number", nHP);
+	
+	-- Set initiative from Dexterity modifier
+	-- local nDex = DB.getValue(tCustom.nodeRecord, "abilities.dexterity.score", 10);
+	-- local nDexMod = math.floor((nDex - 10) / 2);
+	-- DB.setValue(tCustom.nodeCT, "init", "number", nDexMod);
+	
+	-- Track additional damage types and intrinsic effects
+	-- local aEffects = {};
+	
+	-- Decode traits and actions
+	-- local rActor = ActorManager.resolveActor(tCustom.nodeRecord);
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "actions")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "legendaryactions")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "lairactions")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "reactions")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "bonusactions")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "traits")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "innatespells")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects, true);
+	-- end
+	-- for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "spells")) do
+		-- CombatManager2.parseNPCPower(rActor, v, aEffects, true);
+	-- end
+
+	-- Add special effects
+	if #aEffects > 0 then
+		EffectManager.addEffect("", "", tCustom.nodeCT, { sName = table.concat(aEffects, "; "), nDuration = 0, nGMOnly = 1 }, false);
+	end
 
 	-- Roll initiative and sort
 	CombatManager2.handleCombatAddInitChronicle(tCustom);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function onNPCPostAddGetHDStringHelper(nodeRecord)
 	local sHD = StringManager.trim(DB.getValue(nodeRecord, "hd", ""));
 	if sHD == "" then
@@ -145,11 +194,7 @@ function onNPCPostAddGetHDStringHelper(nodeRecord)
 	return tSplitHD[i] or "";
 end
 
--- ===================================================================================================================
--- This function is used to convert strings in the NPC action section
--- ===================================================================================================================
 function parseNPCPower(rActor, nodePower, aEffects, bAllowSpellDataOverride)
-	-- Debug.chat("FN: parseNPCPower in manager_combat2")
 	local sDisplay = DB.getValue(nodePower, "name", "");
 	local aDisplayOptions = {};
 	
@@ -215,7 +260,6 @@ function parseNPCPower(rActor, nodePower, aEffects, bAllowSpellDataOverride)
 	-- Handle all the other traits and actions (i.e. look for recharge, attacks, damage, saves, reach, etc.)
 	else
 		local aAbilities = PowerManager.parseNPCPower(nodePower, bAllowSpellDataOverride);
-								
 		for _,v in ipairs(aAbilities) do
 			PowerManager.evalAction(rActor, nodePower, v);
 			if v.type == "attack" then
@@ -303,9 +347,9 @@ function parseNPCPower(rActor, nodePower, aEffects, bAllowSpellDataOverride)
 	DB.setValue(nodePower, "value", "string", sDisplay);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onVehiclePostAdd(tCustom)
 	-- Parameter validation
 	if not tCustom.nodeRecord or not tCustom.nodeCT then
@@ -358,9 +402,10 @@ function onVehiclePostAdd(tCustom)
 	CombatManager2.handleCombatAddInitChronicle(tCustom);
 end
 
--- ===================================================================================================================
+--
 -- PARSE CT ATTACK LINE
--- ===================================================================================================================
+--
+
 function parseAttackLine(sLine)
 	local rPower = nil;
 	
@@ -510,9 +555,10 @@ function parseAttackLine(sLine)
 	return rPower;
 end
 
--- ===================================================================================================================
+--
 -- RESET FUNCTIONS
--- ===================================================================================================================
+--
+
 function resetInit()
 	function resetCombatantInit(nodeCT)
 		DB.setValue(nodeCT, "initresult", "number", 0);
@@ -521,20 +567,22 @@ function resetInit()
 	CombatManager.callForEachCombatant(resetCombatantInit);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+-- Adjusted
+--
 function resetHealth(nodeCT, bLong)
 	if bLong then
 		DB.setValue(nodeCT, "wounds", "number", 0);
-
+		-- DB.setValue(nodeCT, "hptemp", "number", 0);
+		-- DB.setValue(nodeCT, "deathsavesuccess", "number", 0);
+		-- DB.setValue(nodeCT, "deathsavefail", "number", 0);
+		
 		local rActor = ActorManager.resolveActor(nodeCT);
 		EffectManager.removeCondition(rActor, "Stable");
 		EffectManager.removeCondition(rActor, "Unconscious");
+		-- CombatManager2.reduceExhaustion(nodeCT);
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function reduceExhaustion(nodeCT)
 	local nExhaustMod = EffectManager5E.getEffectsBonus(ActorManager.resolveActor(nodeCT), {"EXHAUSTION"}, true);
 	if nExhaustMod > 0 then
@@ -546,8 +594,6 @@ function reduceExhaustion(nodeCT)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function clearExpiringEffects()
 	function checkEffectExpire(nodeEffect)
 		local sLabel = DB.getValue(nodeEffect, "label", "");
@@ -561,8 +607,6 @@ function clearExpiringEffects()
 	CombatManager.callForEachCombatantEffect(checkEffectExpire);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function rest(bLong)
 	CombatManager.resetInit();
 	CombatManager2.clearExpiringEffects();
@@ -584,64 +628,53 @@ function rest(bLong)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function rollInit(sType)
 	CombatManager.rollTypeInit(sType, CombatManager2.rollEntryInit);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function rollEntryInit(nodeEntry)
 	CombatManager.rollStandardEntryInit(CombatManager2.getEntryInitRecord(nodeEntry));
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function getEntryInitRecord(nodeEntry)
 	if not nodeEntry then
 		return nil;
 	end
-	
+
 	local tInit = { nodeEntry = nodeEntry };
 
 	-- Start with the base initiative bonus
 	tInit.nMod = DB.getValue(nodeEntry, "init", 0);
-
+	
 	-- Get any effect modifiers
 	local rActor = ActorManager.resolveActor(nodeEntry);
-	-- local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = ActionInit.getEffectAdjustments(rActor);
-	-- if bEffects then
-		-- tInit.nMod = tInit.nMod + StringManager.evalDice(aEffectDice, nEffectMod);
-		-- if bEffectADV then
-			-- tInit.bADV = true;
-		-- end
-		-- if bEffectDIS then
-			-- tInit.bDIS = true;
-		-- end
-	-- end
+	local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = ActionInit.getEffectAdjustments(rActor);
+	if bEffects then
+		tInit.nMod = tInit.nMod + StringManager.evalDice(aEffectDice, nEffectMod);
+		if bEffectADV then
+			tInit.bADV = true;
+		end
+		if bEffectDIS then
+			tInit.bDIS = true;
+		end
+	end
 
 	tInit.fnRollRandom = CombatManager2.rollRandomInit;
 
 	return tInit;
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function rollRandomInit(tInit)
 	local nInitResult = math.random(20);
-	if bADV and not bDIS then
+	if tInit.bADV and not tInit.bDIS then
 		nInitResult = math.max(nInitResult, math.random(20));
-	elseif bDIS and not bADV then
+	elseif tInit.bDIS and not tInit.bADV then
 		nInitResult = math.min(nInitResult, math.random(20));
 	end
 	return nInitResult + (tInit.nMod or 0);
 end
 
--- ===================================================================================================================
+--
 --	XP FUNCTIONS
--- ===================================================================================================================
--- ===================================================================================================================
+--
+
 function calcBattleXP(nodeBattle)
 	local sTargetNPCList = LibraryData.getCustomData("battle", "npclist") or "npclist";
 
@@ -661,9 +694,7 @@ function calcBattleXP(nodeBattle)
 	
 	DB.setValue(nodeBattle, "exp", "number", nXP);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
+	
 function calcBattleCR(nodeBattle)
 	CombatManager2.calcBattleXP(nodeBattle);
 
@@ -747,9 +778,10 @@ function calcBattleCR(nodeBattle)
 	DB.setValue(nodeBattle, "cr", "string", sCR);
 end
 
--- ===================================================================================================================
+--
 --	COMBAT ACTION FUNCTIONS
--- ===================================================================================================================
+--
+
 function addRightClickDiceToClauses(rRoll)
 	if #rRoll.clauses > 0 then
 		local nOrigDamageDice = 0;
@@ -769,9 +801,9 @@ function addRightClickDiceToClauses(rRoll)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function handleCombatAddInitChronicle(tCustom)
 	ActionInit.performRoll(draginfo, tCustom.nodeCT, true);
 end																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			   

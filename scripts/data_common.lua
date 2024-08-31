@@ -174,7 +174,6 @@ conditions = {
 	"restrained",
 	"stable", 
 	"stunned",
-	"turned",
 	"unconscious"
 };
 

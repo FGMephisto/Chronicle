@@ -4,8 +4,6 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	EffectManager.registerEffectVar("sUnits", { sDBType = "string", sDBField = "unit", bSkipAdd = true });
 	EffectManager.registerEffectVar("sApply", { sDBType = "string", sDBField = "apply", sDisplay = "[%s]" });
@@ -21,9 +19,10 @@ function onInit()
 	EffectManager.setCustomOnEffectActorStartTurn(onEffectActorStartTurn);
 end
 
--- ===================================================================================================================
+--
 -- EFFECT MANAGER OVERRIDES
--- ===================================================================================================================
+--
+
 function onEffectAddStart(rEffect)
 	rEffect.nDuration = rEffect.nDuration or 1;
 	if rEffect.sUnits == "minute" then
@@ -34,8 +33,6 @@ function onEffectAddStart(rEffect)
 	rEffect.sUnits = "";
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEffectAddIgnoreCheck(nodeCT, rEffect)
 	-- Check immunities
 	local rSource = ActorManager.resolveActor(rEffect.sSource);
@@ -47,22 +44,18 @@ function onEffectAddIgnoreCheck(nodeCT, rEffect)
 			return string.format("%s ['%s'] -> [%s]", Interface.getString("effect_label"), sOriginal, Interface.getString("effect_status_targetimmune"));
 		else
 			local sMessage = string.format("%s ['%s'] -> [%s] [%s]", Interface.getString("effect_label"), sOriginal, Interface.getString("effect_status_targetpartialimmune"), table.concat(aCancelled, ","));
-			EffectManager.message(sMessage, nodeCT, false, sUser);
+			EffectManager.message(sMessage, nodeCT, false);
 		end
 	end
 	return nil;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEffectRollEncode(rRoll, rEffect)
 	if rEffect.sTargeting and rEffect.sTargeting == "self" then
 		rRoll.bSelfTarget = true;
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEffectTextEncode(rEffect)
 	local aMessage = {};
 	
@@ -90,8 +83,6 @@ function onEffectTextEncode(rEffect)
 	return table.concat(aMessage, " ");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEffectTextDecode(sEffect, rEffect)
 	local s = sEffect;
 	
@@ -124,8 +115,6 @@ function onEffectTextDecode(sEffect, rEffect)
 	return s;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEffectActorStartTurn(nodeActor, nodeEffect)
 	local sEffName = DB.getValue(nodeEffect, "label", "");
 	local aEffectComps = EffectManager.parseEffect(sEffName);
@@ -167,9 +156,10 @@ function onEffectActorStartTurn(nodeActor, nodeEffect)
 	end
 end
 
--- ===================================================================================================================
+--
 -- CUSTOM FUNCTIONS
--- ===================================================================================================================
+--
+
 function parseEffectComp(s)
 	local sType = nil;
 	local aDice = {};
@@ -253,8 +243,6 @@ function parseEffectComp(s)
 	};
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function rebuildParsedEffectComp(rComp)
 	if not rComp then
 		return "";
@@ -274,8 +262,6 @@ function rebuildParsedEffectComp(rComp)
 	return table.concat(aComp, " ");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function removeEffectByType(nodeCT, sEffectType)
 	if not sEffectType then
 		return;
@@ -297,7 +283,7 @@ function removeEffectByType(nodeCT, sEffectType)
 				if rEffectComp.type == "IFT" then
 					break;
 				elseif rEffectComp.type == "IF" then
-					local rActor = ActorManager.resolveActor(nodeActor);
+					local rActor = ActorManager.resolveActor(nodeCT);
 					if not checkConditional(rActor, nodeEffect, rEffectComp.remainder) then
 						break;
 					end
@@ -333,11 +319,8 @@ function removeEffectByType(nodeCT, sEffectType)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function checkImmunities(rSource, rTarget, rEffect)
 	local aImmuneConditions = ActorManager5E.getConditionImmunities(rTarget, rSource);
-	
 	if #aImmuneConditions == 0 then
 		return {};
 	end
@@ -365,8 +348,6 @@ function checkImmunities(rSource, rTarget, rEffect)
 	return aCancelled;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function applyOngoingDamageAdjustment(nodeActor, nodeEffect, rEffectComp)
 	if #(rEffectComp.dice) == 0 and rEffectComp.mod == 0 then
 		return;
@@ -419,17 +400,13 @@ function applyOngoingDamageAdjustment(nodeActor, nodeEffect, rEffectComp)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function applyRecharge(nodeActor, nodeEffect, rEffectComp)
 	local rActor = ActorManager.resolveActor(nodeActor);
 	local sRecharge = table.concat(rEffectComp.remainder, " ");
 	ActionRecharge.performRoll(nil, rActor, sRecharge, rEffectComp.mod, EffectManager.isGMEffect(nodeActor, nodeEffect), nodeEffect);
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function evalAbilityHelper(rActor, sEffectAbility)
 	local sSign, sModifier, sTag = sEffectAbility:match("^%[([%+%-]?)([HTQ%d]?)([A-Z]+)%]$");
 	
@@ -475,7 +452,7 @@ function evalAbilityHelper(rActor, sEffectAbility)
 	else
 		nAbility = ActorManager5E.getAbilityScore(rActor, sTag:lower());
 	end
-
+	
 	if nAbility then
 		if sSign == "-" then
 			nAbility = 0 - nAbility;
@@ -506,10 +483,7 @@ function evalAbilityHelper(rActor, sEffectAbility)
 	return nAbility;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function evalEffect(rActor, s)
-	-- Debug.chat("FN:evalEffect in manager_effect")
 	if not s then
 		return "";
 	end
@@ -537,8 +511,6 @@ function evalEffect(rActor, s)
 	return sOutput;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor then
 		return {};
@@ -698,8 +670,6 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 	return results;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor or not aEffectType then
 		return {}, 0;
@@ -715,7 +685,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	local bonuses = {};
 	local penalties = {};
 	local nEffectCount = 0;
-
+	
 	for k, v in pairs(aEffectType) do
 		-- LOOK FOR EFFECTS THAT MATCH BONUSTYPE
 		local aEffectsByType = getEffectsByType(rActor, v, aFilter, rFilterActor, bTargetedOnly);
@@ -802,10 +772,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	return results, nEffectCount;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, bTargetedOnly)
-	-- Debug.chat("FN:getEffectsBonus in manager_effect")
 	if not rActor or not aEffectType then
 		if bModOnly then
 			return 0, 0;
@@ -866,21 +833,14 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	if bModOnly then
 		return nTotalMod, nEffectCount;
 	end
-
 	return aTotalDice, nTotalMod, nEffectCount;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function hasEffectCondition(rActor, sEffect)
-	-- Debug.chat("FN:hasEffectCondition in manager_effect")
 	return hasEffect(rActor, sEffect, nil, false, true);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
-	-- Debug.chat("FN:hasEffect in manager_effect")
 	if not sEffect or not rActor then
 		return false;
 	end
@@ -951,10 +911,7 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 	return false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
-	-- Debug.chat("FN:checkConditional in manager_effect")
 	local bReturn = true;
 	
 	if not aIgnore then
@@ -1026,8 +983,6 @@ function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
 	return bReturn;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function checkConditionalHelper(rActor, sEffect, rTarget, aIgnore)
 	if not rActor then
 		return false;
@@ -1074,8 +1029,6 @@ function checkConditionalHelper(rActor, sEffect, rTarget, aIgnore)
 	return false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function encodeEffectForCT(rEffect)
 	local aMessage = {};
 	
@@ -1115,8 +1068,6 @@ function encodeEffectForCT(rEffect)
 	return string.format("[%s]", table.concat(aMessage, " "));
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function decodeEffectFromCT(sEffect)
 	local rEffect = nil;
 

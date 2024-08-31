@@ -10,8 +10,8 @@ local _ctrlDiceBonusIcon = nil
 local _ctrlDiceBonusField = nil
 local _ctrlDiceInterface = nil
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	-- Catch data of governing control
 	local sName = getName() or ""
@@ -92,8 +92,8 @@ function onInit()
 	onSourceUpdate()
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onDestroy()
 	if _ctrlDiceTestIcon then
 		_ctrlDiceTestIcon.destroy()
@@ -117,8 +117,8 @@ function onDestroy()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onClose()
 	-- Get correct nodeChar
 	local node = window.getDatabaseNode()
@@ -130,8 +130,8 @@ function onClose()
 	DB.removeHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onSourceUpdate)
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onSourceUpdate(node)
 	-- Get correct nodeChar
 	local node = window.getDatabaseNode()
@@ -147,9 +147,9 @@ function onSourceUpdate(node)
 	_ctrlDiceBonusField.setValue(ActorManager5E.getSkillRank(rActor, sSkill))
 end
 
--- ===================================================================================================================
+--
 -- onVisibilityChanged - If the DiceControl visibility changes, push that change to all associated controls
--- ===================================================================================================================
+--
 function onVisibilityChanged()
 	local bVisibile = self.isVisible()
 

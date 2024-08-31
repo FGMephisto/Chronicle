@@ -4,38 +4,7 @@
 --
 
 function onInit()
-	registerDiceRolls();
 	registerOptions();
-end
-
-function registerDiceRolls()
-	DiceRollManager.registerDamageTypeMode("critical");
-	
-	DiceRollManager.registerDamageKey();
-	DiceRollManager.registerDamageTypeKey("acid", "life");
-	DiceRollManager.registerDamageTypeKey("cold", "frost");
-	DiceRollManager.registerDamageTypeKey("fire", "fire");
-	DiceRollManager.registerDamageTypeKey("force", "arcane");
-	DiceRollManager.registerDamageTypeKey("lightning", "lightning");
-	DiceRollManager.registerDamageTypeKey("necrotic", "shadow");
-	DiceRollManager.registerDamageTypeKey("poison", "life");
-	DiceRollManager.registerDamageTypeKey("psychic", "shadow");
-	DiceRollManager.registerDamageTypeKey("radiant", "light");
-	DiceRollManager.registerDamageTypeKey("thunder", "storm");
-
-	DiceRollManager.registerDamageTypeKey("bludgeoning");
-	DiceRollManager.registerDamageTypeKey("piercing");
-	DiceRollManager.registerDamageTypeKey("slashing");
-
-	DiceRollManager.registerDamageTypeKey("adamantine");
-	DiceRollManager.registerDamageTypeKey("cold-forged iron");
-	DiceRollManager.registerDamageTypeKey("silver");
-
-	DiceRollManager.registerDamageTypeKey("magic");
-
-	DiceRollManager.registerHealKey();
-	DiceRollManager.registerHealTypeKey("health", "light");
-	DiceRollManager.registerHealTypeKey("temp", "water");
 end
 
 function registerOptions()

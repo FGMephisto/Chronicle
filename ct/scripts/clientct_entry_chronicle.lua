@@ -42,9 +42,9 @@ function onHealthChanged()
 	status.setColor(sColor);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function updateHealthDisplay()
 	-- Debug.chat("FN: updateHealthDisplay in clientct_entry")
 	local sOption;

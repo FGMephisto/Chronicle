@@ -325,10 +325,15 @@
 			<basicnumber name="temphp" source="hp.temporary">
 				<anchored to="hp" position="righthigh" offset="15,0" width="40" height="30" />
 				<font>reference-b-large</font>
-				<color>0000AA</color>
 				<description textres="temphp" />
 				<hideonvalue>0</hideonvalue>
 				<script>
+					function onInit()
+						if super and super.onInit then
+							super.onInit();
+						end
+						setColor(ColorManager.getUIColor("health_shield"));
+					end
 					function onDrop(x, y, draginfo)
 						if draginfo.getType() == "number" then
 							if draginfo.getNumberData() &gt; 0 then

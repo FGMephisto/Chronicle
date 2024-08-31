@@ -6,14 +6,10 @@
 -->
 
 <root>
-	<!-- GM combat tracker window -->
-	<template name="button_ct_menu">
-		<metalplate>
-			<bounds>120,-45,50,26</bounds>
-			<tooltip textres="ct_tooltip_menu" />
-			<static textres="ct_label_menu" />
+	<template name="button_ct_controls_menu" merge="join">
+		<button_listitem_text_left_sm>
 			<script file="ct/scripts/ct_menu.lua" />
-		</metalplate>
+		</button_listitem_text_left_sm>
 	</template>
 
 	<!-- GM combat tracker entry -->
@@ -85,8 +81,10 @@
 				<top />
 				<right anchor="left" offset="-10" />
 			</anchored>
-			<color>0000AA</color>
 			<script>
+				function onInit()
+					setColor(ColorManager.getUIColor("health_shield"));
+				end
 				function onValueChanged()
 					window.onHealthChanged();
 				end

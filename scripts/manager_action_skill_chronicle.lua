@@ -4,16 +4,16 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	ActionsManager.registerModHandler("skill", modRoll);
 	ActionsManager.registerResultHandler("skill", onRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	-- Debug.chat("FN: performNPCRoll in manager_action_skill")
 	-- Build rRoll
@@ -56,9 +56,9 @@ function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function performPartySheetRoll(draginfo, rActor, sSkill)
 	-- Debug.chat("FN: performPartySheetRoll in manager_action_skill")
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
@@ -91,8 +91,8 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
 	-- Debug.chat("FN: performRoll in manager_action_skill")
 	local rRoll = getRoll(rActor, nodeSkill, nTargetDC, bSecretRoll);
@@ -105,10 +105,10 @@ function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- This function is used to build the inital rRoll record for Skill checks
 -- Adjusted
--- ===================================================================================================================
+--
  function getRoll(rActor, nodeSkill)
 	-- Debug.chat("FN: getRoll in manager_action_skill")
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
@@ -138,8 +138,8 @@ end
 	return rRoll;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getUnlistedRoll(rActor, sSkill)
 	local rRoll = {};
 	rRoll.sType = "skill";
@@ -177,10 +177,10 @@ function getUnlistedRoll(rActor, sSkill)
 	return rRoll;
 end
 
--- ===================================================================================================================
+--
 -- This function is used to modify the Roll record for Skill checks
 -- Adjusted
--- ===================================================================================================================
+--
 function modRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: modRoll in manager_action_skill")
 	local aAddDesc = {};
@@ -278,9 +278,9 @@ function modRoll(rSource, rTarget, rRoll)
 	-- return true
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: onRoll in manager_action_skill")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);

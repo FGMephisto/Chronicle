@@ -20,10 +20,10 @@ function onSummaryChanged()
 		table.insert(aText, sSchool);
 	end
 	if nLevel == 0 then
-		table.insert(aText, Interface.getString("ref_label_cantrip"));
+		table.insert(aText, Interface.getString("spell_label_cantrip"));
 	end
 	if ritual.getValue() ~= 0 then
-		table.insert(aText, "(" .. Interface.getString("ref_label_ritual") .. ")");
+		table.insert(aText, "(" .. Interface.getString("spell_label_ritual") .. ")");
 	end
 	
 	summary_label.setValue(StringManager.capitalize(table.concat(aText, " ")));

@@ -4,9 +4,9 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
+--
 -- Process modifiers added on the desktop via buttons
--- ===================================================================================================================
+--
 function encodeDesktopMods(rRoll)
 	-- Debug.chat("FN: encodeDesktopMods in manager_action2")
 	local aAddDesc = {}
@@ -84,8 +84,8 @@ function encodeDesktopMods(rRoll)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function encodeAdvantage(rRoll, bADV, bDIS)
 	local bButtonADV = ModifierManager.getKey("ADV");
 	local bButtonDIS = ModifierManager.getKey("DIS");
@@ -108,8 +108,8 @@ function encodeAdvantage(rRoll, bADV, bDIS)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function decodeAdvantage(rRoll)
 	local bADV = string.match(rRoll.sDesc, "%[ADV%]");
 	local bDIS = string.match(rRoll.sDesc, "%[DIS%]");
@@ -134,9 +134,9 @@ function decodeAdvantage(rRoll)
 	end	
 end
 
--- ===================================================================================================================
+--
 -- Process modifiers resulting from wounds, injuries or fatigue
--- ===================================================================================================================
+--
 function encodeHealthMods(rActor, rRoll)
 	local aAddDesc = {}
 
@@ -172,9 +172,9 @@ function encodeHealthMods(rActor, rRoll)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Process modifiers resulting from armor
--- ===================================================================================================================
+--
 function encodeArmorMods(rRoll)
 	local aAddDesc = {}
 

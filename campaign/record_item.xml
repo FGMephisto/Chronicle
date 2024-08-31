@@ -6,18 +6,6 @@
 -->
 
 <root>
-	<!-- Added to support legacy window classes -->
-	<windowclass name="item" merge="join">
-		<sheetdata>
-			<sub_content_framed_groupbox_top name="header">
-				<class>item_header</class>
-			</sub_content_framed_groupbox_top>
-			<sub_content_framed_groupbox name="content">
-				<class>item_main</class>
-			</sub_content_framed_groupbox>
-		</sheetdata>
-	</windowclass>
-	
 	<!-- Legacy window classes - Maintain for older DLC -->
 	<windowclass name="reference_magicitem" copy="item" />
 	<windowclass name="reference_weapon" copy="item" />
@@ -27,16 +15,12 @@
 	<windowclass name="reference_waterbornevehicles" copy="item" />
 	<windowclass name="reference_vehicle" copy="item" />
 
+	<!-- Item details -->
 	<windowclass name="item_main">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/item_main.lua" />
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-			
-			<label_column name="nonid_name_label">
-				<static textres="item_label_unidentified" />
-			</label_column>
-			<string_columnh name="nonid_name" />
 			
 			<label_column name="nonidentified_label">
 				<static textres="item_label_unidentifiednotes" />

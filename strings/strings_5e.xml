@@ -545,13 +545,13 @@
 	<string name="npc_label_alignment">Alignment</string>
 	<string name="npc_label_languages">Languages</string>
 	<string name="npc_label_savingthrows">Saving Throws</string>
-	<string name="npc_label_damagevulnerabilities">Damage Vuln.</string>
+	<string name="npc_label_damagevulnerabilities">Dmg Vuln</string>
 	<string name="npc_tooltip_damagevulnerabilities">Damage Vulnerabilities</string>
-	<string name="npc_label_damageresistances">Damage Resist.</string>
+	<string name="npc_label_damageresistances">Dmg Resist</string>
 	<string name="npc_tooltip_damageresistances">Damage Resistances</string>
-	<string name="npc_label_damageimmunities">Damage Immun.</string>
+	<string name="npc_label_damageimmunities">Dmg Immune</string>
 	<string name="npc_tooltip_damageimmunities">Damage Immunities</string>
-	<string name="npc_label_conditionimmunities">Condition Immun.</string>
+	<string name="npc_label_conditionimmunities">Cond Immune</string>
 	<string name="npc_tooltip_conditionimmunities">Condition Immunities</string>
 	<string name="npc_header_traits">TRAITS</string>
 	<string name="npc_header_actions">ACTIONS</string>
@@ -700,26 +700,16 @@
 	<string name="power_error_innatespellcastingnotfound">[ERROR] Unable to locate innate spellcasting trait to resolve spell modifiers or DCs.</string>
 
 	<!-- Reference -->
-	<string name="ref_label_source">Source</string>
-	<string name="ref_label_ritual">Ritual</string>
+	<string name="spell_label_source">Source</string>
+	<string name="spell_label_ritual">Ritual</string>
+	<string name="spell_label_school">School</string>
+	<string name="spell_label_castingtime">Casting Time</string>
+	<string name="spell_label_range">Range</string>
+	<string name="spell_label_components">Components</string>
+	<string name="spell_label_duration">Duration</string>
 
-	<string name="ref_label_shortdescription">Summary</string>
-	<string name="ref_label_school">School</string>
-	<string name="ref_label_prerequisite">Prerequisite</string>
-	<string name="ref_label_cantrip">cantrip</string>
-	<string name="ref_label_castingtime">Casting Time</string>
-	<string name="ref_label_range">Range</string>
-	<string name="ref_label_components">Components</string>
-	<string name="ref_label_duration">Duration</string>
-	
-	<string name="ref_type_adventure">Adventure</string>
- 	<string name="ref_type_backgroundfeature">Background Feature</string>
-	<string name="ref_type_classproficiency">Class Proficiency</string>
-	<string name="ref_type_proficiency">Proficiency</string>
-	<string name="ref_type_racialtrait">Racial Trait</string>
-	<string name="ref_type_spell">Spell</string>
-	<string name="ref_type_feature">Feature</string>
-	<string name="ref_type_trait">Trait</string>
+	<string name="spell_label_cantrip">cantrip</string>
+	<string name="spell_label_shortdescription">Summary</string>
 
 	<string name="spell_view_grouped_label_level">Level</string>
 	<string name="spell_view_grouped_label_name">Name</string>

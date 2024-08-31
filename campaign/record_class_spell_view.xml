@@ -60,14 +60,17 @@
 
 	<windowclass name="class_spell_view">
 		<frame>referencelist</frame>
+		<placement>
+			<nosave />
+		</placement>
 		<sizelimits>
 			<minimum width="450" height="450" />
 			<dynamic />
 		</sizelimits>
 		<script>
 			local _sClassKey = nil;
-			function onInit()
-				_sClassKey = DB.getName(getDatabaseNode());
+			function init(sClassKey)
+				_sClassKey = sClassKey;
 				self.refresh();
 			end
 			function onClose()

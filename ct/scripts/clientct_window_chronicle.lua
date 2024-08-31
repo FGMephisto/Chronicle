@@ -17,9 +17,9 @@ function onClose()
 	OptionsManager.unregisterCallback("SHNPC", updateHealthDisplay);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function updateHealthDisplay()
 	local sOptSHPC = OptionsManager.getOption("SHPC");
 	local sOptSHNPC = OptionsManager.getOption("SHNPC");

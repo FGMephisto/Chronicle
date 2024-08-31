@@ -26,9 +26,7 @@ actions = {
 	["skill"] = { bUseModStack = true },
 };
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 targetactions = {
 	"cast",
 	-- "castsave",
@@ -46,25 +44,48 @@ currencies = {
 };
 currencyDefault = "Silver";
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onInit()	
+	CharEncumbranceManager.addStandardCalc("Chronicle");
+	CombatListManager.registerStandardInitSupport();
+	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+	SoundsetManager.registerStandardSettingsCastAndAttack();
+	SoundsetManager.setRecordTypeDropCallback("spell", SoundsetManager.handleStandardSpellDrop);
+
 	VisionManager.addVisionType(Interface.getString("vision_darkvision_superior"), "darkvision");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
 
-	-- Add death marker manager
-	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
-
-	-- Add ruleset to supported rulesets for Encumberance calculation
-	CharEncumbranceManager.addStandardCalc("Chronicle")
-
 	-- Languages
 	languages = {
+		-- Standard languages
 		[Interface.getString("language_value_common")] = "",
+		-- [Interface.getString("language_value_dwarvish")] = "Dwarven",
+		-- [Interface.getString("language_value_elvish")] = "Elven",
+		-- [Interface.getString("language_value_giant")] = "Dwarven",
+		-- [Interface.getString("language_value_gnomish")] = "Dwarven",
+		-- [Interface.getString("language_value_goblin")] = "Dwarven",
+		-- [Interface.getString("language_value_halfling")] = "",
+		-- [Interface.getString("language_value_orc")] = "Dwarven",
+		-- Exotic languages
+		-- [Interface.getString("language_value_abyssal")] = "Infernal",
+		-- [Interface.getString("language_value_aquan")] = "Elven",
+		-- [Interface.getString("language_value_auran")] = "Draconic",
+		-- [Interface.getString("language_value_celestial")] = "Celestial",
+		-- [Interface.getString("language_value_deepspeech")] = "",
+		-- [Interface.getString("language_value_draconic")] = "Draconic",
+		-- [Interface.getString("language_value_ignan")] = "Draconic",
+		-- [Interface.getString("language_value_infernal")] = "Infernal",
+		-- [Interface.getString("language_value_primordial")] = "Primordial",
+		-- [Interface.getString("language_value_sylvan")] = "Elven",
+		-- [Interface.getString("language_value_terran")] = "Dwarven",
+		-- [Interface.getString("language_value_undercommon")] = "Elven",
+		-- [Interface.getString("language_value_aarakocra")] = "",
+		-- [Interface.getString("language_value_druidic")] = "",
+		-- [Interface.getString("language_value_thievescant")] = "",
 	}
-
 	languagefonts = {
 		[Interface.getString("language_value_celestial")] = "Celestial",
 		[Interface.getString("language_value_draconic")] = "Draconic",
@@ -75,46 +96,32 @@ function onInit()
 	}
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function getCharSelectDetailHost(nodeChar)
+	-- local sValue = "";
+	-- local nLevel = DB.getValue(nodeChar, "level", 0);
+	-- if nLevel > 0 then
+		-- sValue = "Level " .. math.floor(nLevel*100)*0.01;
+	-- end
 	return "";
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function requestCharSelectDetailClient()
 	return "name";
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function receiveCharSelectDetailClient(vDetails)
 	return vDetails, "";
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
-function getCharSelectDetailLocal(nodeLocal)
-	local vDetails = {};
-	table.insert(vDetails, DB.getValue(nodeLocal, "name", ""));
-	return receiveCharSelectDetailClient(vDetails);
-end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function getPregenCharSelectDetail(nodePregenChar)
 	-- return CharClassManager.getCharClassSummary(nodePregenChar);
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function getDistanceUnitsPerGrid()
 	return 1;
 end

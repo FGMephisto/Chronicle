@@ -216,13 +216,13 @@
 				local sDragType = draginfo.getType();
 				
 				if sDragType == "dice" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					for _, vDie in ipairs(draginfo.getDiceData()) do
 						w.dice.addDie(vDie.type);
 					end
 					return true;
 				elseif sDragType == "number" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					w.bonus.setValue(draginfo.getNumberData());
 					return true;
 				end
@@ -335,13 +335,13 @@
 				local sDragType = draginfo.getType();
 				
 				if sDragType == "dice" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					for _, vDie in ipairs(draginfo.getDiceData()) do
 						w.dice.addDie(vDie.type);
 					end
 					return true;
 				elseif sDragType == "number" then
-					local w = list.addEntry(true);
+					local w = list.createWindow();
 					w.bonus.setValue(draginfo.getNumberData());
 					return true;
 				end

@@ -18,7 +18,7 @@
 					if sClass == "power" then
 						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
 						if not bReadOnly then
-							local w = spells.addEntry();
+							local w = spells.createWindow();
 							if w then
 								local node = w.getDatabaseNode();
 								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));

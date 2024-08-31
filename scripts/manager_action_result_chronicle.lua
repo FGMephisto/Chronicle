@@ -4,8 +4,8 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function capDice(rRoll)
 	-- Debug.chat("FN: alignDice in manager_action_result")
 	rRoll.nTest = tonumber(rRoll.nTest)
@@ -50,8 +50,8 @@ function capDice(rRoll)
 	return rRoll
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function DropDice(rRoll)
 	-- Debug.chat("FN: DropDice in manager_action_result")
 	
@@ -102,9 +102,9 @@ function DropDice(rRoll)
 	return rRoll
 end
 
--- ===================================================================================================================
+--
 -- Determine degrees of success
--- ===================================================================================================================
+--
 function DetermineSuccessTest(rMessage, rRoll)
 	-- Debug.chat("FN: DetermineSuccessTest in manager_action_result")
 	local nTarget = tonumber(rRoll.nTarget) or 0
@@ -139,9 +139,9 @@ function DetermineSuccessTest(rMessage, rRoll)
 	return rMessage, rRoll
 end
 
--- ===================================================================================================================
+--
 -- Determine degrees of attack
--- ===================================================================================================================
+--
 function DetermineSuccessAttack(rMessage, rRoll)
 	-- Debug.chat("FN: DetermineSuccessAttack in manager_action_result")
 	local nTarget = tonumber(rRoll.nDefenseVal) or 0

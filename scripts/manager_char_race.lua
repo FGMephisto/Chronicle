@@ -86,7 +86,7 @@ function addRaceDrop(nodeChar, sClass, sRecord)
 		local sSubraceName = StringManager.trim(DB.getValue(nodeSource, "name", ""));
 		local sRaceName, nodeRace = CharRaceManager.getRaceFromSubrace(sSubraceName);
 		if not nodeRace or ((sRaceName or "") == "") then
-			CharManager.outputUserMessage("char_error_missingracefromsubrace");
+			ChatManager.SystemMessageResource("char_error_missingracefromsubrace");
 			return;
 		end
 
@@ -105,7 +105,7 @@ function addRaceDrop(nodeChar, sClass, sRecord)
 end
 function helperAddRaceMain(rAdd)
 	-- Notification
-	CharManager.outputUserMessage("char_abilities_message_raceadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_raceadd", rAdd.sSourceName, rAdd.sCharName);
 
 	-- Set name and link
 	DB.setValue(rAdd.nodeChar, "race", "string", rAdd.sSourceName);
@@ -137,7 +137,7 @@ function helperAddRaceSubraceChoice(rAdd)
 end
 function callbackAddRaceSubraceChoice(tSelection, rAdd, tSelectionLinks)
 	if not tSelectionLinks or (#tSelectionLinks ~= 1) then
-		CharManager.outputUserMessage("char_error_addsubrace");
+		ChatManager.SystemMessageResource("char_error_addsubrace");
 		return;
 	end
 
@@ -146,14 +146,14 @@ function callbackAddRaceSubraceChoice(tSelection, rAdd, tSelectionLinks)
 end
 function helperAddRaceSubrace(rAdd)
 	if ((rAdd.sSubracePath or "") == "") then
-		CharManager.outputUserMessage("char_error_missingsubrace");
+		ChatManager.SystemMessageResource("char_error_missingsubrace");
 		return;
 	end
 
 	local sSubraceName = DB.getValue(DB.getPath(rAdd.sSubracePath, "name"), "");
 
 	-- Notification
-	CharManager.outputUserMessage("char_abilities_message_subraceadd", sSubraceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_subraceadd", sSubraceName, rAdd.sCharName);
 
 	-- Update race name and subrace link
 	if sSubraceName:match(rAdd.sSourceName) then
@@ -304,7 +304,7 @@ function helperAddRaceTraitStandard(rAdd)
 		DB.setValue(nodeNewTrait, "type", "string", "subracial");
 	end
 
-	CharManager.outputUserMessage("char_abilities_message_traitadd", rAdd.sSourceName, rAdd.sCharName);
+	ChatManager.SystemMessageResource("char_abilities_message_traitadd", rAdd.sSourceName, rAdd.sCharName);
 
 	return nodeNewTrait;
 end
@@ -433,7 +433,7 @@ function helperAddRaceTraitSpeedDrop(rAdd)
 	local nSpeed, tSpecial = CharRaceManager.parseRaceSpeed(s);
 	
 	DB.setValue(rAdd.nodeChar, "speed.base", "number", nSpeed);
-	CharManager.outputUserMessage("char_abilities_message_basespeedset", nSpeed, DB.getValue(rAdd.nodeChar, "name", ""));
+	ChatManager.SystemMessageResource("char_abilities_message_basespeedset", nSpeed, DB.getValue(rAdd.nodeChar, "name", ""));
 
 	local sExistingSpecial = StringManager.trim(DB.getValue(rAdd.nodeChar, "speed.special", ""));
 	local tExistingSpecial = StringManager.split(sExistingSpecial, ",", true);
@@ -583,7 +583,7 @@ function applyDwarvenToughness(nodeChar, bInitialAdd)
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
 	
-	CharManager.outputUserMessage("char_abilities_message_hpaddtrait", StringManager.capitalizeAll(CharManager.TRAIT_DWARVEN_TOUGHNESS), DB.getValue(nodeChar, "name", ""), nAddHP);
+	ChatManager.SystemMessageResource("char_abilities_message_hpaddtrait", StringManager.capitalizeAll(CharManager.TRAIT_DWARVEN_TOUGHNESS), DB.getValue(nodeChar, "name", ""), nAddHP);
 end
 function applyLegacyCatsClawsClimb(nodeChar, sText)
 	local sSpecialSpeed = sText:match("you have a climbing speed of (%d+) feet");

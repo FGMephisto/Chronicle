@@ -4,8 +4,6 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
 	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
@@ -17,14 +15,14 @@ function onInit()
 	end
 end
 
--- ===================================================================================================================
 -- Shown in Modifiers window
 -- NOTE: Set strings for "modifier_category_*" and "modifier_label_*"
+--
 -- Adjusted
--- ===================================================================================================================
+--
 _tModifierWindowPresets =
 {
-	{
+	{ 
 		sCategory = "attack",
 		tPresets = 
 		{
@@ -56,10 +54,10 @@ _tModifierExclusionSets =
 	{ "DEF_LOWLIGHT", "DEF_NOLIGHT" },
 };
 
--- ===================================================================================================================
 -- Shown in Campaign Setup window
+--
 -- Adjusted
--- ===================================================================================================================
+--
 _tDataModuleSets = 
 {
 	["client"] =

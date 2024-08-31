@@ -7,10 +7,10 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<!-- Character entries -->
 	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
+	<!-- -->
 	<windowclass name="ct_entry" merge="join">
 		<margins control="0,0,0,5" />
 		<sizelimits>
@@ -18,9 +18,9 @@
 		</sizelimits>
 		<script file="ct/scripts/ct_entry_chronicle.lua" />
 		<sheetdata>
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Hidden fields -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<hs name="status" />
 
 			<hsx name="type" />
@@ -44,15 +44,15 @@
 			<hnx name="warfare" source="abilities.warfare.score" />
 			<hnx name="will" source="abilities.will.score" />
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Entry header toggles for subsections -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<button_ct_section_defense name="button_section_defense" insertbefore="button_section_space" />
 			<button_ct_section_active name="button_section_active" insertbefore="button_section_space" />
 
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<!-- Entry health fields -->
-			<!-- =================================================================================================================== -->
+			<!-- -->
 			<number_ct_crosslink name="wounds" insertbefore="initresult" source="hp.wounds">
 				<anchored to="rightanchor" width="25" height="20">
 					<top />

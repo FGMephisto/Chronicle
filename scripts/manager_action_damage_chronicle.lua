@@ -7,8 +7,8 @@
 OOB_MSGTYPE_APPLYDMG = "applydmg";
 OOB_MSGTYPE_APPLYDMGSTATE = "applydmgstate";
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMG, handleApplyDamage);
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMGSTATE, handleApplyDamageState);
@@ -18,9 +18,9 @@ function onInit()
 	ActionsManager.registerResultHandler("damage", onDamage);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function handleApplyDamage(msgOOB)
 -- Step 12
 	-- Debug.chat("FN: handleApplyDamage in manager_action_damage")
@@ -36,10 +36,10 @@ function handleApplyDamage(msgOOB)
 	ActionDamage.applyDamage(rSource, rTarget, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
 -- Communicate damage roll to Clients
--- ===================================================================================================================
+--
 function notifyApplyDamage(rSource, rTarget, rRoll)
 -- Step 11
 	-- Debug.chat("FN: notifyApplyDamage in manager_action_damage")
@@ -59,9 +59,9 @@ function notifyApplyDamage(rSource, rTarget, rRoll)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getRoll(rActor, rAction)
 -- Step 2
 	-- Debug.chat("FN: getRoll in manager_action_damage")
@@ -113,8 +113,8 @@ function getRoll(rActor, rAction)
 	return rRoll;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function performRoll(draginfo, rActor, rAction)
 -- Step 1
 	-- Debug.chat("FN: performRoll in manager_action_damage")
@@ -123,8 +123,8 @@ function performRoll(draginfo, rActor, rAction)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function modDamage(rSource, rTarget, rRoll)
 -- Step 3
 	-- Debug.chat("FN: modDamage in manager_action_damage")
@@ -151,8 +151,8 @@ function modDamage(rSource, rTarget, rRoll)
 	ActionDamage.finalizeModRoll(rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onDamageRoll(rSource, rRoll)
 	-- Handle max damage
 	local bMax = rRoll.sDesc:match("%[MAX%]");
@@ -190,10 +190,10 @@ function onDamageRoll(rSource, rRoll)
 	ActionDamage.decodeDamageTypes(rRoll, true);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
 -- Display damage in chat
--- ===================================================================================================================
+--
 function onDamage(rSource, rTarget, rRoll)
 -- Step 10
 	-- Debug.chat("FN: onDamage in manager_action_damage")
@@ -233,11 +233,11 @@ function onDamage(rSource, rTarget, rRoll)
 	ActionDamage.notifyApplyDamage(rSource, rTarget, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- MOD ROLL HELPERS
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function setupModRoll(rRoll, rSource, rTarget)
 -- Step 4
 	-- Debug.chat("FN: setupModRoll in manager_action_damage")
@@ -269,10 +269,10 @@ function setupModRoll(rRoll, rSource, rTarget)
 	rRoll.nEffectMod = 0;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
 -- NOTE: Ability effects do not support targeting
--- ===================================================================================================================
+--
 function applyAbilityEffectsToModRoll(rRoll, rSource, rTarget)
 -- Step 5
 	-- Debug.chat("FN: applyAbilityEffectsToModRoll in manager_action_damage")
@@ -296,8 +296,8 @@ function applyAbilityEffectsToModRoll(rRoll, rSource, rTarget)
 	rRoll.nMod = rRoll.nMod;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
 -- Step 6
 	-- Debug.chat("FN: applyDmgEffectsToModRoll in manager_action_damage")
@@ -364,9 +364,9 @@ function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Add applying effect to description
--- ===================================================================================================================
+--
 function applyEffectModNotificationToModRoll(rRoll)
 -- Step 7
 	-- Debug.chat("FN: applyEffectModNotificationToModRoll in manager_action_damage")
@@ -382,8 +382,8 @@ function applyEffectModNotificationToModRoll(rRoll)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
 -- Step 8
 	-- Debug.chat("FN: applyDmgTypeEffectsToModRoll in manager_action_damage")
@@ -416,8 +416,8 @@ function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyCriticalToModRoll(rRoll, rSource, rTarget)
 	-- Debug.chat("FN: applyCriticalToModRoll in manager_action_damage")
 	table.insert(rRoll.tNotifications, "[CRITICAL]");
@@ -510,8 +510,8 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
 	local aFixedClauses = {};
 	local aFixedDice = {};
@@ -558,8 +558,8 @@ function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
 	rRoll.nMod = rRoll.nMod + nFixedMod;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyModifierKeysToModRoll(rRoll, rSource, rTarget)
 	if ModifierManager.getKey("DMG_MAX") then
 		table.insert(rRoll.tNotifications, "[MAX]");
@@ -569,9 +569,9 @@ function applyModifierKeysToModRoll(rRoll, rSource, rTarget)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function finalizeModRoll(rRoll)
 -- Step 9
 	-- Debug.chat("FN: finalizeModRoll in manager_action_damage")
@@ -589,12 +589,12 @@ function finalizeModRoll(rRoll)
 	ActionsManager2.encodeDesktopMods(rRoll);
 end
 
--- ===================================================================================================================
+--
 -- APPLY DAMAGE EFFECT HELPERS
--- ===================================================================================================================
+--
 
 -- NOTE: Dice determined randomly, instead of rolled
--- ===================================================================================================================
+--
 function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 	local tTargetedDamage = EffectManager5E.getEffectsBonusByType(rSource, "DMG", true, rDamageOutput.aDamageFilter, rTarget, true);
 
@@ -639,8 +639,8 @@ function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 	rDamageOutput.nVal = rDamageOutput.nVal + nDamageEffectTotal;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 	local tAddDmgTypes = {};
 	local tDmgTypeEffects = EffectManager5E.getEffectsByType(rSource, "DMGTYPE", nil, rTarget, true);
@@ -673,9 +673,9 @@ function applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarg
 	end
 end
 
--- ===================================================================================================================
+--
 -- UTILITY FUNCTIONS
--- ===================================================================================================================
+--
 
 function encodeDamageTypes(rRoll)
 	for _,vClause in ipairs(rRoll.clauses) do
@@ -686,8 +686,8 @@ function encodeDamageTypes(rRoll)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function decodeDamageTypes(rRoll, bFinal)
 	-- Process each type clause in the damage description (INITIAL ROLL)
 	local nMainDieIndex = 0;
@@ -852,9 +852,9 @@ function decodeDamageTypes(rRoll, bFinal)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Collapse damage clauses by damage type (in the original order, if possible)
--- ===================================================================================================================
+--
 function getDamageStrings(clauses)
 	local aOrderedTypes = {};
 	local aDmgTypes = {};
@@ -880,8 +880,8 @@ function getDamageStrings(clauses)
 	return aOrderedTypes;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageTypesFromString(sDamageTypes)
 	local sLower = string.lower(sDamageTypes);
 	local aSplit = StringManager.split(sLower, ",", true);
@@ -896,9 +896,9 @@ function getDamageTypesFromString(sDamageTypes)
 	return aDamageTypes;
 end
 
--- ===================================================================================================================
+--
 -- DAMAGE APPLICATION
--- ===================================================================================================================
+--
 
 function checkReductionTypeHelper(rMatch, aDmgType)
 	if not rMatch or (rMatch.mod ~= 0) then
@@ -917,8 +917,8 @@ function checkReductionTypeHelper(rMatch, aDmgType)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function checkReductionType(aReduction, aDmgType)
 	for _,sDmgType in pairs(aDmgType) do
 		if ActionDamage.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamage.checkReductionTypeHelper(aReduction["all"], aDmgType) then
@@ -929,8 +929,8 @@ function checkReductionType(aReduction, aDmgType)
 	return false;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
 	if not rMatch or (rMatch.mod == 0) then
 		return 0;
@@ -964,8 +964,8 @@ function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
 	return nAdjust;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function checkNumericalReductionType(aReduction, aDmgType, nLimit)
 	local nAdjust = 0;
 	
@@ -984,8 +984,8 @@ function checkNumericalReductionType(aReduction, aDmgType, nLimit)
 	return nAdjust;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 	local nDamageAdjust = 0;
 	local bVulnerable = false;
@@ -1091,9 +1091,9 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 	return nDamageAdjust, bVulnerable, bResist;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function decodeDamageText(nDamage, sDamageDesc)
 -- Step 14
 	-- Debug.chat("FN: decodeDamageText in manager_action_damage")
@@ -1162,9 +1162,9 @@ function decodeDamageText(nDamage, sDamageDesc)
 	return rDamageOutput;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function applyDamage(rSource, rTarget, rRoll)
 -- Step 13
 	-- Debug.chat("FN: applyDamage in manager_action_damage")
@@ -1552,9 +1552,9 @@ function applyDamage(rSource, rTarget, rRoll)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 																		
 																
 	  
@@ -1624,16 +1624,16 @@ function messageDamage(rSource, rTarget, rRoll)
 	ActionsManager.outputResult(rRoll.bSecret, rSource, rTarget, msgLong, msgShort);
 end
 
--- ===================================================================================================================
+--
 -- TRACK DAMAGE STATE
--- ===================================================================================================================
+--
 -- Deliver damage message to Clients
--- ===================================================================================================================
+--
 local aDamageState = {};
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function applyDamageState(rSource, rTarget, sAttack, sState)
 	-- Debug.chat("FN: applyDamageState in manager_action_damage")
 	local msgOOB = {};
@@ -1648,9 +1648,9 @@ function applyDamageState(rSource, rTarget, sAttack, sState)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
+--
 -- Catch damage message for delivery to Clients
--- ===================================================================================================================
+--
 function handleApplyDamageState(msgOOB)
 	-- Debug.chat("FN: handleApplyDamageState in manager_action_damage")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
@@ -1661,9 +1661,9 @@ function handleApplyDamageState(msgOOB)
 	end
 end
 
--- ===================================================================================================================
+--
 -- Set damage on Clients
--- ===================================================================================================================
+--
 function setDamageState(rSource, rTarget, sAttack, sState)
 	-- Debug.chat("FN: setDamageState in manager_action_damage")
 	if not Session.IsHost then
@@ -1689,9 +1689,9 @@ function setDamageState(rSource, rTarget, sAttack, sState)
 	aDamageState[sSourceCT][sAttack][sTargetCT] = sState;
 end
 
--- ===================================================================================================================
+--
 -- Get damage from Clients
--- ===================================================================================================================
+--
 function getDamageState(rSource, rTarget, sAttack)
 	-- Debug.chat("FN: getDamageState in manager_action_damage")
 	local sSourceCT = ActorManager.getCTNodeName(rSource);

@@ -4,6 +4,8 @@
 --
 
 function onInit()
+	Interface.addKeyedEventHandler("onLinkActivate", "class_spell_view", ClassSpellListManager.handleSpellViewLink);
+
 	ExportManager.registerPreExportCallback(ClassSpellListManager.callbackSetupCSLViews);
 	ExportManager.registerPostExportCallback(ClassSpellListManager.callbackAddCSLViews);
 end
@@ -381,6 +383,19 @@ function onClassSpellListUpdate()
 	for _,wSpellView in ipairs(tSpellViews) do
 		wSpellView.refresh();
 	end
+end
+
+function handleSpellViewLink(sClass, sPath)
+	if (sPath or "") == "" then
+		return false;
+	end
+
+	local w = Interface.openWindow(sClass, "");
+	local sPathSansModule = StringManager.split(sPath, "@")[1];
+	local tPathSansModule = StringManager.split(sPathSansModule, ".");
+	local sClassKey = tPathSansModule[#tPathSansModule];
+	w.init(sClassKey);
+	return true;
 end
 
 --

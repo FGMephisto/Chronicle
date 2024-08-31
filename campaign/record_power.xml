@@ -658,7 +658,25 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="power" copy="record_window" />
+	<windowclass name="power" copy="record_window_tabbed">
+		<tab>
+			<name>main</name>
+			<resource>tab_main</resource>
+			<class>power_main</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_content_framed_groupbox_top name="header">
+				<class>power_header</class>
+			</sub_content_framed_groupbox_top>
+		</sheetdata>
+	</windowclass>
 	<windowclass name="power_header" copy="record_header" />
 
 	<windowclass name="power_main">
@@ -668,7 +686,7 @@
 			<anchor_column name="columnanchor" />
 
 			<label_column name="shortdescription_label">
-				<static textres="ref_label_shortdescription" />
+				<static textres="spell_label_shortdescription" />
 			</label_column>
 			<string_columnh name="shortdescription" />
 
@@ -687,7 +705,7 @@
 			</number_columnh>
 
 			<label_column name="school_label">
-				<static textres="ref_label_school" />
+				<static textres="spell_label_school" />
 			</label_column>
 			<string_columnh name="school">
 				<script>
@@ -698,7 +716,7 @@
 			</string_columnh>
 			
 			<label_column name="ritual_label">
-				<static textres="ref_label_ritual" />
+				<static textres="spell_label_ritual" />
 			</label_column>
 			<button_checkbox_columnh name="ritual">
 				<script>
@@ -718,22 +736,22 @@
 			<line_column name="divider2" />
 
 			<label_column name="castingtime_label">
-				<static textres="ref_label_castingtime" />
+				<static textres="spell_label_castingtime" />
 			</label_column>
 			<string_columnh name="castingtime" />
 
 			<label_column name="range_label">
-				<static textres="ref_label_range" />
+				<static textres="spell_label_range" />
 			</label_column>
 			<string_columnh name="range" />
 
 			<label_column name="components_label">
-				<static textres="ref_label_components" />
+				<static textres="spell_label_components" />
 			</label_column>
 			<string_columnh name="components" />
 
 			<label_column name="duration_label">
-				<static textres="ref_label_duration" />
+				<static textres="spell_label_duration" />
 			</label_column>
 			<string_columnh name="duration" />
 
@@ -742,7 +760,7 @@
 			<line_column name="divider3" />
 			
 			<label_column name="source_label">
-				<static textres="ref_label_source" />
+				<static textres="spell_label_source" />
 			</label_column>
 			<string_columnh name="source">
 				<delaykeyupdate />
@@ -750,14 +768,5 @@
 		</sheetdata>
 	</windowclass>
 	
-	<windowclass name="reference_spell" copy="record_window">
-		<sheetdata>
-			<sub_content_framed_groupbox_top name="header">
-				<class>power_header</class>
-			</sub_content_framed_groupbox_top>
-			<sub_content_framed_groupbox name="content">
-				<class>power_main</class>
-			</sub_content_framed_groupbox>
-		</sheetdata>
-	</windowclass>
+	<windowclass name="reference_spell" copy="power" />
 </root>

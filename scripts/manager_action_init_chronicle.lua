@@ -6,8 +6,8 @@
 
 OOB_MSGTYPE_APPLYINIT = "applyinit";
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit);
 
@@ -15,9 +15,9 @@ function onInit()
 	ActionsManager.registerResultHandler("init", onResolve);
 end
 
--- ===================================================================================================================
+--
 -- Set Initiative result on CT
--- ===================================================================================================================
+--
 function handleApplyInit(msgOOB)
 	-- Debug.chat("FN: handleApplyInit in manager_action_init")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
@@ -26,9 +26,9 @@ function handleApplyInit(msgOOB)
 	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
 end
 
--- ===================================================================================================================
+--
 -- Communicate initiative roll to Clients
--- ===================================================================================================================
+--
 function notifyApplyInit(rSource, nTotal)
 	-- Debug.chat("FN notifyApplyInit in manager_action_init")
 	if not rSource then
@@ -45,9 +45,9 @@ function notifyApplyInit(rSource, nTotal)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getRoll(rActor, bSecretRoll)
 	-- Debug.chat("FN getRoll in manager_action_init")
 	local rRoll = {};
@@ -79,8 +79,8 @@ function getRoll(rActor, bSecretRoll)
 	return rRoll;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function performRoll(draginfo, rActor, bSecretRoll)
 	-- Debug.chat("FN performRoll in manager_action_init")
 	local rRoll = getRoll(rActor, bSecretRoll);
@@ -88,9 +88,9 @@ function performRoll(draginfo, rActor, bSecretRoll)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function modRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN modRoll in manager_action_init")
 	local aAddDesc = {}
@@ -152,10 +152,10 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
--- ===================================================================================================================
+--
 -- Returns effect existence, effect dice, effect mod
 -- Adjusted
--- ===================================================================================================================
+--
 function getEffectAdjustments(rActor)
 	-- Debug.chat("FN getEffectAdjustments in manager_action_init")
 	-- ToDo: Adjust to work with Chronicle
@@ -209,8 +209,8 @@ function getEffectAdjustments(rActor)
 	return bEffects, aEffectDice, nEffectMod;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onResolve(rSource, rTarget, rRoll)
 	-- Debug.chat("FN onResolve in manager_action_init")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);

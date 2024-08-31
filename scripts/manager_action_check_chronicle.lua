@@ -4,16 +4,16 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function onInit()
 	ActionsManager.registerModHandler("check", modRoll);
 	ActionsManager.registerResultHandler("check", onRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function performPartySheetRoll(draginfo, rActor, sCheck)
 	-- Debug.chat("FN: performPartySheetRoll in manager_action_check")
 	local rRoll = getRoll(rActor, sCheck);
@@ -30,8 +30,8 @@ function performPartySheetRoll(draginfo, rActor, sCheck)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+--
+--
 function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
 	-- Debug.chat("FN: performRoll in manager_action_check")
 	local rRoll = getRoll(rActor, sCheck, nTargetDC, bSecretRoll);
@@ -43,9 +43,9 @@ function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
 	-- Debug.chat("FN: getRoll in manager_action_check")
 	-- Build rRoll
@@ -78,9 +78,9 @@ function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
 	return rRoll;
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function modRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: modRoll in manager_action_check")
 	local aAddDesc = {};
@@ -166,9 +166,9 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: onRoll in manager_action_check")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);

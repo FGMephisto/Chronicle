@@ -51,7 +51,7 @@
 				<tooltip textres="char_tooltip_actionaddweapon" />
 				<script>
 					function onButtonPress()
-						window.contents.subwindow.weapons.addEntry(true);
+						window.contents.subwindow.weapons.createWindow(nil, true);
 					end
 				</script>
 			</buttoncontrol>

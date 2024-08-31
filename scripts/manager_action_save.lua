@@ -111,7 +111,7 @@ end
 function getRoll(rActor, sSave)
 	local rRoll = {};
 	rRoll.sType = "save";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	local nMod, bADV, bDIS, sAddText = ActorManager5E.getSave(rActor, sSave);
 	rRoll.nMod = nMod;
 	
@@ -474,7 +474,7 @@ end
 function performSystemShockRoll(draginfo, rActor)
 	local rRoll = { };
 	rRoll.sType = "systemshock";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	local nMod, bADV, bDIS, sAddText = ActorManager5E.getSave(rActor, "constitution");
 	rRoll.nMod = nMod;
 	
@@ -557,9 +557,13 @@ function applySystemShockRoll(rSource, rAction)
 	
 	-- On failed system shock check, roll for system shock
 	if not bSuccess then
-		local rRoll = { sType = "systemshockresult", aDice = { "d10" }, nMod = 0 };
-		rRoll.sDesc = "[SYSTEM SHOCK RESULT]";
-		rRoll.bSecret = rAction.bSecret;
+		local rRoll = { 
+			sType = "systemshockresult",
+			sDesc = "[SYSTEM SHOCK RESULT]",
+			nMod = 0,
+			bSecret = rAction.bSecret,
+		};
+		rRoll.aDice = DiceRollManager.getActorDice({ "d10" }, rActor);
 		ActionsManager.performAction(nil, rSource, rRoll);
 	end
 end
@@ -635,7 +639,7 @@ function performDeathRoll(draginfo, rActor, bAuto)
 	else
 		rRoll.sType = "death";
 	end
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	rRoll.nMod = 0;
 	
 	rRoll.sDesc = "[DEATH]";
@@ -798,7 +802,7 @@ end
 function performConcentrationRoll(draginfo, rActor, nTargetDC)
 	local rRoll = { };
 	rRoll.sType = "concentration";
-	rRoll.aDice = { "d20" };
+	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
 	local nMod, bADV, bDIS, sAddText = ActorManager5E.getSave(rActor, "constitution");
 	rRoll.nMod = nMod;
 	

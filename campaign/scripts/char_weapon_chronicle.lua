@@ -8,9 +8,9 @@ WEAPON_PROP_TWOHANDED = "twohanded"
 WEAPON_PROP_OFFHAND = "offhand"
 WEAPON_PROP_DEFENSIVE = "defensive"
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onInit()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
@@ -23,9 +23,9 @@ function onInit()
 end
 
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onClose()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
@@ -53,9 +53,9 @@ function onLinkChanged()
 	end
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onDataChanged()
 	-- Debug.chat("FN: onDataChanged in char_weapon")
 	-- Update Attack Attribute and show/hide ammo UI
@@ -86,9 +86,9 @@ function onDataChanged()
 	updateDefenseBonus()
 end
 
--- ===================================================================================================================
+--
 -- Adjusted
--- ===================================================================================================================
+--
 function onAttackChanged()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
@@ -170,9 +170,9 @@ function onDamageAction(draginfo)
 	return true;
 end
 
--- ===================================================================================================================
+--
 -- Added
--- ===================================================================================================================
+--
 function updateDefenseBonus()
 	-- Debug.chat("FN: updateDefenseBonus in char_weapon")
 	local nodeWeapon = getDatabaseNode()

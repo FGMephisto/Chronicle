@@ -7,8 +7,6 @@
 local rsname = "Chronicle";
 local rsmajorversion = 8;
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	if Session.IsHost then
 		updateCampaign();
@@ -19,15 +17,11 @@ function onInit()
 	Module.addEventHandler("onModuleLoad", onModuleLoad);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onCharImport(nodePC)
 	local _, _, aMajor, _ = DB.getImportRulesetVersion();
 	updateChar(nodePC, aMajor[rsname]);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onImport(node)
 	local aPath = StringManager.split(DB.getPath(node), ".");
 	if #aPath == 2 and aPath[1] == "charsheet" then
@@ -36,28 +30,40 @@ function onImport(node)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onModuleLoad(sModule)
 	local _, _, aMajor, _ = DB.getRulesetVersion(sModule);
 	updateModule(sModule, aMajor[rsname]);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+function updateChar(nodePC, nVersion)
+	if not nVersion then
+		nVersion = 0;
+	end
+	
+	if nVersion < rsmajorversion then
+		if nVersion < 5 then
+			VersionManager2.migrateChar5(nodePC);
+		end
+		if nVersion < 6 then
+			VersionManager2.migrateChar6(nodePC);
+		end
+		if nVersion < 7 then
+			VersionManager2.migrateChar7(nodePC);
+		end
+	end
+end
+
 function updateCampaign()
 	local _, _, aMajor, aMinor = DB.getRulesetVersion();
 	local major = aMajor[rsname];
-
 	if not major then
 		return;
 	end
-
+	
 	if major > 0 and major < rsmajorversion then
-		print("Migrating campaign database to latest data version.");
+		ChatManager.SystemMessage("Migrating campaign database to latest data version.");
 		DB.backup();
 		
-		-- Check for campaign major version
 		if major < 5 then
 			for _, nodeChar in pairs (DB.getChildren("charsheet")) do
 				VersionManager2.migrateChar5(nodeChar);
@@ -114,34 +120,32 @@ function updateCampaign()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function updateChar(nodePC, nVersion)
-	if not nVersion then
-		nVersion = 0;
-	end
-	
-	if nVersion < rsmajorversion then
-		if nVersion < 5 then
-			VersionManager2.migrateChar5(nodePC);
-		end
-		if nVersion < 6 then
-			VersionManager2.migrateChar6(nodePC);
-		end
-		if nVersion < 7 then
-			VersionManager2.migrateChar7(nodePC);
-		end
-	end
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function updateModule(sModule, nVersion)
-	return;
+	-- if not nVersion then
+		-- nVersion = 0;
+	-- end
+	
+	-- if nVersion < rsmajorversion then
+		-- local nodeRoot = DB.getRoot(sModule);
+		
+		-- if nVersion < 5 then
+			-- convertPregenCharacters5(nodeRoot);
+		-- end
+		-- if nVersion < 6 then
+			-- if sModule == "DD MM Monster Manual" then
+				-- Module.revert(sModule);
+			-- end
+		-- end
+		-- if nVersion < 7 then
+			-- convertPregenCharacters7(nodeRoot);
+		-- end
+		-- if nVersion < 8 then
+			-- convertPregenCharacters8(nodeRoot);
+			-- convertItems8(nodeRoot);
+		-- end
+	-- end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateChar5(nodeChar)
 	-- Delete data node as we will rebuild it
 	DB.deleteChild(nodeChar, "abilities");
@@ -208,8 +212,6 @@ function migrateChar5(nodeChar)
 	DB.deleteChild(nodeChar, "listabilities");
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateChar6(nodeChar)
 	-- Get nodes for migration
 	for _, nodeWeapon in pairs (DB.getChildren(nodeChar, "weaponlist")) do
@@ -240,8 +242,6 @@ function migrateChar6(nodeChar)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateChar7(nodeChar)
 	-- Get nodes for migration
 	for _, nodeSkills in pairs (DB.getChildren(nodeChar, "skilllist")) do
@@ -250,8 +250,6 @@ function migrateChar7(nodeChar)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateChar8(nodeChar)
 	-- Get nodes for migration
 	for _, nodeSkills in pairs (DB.getChildren(nodeChar, "skilllist")) do
@@ -261,8 +259,6 @@ function migrateChar8(nodeChar)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateNPC6(nodeNPC)
 	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeNPC, "actions")) do
@@ -281,8 +277,6 @@ function migrateNPC6(nodeNPC)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateNPC7(nodeNPC)
 	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeNPC, "actions")) do
@@ -291,8 +285,6 @@ function migrateNPC7(nodeNPC)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateNPC8(nodeNPC)
 	-- Create target node
 	nodeNPC.createChild("weaponlist")
@@ -310,8 +302,6 @@ function migrateNPC8(nodeNPC)
 	DB.deleteNode(DB.getPath(nodeNPC, "actions"))
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateCT6(nodeCT)
 	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
@@ -330,8 +320,6 @@ function migrateCT6(nodeCT)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateCT7(nodeCT)
 	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
@@ -340,8 +328,6 @@ function migrateCT7(nodeCT)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function migrateCT8(nodeCT)
 	-- Create target node
 	nodeCT.createChild("weaponlist")

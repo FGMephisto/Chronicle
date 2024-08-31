@@ -91,20 +91,6 @@
 	<template name="string_npc_abilitymodtext">
 		<string_abilitymodtext />
 	</template>
-	<template name="string_column_npc_remainder">
-		<basicstring>
-			<anchored position="righthigh" offset="10,0" height="20">
-				<right parent="" offset="-5" />
-			</anchored>
-		</basicstring>
-	</template>
-	<template name="string_columnh_npc_specialdef">
-		<string_columnh>
-			<anchored>
-				<left offset="140"/>
-			</anchored>
-		</string_columnh>
-	</template>
 	<template name="button_npcabilitycheck">
 		<buttoncontrol>
 			<anchored position="righthigh" offset="5,0" width="15" height="15" />
@@ -187,25 +173,11 @@
 				<left />
 				<right />
 			</anchored>
+			<allowcreate />
 			<allowdelete />
 			<child></child>
 			<child><backcolor>1A40301E</backcolor></child>
 			<noscroll />
-			<script>
-				function onInit()
-					registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
-				end
-				
-				function onMenuSelection(selection)
-					if selection == 5 then
-						self.addEntry(true);
-					end
-				end
-				
-				function addEntry(bFocus)
-					return createWindow();
-				end
-			</script>
 		</windowlist>
 	</template>
 

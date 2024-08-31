@@ -9,9 +9,7 @@
 	<windowclass name="client_ct_entry" merge="join">
 		<script file="ct/scripts/clientct_entry.lua" />
 		<sheetdata>
-			<base_clientct_health name="healthbase" insertbefore="initresult">
-				<anchored width="110" />
-			</base_clientct_health>
+			<base_clientct_health name="healthbase" insertbefore="initresult" />
 			<string_clientct_status name="status" insertbefore="initresult" />
 			<number_clientct_wounds name="wounds" insertbefore="initresult" />
 			<number_clientct_hptemp name="hptemp" insertbefore="initresult" />
