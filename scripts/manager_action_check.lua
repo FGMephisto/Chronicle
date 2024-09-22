@@ -153,13 +153,36 @@ function modRoll(rSource, rTarget, rRoll)
 		
 		-- Get exhaustion modifiers
 		local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
-		if nExhaustCount > 0 then
-			bEffects = true;
-			if nExhaustMod >= 1 then
-				bDIS = true;
+		local sOptionGAVE = OptionsManager.getOption("GAVE");
+		local bIs2024 = (sOptionGAVE == "2024");
+		if bIs2024 then
+			if nExhaustMod > 0 then
+				bEffects = true;
+				nAddMod = nAddMod - (2 * nExhaustMod);
 			end
+		else
+			if nExhaustMod > 0 then
+				bEffects = true;
+				bDIS = true;
+			end		
 		end
 		
+		-- Check Reliable state
+		local bReliable = false;
+		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
+			bEffects = true;
+			bReliable = true;
+		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLECHK", aCheckFilter)) > 0 then
+			bEffects = true;
+			bReliable = true;
+		end
+		if bReliable then
+			table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		end
+
 		-- If effects happened, then add note
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
@@ -184,8 +207,10 @@ function modRoll(rSource, rTarget, rRoll)
 end
 
 function onRoll(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
-	
+	ActionsManager2.handleReliable(rSource, rRoll);
+
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	if rRoll.nTarget then

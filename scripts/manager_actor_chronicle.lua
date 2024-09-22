@@ -9,8 +9,6 @@ VEHICLE_TYPE_LAND = "land";
 tStandardVehicleConditionImmunities = { "blinded", "charmed", "deafened", "frightened", "intoxicated", "paralyzed", "petrified", "poisoned", "stunned", "unconscious" };
 tStandardVehicleDamageImmunities = { "poison", "psychic" };
 
---
---
 function onInit()
 	initActorHealth();
 end
@@ -18,52 +16,58 @@ end
 --
 --	HEALTH
 --
+
+STATUS_DYING = "Defeated";
+
 function initActorHealth()
-	ActorHealthManager.registerStatusHealthColor(ActorHealthManager.STATUS_UNCONSCIOUS, ColorManager.COLOR_HEALTH_DYING_OR_DEAD);
+	ActorHealthManager.registerStatusHealthColor(ActorHealthManager.STATUS_UNCONSCIOUS, ColorManager.getUIColor("health_dyingordead"));
 
 	-- Replacing CoreRPG function with new function
 	ActorHealthManager.getWoundPercent = getWoundPercent;
 end
 
---
 -- NOTE: Always default to using CT node as primary to make sure 
 --		that all bars and statuses are synchronized in combat tracker
 --		(Cross-link network updates between PC and CT fields can occur in either order, 
 --		depending on where the scripts or end user updates.)
 -- NOTE 2: We can not use default effect checking in this function;
 -- 		as it will cause endless loop with conditionals that check health
--- Adjusted
 --
+
+-- Adjusted
 function getWoundPercent(v)
 	local rActor = ActorManager.resolveActor(v);
 
 	local nHP = 0;
 	local nWounds = 0;
+	local nDeathSaveFail = 0;
 
 	local nodeCT = ActorManager.getCTNode(rActor);
-
 	if nodeCT then
 		nHP = math.max(DB.getValue(nodeCT, "hp.total", 0), 0);
 		nWounds = math.max(DB.getValue(nodeCT, "hp.wounds", 0), 0);
+		nDeathSaveFail = DB.getValue(nodeCT, "deathsavefail", 0);
 	elseif ActorManager.isPC(rActor) then
 		local nodePC = ActorManager.getCreatureNode(rActor);
 		if nodePC then
 			nHP = math.max(DB.getValue(nodePC, "hp.total", 0), 0);
 			nWounds = math.max(DB.getValue(nodePC, "hp.wounds", 0), 0);
+			nDeathSaveFail = DB.getValue(nodePC, "hp.deathsavefail", 0);
 		end
 	end
-
+	
 	local nPercentWounded = 0;
-
 	if nHP > 0 then
 		nPercentWounded = nWounds / nHP;
 	end
-
-	-- ToDo: Wounds and Injuries and status "Defeated"
+	
 	local sStatus;
 	if nPercentWounded >= 1 then
-		-- ToDo: Use proper string management
-		sStatus = "Defeated";
+		if nDeathSaveFail >= 3 then
+			sStatus = ActorHealthManager.STATUS_DEAD;
+		else
+			sStatus = ActorHealthManager.STATUS_DYING;
+		end
 	else
 		sStatus = ActorHealthManager.getDefaultStatusFromWoundPercent(nPercentWounded);
 	end
@@ -71,13 +75,9 @@ function getWoundPercent(v)
 	return nPercentWounded, sStatus;
 end
 
---
--- Set color for damage
---
 function getPCSheetWoundColor(nodePC)
 	local nHP = 0;
 	local nWounds = 0;
-
 	if nodePC then
 		nHP = math.max(DB.getValue(nodePC, "hp.total", 0), 0);
 		nWounds = math.max(DB.getValue(nodePC, "hp.wounds", 0), 0);
@@ -95,7 +95,7 @@ end
 --
 --	ABILITY SCORES
 --
--- ToDo: Adjust
+
 function getAbilityEffectsBonus(rActor, sAbility)
 	if not rActor or ((sAbility or "") == "") then
 		return 0, 0;
@@ -136,8 +136,6 @@ function getAbilityEffectsBonus(rActor, sAbility)
 	return nAbilityMod, nAbilityEffects;
 end
 
---
---
 function getClassLevel(nodeActor, sValue)
 	local sClassName = DataCommon.class_valuetoname[sValue];
 	if not sClassName then
@@ -154,23 +152,16 @@ function getClassLevel(nodeActor, sValue)
 	return 0;
 end
 
---
 -- Adjusted
---
 function getAbilityScore(rActor, sAbility)
-	-- Return -1 if no Ability was handed over
 	if not sAbility then
 		return -1;
 	end
-
-	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor);
-
-	-- Return -1 if Actor was not defined
 	if not nodeActor then
 		return -1;
 	end
-
+	
 	local nStatScore = -1;
 
 	-- Convert input to lower case and removing all spaces from the string
@@ -179,11 +170,10 @@ function getAbilityScore(rActor, sAbility)
 	-- Get Ability score
 	nStatScore = DB.getValue(nodeActor, "abilities." .. sAbility .. ".score", 0);
 
-	return nStatScore
+	return nStatScore;
 end
 
---
---
+-- Adjusted
 function getAbilityBonus(rActor, sAbility)
 	if (sAbility or "") == "" then
 		return 0;
@@ -213,12 +203,14 @@ function getAbilityBonus(rActor, sAbility)
 		nStatVal = 0;
 	end
 	
-	return nStatVal;
+	-- return nStatVal;
+	return 0;
 end
 
 --
 --	DEFENSES
 --
+
 function getSave(rActor, sSave)
 	local bADV = false;
 	local bDIS = false;
@@ -235,7 +227,7 @@ function getSave(rActor, sSave)
 
 		-- Check for saving throw proficiency
 		if DB.getValue(nodeActor, "abilities." .. sSave .. ".saveprof", 0) == 1 then
-			nValue = nValue + DB.getValue(nodeActor, "profbonus", 0);
+			nValue = nValue + DB.getValue(nodeActor, "profbonus", 2);
 		end
 
 		-- Check for armor non-proficiency
@@ -246,34 +238,40 @@ function getSave(rActor, sSave)
 			end
 		end
 	elseif ActorManager.isRecordType(rActor, "npc") then
-		local sSaves = DB.getValue(nodeActor, "savingthrows", "");
-		for _,v in ipairs(StringManager.split(sSaves, ",;\r\n", true)) do
-			local sAbility, sSign, sMod = v:match("(%w+)%s*([%+%-–]?)(%d+)");
-			if sAbility then
-				if DataCommon.ability_stol[sAbility:upper()] then
-					sAbility = DataCommon.ability_stol[sAbility:upper()];
-				elseif DataCommon.ability_ltos[sAbility:lower()] then
-					sAbility = sAbility:lower();
-				else
-					sAbility = nil;
-				end
-				
-				if sAbility == sSave then
-					nValue = tonumber(sMod) or 0;
-					if sSign == "-" or sSign == "–" then
-						nValue = 0 - nValue;
+		if DB.getValue(nodeActor, "version", "") == "2024" then
+			nValue = nValue + DB.getValue(nodeActor, "abilities." .. sSave .. ".savemodifier", 0);
+		else
+			local sSaves = DB.getValue(nodeActor, "savingthrows", "");
+			for _,v in ipairs(StringManager.split(sSaves, ",;\r\n", true)) do
+				local sAbility, sSign, sMod = v:match("(%w+)%s*([%+%-–]?)(%d+)");
+				if sAbility then
+					if DataCommon.ability_stol[sAbility:upper()] then
+						sAbility = DataCommon.ability_stol[sAbility:upper()];
+					elseif DataCommon.ability_ltos[sAbility:lower()] then
+						sAbility = sAbility:lower();
+					else
+						sAbility = nil;
 					end
-					break;
+					
+					if sAbility == sSave then
+						nValue = tonumber(sMod) or 0;
+						if sSign == "-" or sSign == "–" then
+							nValue = 0 - nValue;
+						end
+						break;
+					end
 				end
 			end
+		end
+	elseif ActorManager.isRecordType(rActor, "vehicle") then
+		if DB.getValue(nodeActor, "version", "") == "2024" then
+			nValue = nValue + DB.getValue(nodeActor, "abilities." .. sSave .. ".savemodifier", 0);
 		end
 	end
 	
 	return nValue, bADV, bDIS, table.concat(aAddText, " ");
 end
 
---
---
 function getCheck(rActor, sCheck, sSkill)
 	local bADV = false;
 	local bDIS = false;
@@ -299,7 +297,7 @@ function getCheck(rActor, sCheck, sSkill)
 		-- Check for armor stealth disadvantage
 		if sSkill and sSkill:lower() == Interface.getString("skill_value_stealth"):lower() then
 			if DB.getValue(nodeActor, "defenses.ac.disstealth", 0) == 1 then
-				table.insert(aAddText, Interface.getString("roll_msg_armor_disstealth"));
+				table.insert(aAddText, string.format("[%s]", Interface.getString("roll_msg_armor_disstealth")));
 				bDIS = true;
 			end
 		end
@@ -308,8 +306,6 @@ function getCheck(rActor, sCheck, sSkill)
 	return nValue, bADV, bDIS, table.concat(aAddText, " ");
 end
 
---
---
 function getDefenseAdvantage(rAttacker, rDefender, aAttackFilter)
 	if not rDefender then
 		return false, false;
@@ -321,55 +317,46 @@ function getDefenseAdvantage(rAttacker, rDefender, aAttackFilter)
 	local bProne = false;
 	
 	if ActorManager.hasCT(rDefender) then
+		local bDefenderFrozen = EffectManager5E.hasEffectCondition(rDefender, "Paralyzed") or
+				EffectManager5E.hasEffectCondition(rDefender, "Petrified") or
+				EffectManager5E.hasEffectCondition(rDefender, "Stunned") or
+				EffectManager5E.hasEffectCondition(rDefender, "Unconscious");
+
 		if EffectManager5E.hasEffect(rAttacker, "ADVATK", rDefender, true) then
 			bADV = true;
 		elseif #(EffectManager5E.getEffectsByType(rAttacker, "ADVATK", aAttackFilter, rDefender, true)) > 0 then
 			bADV = true;
+		elseif EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAttacker) then
+			bADV = true;
+		elseif #(EffectManager5E.getEffectsByType(rDefender, "GRANTADVATK", aAttackFilter, rAttacker)) > 0 then
+			bADV = true;
+		elseif bDefenderFrozen then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rAttacker, "Invisible", rDefender, true) then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rDefender, "Blinded", rAttacker) then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rDefender, "Restrained", rAttacker) then
+			bADV = true;
 		end
+
 		if EffectManager5E.hasEffect(rAttacker, "DISATK", rDefender, true) then
 			bDIS = true;
 		elseif #(EffectManager5E.getEffectsByType(rAttacker, "DISATK", aAttackFilter, rDefender, true)) > 0 then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffect(rAttacker, "Invisible", rDefender, true) then
-			bADV = true;
-		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAttacker) then
-			bADV = true;
-		elseif #(EffectManager5E.getEffectsByType(rDefender, "GRANTADVATK", aAttackFilter, rAttacker)) > 0 then
-			bADV = true;
-		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAttacker) then
+		elseif EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAttacker) then
 			bDIS = true;
 		elseif #(EffectManager5E.getEffectsByType(rDefender, "GRANTDISATK", aAttackFilter, rAttacker)) > 0 then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffect(rDefender, "Blinded", rAttacker) then
-			bADV = true;
-		end
-		if EffectManager5E.hasEffect(rDefender, "Invisible", rAttacker) then
+		elseif EffectManager5E.hasEffect(rDefender, "Invisible", rAttacker) then
 			bDIS = true;
 		end
-		if EffectManager5E.hasEffect(rDefender, "Paralyzed", rAttacker) then
-			bADV = true;
-		end
+
 		if EffectManager.hasCondition(rDefender, "Prone") then
 			bProne = true;
 		end
-		if EffectManager5E.hasEffect(rDefender, "Restrained", rAttacker) then
-			bADV = true;
-		end
-		if EffectManager5E.hasEffect(rDefender, "Stunned", rAttacker) then
-			bADV = true;
-		end
-		if EffectManager.hasCondition(rDefender, "Unconscious") then
-			bADV = true;
-		end
 		if EffectManager5E.hasEffect(rDefender, "Dodge", rAttacker) and 
-				not (EffectManager5E.hasEffect(rDefender, "Paralyzed", rAttacker) or
-				EffectManager5E.hasEffect(rDefender, "Stunned", rAttacker) or
-				EffectManager5E.hasEffect(rDefender, "Incapacitated", rAttacker) or
-				EffectManager5E.hasEffect(rDefender, "Unconscious", rAttacker) or
+				not (bDefenderFrozen or
 				EffectManager5E.hasEffect(rDefender, "Grappled", rAttacker) or
 				EffectManager5E.hasEffect(rDefender, "Restrained", rAttacker)) then
 			bDIS = true;
@@ -425,9 +412,7 @@ function getDefenseAdvantage(rAttacker, rDefender, aAttackFilter)
 	return bADV, bDIS;
 end
 
---
 -- Adjusted
---
 function getDefenseValue(rAttacker, rDefender, rRoll)
 	if not rDefender or not rRoll then
 		return nil, 0, 0, false, false;
@@ -443,7 +428,6 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	local nDefense = 0;
 	local nodeDefender = ActorManager.getCreatureNode(rDefender)
 
-	-- Exits if no defender was provided
 	local sDefenderNodeType, nodeDefender = ActorManager.getTypeAndNode(rDefender);
 	if not nodeDefender then
 		return nil, 0, 0, false, false;
@@ -457,10 +441,12 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	else
 		return nil, 0, 0, false, false;
 	end
-
+	nDefenseStatMod = ActorManager5E.getAbilityBonus(rDefender, sDefenseStat);
+	
 	-- Effects
 	local nDefenseEffectMod = 0;
-
+	local bADV = false;
+	local bDIS = false;
 	if ActorManager.hasCT(rDefender) then
 		local nBonusAC = 0;
 		local nBonusStat = 0;
@@ -482,43 +468,56 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 		end
 		
 		nBonusStat = ActorManager5E.getAbilityEffectsBonus(rDefender, sDefenseStat);
+		-- if (sDefenderNodeType == "pc") and (nBonusStat > 0) then
+			-- local sMaxDexBonus = DB.getValue(nodeDefender, "defenses.ac.dexbonus", "");
+			-- if sMaxDexBonus == "no" then
+				-- nBonusStat = 0;
+			-- elseif sMaxDexBonus == "max2" then
+				-- local nMaxEffectStatModBonus = math.max(2 - nDefenseStatMod, 0);
+				-- if nBonusStat > nMaxEffectStatModBonus then 
+					-- nBonusStat = nMaxEffectStatModBonus; 
+				-- end
+			-- elseif sMaxDexBonus == "max3" then
+				-- local nMaxEffectStatModBonus = math.max(3 - nDefenseStatMod, 0);
+				-- if nBonusStat > nMaxEffectStatModBonus then 
+					-- nBonusStat = nMaxEffectStatModBonus; 
+				-- end
+			-- end
+		-- end
 		
-		local bProne = false;
+		local bDefenderFrozen = EffectManager5E.hasEffectCondition(rDefender, "Paralyzed") or
+				EffectManager5E.hasEffectCondition(rDefender, "Petrified") or
+				EffectManager5E.hasEffectCondition(rDefender, "Stunned") or
+				EffectManager5E.hasEffectCondition(rDefender, "Unconscious");
+
 		if EffectManager5E.hasEffect(rAttacker, "ADVATK", rDefender, true) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rAttacker, "DISATK", rDefender, true) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rAttacker, "Invisible", rDefender, true) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAtracker) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAtracker) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "Invisible", rAttacker) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "Paralyzed", rAttacker) then
-			-- Placeholder
-		end
-		if EffectManager.hasCondition(rDefender, "Prone") then
-			bProne = true
-		end
-		if EffectManager5E.hasEffect(rDefender, "Restrained", rAttacker) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "Stunned", rAttacker) then
-			-- Placeholder
-		end
-		if EffectManager5E.hasEffect(rDefender, "Unconscious", rAttacker) then
-			-- Placeholder
+			bADV = true;
+		elseif bDefenderFrozen then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rDefender, "GRANTADVATK", rAttacker) then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rAttacker, "Invisible", rDefender, true) then
+			bADV = true;
+		elseif EffectManager5E.hasEffect(rDefender, "Restrained", rAttacker) then
+			bADV = true;
 		end
 
-		-- ToDo: Check this
+		if EffectManager5E.hasEffect(rAttacker, "DISATK", rDefender, true) then
+			bDIS = true;
+		elseif EffectManager5E.hasEffect(rDefender, "GRANTDISATK", rAttacker) then
+			bDIS = true;
+		elseif EffectManager5E.hasEffect(rDefender, "Invisible", rAttacker) then
+			bDIS = true;
+		end
+		
+		if EffectManager.hasCondition(rDefender, "Prone") then
+			if sAttackType == "M" then
+				bADV = true;
+			elseif sAttackType == "R" then
+				bDIS = true;
+			end
+		end
+		
 		if nCover < 5 then
 			local aCover = EffectManager5E.getEffectsByType(rDefender, "SCOVER", aAttackFilter, rAttacker);
 			if #aCover > 0 or EffectManager5E.hasEffect(rDefender, "SCOVER", rAttacker) then
@@ -535,11 +534,9 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	end
 	
 	-- Results
-	return nDefense, 0, nDefenseEffectMod;
+	return nDefense, 0, nDefenseEffectMod, bADV, bDIS;
 end
 
---
---
 function getDamageThreshold(rActor)
 	local nResult = 0;
 
@@ -560,8 +557,6 @@ function getDamageThreshold(rActor)
 	return nResult;
 end
 
---
---
 function getMishapThreshold(rActor)
 	local nResult = 0;
 
@@ -577,8 +572,6 @@ function getMishapThreshold(rActor)
 	return nResult;
 end
 
---
---
 function getDamageVulnerabilities(rActor, rSource)
 	local tResults = {};
 
@@ -594,9 +587,6 @@ function getDamageVulnerabilities(rActor, rSource)
 
 	return tResults;
 end
-
---
---
 function getDamageResistances(rActor, rSource)
 	local tResults = {};
 
@@ -612,9 +602,6 @@ function getDamageResistances(rActor, rSource)
 
 	return tResults;
 end
-
---
---
 function getDamageImmunities(rActor, rSource)
 	local tResults = {};
 
@@ -641,9 +628,6 @@ function getDamageImmunities(rActor, rSource)
 
 	return tResults;
 end
-
---
---
 function parseDamageVulnResistImmuneHelper(rActor, sField)
 	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if not nodeActor then
@@ -703,9 +687,6 @@ function parseDamageVulnResistImmuneHelper(rActor, sField)
 	
 	return tResults;
 end
-
---
---
 function getDamageVulnResistImmuneEffectHelper(rActor, sEffectType, rSource)
 	local tResults = {};
 
@@ -713,7 +694,7 @@ function getDamageVulnResistImmuneEffectHelper(rActor, sEffectType, rSource)
 	for _,v in pairs(aEffects) do
 		local r = {};
 		
-		r.mod = v.mod;
+		r.mod = DiceManager.evalDice(v.dice, v.mod);
 		r.aNegatives = {};
 		for _,vType in pairs(v.remainder) do
 			if #vType > 1 and ((vType:sub(1,1) == "!") or (vType:sub(1,1) == "~")) then
@@ -735,8 +716,6 @@ function getDamageVulnResistImmuneEffectHelper(rActor, sEffectType, rSource)
 	return tResults;
 end
 
---
---
 function getConditionImmunities(rActor, rSource)
 	local tResults = {};
 
@@ -761,9 +740,6 @@ function getConditionImmunities(rActor, rSource)
 
 	return tResults;
 end
-
---
---
 function getNonPCActorConditionImmunitiesHelper(rActor)
 	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if not nodeActor then
@@ -772,7 +748,13 @@ function getNonPCActorConditionImmunitiesHelper(rActor)
 
 	local tResults = {};
 
-	local sActorImmune = DB.getValue(nodeActor, "conditionimmunities", ""):lower();
+	local bIs2024 = (DB.getValue(nodeActor, "version", "") == "2024");
+	local sActorImmune;
+	if bIs2024 then
+		sActorImmune = DB.getValue(nodeActor, "damageimmunities", ""):lower();
+	else
+		sActorImmune = DB.getValue(nodeActor, "conditionimmunities", ""):lower();
+	end
 	local tActorImmuneWords = StringManager.split(sActorImmune, ",", true);
 	for _,v in ipairs(tActorImmuneWords) do
 		local vLower = v:lower();
@@ -782,11 +764,17 @@ function getNonPCActorConditionImmunitiesHelper(rActor)
 	end
 
 	if ActorManager.isRecordType(rActor, "vehicle") then
-		if (DB.getValue(nodeActor, "disablestandardconditionimmunities", 0) == 0) then
+		local bAddStandard;
+		if bIs2024 then
+			bAddStandard = (DB.getValue(nodeActor, "disablestandarddamageimmunities", 0) == 0);
+		else
+			bAddStandard = (DB.getValue(nodeActor, "disablestandardconditionimmunities", 0) == 0);
+		end
+		if bAddStandard then
 			for _,v in ipairs(ActorManager5E.tStandardVehicleConditionImmunities) do
 				table.insert(tResults, v);
 			end
-			local sType = StringManager.trim(DB.getValue(nodeActor, "type", "")):lower();
+			local sType = StringManager.simplify(DB.getValue(nodeActor, "type", ""));
 			if sType ~= ActorManager5E.VEHICLE_TYPE_LAND then
 				table.insert(tResults, "prone");
 			end
@@ -796,9 +784,7 @@ function getNonPCActorConditionImmunitiesHelper(rActor)
 	return tResults;
 end
 
---
 -- Added
---
 function getArmorPenalty(rActor)
 	local nAP = 0
 
@@ -816,9 +802,7 @@ function getArmorPenalty(rActor)
 	return nAP
 end
 
---
 -- Added
---
 function getHealthFatigue(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -833,9 +817,7 @@ function getHealthFatigue(rActor)
 	return nInjuries
 end
 
---
 -- Added
---
 function getHealthInjuries(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -851,9 +833,7 @@ function getHealthInjuries(rActor)
 	return nInjuries
 end
 
---
 -- Added
---
 function getHealthTrauma(rActor)
 	-- Return -1 if Actor was not defined
 	local nodeActor = ActorManager.getCreatureNode(rActor)
@@ -868,9 +848,7 @@ function getHealthTrauma(rActor)
 	return nTrauma
 end
 
---
 -- Added
---
 function getSkillRank(rActor, sSkill)
 	local nodeActor = ActorManager.getCreatureNode(rActor)
 	local nSkillRank = -1

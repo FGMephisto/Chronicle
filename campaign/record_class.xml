@@ -6,38 +6,24 @@
 -->
 
 <root>
-	<template name="classprof_string">
-		<string_columnh>
-			<anchored>
-				<right offset="-40" />
-			</anchored>
-			<script>
-				function onVisibilityChanged()
-					window[getName() .. "_link"].setVisible(isVisible());
-				end
-			</script>
-		</string_columnh>
-	</template>
-	<template name="classprof_link">
-		<linkcontrol>
-			<anchored position="righthigh" offset="10,2" width="20" height="20" />
-			<script>
-				function onInit()
-					if class and path then
-						setValue(class[1], DB.getPath(window.getDatabaseNode(), path[1]));
-					else
-						setValue();
-					end
-				end
-			</script>
-		</linkcontrol>
-	</template>
-	
 	<windowclass name="reference_class" copy="record_window_tabbed">
+		<placement>
+			<size width="600" height="700" />
+		</placement>
+		<sizelimits>
+			<minimum width="500" height="500" />
+			<dynamic />
+		</sizelimits>
 		<tab>
 			<name>notes</name>
 			<resource>tab_main</resource>
 			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>features</name>
+			<resource>tab_features</resource>
+			<class>reference_class_features</class>
 			<embed />
 		</tab>
 		<tab merge="add">
@@ -46,242 +32,626 @@
 			<class>reference_class_main</class>
 			<embed />
 		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_class_header" copy="record_header" />
 
-	<windowclass name="reference_class_main">
-		<margins control="0,0,0,7" />
+	<windowclass name="reference_class_features">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_class_features_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_class_features_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_features_2024">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				hitdice.update(bReadOnly);
-				profarmor.update(bReadOnly);
-				profsavingthrows.update(bReadOnly);
-				profskills.update(bReadOnly);
-				proftools.update(bReadOnly);
-				profweapons.update(bReadOnly);
-				multiprofarmor.update(bReadOnly);
-				multiprofskills.update(bReadOnly);
-				multiproftools.update(bReadOnly);
-				multiprofweapons.update(bReadOnly);
-				features.update(bReadOnly);
-				if DB.getChildCount(getDatabaseNode(), "abilities") &lt;= 0 then
-					specializations_header.setVisible(false);
-					specializations_iedit.setVisible(false);
-					specializations_iadd.setVisible(false);
-					specializations.setVisible(false);
-				else
-					specializations.update(bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "features", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "featurechoices", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					elseif sClass == "reference_classfeaturechoice" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = featurechoices.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), ""));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+								DB.setValue(node, "choicetype", "string", DB.getValue(DB.getPath(sRecord, "choicetype"), ""));
+								DB.setValue(node, "prerequisite", "string", DB.getValue(DB.getPath(sRecord, "prerequisite"), ""));
+							end
+							return true;
+						end
+					end
 				end
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="hitdice_label">
-				<static textres="class_label_hitdice" />
-			</label_column>
-			<string_columnh name="hitdice" source="hp.hitdice.text" />
-			
-			<header_column name="proficiencies_header">
-				<static textres="class_header_proficiencies"/>
-				<center />
-			</header_column>
-			<label_column name="profarmor_label">
-				<static textres="classprof_label_armor" />
-			</label_column>
-			<hs name="profarmor_name" source="proficiencies.armor.name">
-				<default textres="classprof_value_armor" />
-			</hs>
-			<classprof_string name="profarmor" source="proficiencies.armor.text" />
-			<classprof_link name="profarmor_link">
-				<anchored to="profarmor" />
-				<class>reference_classproficiency</class>
-				<path>proficiencies.armor</path>
-			</classprof_link>
-			<label_column name="profsavingthrows_label">
-				<static textres="classprof_label_savingthrows" />
-			</label_column>
-			<hs name="profsavingthrows_name" source="proficiencies.savingthrows.name">
-				<default textres="classprof_value_savingthrows" />
-			</hs>
-			<classprof_string name="profsavingthrows" source="proficiencies.savingthrows.text" />
-			<classprof_link name="profsavingthrows_link">
-				<anchored to="profsavingthrows" />
-				<class>reference_classproficiency</class>
-				<path>proficiencies.savingthrows</path>
-			</classprof_link>
-			<label_column name="profskills_label">
-				<static textres="classprof_label_skills" />
-			</label_column>
-			<hs name="profskills_name" source="proficiencies.skills.name">
-				<default textres="classprof_value_skills" />
-			</hs>
-			<classprof_string name="profskills" source="proficiencies.skills.text" />
-			<classprof_link name="profskills_link">
-				<anchored to="profskills" />
-				<class>reference_classproficiency</class>
-				<path>proficiencies.skills</path>
-			</classprof_link>
-			<label_column name="proftools_label">
-				<static textres="classprof_label_tools" />
-			</label_column>
-			<hs name="proftools_name" source="proficiencies.tools.name">
-				<default textres="classprof_value_tools" />
-			</hs>
-			<classprof_string name="proftools" source="proficiencies.tools.text" />
-			<classprof_link name="proftools_link">
-				<anchored to="proftools" />
-				<class>reference_classproficiency</class>
-				<path>proficiencies.tools</path>
-			</classprof_link>
-			<label_column name="profweapons_label">
-				<static textres="classprof_label_weapons" />
-			</label_column>
-			<hs name="profweapons_name" source="proficiencies.weapons.name">
-				<default textres="classprof_value_weapons" />
-			</hs>
-			<classprof_string name="profweapons" source="proficiencies.weapons.text" />
-			<classprof_link name="profweapons_link">
-				<anchored to="profweapons" />
-				<class>reference_classproficiency</class>
-				<path>proficiencies.weapons</path>
-			</classprof_link>
-			
-			<header_column name="multiclassproficiencies_header">
-				<static textres="class_header_multiclassproficiencies"/>
-				<center />
-			</header_column>
-			<label_column name="multiprofarmor_label">
-				<static textres="classprof_label_armor" />
-			</label_column>
-			<hs name="multiprofarmor_name" source="multiclassproficiencies.armor.name">
-				<default textres="classprof_value_armor" />
-			</hs>
-			<classprof_string name="multiprofarmor" source="multiclassproficiencies.armor.text" />
-			<classprof_link name="multiprofarmor_link">
-				<anchored to="multiprofarmor" />
-				<class>reference_classproficiency</class>
-				<path>multiclassproficiencies.armor</path>
-			</classprof_link>
-			<label_column name="multiprofskills_label">
-				<static textres="classprof_label_skills" />
-			</label_column>
-			<hs name="multiprofskills_name" source="multiclassproficiencies.skills.name">
-				<default textres="classprof_value_skills" />
-			</hs>
-			<classprof_string name="multiprofskills" source="multiclassproficiencies.skills.text" />
-			<classprof_link name="multiprofskills_link">
-				<anchored to="multiprofskills" />
-				<class>reference_classproficiency</class>
-				<path>multiclassproficiencies.skills</path>
-			</classprof_link>
-			<label_column name="multiproftools_label">
-				<static textres="classprof_label_tools" />
-			</label_column>
-			<hs name="multiproftools_name" source="multiclassproficiencies.tools.name">
-				<default textres="classprof_value_tools" />
-			</hs>
-			<classprof_string name="multiproftools" source="multiclassproficiencies.tools.text" />
-			<classprof_link name="multiproftools_link">
-				<anchored to="multiproftools" />
-				<class>reference_classproficiency</class>
-				<path>multiclassproficiencies.tools</path>
-			</classprof_link>
-			<label_column name="multiprofweapons_label">
-				<static textres="classprof_label_weapons" />
-			</label_column>
-			<hs name="multiprofweapons_name" source="multiclassproficiencies.weapons.name">
-				<default textres="classprof_value_weapons" />
-			</hs>
-			<classprof_string name="multiprofweapons" source="multiclassproficiencies.weapons.text" />
-			<classprof_link name="multiprofweapons_link">
-				<anchored to="multiprofweapons" />
-				<class>reference_classproficiency</class>
-				<path>multiclassproficiencies.weapons</path>
-			</classprof_link>
-			
-			<header_column name="features_header">
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="features_header">
 				<static textres="class_header_features"/>
-				<center />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="features_iedit">
-				<anchored to="features_header" position="righthigh" offset="-20,0" />
-				<target>features</target>
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<edittarget>features</edittarget>
 			</button_iedit>
 			<button_iadd name="features_iadd">
-				<anchored to="features_iedit" position="lefthigh" offset="5,0" />
+				<anchored to="features_header" position="insidetopright" offset="22,0" />
 				<target>features</target>
 			</button_iadd>
-			<list_column name="features">
+			<list_content_column name="features">
 				<datasource>.features</datasource>
-				<sortby><control>level</control><control>name</control></sortby>
-				<class>ref_class_feature</class>
-			</list_column>
-			
-			<header_column name="specializations_header">
-				<static textres="class_header_specializations"/>
-				<center />
-			</header_column>
-			<button_iedit name="specializations_iedit">
-				<anchored to="specializations_header" position="righthigh" offset="-20,0" />
-				<target>specializations</target>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
+
+			<header_content_framed_headersimple name="featurechoices_header">
+				<static textres="class_header_featurechoices"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="featurechoices_iedit">
+				<anchored to="featurechoices_header" position="insidetopright" offset="2,0" />
+				<edittarget>featurechoices</edittarget>
 			</button_iedit>
-			<button_iadd name="specializations_iadd">
-				<anchored to="specializations_iedit" position="lefthigh" offset="5,0" />
-				<target>specializations</target>
+			<button_iadd name="featurechoices_iadd">
+				<anchored to="featurechoices_header" position="insidetopright" offset="22,0" />
+				<target>featurechoices</target>
 			</button_iadd>
-			<list_column name="specializations">
-				<datasource>.abilities</datasource>
-				<class>ref_class_specialization</class>
-			</list_column>
+			<list_content_column name="featurechoices">
+				<datasource>.featurechoices</datasource>
+				<class>reference_classfeaturechoice_listitem</class>
+				<sortby><field>choicetype</field><field>level</field><field>name</field></sortby>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_class_feature">
+	<windowclass name="reference_class_features_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlUpdate(self, "features", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				if bReadOnly then
+					return false;
+				end
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					end
+				end
+
+				return false;
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="features_header">
+				<static textres="class_header_features"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="features_iedit">
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<edittarget>features</edittarget>
+			</button_iedit>
+			<button_iadd name="features_iadd">
+				<anchored to="features_header" position="insidetopright" offset="22,0" />
+				<target>features</target>
+			</button_iadd>
+			<list_content_column name="features">
+				<datasource>.features</datasource>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_classfeature_listitem">
 		<margins control="0,0,0,2" />
 		<script>
 			function update(bReadOnly)
-				level.setReadOnly(bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "name", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<number_listitem_left name="level">
+				<nodrag />
+			</number_listitem_left>
+
+			<linkc_listitem_right name="shortcut">
+				<class>reference_classfeature</class>
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>features_iedit</editmode>
+			</button_listitem_idelete>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_classfeature" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_classfeaturechoice_listitem">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				WindowManager.callSafeControlUpdate(self, "choicetype", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "name", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<string_listitem_left name="choicetype">
+				<anchored width="180" />
+				<font>sheetlabel</font>
+				<empty textres="classfeaturechoice_empty_choicetype" />
+			</string_listitem_left>
+
+			<number_listitem_left name="level">
+				<nodrag />
+			</number_listitem_left>
+
+			<linkc_listitem_right name="shortcut">
+				<class>reference_classfeaturechoice</class>
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>featurechoices_iedit</editmode>
+			</button_listitem_idelete>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_classfeaturechoice" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_class_main">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_class_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_class_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_main_2024">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				local node = getDatabaseNode();
+				DB.addHandler(DB.getPath(node, "startingequipmentlist.*.wealth"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "startingequipmentlist.*.items.*.name"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "startingequipmentlist.*.items.*.count"), "onUpdate", updateEquipmentString);
+
+				self.update();
+				self.updateEquipmentString();
+			end
+			function update()
+				local tFields = { "ability", "hitdice", "profsavingthrows", "profskills", "profweapons", "proftools", "profarmor", "multiprofskills", "multiprofweapons", "multiproftools", "multiprofarmor", };
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "startingequipment", bReadOnly, not bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "startingequiplist", bReadOnly, bReadOnly);
+			end
+			function updateEquipmentString()
+				local node = getDatabaseNode();
+				local aChoiceLetters = { "A", "B", "C" };
+				local tOptions = {};
+				local tOptionsList = DB.getChildList(node, "startingequipmentlist");
+				for k,v in ipairs(tOptionsList) do
+					local tItems = {};
+					local sOption = ("(%s)"):format(aChoiceLetters[k]);
+					if k > 1 then
+						if k == #tOptionsList then
+							sOption = ("; or (%s)"):format(aChoiceLetters[k]);
+						else
+							sOption = ("; (%s)"):format(aChoiceLetters[k]);
+						end
+					end
+					local tItemsList = DB.getChildList(v, "items");
+					for k2,v2 in ipairs(tItemsList) do
+						local sName = DB.getValue(v2, "name", "");
+						local nCount = DB.getValue(v2, "count", 0);
+						local sItem = "";
+						if nCount > 1 then
+							sItem = ("%s %s"):format(nCount, sName);
+						else
+							sItem = ("%s"):format(sName);
+						end
+						table.insert(tItems, sItem);
+					end
+					local nWealth = DB.getValue(v, "wealth", 0);
+					if nWealth > 0 then
+						table.insert(tItems, ("%s GP"):format(nWealth));
+					end
+
+					table.insert(tOptions, ("%s %s"):format(sOption, table.concat(tItems, ", ")));
+				end
+
+				if #tOptions > 0 then
+					local sText = "Choose %s:";
+					if #tOptions == 2 then
+						sText = sText:format("A or B");
+					elseif #tOptions == 3 then
+						sText = sText:format("A, B, or C");
+					end
+
+					sText = ("%s %s"):format(sText, table.concat(tOptions, " "));
+					DB.setValue(node, "startingequipment", "string", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="ability_label">
+				<static textres="class_label_ability" />
+			</label_content_column>
+			<string_content_columnh name="ability" />
+			
+			<label_content_column name="hitdice_label">
+				<static textres="class_label_hitdice" />
+				<tooltip textres="class_tooltip_hitdice" />
+			</label_content_column>
+			<string_content_columnh name="hitdice" source="hp.hitdice.text" />
+			
+			<header_content_framed_headersimple name="proficiencies_header">
+				<static textres="class_header_proficiencies"/>
+			</header_content_framed_headersimple>
+			<label_content_column name="profsavingthrows_label">
+				<static textres="classprof_label_savingthrows" />
+			</label_content_column>
+			<string_content_columnh name="profsavingthrows" source="proficiencies.savingthrows.text" />
+			<label_content_column name="profskills_label">
+				<static textres="classprof_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="profskills" source="proficiencies.skills.text" />
+			<label_content_column name="profweapons_label">
+				<static textres="classprof_label_weapons" />
+			</label_content_column>
+			<string_content_columnh name="profweapons" source="proficiencies.weapons.text" />
+			<label_content_column name="proftools_label">
+				<static textres="classprof_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="proftools" source="proficiencies.tools.text" />
+			<label_content_column name="profarmor_label">
+				<static textres="classprof_label_armor" />
+			</label_content_column>
+			<string_content_columnh name="profarmor" source="proficiencies.armor.text" />
+			
+			<header_content_framed_headersimple name="multiclassproficiencies_header">
+				<static textres="class_header_multiclassproficiencies"/>
+			</header_content_framed_headersimple>
+			<label_content_column name="multiprofskills_label">
+				<static textres="classprof_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="multiprofskills" source="multiclassproficiencies.skills.text" />
+			<label_content_column name="multiprofweapons_label">
+				<static textres="classprof_label_weapons" />
+			</label_content_column>
+			<string_content_columnh name="multiprofweapons" source="multiclassproficiencies.weapons.text" />
+			<label_content_column name="multiproftools_label">
+				<static textres="classprof_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="multiproftools" source="multiclassproficiencies.tools.text" />
+			<label_content_column name="multiprofarmor_label">
+				<static textres="classprof_label_armor" />
+			</label_content_column>
+			<string_content_columnh name="multiprofarmor" source="multiclassproficiencies.armor.text" />
+			
+			<header_content_framed_headersimple name="startingequipment_header">
+				<static textres="class_header_equipment"/>
+			</header_content_framed_headersimple>
+			<string_content_columnh_full name="startingequipment" />
+
+			<header_content_framed_headersimple name="startingequiplist_header">
+				<static textres="class_header_equipment"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="startingequiplist_iedit">
+				<anchored to="startingequiplist_header" position="righthigh" offset="-20,0" />
+				<target>startingequiplist</target>
+			</button_iedit>
+			<button_iadd name="startingequiplist_iadd">
+				<anchored to="startingequiplist_iedit" position="lefthigh" offset="5,0" />
+				<target>startingequiplist</target>
+			</button_iadd>
+			<list_content_column name="startingequiplist">
+				<datasource>.startingequipmentlist</datasource>
+				<class>startingequipmentlist_option_entry</class>
+				<script>
+					function onListChanged()
+						for k,v in ipairs(self.getWindows()) do
+							v.option.setValue("Option " .. k);
+						end
+						window.updateEquipmentString();
+					end
+				</script>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="startingequipmentlist_option_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				items_iadd.setVisible(not bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "wealth", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "items", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					return CampaignDataManager2.handleKitItemDrop(draginfo, items.getDatabaseNode());
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+			<genericcontrol name="frame_header">
+				<anchored height="23">
+					<left />
+					<top />
+					<right />
+				</anchored>
+				<frame name="rowshade" offset="5,2,5,2" />
+			</genericcontrol>
+			<button_listitem_idelete>
+				<editmode>startingequipmentlist_iedit</editmode>
+			</button_listitem_idelete>
+			<button_iedit name="items_iedit">
+				<anchored to="rightanchor" >
+					<top />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<target>items</target>
+			</button_iedit>
+			<button_iadd name="items_iadd">
+				<anchored to="rightanchor" >
+					<top />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<target>items</target>
+			</button_iadd>
+
+			<string_listitem_center_noframe_static name="option">
+				<font name="sheetlabel" />
+			</string_listitem_center_noframe_static>
+			<list_content_column name="items">
+				<anchored to="option">
+					<right parent="" />
+				</anchored>
+				<datasource>.items</datasource>
+				<class>startingequipment_item_entry</class>
+			</list_content_column>
+
+			<label_content_column name="wealth_label">
+				<anchored to="option">
+					<left offset="17" />
+				</anchored>
+				<static>GP</static>
+			</label_content_column>
+			<number_content_columnh name="wealth">
+				<anchored to="option">
+					<left offset="55" />
+				</anchored>
+				<nodrag />
+			</number_content_columnh>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="startingequipment_item_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				count.setReadOnly(bReadOnly);
 				name.setReadOnly(bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
-				<class>reference_classfeature</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
+			<anchor_listitem_left />
+			<number_listitem_left name="count">
+				<min>1</min>
+				<default>1</default>
+				<nodrag />
+			</number_listitem_left>
 
-			<basicnumber name="level">
-				<anchored position="insidetopleft" offset="5,2" height="20" width="20" />
-			</basicnumber>
-			<string_listitem_column_name name="name">
-				<anchored offset="35,2" />
-				<empty textres="library_recordtype_empty_classfeature" />
-			</string_listitem_column_name>
+			<anchor_listitem_right />
+			<button_listitem_idelete name="idelete">
+				<editmode>items_iedit</editmode>
+			</button_listitem_idelete>
+			<linkc_listitem_right name="shortcut">
+				<class>item</class>
+			</linkc_listitem_right>
+
+			<string_listitem_center name="name">
+				<delaykeyupdate />
+			</string_listitem_center>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_class_specialization">
+
+	<windowclass name="reference_class_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local tFields = { "hitdice", "profarmor", "profsavingthrows", "profskills", "proftools", "profweapons", "multiprofarmor", "multiprofskills", "multiproftools", "multiprofweapons", };
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+
+				local bHideOldSpec = (DB.getChildCount(getDatabaseNode(), "abilities") &lt;= 0);
+				WindowManager.callSafeControlUpdate(self, "specializations", bReadOnly, bHideOldSpec);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="hitdice_label">
+				<static textres="class_label_hitdice" />
+				<tooltip textres="class_tooltip_hitdice" />
+			</label_content_column>
+			<string_content_columnh name="hitdice" source="hp.hitdice.text" />
+			
+			<header_content_framed_headersimple name="proficiencies_header">
+				<static textres="class_header_proficiencies"/>
+			</header_content_framed_headersimple>
+			<label_content_column name="profarmor_label">
+				<static textres="classprof_label_armor" />
+			</label_content_column>
+			<string_content_columnh name="profarmor" source="proficiencies.armor.text" />
+			<label_content_column name="profsavingthrows_label">
+				<static textres="classprof_label_savingthrows" />
+			</label_content_column>
+			<string_content_columnh name="profsavingthrows" source="proficiencies.savingthrows.text" />
+			<label_content_column name="profskills_label">
+				<static textres="classprof_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="profskills" source="proficiencies.skills.text" />
+			<label_content_column name="proftools_label">
+				<static textres="classprof_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="proftools" source="proficiencies.tools.text" />
+			<label_content_column name="profweapons_label">
+				<static textres="classprof_label_weapons" />
+			</label_content_column>
+			<string_content_columnh name="profweapons" source="proficiencies.weapons.text" />
+			
+			<header_content_framed_headersimple name="multiclassproficiencies_header">
+				<static textres="class_header_multiclassproficiencies"/>
+			</header_content_framed_headersimple>
+			<label_content_column name="multiprofarmor_label">
+				<static textres="classprof_label_armor" />
+			</label_content_column>
+			<string_content_columnh name="multiprofarmor" source="multiclassproficiencies.armor.text" />
+			<label_content_column name="multiprofskills_label">
+				<static textres="classprof_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="multiprofskills" source="multiclassproficiencies.skills.text" />
+			<label_content_column name="multiproftools_label">
+				<static textres="classprof_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="multiproftools" source="multiclassproficiencies.tools.text" />
+			<label_content_column name="multiprofweapons_label">
+				<static textres="classprof_label_weapons" />
+			</label_content_column>
+			<string_content_columnh name="multiprofweapons" source="multiclassproficiencies.weapons.text" />
+			
+			<header_content_framed_headersimple name="specializations_header">
+				<static textres="class_header_specializations"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="specializations_iedit">
+				<anchored to="specializations_header" position="insidetopright" offset="2,0" />
+				<target>specializations</target>
+			</button_iedit>
+			<button_iadd name="specializations_iadd">
+				<anchored to="specializations_header" position="insidetopright" offset="22,0" />
+				<target>specializations</target>
+			</button_iadd>
+			<list_content_column name="specializations">
+				<datasource>.abilities</datasource>
+				<class>reference_class_specialization_listitem_2014</class>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_listitem_2014">
 		<margins control="0,0,0,2" />
 		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<linkc_listitem_right name="shortcut">
 				<class>reference_classability</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>specializations_iedit</editmode>
+			</button_listitem_idelete>
 
-			<string_listitem_column_name name="name">
+			<string_listitem_center name="name">
 				<empty textres="library_recordtype_empty_class_specialization" />
-			</string_listitem_column_name>
+				<font>sheetlabel</font>
+			</string_listitem_center>
 		</sheetdata>
-	</windowclass>
-
-	<windowclass name="reference_classproficiency" copy="record_window_text_string" />
-	<windowclass name="reference_classproficiency_header" copy="record_header">
-		<name_emptyres>library_recordtype_empty_classproficiency</name_emptyres>
 	</windowclass>
 
 	<windowclass name="reference_classfeature" copy="record_window">
@@ -293,9 +663,9 @@
 				local nodeContainerRecord = DB.getChild(node, "...");
 				local sRecordType = LibraryData.getRecordTypeFromRecordPath(DB.getPath(nodeContainerRecord));
 				if sRecordType == "class" then
-					content.setValue("ref_classfeature_stats", getDatabaseNode());
+					content.setValue("reference_classfeature_stats", getDatabaseNode());
 				else
-					content.setValue("ref_classfeature_stats_specialization", getDatabaseNode());
+					content.setValue("reference_classfeature_stats_specialization", getDatabaseNode());
 				end
 			end
 		</script>
@@ -303,74 +673,126 @@
 	<windowclass name="reference_classfeature_header" copy="record_header">
 		<name_emptyres>library_recordtype_empty_classfeature</name_emptyres>
 	</windowclass>
-	
-	<windowclass name="ref_classfeature_stats_specialization">
-		<margins control="0,0,0,7" />
+	<windowclass name="reference_classfeature_stats_specialization">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				level.update(bReadOnly);
-				text.update(bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "text", bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="level_label">
+			<anchor_content_top />
+
+			<label_content_column name="level_label">
 				<static textres="level" />
-			</label_column>
-			<number_columnh name="level" />
+			</label_content_column>
+			<number_content_column name="level">
+				<nodrag />
+			</number_content_column>
 			
-			<ft_columnh name="text" />
+			<ft_content_column_full name="text" />
 		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_classfeature_stats">
-		<margins control="0,0,0,7" />
+	<windowclass name="reference_classfeature_stats">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				local nodeContainerRecord = DB.getChild(getDatabaseNode(), "...");
 				local sRecordType = LibraryData.getRecordTypeFromRecordPath(DB.getPath(nodeContainerRecord));
 				if sRecordType == "class" then
-					if DB.getChildCount(nodeContainerRecord, "abilities") > 0 then
-						local cLabel = createControl("label_column", "specialization_label");
-						cLabel.setValue(Interface.getString("classfeature_label_specialization"));
-						createControl("string_columnh", "specialization");
+					local bIs2024 = (DB.getValue(nodeContainerRecord, "version", "") == "2024");
+					if not bIs2024 then
+						createControl("line_content_top", "divider");
+
+						local cLabel = createControl("label_content_column", "specializationchoice_label");
+						cLabel.setValue(Interface.getString("classfeature_label_specializationchoice"));
+						createControl("button_checkbox_content_columnh", "specializationchoice");
+
+						if DB.getChildCount(nodeContainerRecord, "abilities") > 0 then
+							local cLabel = createControl("label_content_column", "specialization_label");
+							cLabel.setValue(Interface.getString("classfeature_label_specialization"));
+							createControl("string_content_columnh", "specialization");
+						end
 					end
 				end
 
 				self.update();
 			end
 			function update()
+				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				level.update(bReadOnly);
-				text.update(bReadOnly);
-				specializationchoice.update(bReadOnly);
-				if specialization then
-					specialization.update(bReadOnly);
-				end
+				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "text", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "specializationchoice", bReadOnly or not bIs2024);
+				WindowManager.callSafeControlUpdate(self, "specialization", bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="level_label">
+			<anchor_content_top />
+
+			<label_content_column name="level_label">
 				<static textres="level" />
-			</label_column>
-			<number_columnh name="level" />
+			</label_content_column>
+			<number_content_column name="level">
+				<nodrag />
+			</number_content_column>
 			
-			<ft_columnh name="text" />
+			<ft_content_column_full name="text" />
 			
-			<line_column />
-			
-			<label_column name="specializationchoice_label">
-				<static textres="classfeature_label_specializationchoice" />
-			</label_column>
-			<button_checkbox_columnh name="specializationchoice" />
-			
-			<!-- Dynamically create specialization_label/specialization for backward compatibility -->
+			<!-- Dynamically create specializationchoice/specialization for backward compatibility -->
 		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_classfeaturechoice" copy="record_window" />
+	<windowclass name="reference_classfeaturechoice_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_classfeaturechoice</name_emptyres>
+	</windowclass>
+	<windowclass name="reference_classfeaturechoice_main">
+		<margins control="0,0,0,5" />
+		<script>
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlUpdate(self, "choicetype", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "prerequisite", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "repeatable", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "text", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="choicetype_label">
+				<static textres="classfeaturechoice_label_choicetype" />
+			</label_content_column>
+			<string_content_columnh name="choicetype" />
+			
+			<label_content_column name="level_label">
+				<static textres="level" />
+			</label_content_column>
+			<number_content_column name="level" />
+			
+			<label_content_column name="prerequisite_label">
+				<static textres="classfeaturechoice_label_prerequisite" />
+			</label_content_column>
+			<string_content_columnh name="prerequisite" />
+			
+			<label_content_column name="repeatable_label">
+				<static textres="classfeaturechoice_label_repeatable" />
+			</label_content_column>
+			<button_checkbox_content_columnh name="repeatable" />
+
+			<ft_content_column_full name="text" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_classproficiency" copy="record_window_text_string" />
+	<windowclass name="reference_classproficiency_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_classproficiency</name_emptyres>
 	</windowclass>
 </root>

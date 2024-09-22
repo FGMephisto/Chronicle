@@ -9,12 +9,12 @@
 --	Magic Item Master +1
 
 function onInit()
-	OptionsManager.registerCallback("HRAS", onOptionChanged);
-	DB.addHandler("charsheet.profbonus", "onUpdate", onCharProfBonusUpdate);
-	DB.addHandler("charsheet.*.attunement.class", "onUpdate", onCharAttuneBonusUpdate);
-	DB.addHandler("charsheet.*.attunement.misc", "onUpdate", onCharAttuneBonusUpdate);
-	DB.addHandler("charsheet.*.inventorylist.*.attune", "onUpdate", onCharItemAttuneUpdate);
-	DB.addHandler("charsheet.*.inventorylist.*", "onDelete", onCharItemDelete);
+	OptionsManager.registerCallback("HRAS", CharAttunementManager.onOptionChanged);
+	DB.addHandler("charsheet.profbonus", "onUpdate", CharAttunementManager.onCharProfBonusUpdate);
+	DB.addHandler("charsheet.*.attunement.class", "onUpdate", CharAttunementManager.onCharAttuneBonusUpdate);
+	DB.addHandler("charsheet.*.attunement.misc", "onUpdate", CharAttunementManager.onCharAttuneBonusUpdate);
+	DB.addHandler("charsheet.*.inventorylist.*.attune", "onUpdate", CharAttunementManager.onCharItemAttuneUpdate);
+	DB.addHandler("charsheet.*.inventorylist.*", "onDelete", CharAttunementManager.onCharItemDelete);
 end
 
 -- 
@@ -98,8 +98,5 @@ function doesItemAllowAttunement(nodeItem)
 end
 
 function onAttuneCalcChange(nodeChar)
-	local w = Interface.findWindow("charsheet", nodeChar);
-	if w then
-		w.updateAttunement();
-	end
+	WindowManager.callInnerWindowFunction(Interface.findWindow("charsheet", nodeChar), "onAttunementChanged");
 end

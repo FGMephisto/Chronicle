@@ -24,9 +24,9 @@ function linkPCClasses(nodeClass)
 		-- return;
 	-- end
 	
-	-- DB.setValue(nodePS, "classlevel", "string", CharClassManager.getCharClassSummary(nodeChar));
+	-- DB.setValue(nodePS, "classlevel", "string", CharManager.getClassSummary(nodeChar));
 	
-	-- local nHDUsed, nHDTotal = CharClassManager.getCharClassHDUsage(nodeChar);
+	-- local nHDUsed, nHDTotal = CharManager.getClassHDUsage(nodeChar);
 	-- DB.setValue(nodePS, "hd", "number", nHDTotal);
 	-- DB.setValue(nodePS, "hdused", "number", nHDUsed);
 end

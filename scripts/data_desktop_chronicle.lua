@@ -17,9 +17,7 @@ end
 
 -- Shown in Modifiers window
 -- NOTE: Set strings for "modifier_category_*" and "modifier_label_*"
---
 -- Adjusted
---
 _tModifierWindowPresets =
 {
 	{ 
@@ -55,9 +53,7 @@ _tModifierExclusionSets =
 };
 
 -- Shown in Campaign Setup window
---
 -- Adjusted
---
 _tDataModuleSets = 
 {
 	["client"] =

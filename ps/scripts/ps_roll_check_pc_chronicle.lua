@@ -4,8 +4,7 @@
 -- File adjusted for Chronicle System1
 --
 
---
---
+-- Added
 function action(draginfo)
 	-- Get actor
 	local rActor = ActorManager.resolveActor(window.link.getTargetDatabaseNode())
@@ -29,8 +28,7 @@ function action(draginfo)
 	return true
 end
 
---
---
+-- Added
 function onButtonPress()
 	return action();
 end			

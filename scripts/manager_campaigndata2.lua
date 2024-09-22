@@ -7,9 +7,9 @@ function handleDrop(sTarget, draginfo)
 	if sTarget == "spell" then
 		return CampaignDataManager2.handleSpellDrop(draginfo);
 	elseif sTarget == "class_specialization" then
-		return CampaignDataManager2.handleClassSpecDrop(draginfo);
+		return CampaignDataManager2.handleSubclassDrop(draginfo);
 	elseif sTarget == "race_subrace" then
-		return CampaignDataManager2.handleRaceSubraceDrop(draginfo);
+		return CampaignDataManager2.handleAncestryDrop(draginfo);
 	end
 end
 function handleSpellDrop(draginfo)
@@ -26,35 +26,67 @@ function handleSpellDrop(draginfo)
 	end
 	return false;
 end
-function handleClassSpecDrop(draginfo)
+function handleSubclassDrop(draginfo)
 	if not LibraryData.allowEdit("class_specialization") then
 		return false;
 	end
 
 	local sClass,sRecord = draginfo.getShortcutData();
 	if sClass == "reference_classability" then
-		CampaignDataManager2.helperOldClassSpecializationCopy(draginfo.getDatabaseNode());
+		CampaignDataManager2.helperOldSubclassCopy(draginfo.getDatabaseNode());
 		return true;
 	elseif LibraryData.isRecordDisplayClass("class", sClass) then
 		for _,nodeOldSpec in ipairs(DB.getChildList(DB.getPath(sRecord, "abilities"))) do
-			CampaignDataManager2.helperOldClassSpecializationCopy(nodeOldSpec);
+			CampaignDataManager2.helperOldSubclassCopy(nodeOldSpec);
 		end
 		return true;
 	end
 	return false;
 end
-function handleRaceSubraceDrop(draginfo)
+function handleAncestryDrop(draginfo)
 	if not LibraryData.allowEdit("race_subrace") then
 		return false;
 	end
 
 	local sClass,sRecord = draginfo.getShortcutData();
 	if LibraryData.isRecordDisplayClass("race", sClass) then
-		for _,nodeOldSubrace in ipairs(DB.getChildList(DB.getPath(sRecord, "subraces"))) do
-			CampaignDataManager2.helperOldRaceSubraceCopy(nodeOldSubrace);
+		for _,nodeOldAncestry in ipairs(DB.getChildList(DB.getPath(sRecord, "subraces"))) do
+			CampaignDataManager2.helperOldAncestryCopy(nodeOldAncestry);
 		end
 		return true;
 	end
+	return false;
+end
+
+function handleKitItemDrop(draginfo, nodeTarget)
+	local sClass, sRecord = draginfo.getShortcutData();
+	if StringManager.contains({
+		"item", "reference_magicitem", "reference_armor", "reference_weapon",
+		"reference_equipment", "reference_mountsandotheranimals",
+		"reference_waterbornevehicles", "reference_vehicle" }, sClass) then
+
+		local nodeSource = DB.findNode(sRecord);
+		local sItem = DB.getValue(nodeSource, "name", "");
+		local nodeOptionItem = "";
+		for _,v in ipairs(DB.getChildList(DB.getChild(nodeTarget, "."))) do
+			local sName = DB.getValue(v, "name", "");
+			if sItem == sName then
+				nodeOptionItem = v;
+			end
+		end
+
+		if nodeOptionItem == "" then
+			local nodeNewOptionItem = DB.createChild(nodeTarget);
+			DB.copyNode(nodeSource, nodeNewOptionItem);
+
+			DB.setValue(nodeNewOptionItem, "locked", "number", 1);
+		else
+			local nCount = DB.getValue(nodeOptionItem, "count", 0);
+			DB.setValue(nodeOptionItem, "count", "number", nCount + 1);
+		end
+		return true;
+	end
+
 	return false;
 end
 
@@ -139,7 +171,6 @@ function updateNPCSpells(nodeNPC)
 		end
 	end
 end
-
 function updateNPCSpellcasting(nodeNPC, nodeTrait)
 	local aError = {};
 
@@ -171,7 +202,6 @@ function updateNPCSpellcasting(nodeNPC, nodeTrait)
 		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
 	end
 end
-
 function resetNPCSpellcastingSlots(nodeNPC, nodeTrait)
 	if not nodeNPC then
 		return;
@@ -199,7 +229,6 @@ function resetNPCSpellcastingSlots(nodeNPC, nodeTrait)
 		end
 	end
 end
-
 function updateNPCInnateSpellcasting(nodeNPC, nodeTrait)
 	local aError = {};
 
@@ -224,7 +253,6 @@ function updateNPCInnateSpellcasting(nodeNPC, nodeTrait)
 		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
 	end
 end
-
 function updateNPCActionSpellcasting(nodeNPC, nodeTrait)
 	local aError = {};
 
@@ -249,7 +277,6 @@ function updateNPCActionSpellcasting(nodeNPC, nodeTrait)
 		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
 	end
 end
-
 function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 	local sCleaned = PowerManager.cleanNPCPowerName(sSpell):lower();
 	
@@ -289,7 +316,6 @@ function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 	addNPCSpell(nodeNPC, nodeRefSpell, bInnate, nDaily);
 	return true;
 end
-
 function addNPCSpell(nodeNPC, nodeSpellSource, bInnate, nDaily)
 	-- Create the new spell node
 	local nodeSpell;
@@ -347,30 +373,30 @@ end
 --	Legacy module data migration helpers
 --
 
-function helperOldClassSpecializationCopy(nodeSource)
+function helperOldSubclassCopy(nodeSource)
 	local sRootMapping = LibraryData.getRootMapping("class_specialization");
 	if ((sRootMapping or "") == "") then
 		return;
 	end
 
 	local nodeTarget = DB.createChild(sRootMapping);
-	local sClassSpec = StringManager.trim(DB.getValue(nodeSource, "name", ""));
-	DB.setValue(nodeTarget, "name", "string", sClassSpec);
+	local sSubclass = StringManager.trim(DB.getValue(nodeSource, "name", ""));
+	DB.setValue(nodeTarget, "name", "string", sSubclass);
 	DB.setValue(nodeTarget, "locked", "number", 1);
 	
 	local nodeClass = DB.getChild(nodeSource, "...");
 	local sClassName = DB.getValue(nodeClass, "name", "");
 	DB.setValue(nodeTarget, "class", "string", sClassName);
 
-	local sClassSpecText = DB.getValue(nodeSource, "text", "");
+	local sSubclassText = DB.getValue(nodeSource, "text", "");
 	local tFeatureLinks = {};
-	for sSourceFeatureLinkPath in sClassSpecText:gmatch("<link class=\"reference_classfeature\" recordname=\"([^\"]*)\"") do
+	for sSourceFeatureLinkPath in sSubclassText:gmatch("<link class=\"reference_classfeature\" recordname=\"([^\"]*)\"") do
 		tFeatureLinks[sSourceFeatureLinkPath] = "";
 	end
 	local nodeFeatureList = DB.createChild(nodeTarget, "features");
 	for _,nodeSourceFeature in ipairs(DB.getChildList(nodeClass, "features")) do
 		local sMatch = StringManager.trim(DB.getValue(nodeSourceFeature, "specialization", ""));
-		if sMatch == sClassSpec then
+		if sMatch == sSubclass then
 			local nodeFeature = DB.createChild(nodeFeatureList);
 			DB.setValue(nodeFeature, "name", "string", DB.getValue(nodeSourceFeature, "name", 0));
 			DB.setValue(nodeFeature, "level", "number", DB.getValue(nodeSourceFeature, "level", 0));
@@ -385,13 +411,13 @@ function helperOldClassSpecializationCopy(nodeSource)
 	end
 	for sSourceFeaturePath, sTargetFeaturePath in pairs(tFeatureLinks) do
 		if sTargetFeaturePath ~= "" then
-			sClassSpecText = sClassSpecText:gsub(sSourceFeaturePath, sTargetFeaturePath);
+			sSubclassText = sSubclassText:gsub(sSourceFeaturePath, sTargetFeaturePath);
 		end
 	end
-	DB.setValue(nodeTarget, "text", "formattedtext", sClassSpecText);
+	DB.setValue(nodeTarget, "text", "formattedtext", sSubclassText);
 end
 
-function helperOldRaceSubraceCopy(nodeSource)
+function helperOldAncestryCopy(nodeSource)
 	local sRootMapping = LibraryData.getRootMapping("race_subrace");
 	if ((sRootMapping or "") == "") then
 		return;
@@ -401,12 +427,12 @@ function helperOldRaceSubraceCopy(nodeSource)
 	DB.setValue(nodeTarget, "name", "string", DB.getValue(nodeSource, "name", ""));
 	DB.setValue(nodeTarget, "locked", "number", 1);
 	
-	local sRaceName = DB.getValue(nodeSource, "...name", "");
-	DB.setValue(nodeTarget, "race", "string", sRaceName);
+	local sSpeciesName = DB.getValue(nodeSource, "...name", "");
+	DB.setValue(nodeTarget, "race", "string", sSpeciesName);
 
-	local sSubraceText = DB.getValue(nodeSource, "text", "");
+	local sAncestryText = DB.getValue(nodeSource, "text", "");
 	local tTraitLinks = {};
-	for sSourceTraitLinkPath in sSubraceText:gmatch("<link class=\"reference_subracialtrait\" recordname=\"([^\"]*)\"") do
+	for sSourceTraitLinkPath in sAncestryText:gmatch("<link class=\"reference_subracialtrait\" recordname=\"([^\"]*)\"") do
 		tTraitLinks[sSourceTraitLinkPath] = "";
 	end
 	local nodeTraitList = DB.createChild(nodeTarget, "traits");
@@ -423,8 +449,8 @@ function helperOldRaceSubraceCopy(nodeSource)
 	end
 	for sSourceTraitPath, sTargetTraitPath in pairs(tTraitLinks) do
 		if sTargetTraitPath ~= "" then
-			sSubraceText = sSubraceText:gsub(sSourceTraitPath, sTargetTraitPath);
+			sAncestryText = sAncestryText:gsub(sSourceTraitPath, sTargetTraitPath);
 		end
 	end
-	DB.setValue(nodeTarget, "text", "formattedtext", sSubraceText);
+	DB.setValue(nodeTarget, "text", "formattedtext", sAncestryText);
 end

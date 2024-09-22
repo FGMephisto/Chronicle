@@ -50,9 +50,7 @@
 				</script>
 			</button_details>
 
-			<!-- -->
 			<!-- Damage Field -->
-			<!-- -->
 			<genericcontrol name="dmg_frame">
 				<anchored to="rightanchor" width="75" height="35">
 					<top />
@@ -277,9 +275,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- -->
-	<!-- Weapon Editor Main -->
-	<!-- -->
+	<!-- Adjusted -->
 	<windowclass name="char_weapon_editor_main">
 		<sheetdata>
 			<anchor_column name="columnanchor" />
@@ -304,9 +300,7 @@
 				<center />
 			</header_column>
 
-			<!-- -->
 			<!-- Attack Line -->
-			<!-- -->
 			<stringfield name="atk_stat">
 				<anchored width="120" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />

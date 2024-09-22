@@ -31,31 +31,27 @@ function parsePower(node)
 	PowerManager.parsePCPower(node);
 end
 function updatePowerDisplay(w)
-	if w.minisheet then
-		return;
-	end
 	if not w.header or not w.header.subwindow then
 		return;
 	end
-	if not w.header.subwindow.group or not w.header.subwindow.shortdescription or not w.header.subwindow.actionsmini then
+	if not w.header.subwindow.group or not w.header.subwindow.actionsmini then
 		return;
 	end
 
-	local nodeActor = PowerManagerCore.getPowerActorNode(w.getDatabaseNode());
-	local sDisplayMode = DB.getValue(nodeActor, "powerdisplaymode", "");
-	if sDisplayMode == "summary" then
-		w.header.subwindow.group.setVisible(false);
-		w.header.subwindow.shortdescription.setVisible(true);
-		w.header.subwindow.actionsmini.setVisible(false);
-	elseif sDisplayMode == "action" then
-		w.header.subwindow.group.setVisible(false);
-		w.header.subwindow.shortdescription.setVisible(false);
-		w.header.subwindow.actionsmini.setVisible(true);
-	else
-		w.header.subwindow.group.setVisible(true);
-		w.header.subwindow.shortdescription.setVisible(false);
-		w.header.subwindow.actionsmini.setVisible(false);
-	end
+	local bEditMode = WindowManager.getEditMode(w, "actions_iedit");
+	w.header.subwindow.group.setVisible(bEditMode);
+	w.header.subwindow.actionsmini.setVisible(not bEditMode);
+
+	-- TODO (2024) - Remove old display code
+	-- local nodeActor = PowerManagerCore.getPowerActorNode(w.getDatabaseNode());
+	-- local sDisplayMode = DB.getValue(nodeActor, "powerdisplaymode", "");
+	-- if sDisplayMode == "action" then
+	-- 	w.header.subwindow.group.setVisible(false);
+	-- 	w.header.subwindow.actionsmini.setVisible(true);
+	-- else
+	-- 	w.header.subwindow.group.setVisible(true);
+	-- 	w.header.subwindow.actionsmini.setVisible(false);
+	-- end
 end
 
 function getActionButtonIcons(node, tData)

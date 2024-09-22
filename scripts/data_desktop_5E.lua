@@ -12,6 +12,20 @@ function onInit()
 			Desktop.addDataModuleSet(k, v2);
 		end
 	end
+	
+	if not CampaignRegistry or not CampaignRegistry.setup then	
+		local sTitle = Interface.getString("record_label_version_title");
+		local sPrompt = Interface.getString("record_label_version_prompt");
+		Interface.dialogMessage(onVersionChoice, sPrompt, sTitle, "yesno");	
+	end
+end
+
+function onVersionChoice(result)
+	if result == "yes" then
+		OptionsManager.setOption("GAVE","2024");
+	else 
+		OptionsManager.setOption("GAVE","2014");
+	end
 end
 
 -- Shown in Modifiers window
@@ -48,6 +62,20 @@ _tDataModuleSets =
 {
 	["client"] =
 	{
+		{
+			name = "2024 D&D Free Rules",
+			modules =
+			{
+				{ name = "DND2024FREERULES", displayname = "Dungeons &amp; Dragons Free Rules" },
+			},
+		},
+		{
+			name = "2024 D&D Core Rules",
+			modules =
+			{
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "Dungeons &amp; Dragons Player's Handbook" },
+			},
+		},		
 		{
 			name = "5E - SRD",
 			modules =
@@ -94,6 +122,20 @@ _tDataModuleSets =
 	},
 	["host"] =
 	{
+		{
+			name = "2024 D&D Free Rules",
+			modules =
+			{
+				{ name = "DND2024FREERULES", displayname = "Dungeons &amp; Dragons Free Rules" },
+			},
+		},
+		{
+			name = "2024 D&D Core Rules",
+			modules =
+			{
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "Dungeons &amp; Dragons Player's Handbook" },
+			},
+		},		
 		{
 			name = "5E - SRD",
 			modules =

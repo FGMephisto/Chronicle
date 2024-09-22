@@ -70,9 +70,12 @@ function getRoll(rActor, rAction)
 		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, { dmgtype = vClause.dmgtype });
 		rRoll.nMod = rRoll.nMod + vClause.modifier;
 	end
-	
+
 	if rAction.nReroll then
 		rRoll.sDesc = rRoll.sDesc .. " [REROLL " .. rAction.nReroll.. "]";
+	end
+	if #(rAction.tAddText or {}) > 0 then
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(rAction.tAddText, " ");
 	end
 	
 	-- Encode the damage types
@@ -110,39 +113,7 @@ function modDamage(rSource, rTarget, rRoll)
 	ActionDamage.finalizeModRoll(rRoll);
 end
 function onDamageRoll(rSource, rRoll)
-	-- Handle max damage
-	local bMax = rRoll.sDesc:match("%[MAX%]");
-	if bMax then
-		for _,vDie in ipairs(rRoll.aDice) do
-			local sSign, sColor, sDieSides = vDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
-			if sDieSides then
-				local nResult;
-				if sDieSides == "F" then
-					nResult = 1;
-				else
-					nResult = tonumber(sDieSides) or 0;
-				end
-				
-				if sSign == "-" then
-					nResult = 0 - nResult;
-				end
-				
-				vDie.result = nResult;
-				vDie.value = vDie.result;
-				if sColor == "d" or sColor == "D" then
-					if sSign == "-" then
-						vDie.type = "-b" .. sDieSides;
-					else
-						vDie.type = "b" .. sDieSides;
-					end
-				end
-			end
-		end
-		if rRoll.aDice.expr then
-			rRoll.aDice.expr = nil;
-		end
-	end
-	
+	ActionsManager2.applyGeneralRollModifiers(rRoll);
 	ActionDamage.decodeDamageTypes(rRoll, true);
 end
 function onDamage(rSource, rTarget, rRoll)
@@ -1377,8 +1348,13 @@ function applyDamage(rSource, rTarget, rRoll)
 	-- Check for required concentration checks
 	if nConcentrationDamage > 0 and ActionSave.hasConcentrationEffects(rTarget) then
 		if nWounds < nTotalHP then
+			local tData;
+			if ActorManager.isPC(rSource) and CharManager.hasFeat2024(ActorManager.getCreatureNode(rSource), CharManager.FEAT_MAGE_SLAYER) then
+				tData = { bDIS = true, sAddText = "[MAGE SLAYER]", };
+			end
+
 			local nTargetDC = math.max(math.floor(nConcentrationDamage / 2), 10);
-			ActionSave.performConcentrationRoll(nil, rTarget, nTargetDC);
+			ActionSave.performConcentrationRoll(nil, rTarget, nTargetDC, tData);
 		else
 			ActionSave.expireConcentrationEffects(rTarget);
 		end

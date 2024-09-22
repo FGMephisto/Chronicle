@@ -59,6 +59,8 @@ function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
 end
 
 function getRoll(rActor, nodeSkill)
+	local tOutput = {};
+	
 	local rRoll = {};
 	rRoll.sType = "skill";
 	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
@@ -69,34 +71,47 @@ function getRoll(rActor, nodeSkill)
 	local nMod, bADV, bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
 	rRoll.nMod = nMod;
 	rRoll.nMod = rRoll.nMod + DB.getValue(nodeSkill, "misc", 0);
-	
-	rRoll.sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill);
+
+	table.insert(tOutput, "[SKILL]");
+	table.insert(tOutput, StringManager.capitalizeAll(sSkill));
 	if not DataCommon.skilldata[sSkill] and sAbility ~= "" then
-		rRoll.sDesc = rRoll.sDesc .. " [MOD:" .. DataCommon.ability_ltos[sAbility] .. "]";
+		table.insert(tOutput, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility]));
 	end
 
 	local nodeChar = DB.getChild(nodeSkill, "...");
 	local nProf = DB.getValue(nodeSkill, "prof", 0);
 	if nProf == 1 then
-		rRoll.nMod = rRoll.nMod + DB.getValue(nodeChar, "profbonus", 0);
-		rRoll.sDesc = rRoll.sDesc .. " [PROF]";
+		rRoll.nMod = rRoll.nMod + DB.getValue(nodeChar, "profbonus", 2);
+		table.insert(tOutput, "[PROF]");
 	elseif nProf == 2 then
-		rRoll.nMod = rRoll.nMod + (2 * DB.getValue(nodeChar, "profbonus", 0));
-		rRoll.sDesc = rRoll.sDesc .. " [PROF x2]";
+		rRoll.nMod = rRoll.nMod + (2 * DB.getValue(nodeChar, "profbonus", 2));
+		table.insert(tOutput, "[PROF x2]");
 	elseif nProf == 3 then
-		rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
-		rRoll.sDesc = rRoll.sDesc .. " [PROF x1/2]";
+		rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
+		table.insert(tOutput, "[PROF x1/2]");
+	else
+		if ActorManager.isPC(rActor) then
+			local nodeActor = ActorManager.getCreatureNode(rActor);
+			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_JACK_OF_ALL_TRADES) then
+				rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
+				table.insert(tOutput, "[PROF x1/2]");
+				table.insert(tOutput, string.format("[%s]", Interface.getString("roll_msg_feature_jackofalltrades")));
+			end
+		end
 	end
-	
-	if sAddText and sAddText ~= "" then
-		rRoll.sDesc = rRoll.sDesc .. " " .. sAddText;
+
+	if (sAddText or "") ~= "" then
+		table.insert(tOutput, sAddText);
 	end
+
 	if bADV then
-		rRoll.sDesc = rRoll.sDesc .. " [ADV]";
+		table.insert(tOutput, "[ADV]");
 	end
 	if bDIS then
-		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
+		table.insert(tOutput, "[DIS]");
 	end
+
+	rRoll.sDesc = table.concat(tOutput, " ");
 
 	return rRoll;
 end
@@ -261,11 +276,44 @@ function modRoll(rSource, rTarget, rRoll)
 		local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
 		if nExhaustCount > 0 then
 			bEffects = true;
-			if nExhaustMod >= 1 then
-				bDIS = true;
-			end
+			nAddMod = nAddMod - (2 * nExhaustMod);
 		end
 		
+		-- Check Reliable state
+		local bReliable = false;
+		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLESKILL") then
+			bEffects = true;
+			bReliable = true;
+		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLESKILL", aSkillFilter)) > 0 then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
+			bEffects = true;
+			bReliable = true;
+		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLECHK", aCheckFilter)) > 0 then
+			bEffects = true;
+			bReliable = true;
+		elseif ActorManager.isPC(rSource) and rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then
+			local nodeActor = ActorManager.getCreatureNode(rSource);
+			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_RELIABLE_TALENT) then
+				bReliable = true;
+			else
+				local tSilverTongueSkills = {
+					Interface.getString("skill_value_deception"),
+					Interface.getString("skill_value_persuasion"),
+				};
+				if StringManager.contains(tSilverTongueSkills, sSkill) and CharManager.hasFeature(nodeActor, CharManager.FEATURE_SILVER_TONGUE) then
+					bReliable = true;
+				end
+			end
+		end
+		if bReliable then
+			table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		end
+
 		-- If effects happened, then add note
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
@@ -290,7 +338,9 @@ function modRoll(rSource, rTarget, rRoll)
 end
 
 function onRoll(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 	
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 

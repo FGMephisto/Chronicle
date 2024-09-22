@@ -63,8 +63,8 @@ function addToWeaponDB(nodeItem)
 	-- Handle special weapon properties
 	local sProps = DB.getValue(nodeItem, "properties", "");
 	
-	local bThrown = checkProperty(sProps, WEAPON_PROP_THROWN);
-	local bMagic = checkProperty(sProps, WEAPON_PROP_MAGIC);
+	local bThrown = CharWeaponManager.checkProperty(sProps, CharWeaponManager.WEAPON_PROP_THROWN);
+	local bMagic = CharWeaponManager.checkProperty(sProps, CharWeaponManager.WEAPON_PROP_MAGIC);
 	
 	local sType = DB.getValue(nodeItem, "subtype", ""):lower();
 	local bMelee = true;
@@ -78,7 +78,7 @@ function addToWeaponDB(nodeItem)
 	local sDamage = DB.getValue(nodeItem, "damage", "");
 	
 	local aDmgClauses = {};
-	local aWords = StringManager.parseWords(sDamage);
+	local aWords = StringManager.parseWords(sDamage:lower());
 	local i = 1;
 	while aWords[i] do
 		local aDiceString = {};
@@ -249,7 +249,7 @@ function onItemIDChanged(nodeItemID)
 	for _,vWeapon in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
 		local _,sRecord = DB.getValue(vWeapon, "shortcut", "", "");
 		if sRecord == sPath then
-			checkWeaponIDChange(vWeapon);
+			CharWeaponManager.checkWeaponIDChange(vWeapon);
 		end
 	end
 end
@@ -316,14 +316,14 @@ end
 function getCritRange(nodeChar, nodeWeapon)
 	local nCritThreshold = 20;
 
-	if getRange(nodeChar, nodeWeapon) == "R" then
+	if CharWeaponManager.getRange(nodeChar, nodeWeapon) == "R" then
 		nCritThreshold = DB.getValue(nodeChar, "weapon.critrange.ranged", 20);
 	else
 		nCritThreshold = DB.getValue(nodeChar, "weapon.critrange.melee", 20);
 	end
 
 	-- Check for crit range property
-	local nPropCritRange = getPropertyNumber(nodeWeapon, WEAPON_PROP_CRITRANGE);
+	local nPropCritRange = getPropertyNumber(nodeWeapon, CharWeaponManager.WEAPON_PROP_CRITRANGE);
 	if nPropCritRange and nPropCritRange < nCritThreshold then
 		nCritThreshold = nPropCritRange;
 	end
@@ -373,7 +373,7 @@ function getProperty(v, sTargetPattern)
 end
 
 function getPropertyNumber(v, sTargetPattern)
-	local sProp = getProperty(v, sTargetPattern);
+	local sProp = CharWeaponManager.getProperty(v, sTargetPattern);
 	if sProp then
 		return tonumber(sProp) or 0;
 	end
@@ -392,7 +392,7 @@ function getAttackAbility(nodeChar, nodeWeapon)
 	end
 
 	-- Melee or Thrown
-	local bFinesse = checkProperty(nodeWeapon, WEAPON_PROP_FINESSE);
+	local bFinesse = CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_FINESSE);
 	if bFinesse then
 		local nSTR = ActorManager5E.getAbilityBonus(nodeChar, "strength");
 		local nDEX = ActorManager5E.getAbilityBonus(nodeChar, "dexterity");
@@ -405,12 +405,12 @@ function getAttackAbility(nodeChar, nodeWeapon)
 end
 
 function getAttackBonus(nodeChar, nodeWeapon)
-	local sAbility = getAttackAbility(nodeChar, nodeWeapon);
+	local sAbility = CharWeaponManager.getAttackAbility(nodeChar, nodeWeapon);
 	
 	local nMod = DB.getValue(nodeWeapon, "attackbonus", 0);
 	nMod = nMod + ActorManager5E.getAbilityBonus(nodeChar, sAbility);
 	if DB.getValue(nodeWeapon, "prof", 0) == 1 then
-		nMod = nMod + DB.getValue(nodeChar, "profbonus", 0);
+		nMod = nMod + DB.getValue(nodeChar, "profbonus", 2);
 	end
 
 	return nMod, sAbility;
@@ -421,16 +421,31 @@ end
 --
 
 function buildAttackAction(nodeChar, nodeWeapon)
-	local rAction = {};
-	rAction.bWeapon = true;
-	rAction.label = DB.getValue(nodeWeapon, "name", "");
-	rAction.range = getRange(nodeChar, nodeWeapon);
+	local rAction = {
+		bWeapon = true,
+		label = DB.getValue(nodeWeapon, "name", ""),
+		range = CharWeaponManager.getRange(nodeChar, nodeWeapon),
+		tAddText = {},
+	};
+
 	rAction.modifier, rAction.stat = getAttackBonus(nodeChar, nodeWeapon);
 	
-	-- Determine crit range
-	local nCritThreshold = getCritRange(nodeChar, nodeWeapon);
+	local nCritThreshold = CharWeaponManager.getCritRange(nodeChar, nodeWeapon);
 	if nCritThreshold > 1 and nCritThreshold < 20 then
 		rAction.nCritRange = nCritThreshold;
+	end
+
+	if ((rAction.nCritRange or 20) > 18) and CharManager.hasFeature(nodeChar, CharManager.FEATURE_SUPERIOR_CRITICAL) then
+		rAction.nCritRange = 18;
+		table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feature_superior_critical")));
+	elseif ((rAction.nCritRange or 20) > 19) and CharManager.hasFeature(nodeChar, CharManager.FEATURE_IMPROVED_CRITICAL) then
+		rAction.nCritRange = 19;
+		table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feature_improved_critical")));
+	end
+
+	if (DB.getValue(nodeWeapon, "type", 0) == 1) and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_ARCHERY) then
+		rAction.modifier = (rAction.modifier or 0) + 2;
+		table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_archery")));
 	end
 
 	return rAction;
@@ -461,7 +476,7 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	else
 		sAbility = "strength";
 
-		local bFinesse = checkProperty(nodeWeapon, WEAPON_PROP_FINESSE);
+		local bFinesse = CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_FINESSE);
 		if bFinesse then
 			local nSTR = ActorManager5E.getAbilityBonus(nodeChar, "strength");
 			local nDEX = ActorManager5E.getAbilityBonus(nodeChar, "dexterity");
@@ -472,10 +487,11 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	end
 
 	-- However, if off-hand without two-weapon fighting, only use negative ability
-	local nWeaponHands = DB.getValue(nodeWeapon, "handling", 0);
-	local nTwoWeaponFightingStyle = DB.getValue(nodeChar, "weapon.twoweaponfighting", 0);
-	if nWeaponHands == 2 and nTwoWeaponFightingStyle ~= 1 then
-		sAbility = "-" .. sAbility;
+	if (DB.getValue(nodeWeapon, "handling", 0) == 2) then
+		local bTwoWeaponStyle = (DB.getValue(nodeChar, "weapon.twoweaponfighting", 0) == 1) or CharManager.hasFeat2024(nodeChar, CharManager.FEAT_TWO_WEAPON_FIGHTING);
+		if not bTwoWeaponStyle then
+			sAbility = "-" .. sAbility;
+		end
 	end
 
 	return sAbility;
@@ -488,7 +504,7 @@ function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
 	local sVersatile = nil;
 	local nWeaponHands = DB.getValue(nodeWeapon, "handling", 0);
 	if nWeaponHands == 1 then
-		sVersatile = getProperty(nodeWeapon, WEAPON_PROP_VERSATILE);
+		sVersatile = CharWeaponManager.getProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_VERSATILE);
 	end
 
 	-- Iterate over database nodes in order they are displayed
@@ -532,35 +548,70 @@ function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
 end
 
 function buildDamageAction(nodeChar, nodeWeapon)
-	-- Build basic damage action record
-	local rAction = {};
-	rAction.bWeapon = true;
-	rAction.label = DB.getValue(nodeWeapon, "name", "");
+	local rAction = {
+		bWeapon = true,
+		label = DB.getValue(nodeWeapon, "name", ""),
+		tAddText = {},
+	};
+
 	local nWeaponHands = DB.getValue(nodeWeapon, "handling", 0);
 	if nWeaponHands == 1 then
 		rAction.label = rAction.label .. " (2H)";
 	elseif nWeaponHands == 2 then
 		rAction.label = rAction.label .. " (OH)";
 	end
-	rAction.range = getRange(nodeChar, nodeWeapon);
+	rAction.range = CharWeaponManager.getRange(nodeChar, nodeWeapon);
 
 	-- Check for reroll property
-	local nPropReroll = getPropertyNumber(nodeWeapon, WEAPON_PROP_REROLL);
+	local nPropReroll = CharWeaponManager.getPropertyNumber(nodeWeapon, CharWeaponManager.WEAPON_PROP_REROLL);
 	if nPropReroll and (nPropReroll > 0) then
 		rAction.nReroll = nPropReroll;
 	end
 	
 	-- Build damage clauses
-	local sBaseAbility = getDamageBaseAbility(nodeChar, nodeWeapon);
-	rAction.clauses = getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, rAction.nReroll);
+	local sBaseAbility = CharWeaponManager.getDamageBaseAbility(nodeChar, nodeWeapon);
+	rAction.clauses = CharWeaponManager.getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, rAction.nReroll);
 
+	if (DB.getValue(nodeWeapon, "type", 0) == 2) then
+		if rAction.clauses[1] and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_THROWN_WEAPON_FIGHTING) then
+			rAction.clauses[1].modifier = (rAction.clauses[1].modifier or 0) + 2;
+			table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_thrownweaponfighting")));
+		end
+	elseif (DB.getValue(nodeWeapon, "type", 0) == 0) then
+		if rAction.clauses[1] and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_DUELING) then
+			local bOtherWeaponEquipped = false;
+			for _,node in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
+				if (node ~= nodeWeapon) and (DB.getValue(node, "carried", 0) == 2) then
+					bOtherWeaponEquipped = true;
+					break;
+				end
+			end
+			if not bOtherWeaponEquipped then
+				rAction.clauses[1].modifier = (rAction.clauses[1].modifier or 0) + 2;
+				table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_dueling")));
+			end
+		end
+		if CharManager.hasFeat2024(nodeChar, CharManager.FEAT_GREAT_WEAPON_FIGHTING) then
+			if CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_TWOHANDED) or CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_VERSATILE) then
+				table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_greatweaponfighting")));
+				table.insert(rAction.tAddText, string.format("[MIN 3]"));
+			end
+		end
+	end
+
+	if (DB.getValue(nodeWeapon, "handling", 0) == 2) then
+		local bTwoWeaponStyle = (DB.getValue(nodeChar, "weapon.twoweaponfighting", 0) == 1) or CharManager.hasFeat2024(nodeChar, CharManager.FEAT_TWO_WEAPON_FIGHTING);
+		if bTwoWeaponStyle then
+			table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_twoweaponfighting")));
+		end
+	end
 	return rAction;
 end
 
 function buildDamageString(nodeChar, nodeWeapon)
 	local aDamage = {};
-	local sBaseAbility = getDamageBaseAbility(nodeChar, nodeWeapon);
-	local clauses = getDamageClauses(nodeChar, nodeWeapon, sBaseAbility);
+	local sBaseAbility = CharWeaponManager.getDamageBaseAbility(nodeChar, nodeWeapon);
+	local clauses = CharWeaponManager.getDamageClauses(nodeChar, nodeWeapon, sBaseAbility);
 	for _,v in ipairs(clauses) do
 		if (#(v.dice) > 0) or (v.modifier ~= 0) then
 			local sDamage = StringManager.convertDiceToString(v.dice, v.modifier);

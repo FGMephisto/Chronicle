@@ -3,15 +3,30 @@
 -- attribution and copyright information.
 --
 
-function addBackground(nodeChar, sClass, sRecord, bWizard)
-	local rAdd = CharManager.helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard);
+function addBackground(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_background", sRecord, tData);
+	CharBackgroundManager.helperAddBackgroundMain(rAdd);
+end
+function addBackgroundFeature(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_backgroundfeature", sRecord, tData);
+	CharBackgroundManager.helperAddBackgroundFeatureMain(rAdd);
+end
+
+function getFeatureBackgroundName(rAdd)
+	return DB.getValue(rAdd.nodeSource, "...name", "");
+end
+function getFeatureSpellGroup(rAdd)
+	return Interface.getString("char_spell_powergroup"):format(CharBackgroundManager.getFeatureBackgroundName(rAdd));
+end
+function getFeaturePowerGroup(rAdd)
+	return Interface.getString("char_background_powergroup"):format(CharBackgroundManager.getFeatureBackgroundName(rAdd));
+end
+
+function helperAddBackgroundMain(rAdd)
 	if not rAdd then
 		return;
 	end
 
-	CharBackgroundManager.helperAddBackgroundMain(rAdd);
-end
-function helperAddBackgroundMain(rAdd)
 	-- Notification
 	ChatManager.SystemMessageResource("char_abilities_message_backgroundadd", rAdd.sSourceName, rAdd.sCharName);
 
@@ -19,151 +34,97 @@ function helperAddBackgroundMain(rAdd)
 	DB.setValue(rAdd.nodeChar, "background", "string", rAdd.sSourceName);
 	DB.setValue(rAdd.nodeChar, "backgroundlink", "windowreference", rAdd.sSourceClass, DB.getPath(rAdd.nodeSource));
 		
-	CharBackgroundManager.helperAddBackgroundFeatures(rAdd);
-	
-	if not rAdd.bWizard then
-		CharBackgroundManager.helperAddBackgroundSkills(rAdd);
-		CharBackgroundManager.helperAddBackgroundTools(rAdd);
-		CharBackgroundManager.helperAddBackgroundLanguages(rAdd);
-	end
-end
-function helperAddBackgroundFeatures(rAdd)
-	for _,v in ipairs(DB.getChildList(rAdd.nodeSource, "features")) do
-		CharBackgroundManager.addBackgroundFeature(rAdd.nodeChar, "reference_backgroundfeature", DB.getPath(v), rAdd.bWizard);
-	end
-end
-function helperAddBackgroundSkills(rAdd)
-	local sSkills = StringManager.trim(DB.getValue(rAdd.nodeSource, "skill", ""));
-	if sSkills ~= "" and sSkills ~= "None" then
-		local nPicks = 0;
-		local aPickSkills = {};
-		if sSkills:match("Choose %w+ from among ") then
-			local sPicks, sPickSkills = sSkills:match("Choose (%w+) from among (.*)");
-			sPickSkills = sPickSkills:gsub("and ", "");
-
-			sSkills = "";
-			nPicks = CharManager.convertSingleNumberTextToNumber(sPicks);
-			
-			for sSkill in string.gmatch(sPickSkills, "(%a[%a%s]+)%,?") do
-				local sTrim = StringManager.trim(sSkill);
-				table.insert(aPickSkills, sTrim);
-			end
-		elseif sSkills:match("plus %w+ from among ") then
-			local sPicks, sPickSkills = sSkills:match("plus (%w+) from among (.*)");
-			sPickSkills = sPickSkills:gsub("and ", "");
-			sPickSkills = sPickSkills:gsub(", as appropriate for your order", "");
-			
-			sSkills = sSkills:gsub(sSkills:match("plus %w+ from among (.*)"), "");
-			nPicks = CharManager.convertSingleNumberTextToNumber(sPicks);
-			
-			for sSkill in string.gmatch(sPickSkills, "(%a[%a%s]+)%,?") do
-				local sTrim = StringManager.trim(sSkill);
-				if sTrim ~= "" then
-					table.insert(aPickSkills, sTrim);
-				end
-			end
-		elseif sSkills:match("plus your choice of one from among") then
-			local sPickSkills = sSkills:match("plus your choice of one from among (.*)");
-			sPickSkills = sPickSkills:gsub("and ", "");
-			
-			sSkills = sSkills:gsub("plus your choice of one from among (.*)", "");
-			
-			nPicks = 1;
-			for sSkill in string.gmatch(sPickSkills, "(%a[%a%s]+)%,?") do
-				local sTrim = StringManager.trim(sSkill);
-				if sTrim ~= "" then
-					table.insert(aPickSkills, sTrim);
-				end
-			end
-		elseif sSkills:match("and one Intelligence, Wisdom, or Charisma skill of your choice, as appropriate to your faction") then
-			sSkills = sSkills:gsub("and one Intelligence, Wisdom, or Charisma skill of your choice, as appropriate to your faction", "");
-			
-			nPicks = 1;
-			for k,v in pairs(DataCommon.skilldata) do
-				if (v.stat == "intelligence") or (v.stat == "wisdom") or (v.stat == "charisma") then
-					table.insert(aPickSkills, k);
-				end
-			end
-			table.sort(aPickSkills);
+	if rAdd.bWizard then
+		if not rAdd.bSource2024 then
+			CharBackgroundManager.helperAddBackgroundFeatures2014(rAdd);
 		end
-		
-		for sSkill in sSkills:gmatch("(%a[%a%s]+),?") do
-			local sTrim = StringManager.trim(sSkill);
-			if sTrim ~= "" then
-				CharManager.helperAddSkill(rAdd.nodeChar, sTrim, 1);
-			end
-		end
-		
-		if nPicks > 0 then
-			CharManager.pickSkills(rAdd.nodeChar, aPickSkills, nPicks);
+	else
+		if rAdd.bSource2024 then
+			CharBackgroundManager.helperAddBackgroundAbilities2024(rAdd);
+			CharBackgroundManager.helperAddBackgroundFeat2024(rAdd);
+			CharBuildDropManager.handleBackgroundSkillsField(rAdd);
+			CharBuildDropManager.handleBackgroundToolsField(rAdd);
+		else
+			CharBackgroundManager.helperAddBackgroundFeatures2014(rAdd);
+			CharBuildDropManager.handleBackgroundSkillsField(rAdd);
+			CharBuildDropManager.handleBackgroundToolsField(rAdd);
+			CharBuildDropManager.handleBackgroundLanguagesField(rAdd);
 		end
 	end
 end
-function helperAddBackgroundTools(rAdd)
-	local sTools = StringManager.trim(DB.getValue(rAdd.nodeSource, "tool", ""));
-	if sTools ~= "" and sTools ~= "None" then
-		CharManager.addProficiency(rAdd.nodeChar, "tools", sTools);
-	end
+function helperAddBackgroundAbilities2024(rAdd)
+	CharBuildDropManager.handleAbilitiesField(rAdd);
 end
-function helperAddBackgroundLanguages(rAdd)
-	local sLanguages = StringManager.trim(DB.getValue(rAdd.nodeSource, "languages", ""));
-	if sLanguages ~= "" and sLanguages ~= "None" then
-		CharManager.addLanguage(rAdd.nodeChar, sLanguages);
-	end
-end
-
--- NOTE: Currently, the wizard passes backgrounds through the racial trait system
--- 		And the drop system passes backgrounds through the class feature system
-function addBackgroundFeature(nodeChar, sClass, sRecord, bWizard)
-	local rAdd = CharManager.helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard);
-	if not rAdd then
+function helperAddBackgroundFeat2024(rAdd)
+	local s = StringManager.trim(DB.getValue(rAdd.nodeSource, "feat", ""));
+	if (s == "None") then
 		return;
 	end
 
-	CharBackgroundManager.helperAddBackgroundFeatureMain(rAdd)
-end
-function helperAddBackgroundFeatureMain(rAdd)
-	-- Skip certain entries for wizard additions
-	if rAdd.bWizard then
-		if CharWizardData.aRaceTraitNoParse[rAdd.sSourceType] then
-			return;
-		end
-		if CharWizardData.aRaceTraitNoAdd[rAdd.sSourceType] then
-			return;
-		end
-		if CharWizardData.aRaceSpecialSpeed[rAdd.sSourceType] then
-			return;
-		end
-		if CharWizardData.aRaceLanguages[rAdd.sSourceType] then
-			return;
-		end
-		if CharWizardData.aRaceProficiency[rAdd.sSourceType] then
-			return;
-		end
-		if CharWizardData.aRaceSkill[rAdd.sSourceType] then
-			return;
-		end
+	if s ~= "" then
+		CharManager.addFeat(rAdd.nodeChar, s, { bSource2024 = true, });
+	else
+		local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Origin", true);
+		CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
 	end
+end
+function helperAddBackgroundFeatures2014(rAdd)
+	for _,v in ipairs(DB.getChildList(rAdd.nodeSource, "features")) do
+		CharBackgroundManager.addBackgroundFeature(rAdd.nodeChar, "reference_backgroundfeature", DB.getPath(v), { bWizard = rAdd.bWizard });
+	end
+end
 
-	-- Make sure feature hasn't already been added
+function helperAddBackgroundFeatureMain(rAdd)
+	if not rAdd then
+		return;
+	end
 	if CharManager.hasFeature(rAdd.nodeChar, rAdd.sSourceName) then
 		return;
 	end
 
-	-- Create standard trait entry
-	CharBackgroundManager.helperAddBackgroundFeatureStandard(rAdd);
-
-	-- Special handling
 	if rAdd.bWizard then
-		CharRaceManager.helperAddRaceTraitSpell(rAdd);
+		CharBackgroundManager.helperAddBackgroundFeatureMainWizard(rAdd);
 	else
-		CharManager.checkSkillProficiencies(rAdd.nodeChar, DB.getText(rAdd.nodeSource, "text", ""));
+		CharBackgroundManager.helperAddBackgroundFeatureMainDrop(rAdd);
+	end
+end
+function helperAddBackgroundFeatureMainWizard(rAdd)
+	if CharWizardData.tBuildOptionsSpecialSpeed2024[rAdd.sSourceType] then
+		return;
+	end
+	if CharWizardData.tBuildOptionsLanguages2024[rAdd.sSourceType] then
+		return;
+	end
+	if CharWizardData.tBuildOptionsProficiency2024[rAdd.sSourceType] then
+		return;
+	end
+	if CharWizardData.tBuildOptionsSkill2024[rAdd.sSourceType] then
+		return;
 	end
 
-	-- Standard action addition handling
-	CharManager.helperCheckActionsAdd(rAdd.nodeChar, rAdd.nodeSource, rAdd.sSourceType, "Race Actions/Effects");
+	CharBackgroundManager.helperAddBackgroundFeatureStandard(rAdd);
+
+	if CharWizardData.tBuildOptionsNoParse2024[rAdd.sSourceType] then
+		return;
+	end
+
+	CharBuildDropManager.checkBackgroundFeatureActions(rAdd);
+end
+function helperAddBackgroundFeatureMainDrop(rAdd)
+	CharBackgroundManager.helperAddBackgroundFeatureStandard(rAdd);
+
+	if CharWizardData.tBuildOptionsNoParse2024[rAdd.sSourceType] then
+		return;
+	end
+
+	CharBuildDropManager.checkFeatureDescription(rAdd);
+	CharBuildDropManager.checkBackgroundFeatureActions(rAdd);
 end
 function helperAddBackgroundFeatureStandard(rAdd)
+	if not rAdd or not rAdd.nodeChar then
+		return nil;
+	end
+
 	local nodeFeatureList = DB.createChild(rAdd.nodeChar, "featurelist");
 	if not nodeFeatureList then
 		return nil;
@@ -176,6 +137,5 @@ function helperAddBackgroundFeatureStandard(rAdd)
 
 	DB.setValue(nodeNewFeature, "locked", "number", 1);
 	ChatManager.SystemMessageResource("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
-
 	return nodeNewFeature;
 end

@@ -6,29 +6,81 @@
 SPELLCASTING_SLOT_LEVELS = 9;
 PACTMAGIC_SLOT_LEVELS = 5;
 
-function getClassSpecializationOptions(sClassName)
+function addClass(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_class", sRecord, tData);
+	CharClassManager.helperAddClassMain(rAdd);
+end
+function addClassProficiency(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_classproficiency", sRecord, tData);
+	-- NOTE: Special handling for skills if class gets Expertise at L1
+	rAdd.bAddExpertise = tData and tData.bAddExpertise;
+	CharClassManager.helperAddClassProficiencyMain(rAdd);
+end
+function addClassFeature(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_classfeature", sRecord, tData);
+	CharClassManager.helperAddClassFeatureMain(rAdd);
+end
+function addClassFeatureChoice(nodeChar, sRecord, tData)
+	local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_classfeaturechoice", sRecord, tData);
+	CharClassManager.helperAddClassFeatureChoiceMain(rAdd);
+end
+
+function getSubclassOptions(nodeClass)
+	if not nodeClass then
+		return {};
+	end
+
+	local sClassName = DB.getValue(nodeClass, "name", "");
+	local bIs2024 = (DB.getValue(nodeClass, "version", "") == "2024");
+
+	local tSpecFilters = {
+		{ sField = "class", sValue = sClassName, bIgnoreCase = true, },
+		{ sField = "version", sValue = (bIs2024 and "2024" or ""), },
+	};
+	if bIs2024 then
+		return RecordManager.getRecordOptionsByFilter("class_specialization", tSpecFilters, true);
+	end
+
 	local tOptions = {};
-	RecordManager.callForEachRecordByStringI("class_specialization", "class", sClassName, CharClassManager.helperGetClassExternalSpecOption, tOptions);
-	RecordManager.callForEachRecordByStringI("class", "name", sClassName, CharClassManager.helperGetClassEmbeddedSpecOption, tOptions);
+	RecordManager.callForEachRecordByFilter("class_specialization", tSpecFilters, CharClassManager.helperGetClassExternalSpecOption, tOptions);
+	local tClassFilters = {
+		{ sField = "name", sValue = sClassName, bIgnoreCase = true, },
+		{ sField = "version", sValue = (bIs2024 and "2024" or ""), },
+	};
+	RecordManager.callForEachRecordByFilter("class", tClassFilters, CharClassManager.helperGetClassEmbeddedSpecOption, tOptions);
 	table.sort(tOptions, function(a,b) return a.text < b.text; end);
 	return tOptions;
 end
-function helperGetClassExternalSpecOption(nodeClassSpec, tOptions)
-	local sSpecName = StringManager.trim(DB.getValue(nodeClassSpec, "name", ""));
+function helperGetClassExternalSpecOption(nodeSubclass, tOptions)
+	local sSpecName = StringManager.trim(DB.getValue(nodeSubclass, "name", ""));
 	if sSpecName ~= "" then
-		table.insert(tOptions, { text = sSpecName, linkclass = "reference_class_specialization", linkrecord = DB.getPath(nodeClassSpec) });
+		table.insert(tOptions, { text = sSpecName, linkclass = "reference_class_specialization", linkrecord = DB.getPath(nodeSubclass) });
 	end
 end
 function helperGetClassEmbeddedSpecOption(nodeClass, tOptions)
-	for _,nodeClassSpec in ipairs(DB.getChildList(nodeClass, "abilities")) do
-		local sSpecName = StringManager.trim(DB.getValue(nodeClassSpec, "name", ""));
+	for _,nodeSubclass in ipairs(DB.getChildList(nodeClass, "abilities")) do
+		local sSpecName = StringManager.trim(DB.getValue(nodeSubclass, "name", ""));
 		if sSpecName ~= "" then
-			table.insert(tOptions, { text = sSpecName, linkclass = "reference_classability", linkrecord = DB.getPath(nodeClassSpec) });
+			table.insert(tOptions, { text = sSpecName, linkclass = "reference_classability", linkrecord = DB.getPath(nodeSubclass) });
 		end
 	end
 end
 
-function getClassSpecializationLevel(sClassName)
+function getSubclassLevel(nodeClass)
+	if not nodeClass then
+		return 0;
+	end
+
+	if type(nodeClass) == "string" then
+		nodeClass = DB.findNode(nodeClass);
+	end
+
+	local bIs2024 = (DB.getValue(nodeClass, "version", "") == "2024");
+	if bIs2024 then
+		return 3;
+	end
+
+	local sClassName = DB.getValue(nodeClass, "name", "");
 	local nodeClass = RecordManager.findRecordByStringI("class", "name", sClassName);
 	if not nodeClass then
 		return 0;
@@ -44,194 +96,29 @@ function getClassSpecializationLevel(sClassName)
 	end
 	return 0;
 end
-function getClassSpecializationRecord(sClassName, sClassSpec)
-	local tClassSpecOptions = CharClassManager.getClassSpecializationOptions(sClassName);
-	local sClassSpecLower = StringManager.trim(sClassSpec):lower();
-	for _,vClassSpec in ipairs(tClassSpecOptions) do
-		local sMatch = StringManager.trim(vClassSpec.text):lower();
-		if sMatch == sClassSpecLower then
-			return vClassSpec;
+function getSubclassRecord(nodeClass, sSubclass)
+	local tSubclassOptions = CharClassManager.getSubclassOptions(nodeClass);
+	local sSubclassLower = StringManager.simplify(sSubclass) or "";
+	for _,vSubclass in ipairs(tSubclassOptions) do
+		if StringManager.simplify(vSubclass.text) == sSubclassLower then
+			return vSubclass;
 		end
 	end
 	return nil;
 end
--- Returns (nSpellcastingLevel, nPactMagicLevel)
-function getClassSpellcastingLevel(sClassName, nClassLevel, sClassSpec)
-	local nodeClass = RecordManager.findRecordByStringI("class", "name", sClassName);
-	if not nodeClass then
-		return 0, 0;
-	end
 
-	-- Check native class features and embedded class specialization features
-	local sClassSpecLower = StringManager.trim(sClassSpec):lower();
-	for _,vFeature in ipairs(DB.getChildList(nodeClass, "features")) do
-		local sMatch = StringManager.trim(DB.getValue(vFeature, "name", "")):lower();
-		if sMatch == CharManager.FEATURE_SPELLCASTING then
-			local nLevel = DB.getValue(vFeature, "level", 0);
-			if nLevel > 0 and nLevel <= nClassLevel then
-				local sSpecMatch = StringManager.trim(DB.getValue(vFeature, "specialization", "")):lower();
-				if (sSpecMatch == "") or (sSpecMatch == sClassSpecLower) then
-					return nLevel, 0;
-				end
-			end
-		elseif sMatch == CharManager.FEATURE_PACT_MAGIC then
-			local nLevel = DB.getValue(vFeature, "level", 0);
-			if nLevel > 0 and nLevel <= nClassLevel then
-				local sSpecMatch = StringManager.trim(DB.getValue(vFeature, "specialization", "")):lower();
-				if (sSpecMatch == "") or (sSpecMatch == sClassSpecLower) then
-					return 0, nLevel;
-				end
-			end
-		end
-	end
-
-	-- Check external class specialization features
-	if sClassSpec ~= "" then
-		local tClassSpec = getClassSpecializationRecord(sClassName, sClassSpec);
-		if tClassSpec and tClassSpec.linkclass == "reference_class_specialization" then
-			for _,vFeature in ipairs(DB.getChildList(DB.getPath(tClassSpec.linkrecord, "features"))) do
-				local sMatch = StringManager.trim(DB.getValue(vFeature, "name", "")):lower();
-				if sMatch == CharManager.FEATURE_SPELLCASTING then
-					local nLevel = DB.getValue(vFeature, "level", 0);
-					if nLevel > 0 then
-						return nLevel, 0;
-					end
-				elseif sMatch == CharManager.FEATURE_PACT_MAGIC then
-					local nLevel = DB.getValue(vFeature, "level", 0);
-					if nLevel > 0 then
-						return 0, nLevel;
-					end
-				end
-			end
-		end
-	end
-
-	return 0, 0;
+function getClassName(rAdd)
+	return DB.getValue(rAdd.nodeSource, "name", "");
+end
+function getClassSpellGroup(rAdd)
+	return Interface.getString("char_spell_powergroup"):format(CharClassManager.getClassName(rAdd));
 end
 
-function getCharLevel(nodeChar)
-	local nTotal = 0;
-	for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local nClassLevel = DB.getValue(v, "level", 0);
-		if nClassLevel > 0 then
-			nTotal = nTotal + nClassLevel;
-		end
-	end
-	return nTotal;
-end
-function getCharClassSummary(nodeChar, bShort)
-	if not nodeChar then
-		return "";
-	end
-	
-	local tSorted = {};
-	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
-		table.insert(tSorted, nodeChild);
-	end
-	table.sort(tSorted, function(a,b) return DB.getValue(a, "name", "") < DB.getValue(b, "name", ""); end);
-			
-	local tClasses = {};
-	for _,nodeChild in pairs(tSorted) do
-		local sClass = DB.getValue(nodeChild, "name", "");
-		local nLevel = DB.getValue(nodeChild, "level", 0);
-		if nLevel > 0 then
-			if bShort then
-				sClass = sClass:sub(1,3);
-			end
-			table.insert(tClasses, sClass .. " " .. math.floor(nLevel*100)*0.01);
-		end
-	end
-
-	return table.concat(tClasses, " / ");
-end
-function getCharClassHDUsage(nodeChar)
-	local nHD = 0;
-	local nHDUsed = 0;
-	
-	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local nLevel = DB.getValue(nodeChild, "level", 0);
-		local nHDMult = #(DB.getValue(nodeChild, "hddie", {}));
-		nHD = nHD + (nLevel * nHDMult);
-		nHDUsed = nHDUsed + DB.getValue(nodeChild, "hdused", 0);
-	end
-	
-	return nHDUsed, nHD;
-end
-function getCharClassRecord(nodeChar, sClassName)
-	if (sClassName or "") == "" then
-		return nil;
-	end
-	local sClassNameLower = StringManager.trim(sClassName):lower();
-
-	for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local sMatch = StringManager.trim(DB.getValue(v, "name", "")):lower();
-		if sMatch == sClassNameLower then
-			return v;
-		end
-	end
-	return nil;
-end
-function getCharClassLevel(nodeChar, sClassName)
-	local nodeCharClass = CharClassManager.getCharClassRecord(nodeChar, sClassName);
-	if not nodeCharClass then
-		return 0;
-	end
-
-	return DB.getValue(nodeCharClass, "level", 0);
-end
-
-function getCharClassSpecialization(nodeChar, sClassName)
-	local nodeCharClass = CharClassManager.getCharClassRecord(nodeChar, sClassName);
-	if not nodeCharClass then
-		return "";
-	end
-
-	local sSpecName = StringManager.trim(DB.getValue(nodeCharClass, "specialization", ""));
-	if sSpecName ~= "" then
-		return sSpecName;
-	end
-
-	local tClassSpecOptions = CharClassManager.getClassSpecializationOptions(sClassName);
-	for _,vClassSpec in ipairs(tClassSpecOptions) do
-		if CharManager.hasFeature(vClassSpec.text) then
-			return vClassSpec.text;
-		end
-	end
-
-	return "";
-end
-function hasCharClassSpecialization(nodeChar, sClassSpec)
-	if (sClassSpec or "") == "" then
-		return true;
-	end
-	local sClassSpecLower = StringManager.trim(sClassSpec):lower();
-
-	for _,nodeCharClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local sMatch = StringManager.trim(DB.getValue(nodeCharClass, "specialization", "")):lower();
-		if sMatch == sClassSpecLower then
-			return true;
-		end
-	end
-
-	if CharManager.hasFeature(nodeChar, sClassSpecLower) then
-		return true;
-	end
-
-	return false;
-end
-
-function addClass(nodeChar, sClass, sRecord, bWizard)
-	local rAdd = CharManager.helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard);
+function helperAddClassMain(rAdd)
 	if not rAdd then
 		return;
 	end
 
-	CharClassManager.helperAddClassMain(rAdd);
-	if not rAdd.bWizard then
-		CharClassManager.helperAddClassSpecializationChoice(rAdd);
-	end
-end
-function helperAddClassMain(rAdd)
 	-- Notification
 	ChatManager.SystemMessageResource("char_abilities_message_classadd", rAdd.sSourceName, rAdd.sCharName);
 
@@ -244,10 +131,20 @@ function helperAddClassMain(rAdd)
 	CharClassManager.helperAddClassProficiencies(rAdd);
 	CharClassManager.helperAddClassFeatures(rAdd);
 	CharClassManager.helperAddClassUpdateSpellSlots(rAdd);
+
+	CharClassManager.helperAddClassSpells(rAdd);
+
+	if not rAdd.bWizard then
+		CharClassManager.helperAddSubclassChoice(rAdd);
+	end
+end
+function helperAddClassCalcCasterLevel(rAdd)
+	rAdd.nCharCasterLevel = CharClassManager.calcSpellcastingLevel(rAdd.nodeChar); 
+	rAdd.nCharPactMagicLevel = CharClassManager.calcPactMagicLevel(rAdd.nodeChar);
 end
 function helperAddClassLevel(rAdd)
 	-- Check to see if the character already has this class; or create a new class entry
-	rAdd.nodeCharClass = CharClassManager.getCharClassRecord(rAdd.nodeChar, rAdd.sSourceName);
+	rAdd.nodeCharClass = CharManager.getClassRecord(rAdd.nodeChar, rAdd.sSourceName, rAdd.bSource2024);
 	if not rAdd.nodeCharClass then
 		local nodeClassList = DB.createChild(rAdd.nodeChar, "classes");
 		if not nodeClassList then
@@ -257,8 +154,9 @@ function helperAddClassLevel(rAdd)
 		rAdd.bNewCharClass = true;
 	end
 	
-	-- Any way you get here, overwrite or set the class reference link with the most current
+	-- Any way you get here, overwrite or set the class reference link and record version with the most current
 	DB.setValue(rAdd.nodeCharClass, "shortcut", "windowreference", "reference_class", DB.getPath(rAdd.nodeSource));
+	DB.setValue(rAdd.nodeCharClass, "version", "string", DB.getValue(rAdd.nodeSource, "version", ""));
 	
 	-- Add basic class information
 	if rAdd.bNewCharClass then
@@ -270,26 +168,20 @@ function helperAddClassLevel(rAdd)
 	DB.setValue(rAdd.nodeCharClass, "level", "number", rAdd.nCharClassLevel);
 	
 	-- Calculate total level
-	rAdd.nCharLevel = CharClassManager.getCharLevel(rAdd.nodeChar);
+	rAdd.nCharLevel = CharManager.getLevel(rAdd.nodeChar);
 end
 function helperAddClassHP(rAdd)
 	-- Translate Hit Die
-	local bHDFound = false;
 	local nHDMult = 1;
 	local nHDSides = 6;
-	local sHD = DB.getText(rAdd.nodeSource, "hp.hitdice.text");
-	if sHD then
-		local sMult, sSides = sHD:match("(%d)d(%d+)");
-		if sMult and sSides then
-			nHDMult = tonumber(sMult);
-			nHDSides = tonumber(sSides);
-			bHDFound = true;
-		end
-	end
-	if not bHDFound then
+	local sHD = DB.getText(rAdd.nodeSource, "hp.hitdice.text", "");
+	local sMult, sSides = sHD:match("(%d?)[dD](%d+)");
+	if sMult and sSides then
+		nHDMult = tonumber(sMult) or 1;
+		nHDSides = tonumber(sSides) or 6;
+	else
 		ChatManager.SystemMessageResource("char_error_addclasshd");
 	end
-
 	if rAdd.bNewCharClass then
 		DB.setValue(rAdd.nodeCharClass, "hddie", "dice", string.format("%sd%s", nHDMult, nHDSides));
 	end
@@ -311,15 +203,18 @@ function helperAddClassHP(rAdd)
 	DB.setValue(rAdd.nodeChar, "hp.total", "number", nHP);
 
 	-- Special hit point level up handling
+	-- 2024/2014 - PHB - Species - Dwarf - Dwarven Toughness
 	if CharManager.hasTrait(rAdd.nodeChar, CharManager.TRAIT_DWARVEN_TOUGHNESS) then
-		CharRaceManager.applyDwarvenToughness(rAdd.nodeChar);
+		CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar);
 	end
+	-- 2024/2014 - PHB - Class - Sorcerer - Draconic Resilience
 	if CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_DRACONIC_RESILIENCE) then
-		local sClassNameLower = StringManager.trim(DB.getValue(rAdd.nodeCharClass, "name", "")):lower();
+		local sClassNameLower = StringManager.simplify(DB.getValue(rAdd.nodeCharClass, "name", ""));
 		if sClassNameLower == CharManager.CLASS_SORCERER then
 			CharClassManager.applyDraconicResilience(rAdd.nodeChar);
 		end
 	end
+	-- 2024/2014 - PHB - Feat - Tough
 	if CharManager.hasFeat(rAdd.nodeChar, CharManager.FEAT_TOUGH) then
 		CharFeatManager.applyTough(rAdd.nodeChar);
 	end
@@ -329,123 +224,119 @@ function helperAddClassProficiencies(rAdd)
 		return;
 	end
 
+	-- NOTE: Special handling for skills if class gets Expertise at L1
+	local bAddExpertise = false;
+	if rAdd.nCharClassLevel == 1 then
+		for _,node in ipairs(CharClassManager.helperGetClassBaseFeatures(rAdd)) do
+			if StringManager.simplify(DB.getValue(node, "name", "")) == "expertise" then
+				rAdd.bSkipExpertise = true;
+				bAddExpertise = true;
+				break;
+			end
+		end
+	end
+	
 	if rAdd.nCharLevel == 1 then
 		for _,v in ipairs(DB.getChildList(rAdd.nodeSource, "proficiencies")) do
-			CharClassManager.addClassProficiency(rAdd.nodeChar, "reference_classproficiency", DB.getPath(v), rAdd.bWizard);
+			local tData = { bWizard = rAdd.bWizard };
+			if DB.getName(v) == "skills" then
+				tData.bAddExpertise = bAddExpertise;
+			end
+			CharClassManager.addClassProficiency(rAdd.nodeChar, DB.getPath(v), tData);
 		end
 	else
 		for _,v in ipairs(DB.getChildList(rAdd.nodeSource, "multiclassproficiencies")) do
-			CharClassManager.addClassProficiency(rAdd.nodeChar, "reference_classproficiency", DB.getPath(v), rAdd.bWizard);
+			local tData = { bWizard = rAdd.bWizard };
+			if DB.getName(v) == "skills" then
+				tData.bAddExpertise = bAddExpertise;
+			end
+			CharClassManager.addClassProficiency(rAdd.nodeChar, DB.getPath(v), tData);
 		end
 	end
 end
-function helperAddClassSpecializationChoice(rAdd)
-	-- Determine whether class specialization choice is triggered at this level
-	local nSpecLevel = CharClassManager.getClassSpecializationLevel(rAdd.sSourceName);
-	if nSpecLevel ~= rAdd.nCharClassLevel then
-		return;
-	end
-
-	local tClassSpecOptions = CharClassManager.getClassSpecializationOptions(rAdd.sSourceName);
-	if #tClassSpecOptions == 0 then
-		return;
-	end
-
-	if #tClassSpecOptions == 1 then
-		-- Automatically select only class specialization
-		rAdd.sClassSpecChoice = tClassSpecOptions[1].text;
-		CharClassManager.helperAddClassSpecialization(rAdd);
-	else
-		-- Display dialog to choose specialization
-		local wSelect = Interface.openWindow("select_dialog", "");
-		local sTitle = Interface.getString("char_build_title_selectspecialization");
-		local sMessage = Interface.getString("char_build_message_selectspecialization");
-		wSelect.requestSelection(sTitle, sMessage, tClassSpecOptions, CharClassManager.callbackAddClassSpecializationChoice, rAdd);
-	end
-end
-function callbackAddClassSpecializationChoice(tSelection, rAdd)
-	if not tSelection or (#tSelection ~= 1) then
-		ChatManager.SystemMessageResource("char_error_addclassspecialization");
-		return;
-	end
-
-	rAdd.sClassSpecChoice = tSelection[1];
-	CharClassManager.helperAddClassSpecialization(rAdd);
-end
-function helperAddClassSpecialization(rAdd)
-	if ((rAdd.sClassSpecChoice or "") == "") then
-		return;
-	end
-
-	local tClassSpec = CharClassManager.getClassSpecializationRecord(rAdd.sSourceName, rAdd.sClassSpecChoice);
-	if not tClassSpec then
-		ChatManager.SystemMessageResource("char_error_missingclassspecialization");
-		return;
-	end
-
-	-- Track specialization
-	DB.setValue(rAdd.nodeCharClass, "specialization", "string", tClassSpec.text);
-	DB.setValue(rAdd.nodeCharClass, "specializationlink", "windowreference", tClassSpec.linkclass, tClassSpec.linkrecord);
-
-	-- Store caster levels before feature additions 
-	-- in order to calc spell slot upgrades correctly
-	CharClassManager.helperAddClassCalcCasterLevel(rAdd);
-
-	-- Add features
-	rAdd.bNewSpecAdd = true;
-	CharClassManager.helperAddClassFeatures(rAdd);
-
-	-- Update spell slots (based on feature add)
-	CharClassManager.helperAddClassUpdateSpellSlots(rAdd);
-end
 function helperAddClassFeatures(rAdd)
-	-- Get class matches
-	local nodeClass = rAdd.nodeSource;
-	if not nodeClass then
-		nodeClass = RecordManager.findRecordByStringI("class", "name", rAdd.sSourceName);
+	if not rAdd.nodeSource then
+		return;
 	end
 
-	-- Add class features
+	-- Add standard class features unless new specialization
 	if not rAdd.bNewSpecAdd then
-		CharClassManager.helperAddClassBaseFeaturesWorker(nodeClass, rAdd);
+		CharClassManager.helperAddClassBaseFeatures(rAdd);
 	end
 
 	-- Add external class specialization features
-	local sClassSpec = CharClassManager.getCharClassSpecialization(rAdd.nodeChar, rAdd.sSourceName);
-	local nodeClassSpec = RecordManager.findRecordByStringI("class_specialization", "name", sClassSpec);
-	if nodeClassSpec then
-		for _,vFeature in ipairs(DB.getChildList(nodeClassSpec, "features")) do
-			if (DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
-				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
+	local sSubclass = CharManager.getSubclass(rAdd.nodeChar, rAdd.sSourceName, rAdd.bSource2024);
+	if sSubclass == "" then
+		return;
+	end
+
+	local bSpecIs2024 = (DB.getValue(rAdd.nodeCharClass, "specializationversion", "") == "2024");
+	local tSpecFilters = {
+		{ sField = "name", sValue = sSubclass, bIgnoreCase = true, },
+		{ sField = "version", sValue = (bSpecIs2024 and "2024" or ""), },
+	};
+	local nodeSubclass = RecordManager.findRecordByFilter("class_specialization", tSpecFilters);
+	if nodeSubclass then
+		for _,vFeature in ipairs(DB.getChildList(nodeSubclass, "features")) do
+			if (rAdd.bNewSpecAdd and (DB.getValue(vFeature, "level", 0) <= rAdd.nCharClassLevel)) or 
+					(DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
+				CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(vFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
 			end
 		end
 	else
-		RecordManager.callForEachRecordByStringI("class", "name", rAdd.sSourceName, CharClassManager.helperAddClassSpecFeaturesWorker, rAdd);
+		local bClassIs2024 = (DB.getValue(rAdd.nodeSource, "version", "") == "2024");
+		if not bClassIs2024 then
+			local tClassFilters = {
+				{ sField = "name", sValue = rAdd.sSourceName, bIgnoreCase = true, },
+				{ sField = "version", sValue = (bClassIs2024 and "2024" or ""), },
+			};
+			RecordManager.callForEachRecordByFilter("class", tClassFilters, CharClassManager.helperAddClassLegacySpecFeaturesWorker, rAdd);
+		end
 	end
 end
-function helperAddClassBaseFeaturesWorker(nodeClass, rAdd)
-	for _,vFeature in ipairs(DB.getChildList(nodeClass, "features")) do
-		if (DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
-			local sFeatureSpec = StringManager.trim(DB.getValue(vFeature, "specialization", ""));
+function helperGetClassBaseFeatures(rAdd)
+	local tOutput = {};
+	for _,node in ipairs(DB.getChildList(rAdd.nodeSource, "features")) do
+		if (DB.getValue(node, "level", 0) == rAdd.nCharClassLevel) then
+			local sFeatureSpec = StringManager.trim(DB.getValue(node, "specialization", ""));
 			if sFeatureSpec == "" then
-				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
+				table.insert(tOutput, node);
+			end
+		end
+	end
+	return tOutput;
+end
+-- NOTE: Special handling for skills if class gets Expertise at L1
+function helperAddClassBaseFeatures(rAdd)
+	for _,node in ipairs(CharClassManager.helperGetClassBaseFeatures(rAdd)) do
+		if not rAdd.bSkipExpertise or (rAdd.nCharClassLevel ~= 1) or (StringManager.simplify(DB.getValue(node, "name", "")) ~= "expertise") then
+			CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(node), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
+		end
+	end
+end
+function helperAddClassLegacySpecFeaturesWorker(nodeClass, rAdd)
+	for _,nodeFeature in ipairs(DB.getChildList(nodeClass, "features")) do
+		if (DB.getValue(nodeFeature, "level", 0) == rAdd.nCharClassLevel) then
+			local sFeatureSpec = StringManager.trim(DB.getValue(nodeFeature, "specialization", ""));
+			if (sFeatureSpec ~= "") and CharClassManager.helperHasCharClassLegacySpecialization(rAdd.nodeChar, sFeatureSpec) then
+				CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(vFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
 			end
 		end
 	end
 end
-function helperAddClassSpecFeaturesWorker(nodeClass, rAdd)
-	for _,vFeature in ipairs(DB.getChildList(nodeClass, "features")) do
-		if (DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel) then
-			local sFeatureSpec = StringManager.trim(DB.getValue(vFeature, "specialization", ""));
-			if (sFeatureSpec ~= "") and CharClassManager.hasCharClassSpecialization(rAdd.nodeChar, sFeatureSpec) then
-				CharClassManager.addClassFeature(rAdd.nodeChar, "reference_classfeature", DB.getPath(vFeature), rAdd.nodeCharClass, rAdd.bWizard);
-			end
+function helperHasCharClassLegacySpecialization(nodeChar, sSubclass)
+	if (sSubclass or "") == "" then
+		return true;
+	end
+
+	local sSubclassLower = StringManager.simplify(sSubclass);
+	for _,nodeCharClass in ipairs(DB.getChildList(nodeChar, "classes")) do
+		if StringManager.simplify(DB.getValue(nodeCharClass, "specialization", "")) == sSubclassLower then
+			return true;
 		end
 	end
-end
-function helperAddClassCalcCasterLevel(rAdd)
-	rAdd.nCharCasterLevel = CharClassManager.calcSpellcastingLevel(rAdd.nodeChar); 
-	rAdd.nCharPactMagicLevel = CharClassManager.calcPactMagicLevel(rAdd.nodeChar);
+
+	return CharManager.hasFeature(nodeChar, sSubclassLower);
 end
 function helperAddClassUpdateSpellSlots(rAdd)
 	-- Handle Spellcasting slots
@@ -468,119 +359,345 @@ function helperAddClassUpdateSpellSlots(rAdd)
 		end
 	end
 end
-
-function addClassProficiency(nodeChar, sClass, sRecord, bWizard)
-	local rAdd = CharManager.helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard);
-	if not rAdd then
+function helperAddClassSpells(rAdd)
+	if not rAdd or not rAdd.bWizard then
 		return;
 	end
 
-	-- Saving Throw Proficiencies
-	if rAdd.sSourceType == "savingthrows" then
-		local sText = StringManager.trim(DB.getText(rAdd.nodeSource, "text", ""));
-		if sText == "" then
-			return;
-		end
+	-- TODO (2024) - Add Cantrip/Prepared Spell choices on level up (See Savant implementation)
 
-		for sProf in sText:gmatch("(%a[%a%s]+)%,?") do
-			local sProfLower = StringManager.trim(sProf):lower();
-			if StringManager.contains(DataCommon.abilities, sProfLower) then
-				DB.setValue(rAdd.nodeChar, "abilities." .. sProfLower .. ".saveprof", "number", 1);
-				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sProf, rAdd.sCharName);
-			end
-		end
-	end
-
-	if not rAdd.bWizard then
-		-- Armor, Weapon or Tool Proficiencies
-		if StringManager.contains({"armor", "weapons", "tools"}, rAdd.sSourceType) then
-			local sText = StringManager.trim(DB.getText(rAdd.nodeSource, "text", ""));
-			if sText == "" then
-				return;
-			end
-
-			CharManager.addProficiency(rAdd.nodeChar, rAdd.sSourceType, DB.getText(rAdd.nodeSource, "text", ""));
-			
-
-		-- Skill Proficiencies
-		elseif rAdd.sSourceType == "skills" then
-			local nPicks, tSkills = CharManager.parseSkillProficiencyText(rAdd.nodeSource);
-			if nPicks == 0 then
-				ChatManager.SystemMessageResource("char_error_addskill");
-				return nil;
-			end
-			CharManager.pickSkills(rAdd.nodeChar, tSkills, nPicks);
-		end
-	end
+	-- NOTE: Special handling for Wizard school savant feature
+	-- CharClassManager.helperAddClassSavantSpells(rAdd);
 end
-
-function addClassFeature(nodeChar, sClass, sRecord, nodeClass, bWizard)
-	local rAdd = CharManager.helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard);
-	if not rAdd then
+function helperAddClassSavantSpells(rAdd)
+	if rAdd.sSourceName:lower() == CharManager.CLASS_WIZARD then
 		return;
 	end
 
-	rAdd.nodeClass = nodeClass;
-	CharClassManager.helperAddClassFeatureMain(rAdd);
-end
-function helperAddClassFeatureMain(rAdd)
-	-- Skip certain entries
-	if rAdd.bWizard then
-		if rAdd.sSourceType == "abilityscoreimprovement" then
-			return;
-		end
+	local nPicks = 1;
+	local nLevel;
+	if rAdd.nCharClassLevel == 3 then
+		nLevel = 2;
+		nPicks = 2;
+	elseif rAdd.nCharClassLevel == 5 then
+		nLevel = 3;
+	elseif rAdd.nCharClassLevel == 7 then
+		nLevel = 4;
+	elseif rAdd.nCharClassLevel == 9 then
+		nLevel = 5;
+	elseif rAdd.nCharClassLevel == 11 then
+		nLevel = 6;
+	elseif rAdd.nCharClassLevel == 13 then
+		nLevel = 7;
+	elseif rAdd.nCharClassLevel == 15 then
+		nLevel = 8;
+	elseif rAdd.nCharClassLevel == 17 then
+		nLevel = 9;
+	end
+	if not nLevel then
+		return;
 	end
 
-	-- Prep some variables
-	if rAdd.nodeClass then
-		rAdd.sFeatureClassName = StringManager.trim(DB.getValue(rAdd.nodeClass, "name", ""));
+	local sSchool;
+	if CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_ABJURATION_SAVANT) then
+		sSchool = "Abjuration";
+	elseif CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_DIVINATION_SAVANT) then
+		sSchool = "Divination";
+	elseif CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_EVOCATION_SAVANT) then
+		sSchool = "Evocation";
+	elseif CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_ILLUSION_SAVANT) then
+		sSchool = "Illusion";
+	end
+	if not sSchool then
+		return;
+	end
+
+	local tLevelValues = {};
+	for i = 0, nLevel do
+		table.insert(tLevelValues, tostring(i));
+	end
+	local tFilters = {
+		{ sField = "version", sValue = "2024", },
+		{ sField = "level", tValues = tLevelValues, },
+		{ sField = "school", sValue = sSchool, bIgnoreCase = true, },
+	};
+	rAdd.sSpellGroup = CharClassManager.getClassSpellGroup(rAdd);
+	local tData = { sClassName = "Wizard", sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, };
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, nPicks, tData);
+end
+
+function helperAddSubclassChoice(rAdd)
+	-- Determine whether class specialization choice is triggered at this level
+	local nSpecLevel = CharClassManager.getSubclassLevel(rAdd.nodeSource);
+	if nSpecLevel ~= rAdd.nCharClassLevel then
+		return;
+	end
+
+	local tSubclassOptions = CharClassManager.getSubclassOptions(rAdd.nodeSource);
+	if #tSubclassOptions == 0 then
+		return;
+	end
+
+	if #tSubclassOptions == 1 then
+		-- Automatically select only class specialization
+		rAdd.sSubclassChoice = tSubclassOptions[1].text;
+		CharClassManager.helperAddSubclass(rAdd);
 	else
-		rAdd.sFeatureClassName = StringManager.trim(DB.getValue(rAdd.nodeSource, "...name", ""));
+		local tData = {
+			title = Interface.getString("char_build_title_selectspecialization"),
+			msg = Interface.getString("char_build_message_selectspecialization"),
+			options = tSubclassOptions,
+			callback = CharClassManager.helperOnAddSubclassChoice,
+			custom = rAdd,
+		};
+		local wSelect = Interface.openWindow("select_dialog", "");
+		wSelect.requestSelectionByData(tData);
 	end
-	local sSourceNameLower = StringManager.trim(rAdd.sSourceName):lower();
+end
+function helperOnAddSubclassChoice(tSelection, rAdd)
+	if not tSelection or (#tSelection ~= 1) then
+		ChatManager.SystemMessageResource("char_error_addsubclass");
+		return;
+	end
 
-	-- Get the final feature name; and check if it exists
+	rAdd.sSubclassChoice = tSelection[1];
+	CharClassManager.helperAddSubclass(rAdd);
+end
+function helperAddSubclass(rAdd)
+	if not rAdd or ((rAdd.sSubclassChoice or "") == "") then
+		return;
+	end
+
+	local tSubclass = CharClassManager.getSubclassRecord(rAdd.nodeSource, rAdd.sSubclassChoice);
+	if not tSubclass then
+		ChatManager.SystemMessageResource("char_error_missingsubclass");
+		return;
+	end
+	rAdd.nodeSubclass = DB.findNode(tSubclass.linkrecord);
+	if not rAdd.nodeSubclass then
+		ChatManager.SystemMessageResource("char_error_missingsubclass");
+		return;
+	end
+
+	rAdd.bNewSpecAdd = true;
+	rAdd.bSubclass2024 = (DB.getValue(rAdd.nodeSubclass, "version", "") == "2024");
+
+	-- Track specialization
+	DB.setValue(rAdd.nodeCharClass, "specialization", "string", tSubclass.text);
+	DB.setValue(rAdd.nodeCharClass, "specializationlink", "windowreference", tSubclass.linkclass, tSubclass.linkrecord);
+	DB.setValue(rAdd.nodeCharClass, "specializationversion", "string", rAdd.bSubclass2024 and "2024" or "");
+
+	-- Store caster levels before feature additions 
+	-- in order to calc spell slot upgrades correctly
+	CharClassManager.helperAddClassCalcCasterLevel(rAdd);
+
+	-- Add features
+	CharClassManager.helperAddClassFeatures(rAdd);
+
+	-- Update spell slots (based on feature add)
+	CharClassManager.helperAddClassUpdateSpellSlots(rAdd);
+
+	-- NOTE: Special handling for Wizard school savant feature
+	CharClassManager.helperAddClassSavantSpells(rAdd);
+end
+
+function helperAddClassProficiencyMain(rAdd)
+	if not rAdd then
+		return;
+	end
+
+	if rAdd.sSourceType == "savingthrows" then
+		CharBuildDropManager.handleClassSavesField(rAdd);
+	end
+
+	if rAdd.bWizard then
+		return;
+	end
+
+	if rAdd.sSourceType == "skills" then
+		CharBuildDropManager.handleClassSkillsField(rAdd);
+	elseif rAdd.sSourceType == "armor" then
+		CharBuildDropManager.handleClassArmorField(rAdd);
+	elseif rAdd.sSourceType == "weapons" then
+		CharBuildDropManager.handleClassWeaponsField(rAdd);
+	elseif rAdd.sSourceType == "tools" then
+		CharBuildDropManager.handleClassToolsField(rAdd);
+	end
+end
+
+function getFeatureClassName(rAdd)
+	local s = DB.getValue(rAdd.nodeSource, "...class", "");
+	if s ~= "" then
+		return s;
+	end
+	return DB.getValue(rAdd.nodeSource, "...name", "");
+end
+function getFeatureSpellGroup(rAdd)
+	return Interface.getString("char_spell_powergroup"):format(CharClassManager.getFeatureClassName(rAdd));
+end
+function getFeaturePowerGroup(rAdd)
+	return Interface.getString("char_class_powergroup"):format(CharClassManager.getFeatureClassName(rAdd));
+end
+function getFeatureChoiceDisplayName(node)
+	local sChoiceType = StringManager.trim(DB.getValue(node, "choicetype", ""));
+	local sName = StringManager.trim(DB.getValue(node, "name", ""));
+	if sChoiceType == "" then
+		return sName;
+	elseif sName == "" or sName == "-" then
+		return sChoiceType;
+	end
+	return string.format("%s (%s)", sChoiceType, sName);
+end
+
+function helperAddClassFeatureMain(rAdd)
+	if not rAdd then
+		return;
+	end
+
+	if rAdd.bSource2024 then
+		CharClassManager.helperAddClassFeatureMain2024(rAdd);
+	else
+		CharClassManager.helperAddClassFeatureMain2014(rAdd);
+	end
+end
+function helperAddClassFeatureMain2024(rAdd)
+	if CharBuildDropManager.handleClassFeatureChoices(rAdd) then
+		return;
+	end
+	CharClassManager.helperAddClassFeatureMainWorker2024(rAdd);
+end
+function helperAddClassFeatureMainWorker2024(rAdd)
+	if rAdd.nodeCharClass then
+		rAdd.sClassName = StringManager.trim(DB.getValue(rAdd.nodeCharClass, "name", ""));
+	else
+		rAdd.sClassName = StringManager.trim(DB.getValue(rAdd.nodeSource, "...name", ""));
+	end
+
 	local sFeatureName = rAdd.sSourceName;
-	if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
-		if sSourceNameLower == CharManager.FEATURE_SPELLCASTING or sSourceNameLower == CharManager.FEATURE_PACT_MAGIC then
-			sFeatureName = sFeatureName .. " (" .. rAdd.sFeatureClassName .. ")";
-			if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
-				return;
-			end
-		else
+	if StringManager.contains({ "abilityscoreimprovement", "epicboon", "expertise", "extraunarmoredmovement" }, rAdd.sSourceType) then
+		if rAdd.bWizard then
 			return;
+		end
+	else
+		-- Exit if feature already exists
+		if DB.getValue(rAdd.nodeSource, "repeatable", 0) ~= 1 then
+			if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
+				if (rAdd.sSourceType == "spellcasting") or (rAdd.sSourceType == "pactmagic") then
+					sFeatureName = string.format("%s (%s)", sFeatureName, rAdd.sClassName);
+					if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
+						return;
+					end
+				else
+					return;
+				end
+			end
 		end
 	end
 
 	-- Add standard feature record, and adjust name
-	local vNew = CharClassManager.helperAddClassFeatureStandard(rAdd);
-	DB.setValue(vNew, "name", "string", sFeatureName);
+	if not StringManager.contains({ "abilityscoreimprovement", "extraunarmoredmovement" }, rAdd.sSourceType) then
+		local nodeNew = CharClassManager.helperAddClassFeatureStandard(rAdd);
+		DB.setValue(nodeNew, "name", "string", sFeatureName);
+	end
 
 	-- Special handling
-	if sSourceNameLower == CharManager.FEATURE_SPELLCASTING then
+	if rAdd.sSourceType == "abilityscoreimprovement" then
+		CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
+	elseif rAdd.sSourceType == "epicboon" then
+		CharClassManager.helperAddClassFeatureEpicBoonDrop2024(rAdd);
+	elseif StringManager.contains({ "fightingstyle", "additionalfightingstyle" }, rAdd.sSourceType) then
+		CharClassManager.helperAddClassFeatureFightingStyle(rAdd);
+	elseif rAdd.sSourceType == "spellcasting" then
 		CharClassManager.helperAddClassFeatureSpellcasting(rAdd);
-	elseif sSourceNameLower == CharManager.FEATURE_PACT_MAGIC then
+	elseif rAdd.sSourceType == "pactmagic" then
 		CharClassManager.helperAddClassFeaturePactMagic(rAdd);
-	elseif sSourceNameLower == CharManager.FEATURE_DRACONIC_RESILIENCE then
-		CharClassManager.applyDraconicResilience(rAdd.nodeChar);
-	elseif sSourceNameLower == CharManager.FEATURE_UNARMORED_DEFENSE then
-		CharClassManager.applyUnarmoredDefense(rAdd.nodeChar, rAdd.nodeClass);
-	elseif sSourceNameLower == CharManager.FEATURE_MAGIC_ITEM_ADEPT or
-			sSourceNameLower == CharManager.FEATURE_MAGIC_ITEM_SAVANT or
-			sSourceNameLower == CharManager.FEATURE_MAGIC_ITEM_MASTER then
+
+	elseif StringManager.contains({ "unarmoreddefense", "dazzlingfootwork" }, rAdd.sSourceType) then
+		CharClassManager.helperAddClassFeatureUnarmoredDefense(rAdd);
+	elseif rAdd.sSourceType == "expertise" then
+		CharClassManager.helperAddClassFeatureExpertise(rAdd);
+	elseif rAdd.sSourceType == "magicaldiscoveries" then
+		CharClassManager.helperAddClassFeatureMagicalDiscoveries(rAdd);
+	elseif rAdd.sSourceType == "studentofwar" then
+		CharClassManager.helperAddClassFeatureStudentOfWar(rAdd);
+	elseif rAdd.sSourceType == "primalknowledge" then
+		CharClassManager.helperAddClassFeaturePrimalKnowledge(rAdd);
+	elseif rAdd.sSourceType == "bodyandmind" then
+		CharClassManager.helperAddClassFeatureBodyAndMind(rAdd);
+	elseif rAdd.sSourceType == "deftexplorer" then
+		CharClassManager.helperAddClassFeatureDeftExplorer(rAdd);
+	elseif rAdd.sSourceType == "ironmind" then
+		CharClassManager.helperAddClassFeatureIronMind(rAdd);
+	elseif rAdd.sSourceType == "usemagicdevice" then
 		CharClassManager.applyAttunementAdjust(rAdd.nodeChar, 1);
+	elseif rAdd.sSourceType == "draconicresilience" then
+		CharClassManager.helperAddClassFeatureDraconicResilience(rAdd);
+	elseif rAdd.sSourceType == "eldritchinvocationlessonsofthefirstones" then
+		CharClassManager.helperAddClassFeatureEldritchInvocationLessonsOfTheFirstOnes(rAdd);
+	elseif rAdd.sSourceType == "eldritchinvocationpactofthetome" then
+		CharClassManager.helperAddClassFeatureEldritchInvocationPactOfTheTome(rAdd);
+	elseif rAdd.sSourceType == "scholar" then
+		CharClassManager.helperAddClassFeatureScholar(rAdd);
 	else
-		if not rAdd.bWizard then
-			if sSourceNameLower == CharManager.FEATURE_ELDRITCH_INVOCATIONS then
-				-- Note: Bypass skill proficiencies due to false positive in skill proficiency detection
+		CharBuildDropManager.checkFeatureDescription(rAdd);
+	end
+
+	CharBuildDropManager.checkClassFeatureActions(rAdd);
+end
+function helperAddClassFeatureMain2014(rAdd)
+	if rAdd.nodeCharClass then
+		rAdd.sClassName = StringManager.trim(DB.getValue(rAdd.nodeCharClass, "name", ""));
+	else
+		rAdd.sClassName = StringManager.trim(DB.getValue(rAdd.nodeSource, "...name", ""));
+	end
+
+	local sFeatureName = rAdd.sSourceName;
+	if StringManager.contains({ "abilityscoreimprovement", }, rAdd.sSourceType) then
+		if rAdd.bWizard then
+			return;
+		end
+	else
+		-- Exit if feature already exists
+		if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
+			if (rAdd.sSourceType == "spellcasting") or (rAdd.sSourceType == "pactmagic") then
+				sFeatureName = string.format("%s (%s)", sFeatureName, rAdd.sClassName);
+				if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
+					return;
+				end
 			else
-				CharManager.checkSkillProficiencies(rAdd.nodeChar, DB.getText(vNew, "text", ""));
+				return;
 			end
 		end
 	end
 
-	-- Standard action addition handling
-	CharManager.helperCheckActionsAdd(rAdd.nodeChar, rAdd.nodeSource, rAdd.sSourceType, rAdd.sFeatureClassName .. " Actions/Effects");
+	-- Add standard feature record, and adjust name
+	if rAdd.sSourceType ~= "abilityscoreimprovement" then
+		local nodeNew = CharClassManager.helperAddClassFeatureStandard(rAdd);
+		DB.setValue(nodeNew, "name", "string", sFeatureName);
+	end
+
+	-- Special handling
+	if rAdd.sSourceType == "abilityscoreimprovement" then
+		CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
+	elseif rAdd.sSourceType == "spellcasting" then
+		CharClassManager.helperAddClassFeatureSpellcasting(rAdd);
+	elseif rAdd.sSourceType == "pactmagic" then
+		CharClassManager.helperAddClassFeaturePactMagic(rAdd);
+	elseif rAdd.sSourceType == "unarmoreddefense" then
+		CharClassManager.helperAddClassFeatureUnarmoredDefense(rAdd);
+	elseif rAdd.sSourceType == "draconicresilience" then
+		CharClassManager.applyDraconicResilience(rAdd.nodeChar);
+	elseif rAdd.sSourceType == "magicitemadept" or
+			rAdd.sSourceType == "magicitemsavant" or
+			rAdd.sSourceType == "magicitemmaster" then
+		CharClassManager.applyAttunementAdjust(rAdd.nodeChar, 1);
+	elseif rAdd.sSourceType == "eldritchinvocations" then
+		-- Note: Bypass skill proficiencies due to false positive in skill proficiency detection
+	else
+		CharBuildDropManager.checkFeatureDescription(rAdd);
+	end
+
+	CharBuildDropManager.checkClassFeatureActions(rAdd);
 end
 function helperAddClassFeatureStandard(rAdd)
 	local nodeFeatureList = DB.createChild(rAdd.nodeChar, "featurelist");
@@ -595,111 +712,240 @@ function helperAddClassFeatureStandard(rAdd)
 
 	DB.setValue(nodeNewFeature, "locked", "number", 1);
 	ChatManager.SystemMessageResource("char_abilities_message_featureadd", rAdd.sSourceName, rAdd.sCharName);
-
 	return nodeNewFeature;
 end
+function helperAddClassFeatureChoiceMain(rAdd)
+	if not rAdd then
+		return;
+	end
+	if rAdd.bSource2024 then
+		CharClassManager.helperAddClassFeatureMainWorker2024(rAdd);
+	else
+		-- Feature Choices not supported in 2014 records
+	end
+end
+
 function helperAddClassFeatureSpellcasting(rAdd)
-	-- Add spell casting ability
-	local sSpellcasting = DB.getText(rAdd.nodeSource, "text", "");
-	local sAbility = sSpellcasting:match("(%a+) is your spellcasting ability");
+	if not CharBuildDropManager.helperBuildGetText(rAdd) then
+		return;
+	end
+
+	-- Add power group and details
+	local sAbility = rAdd.sSourceText:match("(%a+) is your spellcasting ability");
 	if sAbility then
-		local sSpellsLabel = Interface.getString("power_label_groupspells");
-		local sLowerSpellsLabel = sSpellsLabel:lower();
+		sAbility = sAbility:lower();
 		
-		local bFoundSpellcasting = false;
-		for _,vGroup in ipairs(DB.getChildList(rAdd.nodeChar, "powergroup")) do
-			if DB.getValue(vGroup, "name", ""):lower() == sLowerSpellsLabel then
-				bFoundSpellcasting = true;
-				break;
+		local nPrepared;
+		if rAdd.bSource2024 then
+			local sPrepared = rAdd.sSourceText:match("To start, choose (%w+) level 1");
+			nPrepared = CharBuildManager.convertSingleNumberTextToNumber(sPrepared, 4);
+		else
+			if rAdd.sSourceText:match("Preparing and Casting Spells") then
+				local rActor = ActorManager.resolveActor(rAdd.nodeChar);
+				nPrepared = math.min(1 + ActorManager5E.getAbilityBonus(rActor, sAbility));
 			end
 		end
-		
-		local sNewGroupName = sSpellsLabel;
-		if bFoundSpellcasting then
-			sNewGroupName = sNewGroupName .. " (" .. rAdd.sFeatureClassName .. ")";
-		end
-		
-		local nodePowerGroups = DB.createChild(rAdd.nodeChar, "powergroup");
-		local nodeNewGroup = DB.createChild(nodePowerGroups);
-		DB.setValue(nodeNewGroup, "castertype", "string", "memorization");
-		DB.setValue(nodeNewGroup, "stat", "string", sAbility:lower());
-		DB.setValue(nodeNewGroup, "name", "string", sNewGroupName);
-		
-		if sSpellcasting:match("Preparing and Casting Spells") then
-			local rActor = ActorManager.resolveActor(rAdd.nodeChar);
-			DB.setValue(nodeNewGroup, "prepared", "number", math.min(1 + ActorManager5E.getAbilityBonus(rActor, sAbility:lower())));
-		end
+
+		rAdd.sSpellGroup = CharClassManager.getFeatureSpellGroup(rAdd);
+		CharManager.addPowerGroup(rAdd.nodeChar, { sName = rAdd.sSpellGroup, sCasterType = "memorization", sAbility = sAbility, nPrepared = nPrepared });
 	end
 	
 	-- Add spell slot calculation info
-	if rAdd.nodeClass then
-		if DB.getValue(rAdd.nodeClass, "casterlevelinvmult", 0) == 0 then
-			local nFeatureLevel = DB.getValue(rAdd.nodeSource, "level", 0);
-			if nFeatureLevel > 0 then
-				if (rAdd.sFeatureClassName:lower() == CharManager.CLASS_ARTIFICER) then
-					DB.setValue(rAdd.nodeClass, "casterlevelinvmult", "number", -2);
-				else
-					DB.setValue(rAdd.nodeClass, "casterlevelinvmult", "number", nFeatureLevel);
+	if rAdd.nodeCharClass then
+		if rAdd.bSource2024 then
+			if DB.getValue(rAdd.nodeCharClass, "casterlevelinvmult", 0) == 0 then
+				local nFeatureLevel = DB.getValue(rAdd.nodeSource, "level", 0);
+				if nFeatureLevel > 0 then
+					if StringManager.contains({ CharManager.CLASS_PALADIN, CharManager.CLASS_RANGER }, rAdd.sClassName:lower()) then
+						DB.setValue(rAdd.nodeCharClass, "casterlevelinvmult", "number", -2);
+					else
+						DB.setValue(rAdd.nodeCharClass, "casterlevelinvmult", "number", nFeatureLevel);
+					end
+				end
+			end
+		else
+			if DB.getValue(rAdd.nodeCharClass, "casterlevelinvmult", 0) == 0 then
+				local nFeatureLevel = DB.getValue(rAdd.nodeSource, "level", 0);
+				if nFeatureLevel > 0 then
+					if StringManager.contains({ CharManager.CLASS_ARTIFICER }, rAdd.sClassName:lower()) then
+						DB.setValue(rAdd.nodeCharClass, "casterlevelinvmult", "number", -2);
+					else
+						DB.setValue(rAdd.nodeCharClass, "casterlevelinvmult", "number", nFeatureLevel);
+					end
 				end
 			end
 		end
 	end
 end
 function helperAddClassFeaturePactMagic(rAdd)
+	if not CharBuildDropManager.helperBuildGetText(rAdd) then
+		return;
+	end
+
 	-- Add spell casting ability
-	local sAbility = DB.getText(rAdd.nodeSource, "text", ""):match("(%a+) is your spellcasting ability");
+	local sAbility = rAdd.sSourceText:match("(%a+) is the spellcasting ability");
 	if sAbility then
-		local sSpellsLabel = Interface.getString("power_label_groupspells");
-		local sLowerSpellsLabel = sSpellsLabel:lower();
+		sAbility = sAbility:lower();
 		
-		local bFoundSpellcasting = false;
-		for _,vGroup in ipairs(DB.getChildList(rAdd.nodeChar, "powergroup")) do
-			if DB.getValue(vGroup, "name", ""):lower() == sLowerSpellsLabel then
-				bFoundSpellcasting = true;
-				break;
-			end
+		local nPrepared;
+		if rAdd.bSource2024 then
+			local sPrepared = rAdd.sSourceText:match("To start, choose (%w+) level 1");
+			nPrepared = CharBuildManager.convertSingleNumberTextToNumber(sPrepared, 4);
 		end
-		
-		local sNewGroupName = sSpellsLabel;
-		if bFoundSpellcasting then
-			sNewGroupName = sNewGroupName .. " (" .. rAdd.sFeatureClassName .. ")";
-		end
-		
-		local nodePowerGroups = DB.createChild(rAdd.nodeChar, "powergroup");
-		local nodeNewGroup = DB.createChild(nodePowerGroups);
-		DB.setValue(nodeNewGroup, "castertype", "string", "memorization");
-		DB.setValue(nodeNewGroup, "stat", "string", sAbility:lower());
-		DB.setValue(nodeNewGroup, "name", "string", sNewGroupName);
+
+		rAdd.sSpellGroup = CharClassManager.getFeatureSpellGroup(rAdd);
+		CharManager.addPowerGroup(rAdd.nodeChar, { sName = rAdd.sSpellGroup, sCasterType = "memorization", sAbility = sAbility, nPrepared = nPrepared });
 	end
 	
 	-- Add spell slot calculation info
-	if rAdd.nodeClass then
+	if rAdd.nodeCharClass then
 		local nFeatureLevel = DB.getValue(rAdd.nodeSource, "level", 0);
 		if nFeatureLevel > 0 then
-			DB.setValue(rAdd.nodeClass, "casterpactmagic", "number", 1);
-			if DB.getValue(rAdd.nodeClass, "casterlevelinvmult", 0) == 0 then
-				DB.setValue(rAdd.nodeClass, "casterlevelinvmult", "number", nFeatureLevel);
+			DB.setValue(rAdd.nodeCharClass, "casterpactmagic", "number", 1);
+			if DB.getValue(rAdd.nodeCharClass, "casterlevelinvmult", 0) == 0 then
+				DB.setValue(rAdd.nodeCharClass, "casterlevelinvmult", "number", nFeatureLevel);
 			end
 		end
 	end
 end
-
-function getCharClassMagicData(nodeChar)
-	local tCharClassMagicData = {};
-	local nSpellClasses = 0;
-	for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local sClassName = DB.getValue(vClass, "name", "");
-		local nClassLevel = DB.getValue(vClass, "level", 0);
-		local bPactMagic = (DB.getValue(vClass, "casterpactmagic", 0) > 0);
-		local nSpellSlotMult = DB.getValue(vClass, "casterlevelinvmult", 0);
-		if nSpellSlotMult > 0 then
-			nSpellClasses = nSpellClasses + 1;
-		end
-		table.insert(tCharClassMagicData, { sName = sClassName, nLevel = nClassLevel, bPactMagic = bPactMagic, nSpellSlotMult = nSpellSlotMult });
-	end
-	tCharClassMagicData.nSpellClasses = nSpellClasses;
-	return tCharClassMagicData;
+function helperAddClassFeatureEpicBoonDrop2024(rAdd)
+	local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Epic Boon", true);
+	CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
 end
+function helperAddClassFeatureExpertise(rAdd)
+	CharBuildDropManager.pickSkillExpertise(rAdd.nodeChar, nil, 2);
+end
+function helperAddClassFeatureUnarmoredDefense(rAdd)
+	if not CharBuildDropManager.helperBuildGetText(rAdd) then
+		return;
+	end
+
+	-- 2024
+	local sAbility = rAdd.sSourceText:match("base Armor Class equals 10 plus your Dexterity and (%w+) modifiers");
+	if not sAbility then
+		-- 2014
+		sAbility = rAdd.sSourceText:match("your Armor Class equals 10 + your Dexterity modifier + your (%w+) modifier");
+		if not sAbility then
+			-- 2014
+			sAbility = rAdd.sSourceText:match("your AC equals 10 + your Dexterity modifier + your (%w+) modifier");
+		end
+	end
+	if not sAbility then
+		return;
+	end
+
+	sAbility = sAbility:lower();
+	if not StringManager.contains(DataCommon.abilities, sAbility) then
+		return;
+	end
+
+	if CharArmorManager.hasNaturalArmor(rAdd.nodeChar) then
+		return;
+	end
+
+	DB.setValue(rAdd.nodeChar, "defenses.ac.stat2", "string", sAbility);
+end
+function helperAddClassFeaturePrimalKnowledge(rAdd)
+	if not rAdd.bWizard then
+		local tSkills = { 
+			"Animal Handling", "Athletics", "Intimidation", "Nature", "Perception", "Survival", 
+		};
+		CharBuildDropManager.pickSkill(rAdd.nodeChar, tSkills);
+	end
+end
+function helperAddClassFeatureBodyAndMind(rAdd)
+	CharManager.addAbilityAdjustment(rAdd.nodeChar, "dexterity", 4, 25);
+	CharManager.addAbilityAdjustment(rAdd.nodeChar, "wisdom", 4, 25);
+end
+function helperAddClassFeatureMagicalDiscoveries(rAdd)
+	rAdd.sSpellGroup = CharClassManager.getFeatureSpellGroup(rAdd);
+
+	-- Get possible Cleric, Druid and Wizard spells
+	local tOptions = {};
+	local aMappings = LibraryData.getMappings("spell");
+	for _,vMapping in ipairs(aMappings) do
+		for _,nodeSpell in pairs(DB.getChildrenGlobal(vMapping)) do
+			if DB.getValue(nodeSpell, "version", "") == "2024" then
+				local sName = StringManager.trim(DB.getValue(nodeSpell, "name", ""));
+				if sName ~= "" then
+					local tSources = ClassSpellListManager.helperGetSpellSources(nodeSpell);
+					if StringManager.contains(tSources, "Cleric") or StringManager.contains(tSources, "Druid") or StringManager.contains(tSources, "Wizard") then
+						local nLevel = DB.getValue(nodeSpell, "level", 0);
+						if nLevel <= 3 then
+							table.insert(tOptions, { text = sName, linkclass = sDisplayClass, linkrecord = DB.getPath(nodeSpell) });
+						end
+					end
+				end
+			end
+		end
+	end
+	table.sort(tOptions, function(a,b) return a.text < b.text; end);
+
+	local wSelect = Interface.openWindow("select_dialog", "");
+	local tData = {
+		title = Interface.getString("char_build_title_selectspells"),
+		msg = Interface.getString("char_build_message_selectspells"):format(2),
+		options = tOptions,
+		min = 2,
+		callback = CharBuildDropManager.onSpellSelect,
+		custom = { nodeChar = rAdd.nodeChar, sGroup = rAdd.sSpellGroup, bSource2024 = true, },
+	};
+	wSelect.requestSelectionByData(tData);
+end
+function helperAddClassFeatureFightingStyle(rAdd)
+	if not rAdd.bWizard then
+		local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Fighting Style", true);
+		CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
+	end
+end
+function helperAddClassFeatureStudentOfWar(rAdd)
+	CharBuildDropManager.pickToolProficiencyBySubtype(rAdd.nodeChar, "Artisan's Tools");
+	local tSkills = { 
+		"Acrobatics", "Animal Handling", "Athletics", "History", "Insight", 
+		"Intimidation", "Persuasion", "Perception", "Survival", 
+	};
+	CharBuildDropManager.pickSkill(rAdd.nodeChar, tSkills);
+end
+function helperAddClassFeatureDeftExplorer(rAdd)
+	CharBuildDropManager.pickSkillExpertise(rAdd.nodeChar, nil, 1);
+	CharBuildDropManager.pickLanguage(rAdd.nodeChar, nil, 2, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
+end
+function helperAddClassFeatureIronMind(rAdd)
+	if CharManager.hasSaveProficiency(rAdd.nodeChar, "wisdom") then
+		CharBuildDropManager.pickSaveProficiency(rAdd.nodeChar, { "intelligence", "charisma" });
+	else
+		CharManager.addSaveProficiency(rAdd.nodeChar, "wisdom");
+	end
+end
+function helperAddClassFeatureDraconicResilience(rAdd)
+	CharClassManager.helperAddClassFeatureUnarmoredDefense(rAdd);
+	CharClassManager.applyDraconicResilience(rAdd.nodeChar);
+end
+function helperAddClassFeatureEldritchInvocationLessonsOfTheFirstOnes(rAdd)
+	local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Origin", true);
+	CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
+end
+function helperAddClassFeatureEldritchInvocationPactOfTheTome(rAdd)
+	rAdd.sSpellGroup = CharClassManager.getClassSpellGroup(rAdd);
+
+	local tFilters = {
+		{ sField = "version", sValue = "2024", },
+		{ sField = "level", sValue = "0", },
+	};
+	local tData = { sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, };
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 3, tData);
+
+	local tFilters = {
+		{ sField = "version", sValue = "2024", },
+		{ sField = "level", sValue = "1", },
+		{ sField = "ritual", sValue = "1", },
+	};
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 2, tData);
+end
+function helperAddClassFeatureScholar(rAdd)
+	CharBuildDropManager.pickSkillExpertise(rAdd.nodeChar, { "Arcana", "History", "Investigation", "Medicine", "Nature", "Religion" });
+end
+
 function helperGetSpellcastingSlotChange(nOldLevel, nNewLevel)
 	local tSlots = {};
 	if nNewLevel > nOldLevel then
@@ -806,7 +1052,7 @@ function helperGetPactMagicSlotChange(nOldLevel, nNewLevel)
 end
 
 function calcSpellcastingLevel(nodeChar)
-	local tCharClassMagicData = CharClassManager.getCharClassMagicData(nodeChar);
+	local tCharClassMagicData = CharManager.getSpellcastingData(nodeChar);
 	return CharClassManager.helperCalcSpellcastingLevel(tCharClassMagicData);
 end
 function helperCalcSpellcastingLevel(tCharClassMagicData)
@@ -815,7 +1061,7 @@ function helperCalcSpellcastingLevel(tCharClassMagicData)
 		if not tClass.bPactMagic then
 			if tClass.nSpellSlotMult > 0 then
 				local nClassSpellCastLevel;
-				if tCharClassMagicData.nSpellClasses > 1 then
+				if #tCharClassMagicData > 1 then
 					nClassSpellCastLevel = math.floor(tClass.nLevel  * (1 / tClass.nSpellSlotMult));
 				else
 					nClassSpellCastLevel = math.ceil(tClass.nLevel  * (1 / tClass.nSpellSlotMult));
@@ -831,7 +1077,7 @@ function helperCalcSpellcastingLevel(tCharClassMagicData)
 end
 
 function calcPactMagicLevel(nodeChar)
-	local tCharClassMagicData = CharClassManager.getCharClassMagicData(nodeChar);
+	local tCharClassMagicData = CharManager.getSpellcastingData(nodeChar);
 	return CharClassManager.helperCalcPactMagicLevel(tCharClassMagicData);
 end
 function helperCalcPactMagicLevel(tCharClassMagicData)
@@ -847,27 +1093,6 @@ function helperCalcPactMagicLevel(tCharClassMagicData)
 	return nPactMagicLevel;
 end
 
-function applyUnarmoredDefense(nodeChar, nodeClass)
-	local sAbility = "";
-	local sClassLower = DB.getValue(nodeClass, "name", ""):lower();
-	if sClassLower == CharManager.CLASS_BARBARIAN then
-		sAbility = "constitution";
-	elseif sClassLower == CharManager.CLASS_MONK then
-		sAbility = "wisdom";
-	end
-	
-	if sAbility == "" then
-		return;
-	end
-	if (DB.getValue(nodeChar, "defenses.ac.stat2", "") ~= "") then
-		return;
-	end
-	if CharArmorManager.hasNaturalArmor(nodeChar) then
-		return;
-	end
-
-	DB.setValue(nodeChar, "defenses.ac.stat2", "string", sAbility);
-end
 function applyDraconicResilience(nodeChar)
 	-- Add extra hit points
 	local nAddHP = 1;

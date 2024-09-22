@@ -27,11 +27,3 @@ function onMenuSelection(selection, subselection)
 		end
 	end
 end
-
-function updateAttunement()
-	if inventory.subwindow then
-		if inventory.subwindow.contents.subwindow then
-			inventory.subwindow.contents.subwindow.updateAttunement();
-		end
-	end
-end

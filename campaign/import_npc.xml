@@ -1,6 +1,9 @@
 <root>
 	<windowclass name="import_npc">
 		<frame>utilitybox</frame>
+		<placement>
+			<nosave />
+		</placement>
 		<sizelimits>
 			<minimum width="800" height="600"/>
 			<dynamic/>
@@ -49,7 +52,7 @@
 					<right anchor="center" offset="-25" />
 				</anchored>
 				<frame name="groupbox" offset="15,15,25,15" />
-				<empty textres="ft_empty_import_statblock" />
+				<empty textres="ft_empty_import_npc_statblock" />
 			</simpleftc>
 			<scrollbar>
 				<anchored to="statblock" />
@@ -62,7 +65,7 @@
 					<right offset="-25" />
 				</anchored>
 				<frame name="groupbox" offset="15,15,25,15" />
-				<empty textres="ft_empty_import_description" />
+				<empty textres="ft_empty_import_npc_description" />
 			</simpleftc>		
 			<scrollbar>
 				<anchored to="description" />

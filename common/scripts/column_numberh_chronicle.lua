@@ -4,8 +4,7 @@
 -- File adjusted for Chronicle System
 --
 
---
---
+-- Added
 function onInit()
 	if super and super.onInit then
 		super.onInit();
@@ -21,10 +20,8 @@ function onInit()
 	end
 end
 
---
---
+-- Added
 function update(bReadOnly, bForceHide)
-	-- Debug.chat("FN: update in column_numberh")
 	local bLocalShow;
 	if bForceHide then
 		bLocalShow = false;
@@ -58,10 +55,8 @@ function update(bReadOnly, bForceHide)
 	return bLocalShow;
 end
 
---
---
+-- Added
 function onValueChanged()
-	-- Debug.chat("FN: onValueChanged in column_numberh")
 	if isVisible() then
 		if window.VisDataCleared then
 			if getValue() == 0 then

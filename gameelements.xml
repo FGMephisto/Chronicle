@@ -10,18 +10,13 @@
 	<distance>
 		<base>1</base>
 		<diagmult>1</diagmult>
-		<suffix> y</suffix>
+		<suffix>y</suffix>
 	</distance>
 
 	<imagesettings>
 		<pointer defaultconeangle="5E" />
 	</imagesettings>
-	
-	<!-- <hotkeybar> -->
-		<!-- <title frame="hotkeytitlebox" frameoffset="2,-2,5,2" margin="2,7" font="hotkey" /> -->
-	<!-- </hotkeybar> -->
 
-	<!-- Dice -->
 	<panel name="dicepanel" merge="join">
 		<anchored>
 			<left offset="330" />

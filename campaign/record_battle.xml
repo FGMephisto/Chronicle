@@ -40,7 +40,7 @@
 			</basicstring>
 			<button_refresh name="button_refreshcr">
 				<anchored to="cr" position="righthigh" offset="10,0" />
-				<tooltip textres="enc_tooltip_refreshcr" />
+				<tooltip textres="battle_tooltip_refreshcr" />
 				<script>
 					function onButtonPress()
 						CombatManager2.calcBattleCR(window.getDatabaseNode());
@@ -50,7 +50,7 @@
 
 			<button_refresh name="button_refreshxp">
 				<anchored to="area_details" position="insidetopright" offset="5,0" />
-				<tooltip textres="enc_tooltip_refreshxp" />
+				<tooltip textres="battle_tooltip_refreshxp" />
 				<script>
 					function onButtonPress()
 						CombatManager2.calcBattleXP(window.getDatabaseNode());

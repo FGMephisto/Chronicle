@@ -30,6 +30,7 @@ function resetPowers(nodeCaster, bLong)
 	-- Reset power usage
 	for _,vPower in ipairs(DB.getChildList(nodeCaster, "powers")) do
 		local bReset = true;
+		local bPartial = false;
 
 		local sGroup = DB.getValue(vPower, "group", "");
 		local rGroup = aListGroups[sGroup];
@@ -39,21 +40,33 @@ function resetPowers(nodeCaster, bLong)
 			if rGroup and (rGroup.nUses > 0) then
 				if rGroup.sUsesPeriod == "once" then
 					bReset = false;
-				elseif not bLong and rGroup.sUsesPeriod ~= "enc" then
-					bReset = false;
+				elseif not bLong then
+					if rGroup.sUsesPeriod ~= "enc" then
+						bReset = false;
+						if rGroup.sUsesPeriod == "dual" then
+							bPartial = true;
+						end
+					end
 				end
 			else
 				local sPowerUsesPeriod = DB.getValue(vPower, "usesperiod", "");
 				if sPowerUsesPeriod == "once" then
 					bReset = false;
-				elseif not bLong and sPowerUsesPeriod ~= "enc" then
-					bReset = false;
+				elseif not bLong then
+					if sPowerUsesPeriod ~= "enc" then
+						bReset = false;
+						if sPowerUsesPeriod == "dual" then
+							bPartial = true;
+						end
+					end
 				end
 			end
 		end
 		
 		if bReset then
 			DB.setValue(vPower, "cast", "number", 0);
+		elseif bPartial then
+			DB.setValue(vPower, "cast", "number", math.max(DB.getValue(vPower, "cast", 0) - 1, 0));
 		end
 	end
 	
@@ -384,7 +397,7 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 			
 		local nodeTrait = nil;
 		for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
-			local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
+			local sTraitName = StringManager.simplify(DB.getValue(v, "name", ""));
 			if bInnate and sTraitName:match("^spellcasting") then
 				nodeTrait = v;
 				break;
@@ -392,11 +405,11 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 		end
 		if not nodeTrait then
 			for _,v in ipairs(DB.getChildList(nodeActor, "traits")) do
-				local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
+				local sTraitName = StringManager.simplify(DB.getValue(v, "name", ""));
 				if not bInnate and sTraitName:match("^spellcasting") then
 					nodeTrait = v;
 					break;
-				elseif bInnate and sTraitName:match("^innate spellcasting") then
+				elseif bInnate and sTraitName:match("^innatespellcasting") then
 					nodeTrait = v;
 					break;
 				end
@@ -640,94 +653,127 @@ function parseAttacks(sPowerName, aWords)
 	
 	for i = 1, #aWords do
 		if StringManager.isWord(aWords[i], "attack") then
-			local nIndex = i;
-			if StringManager.isWord(aWords[nIndex + 1], ":") then
-				nIndex = nIndex + 1;
-			end
-			if StringManager.isNumberString(aWords[nIndex+1]) and 
-					StringManager.isWord(aWords[nIndex+2], "to") and
-					StringManager.isWord(aWords[nIndex+3], "hit") then
-				local rAttack = {};
-				rAttack.startindex = i;
-				rAttack.endindex = nIndex + 3;
-				
-				rAttack.label = sPowerName;
-				
-				if StringManager.isWord(aWords[i-1], "weapon") then
-					rAttack.weapon = true;
-					rAttack.startindex = i - 1;
-				elseif StringManager.isWord(aWords[i-1], "spell") then
-					rAttack.spell = true;
-					rAttack.startindex = i - 1;
+			-- 2024
+			if StringManager.isWord(aWords[i - 1], { "melee", "ranged", }) and ((i == 2) or StringManager.isWord(aWords[i + 1], "roll")) then
+				local nIndex = i + 1;
+				if StringManager.isWord(aWords[nIndex], "roll") then
+					nIndex = nIndex + 1;
 				end
-				
-				if StringManager.isWord(aWords[i-2], "melee") then
-					rAttack.range = "M";
-					rAttack.startindex = i - 2;
-				elseif StringManager.isWord(aWords[i-2], "ranged") then
-					rAttack.range = "R";
-					rAttack.startindex = i - 2;
+				if StringManager.isWord(aWords[nIndex], ":") then
+					nIndex = nIndex + 1;
 				end
-				
-				if StringManager.isWord(aWords[nIndex+4], "reach") then
-					rAttack.rangedist = aWords[nIndex+5];
-				elseif StringManager.isWord(aWords[nIndex+4], "range") then
-					if StringManager.isNumberString(aWords[nIndex+5]) and StringManager.isWord(aWords[nIndex+6], "ft") then
-						rAttack.rangedist = aWords[nIndex+5];
-						
-						local nIndex2 = nIndex + 7;
-						if StringManager.isWord(aWords[nIndex2], ".") then
-							nIndex2 = nIndex2 + 1;
-						end
-						if StringManager.isNumberString(aWords[nIndex2]) and StringManager.isWord(aWords[nIndex2+1], "ft") then
-							rAttack.rangedist = rAttack.rangedist .. "/" .. aWords[nIndex2];
-						end
+				if StringManager.isNumberString(aWords[nIndex]) then
+					local rAttack = {
+						startindex = i - 1,
+						endindex = nIndex,
+						label = sPowerName,
+						modifier = tonumber(aWords[nIndex]) or 0,
+					};
+					if StringManager.isWord(aWords[i - 1], "melee") then
+						rAttack.range = "M";
+					elseif StringManager.isWord(aWords[i - 1], "ranged") then
+						rAttack.range = "R";
 					end
+					if StringManager.isWord(aWords[nIndex + 1], "reach") then
+						rAttack.rangedist = aWords[nIndex + 2];
+					end
+
+					table.insert(attacks, rAttack);
 				end
-
-				rAttack.modifier = tonumber(aWords[nIndex+1]) or 0;
-
-				table.insert(attacks, rAttack);
 			else
-				local bValid = false;
-				if StringManager.isWord(aWords[i-1], {"weapon", "spell"}) and StringManager.isWord(aWords[i-2], {"melee", "ranged"}) and
-						StringManager.isWord(aWords[i-3], {"a", "one", "single"}) and StringManager.isWord(aWords[i-4], "make") then
-					bValid = true;
+				-- 2014
+				local nIndex = i;
+				if StringManager.isWord(aWords[nIndex + 1], ":") then
+					nIndex = nIndex + 1;
 				end
-				if bValid == true then
-					if StringManager.isWord(aWords[i+1], "during") then
-						bValid = false;
-					elseif StringManager.isWord(aWords[i-5], "you") and StringManager.isWord(aWords[i-6], "when") then
-						bValid = false;
-					end
-				end
-				if bValid == true then
+				if StringManager.isNumberString(aWords[nIndex+1]) and 
+						StringManager.isWord(aWords[nIndex+2], "to") and
+						StringManager.isWord(aWords[nIndex+3], "hit") then
 					local rAttack = {};
-					rAttack.startindex = i - 2;
-					rAttack.endindex = i;
+					rAttack.startindex = i;
+					rAttack.endindex = nIndex + 3;
 					
 					rAttack.label = sPowerName;
-				
+					
 					if StringManager.isWord(aWords[i-1], "weapon") then
 						rAttack.weapon = true;
+						rAttack.startindex = i - 1;
 					elseif StringManager.isWord(aWords[i-1], "spell") then
 						rAttack.spell = true;
+						rAttack.startindex = i - 1;
 					end
 					
 					if StringManager.isWord(aWords[i-2], "melee") then
 						rAttack.range = "M";
+						rAttack.startindex = i - 2;
 					elseif StringManager.isWord(aWords[i-2], "ranged") then
 						rAttack.range = "R";
+						rAttack.startindex = i - 2;
 					end
 					
-					rAttack.modifier = 0;
-					if rAttack.weapon then
-						rAttack.nomod = true;
-					else
-						rAttack.base = "group";
+					if StringManager.isWord(aWords[nIndex+4], "reach") then
+						rAttack.rangedist = aWords[nIndex+5];
+					elseif StringManager.isWord(aWords[nIndex+4], "range") then
+						if StringManager.isNumberString(aWords[nIndex+5]) and StringManager.isWord(aWords[nIndex+6], "ft") then
+							rAttack.rangedist = aWords[nIndex+5];
+							
+							local nIndex2 = nIndex + 7;
+							if StringManager.isWord(aWords[nIndex2], ".") then
+								nIndex2 = nIndex2 + 1;
+							end
+							if StringManager.isNumberString(aWords[nIndex2]) and StringManager.isWord(aWords[nIndex2+1], "ft") then
+								rAttack.rangedist = rAttack.rangedist .. "/" .. aWords[nIndex2];
+							end
+						end
 					end
-					
+
+					rAttack.modifier = tonumber(aWords[nIndex+1]) or 0;
+
 					table.insert(attacks, rAttack);
+				else
+					local bValid = false;
+					if StringManager.isWord(aWords[i-1], {"weapon", "spell"}) and StringManager.isWord(aWords[i-2], {"melee", "ranged"}) and
+							StringManager.isWord(aWords[i-3], {"a", "one", "single"}) and StringManager.isWord(aWords[i-4], "make") then
+						bValid = true;
+					elseif StringManager.isWord(aWords[i-2], {"melee", "ranged"}) and
+							StringManager.isWord(aWords[i-3], {"a", "one", "single"}) and StringManager.isWord(aWords[i-4], "make") then
+						bValid = true;
+					end
+					if bValid then
+						if StringManager.isWord(aWords[i+1], "during") then
+							bValid = false;
+						elseif StringManager.isWord(aWords[i-5], "you") and StringManager.isWord(aWords[i-6], "when") then
+							bValid = false;
+						end
+					end
+					if bValid then
+						local rAttack = {};
+						rAttack.startindex = i - 2;
+						rAttack.endindex = i;
+						
+						rAttack.label = sPowerName;
+					
+						if StringManager.isWord(aWords[i-1], "weapon") then
+							rAttack.weapon = true;
+						elseif StringManager.isWord(aWords[i-1], "spell") then
+							rAttack.spell = true;
+						end
+						
+						if StringManager.isWord(aWords[i-2], "melee") then
+							rAttack.range = "M";
+						elseif StringManager.isWord(aWords[i-2], "ranged") then
+							rAttack.range = "R";
+						end
+						
+						rAttack.modifier = 0;
+						if rAttack.weapon then
+							rAttack.nomod = true;
+						else
+							rAttack.base = "group";
+						end
+
+						table.insert(attacks, rAttack);
+					end
 				end
 			end
 		end
@@ -865,6 +911,8 @@ function parseDamagePhrase(aWords, i)
 			if StringManager.isDiceString(aWords[j+1]) then
 				table.insert(aDamageDice, aWords[j+1]);
 				nMult = 1;
+			elseif StringManager.isWord(aWords[j+1], { "plus", "+" }) then
+				-- Keep going
 			elseif StringManager.isWord(aWords[j+1], "twice") then
 				nMult = 2;
 			elseif StringManager.isWord(aWords[j+1], "three") and
@@ -1090,8 +1138,8 @@ function parseHeals(sPowerName, aWords)
   			end
 			
 			-- Make sure we started with "gain(s)" or "regain(s)" or "restore"
-			if StringManager.isWord(aWords[j], {"gain", "gains", "regain", "regains", "restore"}) and 
-					not StringManager.isWord(aWords[j-1], {"cannot", "can't"}) then
+			if StringManager.isWord(aWords[j], { "gain", "gains", "regain", "regains", "restore", "restoring", }) and 
+					not StringManager.isWord(aWords[j-1], { "cannot", "can't" }) then
 				-- Determine self-targeting
 				local bSelf = false;
 				if aWords[j] ~= "restore" then
@@ -1159,6 +1207,8 @@ function parseHeals(sPowerName, aWords)
 						if StringManager.isDiceString(aWords[j+1]) then
 							table.insert(aHealDice, aWords[j+1]);
 							nMult = 1;
+						elseif StringManager.isWord(aWords[j+1], { "plus", "+" }) then
+							-- Keep going
 						elseif StringManager.isWord(aWords[j+1], "twice") then
 							nMult = 2;
 						elseif StringManager.isWord(aWords[j+1], "three") and
@@ -1182,6 +1232,7 @@ function parseHeals(sPowerName, aWords)
 							end
 							nMult = 1;
 							j = j + 3;
+							break;
 						elseif StringManager.isWord(aWords[j+1], "your") and
 								StringManager.isWord(aWords[j+3], "modifier") and
 								StringManager.isWord(aWords[j+2], DataCommon.abilities) then
@@ -1267,56 +1318,90 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 	for i = 1, #aWords do
 		if StringManager.isWord(aWords[i], "magically") then
 			bMagic = true;
+		-- 2024 / 2014
 		elseif StringManager.isWord(aWords[i], "throw") and
-				StringManager.isWord(aWords[i-1], "saving") and
-				StringManager.isWord(aWords[i-2], DataCommon.abilities) then
+				StringManager.isWord(aWords[i - 1], "saving") and
+				StringManager.isWord(aWords[i - 2], DataCommon.abilities) then
 			local bValid = false;
 			local nStart = i - 2;
+			local nEnd = i;
 			local nDC = nil;
-			if StringManager.isWord(aWords[nStart - 1], { "a", "an" }) then
+
+			if StringManager.isWord(aWords[nEnd + 1], ":") then
+				nEnd = nEnd + 1;
+			end
+
+			-- 2024
+			if StringManager.isWord(aWords[nEnd + 1], "dc") and StringManager.isNumberString(aWords[nEnd + 2]) then
+				bValid = true;
+				nDC = tonumber(aWords[nEnd + 2]) or 0;
+				nEnd = nEnd + 2;
+
+			-- 2014
+			elseif StringManager.isWord(aWords[nStart - 1], { "a", "an" }) then
 				nStart = nStart - 1;
 				if StringManager.isWord(aWords[nStart - 1], "fails") then
 					bValid = true;
 					nStart = nStart - 1;
-				elseif StringManager.isWord(aWords[nStart - 1], "make") and
-						StringManager.isWord(aWords[nStart - 2], {"must", "to"}) then
-					bValid = true;
-					nStart = nStart - 2;
+				elseif StringManager.isWord(aWords[nStart - 1], "make") then
+					if StringManager.isWord(aWords[nStart - 2], {"must", "to"}) then
+						bValid = true;
+						nStart = nStart - 1;
+					elseif StringManager.isWord(aWords[nStart - 2], "it") and
+							StringManager.isWord(aWords[nStart - 3], "of") and
+							StringManager.isWord(aWords[nStart - 4], "feet") then
+						bValid = true;
+						nStart = nStart - 1;
+					end
 				elseif StringManager.isWord(aWords[nStart - 1], "on") and
 						StringManager.isWord(aWords[nStart - 2], "succeed") and
 						StringManager.isWord(aWords[nStart - 3], "must") then
 					bValid = true;
 					nStart = nStart - 3;
+				elseif StringManager.isWord(aWords[nStart - 1], "makes") then
+					if StringManager.isWord(aWords[nStart - 2], { "area", "cone", "cylinder", "emanation", "it", "line", "point", "points", "space", "range", "spell", "sphere", "then", "there", "touch", }) then
+						bValid = true;
+						nStart = nStart - 1;
+					elseif StringManager.isWord(aWords[nStart - 2], "target") and
+							StringManager.isWord(aWords[nStart - 3], { "the", "each", }) then
+						bValid = true;
+						nStart = nStart - 1;
+					elseif StringManager.isWord(aWords[nStart - 2], "you") and
+							StringManager.isWord(aWords[nStart - 3], "from") then
+						bValid = true;
+						nStart = nStart - 1;
+					end
 				end
 				
-			elseif StringManager.isNumberString(aWords[i-3]) and 
-					StringManager.isWord(aWords[i-4], "dc") then
+			-- 2014
+			elseif StringManager.isNumberString(aWords[i - 3]) and 
+					StringManager.isWord(aWords[i - 4], "dc") then
 				bValid = true;
 				nStart = i - 4;
-				nDC = tonumber(aWords[i-3]) or 0;
+				nDC = tonumber(aWords[i - 3]) or 0;
 			end
 			
 			if bValid then
-				local sSave = aWords[i-2];
-				if StringManager.isWord(aWords[i+1], "against") and 
-						StringManager.isWord(aWords[i+2], "this") and
-						StringManager.isWord(aWords[i+3], "magic") then
-					i = i + 3;
+				if StringManager.isWord(aWords[nEnd + 1], "against") and 
+						StringManager.isWord(aWords[nEnd + 2], "this") and
+						StringManager.isWord(aWords[nEnd + 3], "magic") then
+					nEnd = nEnd + 3;
 					bMagic = true;
 				end
 				
-				local rSave = {};
-				rSave.startindex = nStart;
-				rSave.endindex = i;
-				rSave.label = sPowerName;
-				rSave.save = sSave;
-				if nDC then
-					rSave.savemod = nDC;
-				else
+				local rSave = {
+					startindex = nStart,
+					endindex = nEnd,
+					label = sPowerName,
+					save = aWords[i - 2];
+					savemod = nDC,
+				};
+
+				if not rSave.savemod then
 					-- Handle special saving throws in traits (Antimagic Susceptibility)
-					if StringManager.isWord(aWords[i+1], "against") and StringManager.isWord(aWords[i+2], "the") and
-							StringManager.isWord(aWords[i+3], "caster's") and StringManager.isWord(aWords[i+4], "spell") and
-							StringManager.isWord(aWords[i+5], "save") and StringManager.isWord(aWords[i+6], "DC") then
+					if StringManager.isWord(aWords[i + 1], "against") and StringManager.isWord(aWords[i + 2], "the") and
+							StringManager.isWord(aWords[i + 3], "caster's") and StringManager.isWord(aWords[i + 4], "spell") and
+							StringManager.isWord(aWords[i + 5], "save") and StringManager.isWord(aWords[i + 6], "DC") then
 						rSave.savemod = 0;
 					else
 						rSave.savebase = "group";
@@ -1330,24 +1415,7 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 					break;
 				end
 			end
-		elseif StringManager.isWord(aWords[i], "throws") and
-				StringManager.isWord(aWords[i-1], "saving") and
-				StringManager.isWord(aWords[i-2], DataCommon.abilities) and
-				StringManager.isWord(aWords[i-3], "make") and
-				StringManager.isWord(aWords[i-4], "must") then
-			local rSave = {};
-			rSave.startindex = i-4;
-			rSave.endindex = i;
-			rSave.label = sPowerName;
-			rSave.save = aWords[i-2];
-			rSave.savebase = "group";
-
-			table.insert(saves, rSave);
-			
-			-- Only pick up first save for PC powers
-			if bPC then
-				break;
-			end
+		-- 2014
 		elseif StringManager.isWord(aWords[i], "throw") and
 				StringManager.isWord(aWords[i-1], "saving") and
 				StringManager.isWord(aWords[i-2], "this") and
@@ -1392,7 +1460,13 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 		end
 		for j = nHalfCheckStart,nHalfCheckEnd do
 			if StringManager.isWord(aWords[j], "half") then
-				if StringManager.isWord(aWords[j+1], "as") and
+				-- 2024
+				if StringManager.isWord(aWords[j+1], "damage") and 
+						StringManager.isWord(aWords[j-1], ":") and
+						StringManager.isWord(aWords[j-2], "success") then
+					saves[i].onmissdamage = "half";
+				-- 2014
+				elseif StringManager.isWord(aWords[j+1], "as") and
 						StringManager.isWord(aWords[j+2], "much") and
 						StringManager.isWord(aWords[j+3], "damage") then
 					saves[i].onmissdamage = "half";
@@ -1446,7 +1520,7 @@ function parseEffectsAdd(aWords, i, rEffect, effects)
 			and StringManager.isWord(aWords[nDurIndex + 1], "the")
 			and StringManager.isWord(aWords[nDurIndex + 2], { "start", "end" })
 			and StringManager.isWord(aWords[nDurIndex + 3], "of")
-			and StringManager.isWord(aWords[nDurIndex + 4], "its")
+			and StringManager.isWord(aWords[nDurIndex + 4], { "its", "your" })
 			and StringManager.isWord(aWords[nDurIndex + 5], "next")
 			and StringManager.isWord(aWords[nDurIndex + 6], "turn") then
 		rEffect.nDuration = 1;
@@ -1475,6 +1549,7 @@ function parseEffectsAdd(aWords, i, rEffect, effects)
 			and StringManager.isWord(aWords[nDurIndex + 4], "turn") then
 		rEffect.nDuration = 1;
 		rEffect.endindex = nDurIndex + 4;
+
 	elseif StringManager.isWord(aWords[nDurIndex], "while")
 			and StringManager.isWord(aWords[nDurIndex + 1], "poisoned") then
 		if #effects > 0 and rEffect.sName == "Unconscious" and effects[#effects].sName == "Poisoned" then
@@ -1501,7 +1576,6 @@ function parseEffects(sPowerName, aWords)
 	local effects = {};
 	
 	local rCurrent = nil;
-	
 	local i = 1;
 	while aWords[i] do
 		if StringManager.isWord(aWords[i], "damage") then
@@ -1548,7 +1622,13 @@ function parseEffects(sPowerName, aWords)
 					rCurrent.sName = table.concat(aName, "; ");
 				elseif StringManager.isWord(aWords[rCurrent.startindex - 1], "extra") then
 					rCurrent.startindex = rCurrent.startindex - 1;
-					rCurrent.sTargeting = "self";
+					if StringManager.isWord(aWords[rCurrent.startindex - 1], "an") and 
+							StringManager.isWord(aWords[rCurrent.startindex - 2], "deal") and
+							StringManager.isWord(aWords[rCurrent.startindex - 3], "each") then
+						-- No targeting
+					else
+						rCurrent.sTargeting = "self";
+					end
 					rCurrent.sApply = "roll";
 					
 					local aName = {};
@@ -1585,28 +1665,28 @@ function parseEffects(sPowerName, aWords)
 					j = j - 2;
 					nConditionStart = i - 1;
 				end
-				if StringManager.isWord(aWords[j], "the") and StringManager.isWord(aWords[j - 1], { "has", "have"}) then
+				if StringManager.isWord(aWords[j], "the") and StringManager.isWord(aWords[j - 1], { "has", "have", "gain" }) then
 					j = j - 2;
 					while aWords[j] do
 						if StringManager.isWord(aWords[j], "also") then
 							-- Skip
 
 						-- Standard positive leading words
-						elseif StringManager.isWord(aWords[j], {"or", "and"}) then
+						elseif StringManager.isWord(aWords[j], { "or", "and", "touch", }) then
 							bValidCondition = true;
 
 						-- Conditional positive leading words
-						elseif StringManager.isWord(aWords[j], {"target", "creature"}) then
+						elseif StringManager.isWord(aWords[j], { "target", "creature" }) then
 							if StringManager.isWord(aWords[j-1], "the") then
 								j = j - 1;
 							end
-							if StringManager.isWord(aWords[j-1], {"if", "while"}) then
+							if StringManager.isWord(aWords[j-1], { "if", "while" }) then
 								break;
 							end
 							bValidCondition = true;
 						
-						elseif StringManager.isWord(aWords[j], {"it", "you"}) then
-							if StringManager.isWord(aWords[j-1], {"if", "while"}) then
+						elseif StringManager.isWord(aWords[j], { "it", "you" }) then
+							if StringManager.isWord(aWords[j-1], { "if", "while" }) then
 								break;
 							end
 							bValidCondition = true;
@@ -1616,7 +1696,7 @@ function parseEffects(sPowerName, aWords)
 							bValidCondition = true;
 
 						-- Special positive cases
-						elseif StringManager.isWord(aWords[j], "breathe") then
+						elseif StringManager.isWord(aWords[j], { "breathe", "smaller", }) then
 							bValidCondition = true;
 
 						else
@@ -1745,6 +1825,50 @@ function parseEffects(sPowerName, aWords)
 				rCurrent.startindex = nConditionStart;
 				rCurrent.endindex = i;
 			end
+		
+		elseif StringManager.isWord(aWords[i], "resistance") and 
+				StringManager.isWord(aWords[i+1], "to") and
+				StringManager.isWord(aWords[i+2], DataCommon.dmgtypes) and
+				StringManager.isWord(aWords[i-1], "damage") and
+				StringManager.isWord(aWords[i-1], "have") then
+			local bValidResist = false;
+			if StringManager.isWord(aWords[i-2], "allies") then
+				bValidResist = true;
+			elseif StringManager.isWord(aWords[i-2], "you") and
+					not StringManager.isWord(aWords[i-3], "if") then
+				bValidResist = true;
+			end
+
+			if bValidResist then
+				rCurrent = {};
+				rCurrent.sName = "RESIST: " .. aWords[i+2];
+				rCurrent.startindex = i;
+				rCurrent.endindex = i+2;
+			end
+
+		elseif StringManager.isWord(aWords[i], "cover") and 
+				StringManager.isWord(aWords[i-1], { "half", "three-quarters", }) then
+			local bValidCover = false;
+			if StringManager.isWord(aWords[i-2], "provides") then
+				bValidCover = true;
+			elseif StringManager.isWord(aWords[i-2], "have") and
+					StringManager.isWord(aWords[i-3], "allies") then
+				bValidCover = true;
+			elseif StringManager.isWord(aWords[i-2], "you") and
+					StringManager.isWord(aWords[i-3], "grants") then
+				bValidCover = true;
+			end
+
+			if bValidCover then
+				rCurrent = {};
+				if aWords[i+1] == "three-quarters" then
+					rCurrent.sName = "SCOVER";
+				else
+					rCurrent.sName = "COVER";
+				end
+				rCurrent.startindex = i-1;
+				rCurrent.endindex = i;
+			end
 		end
 		
 		if rCurrent then
@@ -1807,85 +1931,91 @@ function parseEffects(sPowerName, aWords)
 	return effects;
 end
 
-function parseHelper(s, words, words_stats)
-  	local final_words = {};
-  	local final_words_stats = {};
-  	
-  	-- Separate words ending in periods, colons and semicolons
-  	for i = 1, #words do
-		local nSpecialChar = string.find(words[i], "[%.:;\n]");
-		if nSpecialChar then
-			local sWord = words[i];
-			local nStartPos = words_stats[i].startpos;
-			while nSpecialChar do
-				if nSpecialChar > 1 then
-					table.insert(final_words, string.sub(sWord, 1, nSpecialChar - 1));
-					table.insert(final_words_stats, {startpos = nStartPos, endpos = nStartPos + nSpecialChar - 1});
-				end
-				
-				table.insert(final_words, string.sub(sWord, nSpecialChar, nSpecialChar));
-				table.insert(final_words_stats, {startpos = nStartPos + nSpecialChar - 1, endpos = nStartPos + nSpecialChar});
-				
-				nStartPos = nStartPos + nSpecialChar;
-				sWord = string.sub(sWord, nSpecialChar + 1);
-				
-				nSpecialChar = string.find(sWord, "[%.:;\n]");
-			end
-			if string.len(sWord) > 0 then
-				table.insert(final_words, sWord);
-				table.insert(final_words_stats, {startpos = nStartPos, endpos = words_stats[i].endpos});
-			end
-		else
-			table.insert(final_words, words[i]);
-			table.insert(final_words_stats, words_stats[i]);
-		end
-  	end
-  	
-	return final_words, final_words_stats;
-end
-
-function consolidationHelper(aMasterAbilities, aWordStats, sAbilityType, aNewAbilities)
-	-- Iterate through new abilities
-	for i = 1, #aNewAbilities do
-
-		-- Add type
-		aNewAbilities[i].type = sAbilityType;
-
-		-- Convert word indices to character positions
-		aNewAbilities[i].startpos = aWordStats[aNewAbilities[i].startindex].startpos;
-		aNewAbilities[i].endpos = aWordStats[aNewAbilities[i].endindex].endpos;
-		aNewAbilities[i].startindex = nil;
-		aNewAbilities[i].endindex = nil;
-
-		-- Add to master abilities list
-		table.insert(aMasterAbilities, aNewAbilities[i]);
+function parsePower(tData)
+	if not tData or not tData.sName or not tData.sDesc then
+		return;
 	end
-end
 
-function parsePower(sPowerName, sPowerDesc, bPC, bMagic)
 	-- Get rid of some problem characters, and make lowercase
-	local sLocal = sPowerDesc:gsub("’", "'");
-	sLocal = sLocal:gsub("–", "-");
-	sLocal = sLocal:lower();
-	
+	local sCleanLower = tData.sDesc:gsub("’", "'"):gsub("–", "-"):lower();
+
 	-- Parse the words
-	local aWords, aWordStats = StringManager.parseWords(sLocal, ".:;\n");
+	local tWords, tWordStats = StringManager.parseWords(sCleanLower, "%[%].:;\n");
 	
 	-- Add/separate markers for end of sentence, end of clause and clause label separators
-	aWords, aWordStats = PowerManager.parseHelper(sPowerDesc, aWords, aWordStats);
+	tWords, tWordStats = PowerManager.helperParsePower(tData, tWords, tWordStats);
+
+	-- Build master list of all power actions and sort
+	local tActions = {};
+	PowerManager.helperParsePowerConsolidation(tActions, tWordStats, "attack", PowerManager.parseAttacks(tData.sName, tWords));
+	PowerManager.helperParsePowerConsolidation(tActions, tWordStats, "damage", PowerManager.parseDamages(tData.sName, tWords, tData.bMagic));
+	PowerManager.helperParsePowerConsolidation(tActions, tWordStats, "heal", PowerManager.parseHeals(tData.sName, tWords));
+	PowerManager.helperParsePowerConsolidation(tActions, tWordStats, "powersave", PowerManager.parseSaves(tData.sName, tWords, tData.bPC, tData.bMagic));
+	PowerManager.helperParsePowerConsolidation(tActions, tWordStats, "effect", PowerManager.parseEffects(tData.sName, tWords));
+	table.sort(tActions, function(a,b) return a.startpos < b.startpos end)
+
+	return tActions;
+end
+function helperParsePower(tData, tWords, tWordStats)
+	local tFinalWords = {};
+	local tFinalWordStats = {};
 	
-	-- Build master list of all power abilities
-	local aMasterAbilities = {};
-	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "attack", parseAttacks(sPowerName, aWords));
-	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "damage", parseDamages(sPowerName, aWords, bMagic));
-	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "heal", parseHeals(sPowerName, aWords));
-	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "powersave", parseSaves(sPowerName, aWords, bPC, bMagic));
-	PowerManager.consolidationHelper(aMasterAbilities, aWordStats, "effect", parseEffects(sPowerName, aWords));
+	-- Separate words ending in periods, colons and semicolons
+	for kWord,sWord in ipairs(tWords) do
+		local nSpecialChar = sWord:find("[%.:;\n]");
+		if nSpecialChar then
+			local nStartPos = tWordStats[kWord].startpos;
+			while nSpecialChar do
+				if nSpecialChar > 1 then
+					table.insert(tFinalWords, sWord:sub(1, nSpecialChar - 1));
+					table.insert(tFinalWordStats, { startpos = nStartPos, endpos = nStartPos + nSpecialChar - 1 });
+				end
+				table.insert(tFinalWords, sWord:sub(nSpecialChar, nSpecialChar));
+				table.insert(tFinalWordStats, { startpos = nStartPos + nSpecialChar - 1, endpos = nStartPos + nSpecialChar });
+				
+				nStartPos = nStartPos + nSpecialChar;
+				sWord = sWord:sub(nSpecialChar + 1);
+				nSpecialChar = sWord:find("[%.:;\n]");
+			end
+			if #sWord > 0 then
+				table.insert(tFinalWords, sWord);
+				table.insert(tFinalWordStats, { startpos = nStartPos, endpos = tWordStats[kWord].endpos });
+			end
+		else
+			table.insert(tFinalWords, sWord);
+			table.insert(tFinalWordStats, tWordStats[kWord]);
+		end
+	end
+
+	-- Apply variables
+	if tData and tData.tVariables then
+		for sVar, vVar in pairs(tData.tVariables) do
+			local sPattern = string.format("([+-]?)%%[%s%%]", sVar);
+			for i = 1, #tFinalWords do
+				local sSign = tFinalWords[i]:match(sPattern);
+				if sSign then
+					tFinalWords[i] = sSign .. (tostring(vVar) or "");
+				end
+			end
+		end
+	end
 	
-	-- Sort the abilities
-	table.sort(aMasterAbilities, function(a,b) return a.startpos < b.startpos end)
-	
-	return aMasterAbilities;
+	return tFinalWords, tFinalWordStats;
+end
+function helperParsePowerConsolidation(tActions, tWordStats, sAbilityType, tNewActions)
+	for _,v in ipairs(tNewActions) do
+		-- Add type
+		v.type = sAbilityType;
+
+		-- Convert word indices to character positions
+		v.startpos = tWordStats[v.startindex].startpos;
+		v.endpos = tWordStats[v.endindex].endpos;
+		v.startindex = nil;
+		v.endindex = nil;
+
+		-- Add to actions list
+		table.insert(tActions, v);
+	end
 end
 
 function cleanNPCPowerName(s)
@@ -1896,65 +2026,126 @@ function cleanNPCPowerName(s)
 	return StringManager.trim(sResult);
 end
 
+function getPowerActions(nodePower, bNPC)
+	if not nodePower then
+		return nil;
+	end
+
+	local sPowerKey;
+	if bNPC then
+		sPowerKey = PowerManager.cleanNPCPowerName(DB.getValue(nodePower, "name", ""));
+	else
+		sPowerKey = DB.getValue(nodePower, "name", "");
+	end
+
+	if DB.getValue(nodePower, "version", "") == "2024" then
+		sPowerKey = StringManager.simplify(sPowerKey);
+		if DataSpell.tBuildDataSpell2024[sPowerKey] then
+			return UtilityManager.copyDeep(DataSpell.tBuildDataSpell2024[sPowerKey]);
+		end
+	else
+		sPowerKey = StringManager.simplify(sPowerKey);
+		if DataSpell.parsedata[sPowerKey] then
+			return UtilityManager.copyDeep(DataSpell.parsedata[sPowerKey]);
+		end
+	end
+
+	return nil;
+end
+
 function parseNPCPower(nodePower, bAllowSpellDataOverride)
-	local sPowerName = PowerManager.cleanNPCPowerName(DB.getValue(nodePower, "name", ""));
-	local sPowerDesc = DB.getValue(nodePower, "desc", "");
-	
+	if not nodePower then
+		return {};
+	end
+
+	-- Allow override for NPC spells to be pre-parsed
 	if bAllowSpellDataOverride then
-		local sPowerNameLower = StringManager.trim(sPowerName:lower());
-		if DataSpell.parsedata[sPowerNameLower] then
-			return UtilityManager.copyDeep(DataSpell.parsedata[sPowerNameLower]);
+		local tActions = PowerManager.getPowerActions(nodePower, true);
+		if tActions then
+			return tActions;
 		end
 	end
 	
-	local bMagic = false;
-	if nodePower then
-		if StringManager.contains({"spells", "innatespells"}, DB.getName(DB.getParent(nodePower))) then
-			bMagic = true;
-		else
-			-- Add exception for beholder type creatures, since Eye Rays are broken out into individual powers and are all magical
-			local nodePowerList = DB.getParent(nodePower);
-			for _,v in ipairs(DB.getChildList(nodePower, "..")) do
-				local s = StringManager.trim(DB.getValue(v, "name", "")):lower();
-				if StringManager.contains({ "eye ray", "eye rays" }, s) then
-					bMagic = true;
-				end
+	-- Determine if NPC ability is in spell sections
+	local bSpell = StringManager.contains({"spells", "innatespells"}, DB.getName(DB.getParent(nodePower)));
+
+	-- Determine if NPC ability is magic
+	-- NOTE: Add exception for beholder type creatures, since Eye Rays are broken out into individual powers and are all magical
+	local bMagic = bSpell;
+	if not bMagic then
+		for _,v in ipairs(DB.getChildList(nodePower, "...")) do
+			if StringManager.contains({ "eyeray", "eyerays" }, StringManager.simplify(DB.getValue(v, "name", ""))) then
+				bMagic = true;
 			end
 		end
 	end
-	
-	local aActions = PowerManager.parsePower(sPowerName, sPowerDesc, false, bMagic);
-	
-	if nodePower then
-		-- Make sure correct duration applied to NPC spell effects
-		if StringManager.contains({"spells", "innatespells"}, DB.getName(DB.getParent(nodePower))) then
-			local sPowerDesc = DB.getValue(nodePower, "desc", ""):lower();
-			local sDuration, sTempUnits = sPowerDesc:match("duration: concentration, up to (%d+) (%w+)");
-			if sDuration and sTempUnits then
-				local nDuration = tonumber(sDuration) or 0;
-				if nDuration > 0 then
-					local sDurationUnits = "";
-					if StringManager.isWord(sTempUnits, {"minute", "minutes"}) then
-						sDurationUnits = "minute";
-					elseif StringManager.isWord(sTempUnits, {"hour", "hours"}) then
-						sDurationUnits = "hour";
-					elseif StringManager.isWord(sTempUnits, {"day", "days"}) then
-						sDurationUnits = "day";
-					end
-					
-					for _,v in ipairs(aActions) do
-						if v.type == "effect" then
-							if ((v.nDuration or 0) == 0) and (nDuration ~= 0) and (v.sName ~= "Prone") then
-								v.nDuration = nDuration;
-								v.sUnits = sDurationUnits;
-							end
+
+	-- Get NPC power name and power description
+	-- NOTE: Clean the power name of NPC decorators
+	-- NOTE: Add in any value replacements for NPC summons
+	local sPowerName = PowerManager.cleanNPCPowerName(DB.getValue(nodePower, "name", ""));
+	local sPowerDesc = DB.getValue(nodePower, "desc", "");
+
+	-- Parse NPC ability actions from text
+	local tData = {
+		sName = sPowerName,
+		sDesc = sPowerDesc,
+		bMagic = bMagic,
+		tVariables = PowerManager.getNPCPowerVariables(nodePower),
+	};
+	for k,v in pairs(tData.tVariables or {}) do
+		sPowerDesc = sPowerDesc:gsub("%[" .. k .. "%]", v);
+	end
+	local tActions = PowerManager.parsePower(tData);
+
+	-- Make sure correct duration applied to NPC spell effects
+	if bSpell then
+		local sDuration, sUnits = sPowerDesc:lower():match("duration: concentration, up to (%d+) (%w+)");
+		if sDuration and sUnits then
+			local nDuration = tonumber(sDuration) or 0;
+			if nDuration > 0 then
+				local sDurationUnits = "";
+				if StringManager.isWord(sUnits, {"minute", "minutes"}) then
+					sDurationUnits = "minute";
+				elseif StringManager.isWord(sUnits, {"hour", "hours"}) then
+					sDurationUnits = "hour";
+				elseif StringManager.isWord(sUnits, {"day", "days"}) then
+					sDurationUnits = "day";
+				end
+				
+				for _,v in ipairs(tActions) do
+					if v.type == "effect" then
+						if ((v.nDuration or 0) == 0) and (nDuration ~= 0) and (v.sName ~= "Prone") then
+							v.nDuration = nDuration;
+							v.sUnits = sDurationUnits;
 						end
 					end
 				end
 			end
 		end
 	end
-	return aActions;
+
+	return tActions;
+end
+-- NOTE: Variable names must be lower case; and assumed to be encapsulated by brackets
+function getNPCPowerVariables(nodePower)
+	if not nodePower then
+		return nil;
+	end
+	local nodeActor = DB.getChild(nodePower, "...");
+	if not nodeActor then
+		return nil;
+	end
+	if DB.getValue(nodeActor, "summon", 0) ~= 1 then
+		return nil;
+	end
+	local tVars = {
+		["slevel"] = DB.getValue(nodeActor, "summon_level", 0),
+		["sattack"] = DB.getValue(nodeActor, "summon_attack", 0),
+		["sdc"] = DB.getValue(nodeActor, "summon_dc", 0),
+		["smod"] = DB.getValue(nodeActor, "summon_mod", 0),
+	};
+	return tVars;
 end
 
 function parsePCPower(nodePower)
@@ -1965,16 +2156,13 @@ function parsePCPower(nodePower)
 	-- Track whether cast action already created
 	local nodeCastAction = nil;
 	
-	-- Get the power name
-	local sPowerName = DB.getValue(nodePower, "name", "");
-	local sPowerNameLower = StringManager.trim(sPowerName:lower());
-	
 	-- Pull the actions from the spell data table (if available)
-	if DataSpell.parsedata[sPowerNameLower] then
-		for _,vAction in ipairs(DataSpell.parsedata[sPowerNameLower]) do
+	local tActions = PowerManager.getPowerActions(nodePower);
+	if tActions then
+		for _,vAction in ipairs(tActions) do
 			if vAction.type then
 				if vAction.type == "attack" then
-					if not nodeCastAction then
+					if not nodeCastAction or (DB.getValue(nodeCastAction, "atktype", "") ~= "") then
 						nodeCastAction = DB.createChild(nodeActions);
 						DB.setValue(nodeCastAction, "type", "string", "cast");
 					end
@@ -2036,7 +2224,7 @@ function parsePCPower(nodePower)
 					end
 
 				elseif vAction.type == "powersave" then
-					if not nodeCastAction then
+					if not nodeCastAction or (DB.getValue(nodeCastAction, "savetype", "") ~= "") then
 						nodeCastAction = DB.createChild(nodeActions);
 						DB.setValue(nodeCastAction, "type", "string", "cast");
 					end
@@ -2082,6 +2270,9 @@ function parsePCPower(nodePower)
 		end
 	-- Otherwise, parse the power description for actions
 	else
+		local sPowerName = DB.getValue(nodePower, "name", "");
+		local sPowerDesc = DB.getValue(nodePower, "description", "");
+
 		-- Get the power duration
 		local nDuration = 0;
 		local sDurationUnits = "";
@@ -2093,6 +2284,8 @@ function parsePCPower(nodePower)
 		if StringManager.isWord(aDurationWords[j], "concentration") and StringManager.isWord(aDurationWords[j+1], "up") and StringManager.isWord(aDurationWords[j+2], "to") then
 			bConcentration = true;
 			j = j + 3;
+		elseif StringManager.isWord(aDurationWords[j], "up") and StringManager.isWord(aDurationWords[j+1], "to") then
+			j = j + 2;
 		end
 		if StringManager.isNumberString(aDurationWords[j]) and StringManager.isWord(aDurationWords[j+1], {"round", "rounds", "minute", "minutes", "hour", "hours", "day", "days"}) then
 			nDuration = tonumber(aDurationWords[j]) or 0;
@@ -2124,8 +2317,13 @@ function parsePCPower(nodePower)
 		end
 		
 		-- Parse the description
-		local sPowerDesc = DB.getValue(nodePower, "description", "");
-		local aActions = PowerManager.parsePower(sPowerName, sPowerDesc, true, bMagic);
+		local tData = {
+			sName = sPowerName,
+			sDesc = sPowerDesc,
+			bMagic = bMagic,
+			bPC = true,
+		};
+		local aActions = PowerManager.parsePower(tData);
 		
 		-- Handle effect duration based on spell
 		local bConcEffectFound = false;
@@ -2141,8 +2339,15 @@ function parsePCPower(nodePower)
 				end
 			end
 		end
-		if bConcentration and not bConcEffectFound then
-			table.insert(aActions, { type = "effect", sName = sPowerName .. "; (C)", sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
+		if bConcentration then
+			if not bConcEffectFound then
+				bConcEffectFound = true;
+				table.insert(aActions, 1, { type = "effect", sName = sPowerName .. "; (C)", sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
+			end
+		else
+			if nDuration > 0 then
+				table.insert(aActions, 1, { type = "effect", sName = sPowerName, sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
+			end
 		end
 		
 		-- Translate parsed power records into entries in the PC Actions tab

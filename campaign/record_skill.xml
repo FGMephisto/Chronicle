@@ -17,19 +17,19 @@
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				stat.setReadOnly(bReadOnly);
-				text.setReadOnly(bReadOnly);
+				local tFields = { "stat", "text", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 			
-			<label_column name="stat_label">
+			<label_content_column name="stat_label">
 				<static textres="skill_label_ability" />
-			</label_column>
-			<string_columnh name="stat" />
+			</label_content_column>
+			<string_content_columnh name="stat" />
 
-			<ft_columnh name="text" />
+			<ft_content_columnh_full name="text" />
 		</sheetdata>
 	</windowclass>
 </root>

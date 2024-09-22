@@ -6,10 +6,8 @@
 -->
 
 <root>
-	<!-- -->
-	<!-- Combobox Wpngrade -->
 	<!-- Added -->
-	<!-- -->
+	<!-- Combobox Wpngrade -->
 	<template name="combobox_wpngrade">
 		<combobox>
 			<anchored width="90" height="20" />
@@ -27,10 +25,8 @@
 		</combobox>
 	</template>
 
-	<!-- -->
-	<!-- Combobox Wpnskill - Standard -->
 	<!-- Added -->
-	<!-- -->
+	<!-- Combobox Wpnskill - Standard -->
 	<template name="combobox_wpnskill">
 		<combobox>
 			<anchored width="90" height="20" />
@@ -49,25 +45,21 @@
 		</combobox>
 	</template>
 
-	<!-- -->
-	<!-- Combobox Wpnskill - Used in column sheets (e.g. items) -->
 	<!-- Added -->
-	<!-- -->
+	<!-- Combobox Wpnskill - Used in column sheets (e.g. items) -->
 	<template name="combobox_wpnskill_column">
 		<combobox_wpnskill>
-			<anchored width="120" height="20">
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<left offset="97" />
+			<anchored width="40">
+				<top relation="relative" offset="3" postoffset="3" />
+				<left offset="105" />
 			</anchored>
 			<center merge="delete" />
 			<!-- <script file="common/scripts/column_combobox_chronicle.lua" /> -->
 		</combobox_wpnskill>
 	</template>
 
-	<!-- -->
-	<!-- Combobox Wpndmgability - Standard -->
 	<!-- Added -->
-	<!-- -->
+	<!-- Combobox Wpndmgability - Standard -->
 	<template name="combobox_wpndmgability">
 		<combobox>
 			<anchored width="120" height="20" />
@@ -86,15 +78,13 @@
 		</combobox>
 	</template>
 
-	<!-- -->
-	<!-- Combobox Wpndmgability - Used in column sheets (e.g. items) -->
 	<!-- Added -->
-	<!-- -->
+	<!-- Combobox Wpndmgability - Used in column sheets (e.g. items) -->
 	<template name="combobox_wpndmgability_column">
 		<combobox_wpndmgability>
-			<anchored width="120" height="20">
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<left offset="97" />
+			<anchored width="40">
+				<top relation="relative" offset="3" postoffset="3" />
+				<left offset="105" />
 			</anchored>
 			<center merge="delete" />
 			<!-- <script file="common/scripts/column_combobox_chronicle.lua" /> -->

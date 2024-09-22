@@ -32,16 +32,12 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- -->
 	<!-- Adjusted -->
-	<!-- -->
 	<windowclass name="charsheet_abilities_contents">
 		<margins control="0,0,0,2" />
-		<script file="campaign/scripts/char_abilities_chronicle.lua" />
+		<script file="campaign/scripts/char_abilities.lua" />
 		<sheetdata>
-			<!-- -->
 			<!-- Qualities -->
-			<!-- -->
 			<label_charframetop name="feats_title">
 				<bounds>15,10,-10,20</bounds>
 				<static textres="char_abilities_label_feats" />
@@ -68,7 +64,7 @@
 			<!-- -->
 			<!-- Languages -->
 			<!-- -->
-			<label_charframetop name="languages_title">
+			<label_charframetop name="languagestitle">
 				<anchored to="feats_title" height="20">
 					<top anchor="bottom" relation="relative" offset="7" />
 					<left />
@@ -80,18 +76,18 @@
 			</label_charframetop>
 
 			<list_abilities name="languages">
-				<anchored to="languages_title">
+				<anchored to="languagestitle">
 					<top anchor="bottom" relation="relative" offset="5" />
 					<left />
 					<right />
 				</anchored>
 				<datasource>.languagelist</datasource>
 				<class>char_language</class>
-				<listheader>languages_title</listheader>
+				<listheader>languagestitle</listheader>
 			</list_abilities>
 
 			<button_iadd name="languages_iadd">
-				<anchored to="languages_title" position="insidetopright" offset="0,0" />
+				<anchored to="languagestitle" position="insidetopright" offset="0,0" />
 				<target>languages</target>
 			</button_iadd>
 		</sheetdata>

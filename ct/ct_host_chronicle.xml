@@ -1,55 +1,45 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!-- 
+<!--
   Please see the license.html file included with this distribution for
   attribution and copyright information.
   File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- -->
-	<!-- Adjusted -->
-	<!-- -->
 	<windowclass name="combattracker_host" merge="join">
 		<sizelimits>
-			<minimum width="770" />
+			<minimum width="650" />
 		</sizelimits>
 		<script file="ct/scripts/ct_window_dnd.lua" />
-		<sheetdata>
-			<spacer_ct_host_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
-				<anchored width="43" />
-			</spacer_ct_host_header_buttons>
+	</windowclass>
 
-			<!-- Header Labels -->
-			<label_ct_right name="label_wounds" insertbefore="label_init">
-				<center />
+	<!-- Adjusted -->
+	<windowclass name="sub_ct_header_host" merge="join">
+		<sheetdata>
+			<spacer_ct_header_right name="spacer_buttons_header_add" insertbefore="label_init">
+				<anchored width="40" />
+			</spacer_ct_header_right>
+			<label_ct_header_right name="label_wounds" insertbefore="label_init">
 				<static textres="ct_label_wounds" />
 				<tooltip textres="ct_tooltip_wounds" />
-			</label_ct_right>
-
-			<label_ct_right name="label_trauma" insertbefore="label_init">
-				<center />
+			</label_ct_header_right>
+			<label_ct_header_right name="label_trauma" insertbefore="label_init">
 				<static textres="ct_label_trauma" />
 				<tooltip textres="ct_tooltip_trauma" />
-			</label_ct_right>
-
-			<label_ct_right name="label_injuries" insertbefore="label_init">
-				<center />
+			</label_ct_header_right>
+			<label_ct_header_right name="label_injuries" insertbefore="label_init">
 				<static textres="ct_label_injuries" />
 				<tooltip textres="ct_tooltip_injuries" />
-			</label_ct_right>
-
-			<label_ct_right name="label_fatigue" insertbefore="label_init">
-				<center />
+			</label_ct_header_right>
+			<label_ct_header_right name="label_fatigue" insertbefore="label_init">
 				<static textres="ct_label_fatigue" />
 				<tooltip textres="ct_tooltip_fatigue" />
-			</label_ct_right>
-
-			<label_ct_right name="label_hp" insertbefore="label_init">
-				<center />
+			</label_ct_header_right>
+			<label_ct_header_right name="label_hp" insertbefore="label_init">
 				<static textres="hp" />
 				<tooltip textres="ct_tooltip_hitpoints" />
-			</label_ct_right>
+			</label_ct_header_right>
 		</sheetdata>
 	</windowclass>
 </root>

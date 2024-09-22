@@ -7,114 +7,41 @@
 -->
 
 <root>
-	<!-- -->
-	<!-- Reference Skill -->
-	<!-- -->
-	<windowclass name="reference_skill">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
+	<windowclass name="reference_skill" copy="record_window" />
+	<windowclass name="reference_skill_header" copy="record_header" />
 
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_skill_header</class>
-			</sub_record_header>
-
-			<frame_record_content />
-			
-			<subwindow_record name="main">
-				<class>skill_main</class>
-				<activate />
-			</subwindow_record>
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
-	</windowclass>
-
-	<!-- -->
-	<!-- Reference Skill Header -->
-	<!-- -->
-	<windowclass name="ref_skill_header">
-		<margins control="0,0,0,2" />
-		<script file="common/scripts/record_header.lua" />
-		<sheetdata>
-			<link_record_header name="link" />
-
-			<anchor_record_header_right />
-			<icon_record_locked />
-			<button_record_locked />
-
-			<string_record_name name="name" />
-			<label_recordtype name="recordtype_label" />
-		</sheetdata>
-	</windowclass>
-
-	<!-- -->
-	<!-- Reference Skill Main -->
-	<!-- -->
-	<windowclass name="skill_main">
+	<!-- Adjusted -->
+	<windowclass name="reference_skill_main">
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				update()
+				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode())
-				stat.setReadOnly(bReadOnly)
-				test.setReadOnly(bReadOnly)
-				action.setReadOnly(bReadOnly)
-				text.setReadOnly(bReadOnly)
+				local tFields = { "stat", "text", "action", "test", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 			
-			<label_column name="stat_label">
+			<label_content_column name="stat_label">
 				<static textres="skill_label_ability" />
-			</label_column>
-			<string_columnh name="stat" />
+			</label_content_column>
+			<string_content_columnh name="stat" />
 
-			<label_column name="test_label">
+			<label_content_column name="test_label">
 				<static textres="ref_skill_test_label" />
-			</label_column>
-			<string_columnh name="test" />
+			</label_content_column>
+			<string_content_columnh name="test" />
 
-			<label_column name="action_label">
+			<label_content_column name="action_label">
 				<static textres="ref_skill_action_label" />
-			</label_column>
-			<string_columnh name="action" />
+			</label_content_column>
+			<string_content_columnh name="action" />
 
-			<line_column name="divider1" />
-
-			<!-- <ft_columnh name="text" /> -->
-
-			<ft_columnh  name="text">
-			<anchored >
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<bottom anchor="bottom" offeset="20" />
-				<left />
-				<right offset="-15" />
-			</anchored>			
-			</ft_columnh>
-
-			<scrollbar>
-				<anchored to="text" offset="-5,-10"/>
-				<target>text</target>
-			</scrollbar>
+			<ft_content_columnh_full name="text" />
 		</sheetdata>
 	</windowclass>
 </root>

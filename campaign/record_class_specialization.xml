@@ -7,6 +7,10 @@
 
 <root>
 	<windowclass name="reference_class_specialization" copy="record_window_tabbed">
+		<sizelimits>
+			<minimum width="500" height="500" />
+			<dynamic />
+		</sizelimits>
 		<tab>
 			<name>notes</name>
 			<resource>tab_main</resource>
@@ -19,19 +23,143 @@
 			<class>reference_class_specialization_main</class>
 			<embed />
 		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_class_specialization_header" copy="record_header" />
-	
+
 	<windowclass name="reference_class_specialization_main">
-		<margins control="0,0,0,7" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_class_specialization_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_class_specialization_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_main_2024">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				class.setReadOnly(bReadOnly);
-				features.update(bReadOnly);
+				local tControls = {
+					"class",
+					"features",
+					"featurechoices",
+				};
+				WindowManager.callSafeControlsUpdate(self, tControls, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					elseif sClass == "reference_classfeaturechoice" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = featurechoices.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), ""));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+								DB.setValue(node, "choicetype", "string", DB.getValue(DB.getPath(sRecord, "choicetype"), ""));
+								DB.setValue(node, "prerequisite", "string", DB.getValue(DB.getPath(sRecord, "prerequisite"), ""));
+							end
+							return true;
+						end
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="class_label">
+				<static textres="class_specialization_label_class" />
+			</label_content_column>
+			<string_content_columnh name="class" />
+
+			<header_content_framed_headersimple name="features_header">
+				<static textres="class_header_features"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="features_iedit">
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<edittarget>features</edittarget>
+			</button_iedit>
+			<button_iadd name="features_iadd">
+				<anchored to="features_header" position="insidetopright" offset="22,0" />
+				<target>features</target>
+			</button_iadd>
+			<list_content_column name="features">
+				<datasource>.features</datasource>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
+
+			<header_content_framed_headersimple name="featurechoices_header">
+				<static textres="class_header_featurechoices"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="featurechoices_iedit">
+				<anchored to="featurechoices_header" position="insidetopright" offset="2,0" />
+				<edittarget>featurechoices</edittarget>
+			</button_iedit>
+			<button_iadd name="featurechoices_iadd">
+				<anchored to="featurechoices_header" position="insidetopright" offset="22,0" />
+				<target>featurechoices</target>
+			</button_iadd>
+			<list_content_column name="featurechoices">
+				<datasource>.featurechoices</datasource>
+				<class>reference_classfeaturechoice_listitem</class>
+				<sortby><field>choicetype</field><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlUpdate(self, "class", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "list", bReadOnly);
 			end
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
@@ -53,30 +181,29 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="class_label">
-				<static textres="class_specialization_label_class" />
-			</label_column>
-			<string_columnh name="class" />
+			<anchor_content_top />
 
-			<header_column name="features_header">
+			<label_content_column name="class_label">
+				<static textres="class_specialization_label_class" />
+			</label_content_column>
+			<string_content_columnh name="class" />
+
+			<header_content_framed_headersimple name="features_header">
 				<static textres="class_header_features"/>
-				<center />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="features_iedit">
-				<anchored to="features_header" position="righthigh" offset="-20,0" />
-				<target>features</target>
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<edittarget>features</edittarget>
 			</button_iedit>
 			<button_iadd name="features_iadd">
-				<anchored to="features_iedit" position="lefthigh" offset="5,0" />
+				<anchored to="features_header" position="insidetopright" offset="22,0" />
 				<target>features</target>
 			</button_iadd>
-			<list_column name="features">
+			<list_content_column name="features">
 				<datasource>.features</datasource>
-				<class>ref_class_feature</class>
-				<sortby><control>level</control><control>name</control></sortby>
-			</list_column>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
 

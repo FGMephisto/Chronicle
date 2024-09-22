@@ -26,9 +26,7 @@ function handleApplyAttack(msgOOB)
 	ActionAttack.applyAttack(rSource, rTarget, rRoll);
 end
 
---
 -- Communicate attack roll to Clients
---
 function notifyApplyAttack(rSource, rTarget, rRoll)
 	if not rTarget then
 		return;
@@ -45,16 +43,12 @@ function notifyApplyAttack(rSource, rTarget, rRoll)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
---
 -- Handle "Fumble" & "Critica Hits" messaging. (HRFC = House Rules Fumble/Crit")
---
 function handleApplyHRFC(msgOOB)
 	TableManager.processTableRoll("", msgOOB.sTable);
 end
 
---
 -- Communicate "Fumble" & "Critica Hits" to Clients
---
 function notifyApplyHRFC(sTable)
 	local msgOOB = {};
 	msgOOB.type = OOB_MSGTYPE_APPLYHRFC;
@@ -64,9 +58,7 @@ function notifyApplyHRFC(sTable)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
---
 -- Handle "Remove On Miss" setting in options
---
 function onTargeting(rSource, aTargeting, rRolls)
 	local bRemoveOnMiss = false;
 	local sOptRMMT = OptionsManager.getOption("RMMT");
@@ -101,9 +93,7 @@ function performRoll(draginfo, rActor, rAction)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
---
 -- Adjusted
---
 function getRoll(rActor, rAction)
 	local bADV = rAction.bADV or false;
 	local bDIS = rAction.bDIS or false;
@@ -111,11 +101,11 @@ function getRoll(rActor, rAction)
 	-- Build basic roll
 	local rRoll = {};
 	rRoll.sType = "attack";
-	rRoll.aDice = {};
+	rRoll.aDice = DiceRollManager.getActorDice({ }, rActor);
 	rRoll.nMod = rAction.modifier or 0;
 	rRoll.bWeapon = rAction.bWeapon;
 	
-	rRoll.sLabel = rAction.label;
+	rRoll.sLabel = StringManager.capitalizeAll(rAction.label);
 	rRoll.nOrder = rAction.order;
 	rRoll.sRange = rAction.range;
 	rRoll.nTest = rAction.nStat or 0;
@@ -145,18 +135,20 @@ function getRoll(rActor, rAction)
 	if rAction.range then
 		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range .. ")";
 	end
-	-- rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
+	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
 	
+	local tAddText = {};
+
 	-- Add crit range
 	-- if rAction.nCritRange then
-		-- rRoll.sDesc = rRoll.sDesc .. " [CRIT " .. rAction.nCritRange .. "]";
+		-- table.insert(tAddText, "[CRIT " .. rAction.nCritRange .. "]");
 	-- end
 	
 	-- Add ability modifiers
 	-- if rAction.stat then
 		-- local sAbilityEffect = DataCommon.ability_ltos[rAction.stat];
 		-- if sAbilityEffect then
-			-- rRoll.sDesc = rRoll.sDesc .. " [MOD:" .. sAbilityEffect .. "]";
+			-- table.insert(tAddText, "[MOD:" .. sAbilityEffect .. "]");
 		-- end
 
 		-- Check for armor non-proficiency
@@ -165,7 +157,7 @@ function getRoll(rActor, rAction)
 			-- if StringManager.contains({"strength", "dexterity"}, rAction.stat) then
 				-- local nodePC = ActorManager.getCreatureNode(rActor);
 				-- if DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0 then
-					-- rRoll.sDesc = rRoll.sDesc .. " " .. Interface.getString("roll_msg_armor_nonprof");
+					-- table.insert(tAddText, string.format("[%s]", Interface.getString("roll_msg_armor_nonprof")));
 					-- bDIS = true;
 				-- end
 			-- end
@@ -174,21 +166,23 @@ function getRoll(rActor, rAction)
 	
 	-- Add advantage/disadvantage tags
 	-- if bADV then
-		-- rRoll.sDesc = rRoll.sDesc .. " [ADV]";
+		-- table.insert(tAddText, "[ADV]");
 	-- end
 	-- if bDIS then
-		-- rRoll.sDesc = rRoll.sDesc .. " [DIS]";
+		-- table.insert(tAddText, "[DIS]");
 	-- end
 
-	-- Add weapon name
-	rRoll.sDesc = rRoll.sDesc .. "] " .. rAction.label
+	if #tAddText > 0 then
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(tAddText, " ");
+	end
+	if #(rAction.tAddText or {}) > 0 then
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(rAction.tAddText, " ");
+	end
 
 	return rRoll;
 end
 
---
 -- This function is used to modify the Roll record for Attack checks
---
 function modAttack(rSource, rTarget, rRoll)
 	ActionAttack.clearCritState(rSource);
 	
@@ -203,24 +197,23 @@ function modAttack(rSource, rTarget, rRoll)
 	rRoll.nMod = tonumber(rRoll.nMod)
 
 	-- Check for opportunity attack
-	-- local bOpportunity = ModifierManager.getKey("ATT_OPP") or Input.isShiftPressed();
-
-	-- if bOpportunity then
+	local bOpportunity = ModifierManager.getKey("ATT_OPP") or Input.isShiftPressed();
+	if bOpportunity then
 		-- table.insert(aAddDesc, "[OPPORTUNITY]");
-	-- end
+	end
 
 	-- Check defense modifiers
-	-- local bCover = ModifierManager.getKey("DEF_COVER");
-	-- local bSuperiorCover = ModifierManager.getKey("DEF_SCOVER");
+	local bCover = ModifierManager.getKey("DEF_COVER");
+	local bSuperiorCover = ModifierManager.getKey("DEF_SCOVER");
+	if bSuperiorCover then
+		table.insert(aAddDesc, "[COVER -5]");
+	elseif bCover then
+		table.insert(aAddDesc, "[COVER -2]");
+	end
 	
-	-- if bSuperiorCover then
-		-- table.insert(aAddDesc, "[COVER -5]");
-	-- elseif bCover then
-		-- table.insert(aAddDesc, "[COVER -2]");
-	-- end
-	
-	-- local bADV = false;
-	-- local bDIS = false;
+	-- Check advantage/disadvantage
+	local bADV = false;
+	local bDIS = false;
 	-- if rRoll.sDesc:match(" %[ADV%]") then
 		-- bADV = true;
 		-- rRoll.sDesc = rRoll.sDesc:gsub(" %[ADV%]", "");		
@@ -230,7 +223,7 @@ function modAttack(rSource, rTarget, rRoll)
 		-- rRoll.sDesc = rRoll.sDesc:gsub(" %[DIS%]", "");
 	-- end
 
-	-- local aAttackFilter = {};
+	local aAttackFilter = {};
 
 	-- Consider Health
 	ActionsManager2.encodeHealthMods(rSource, rRoll)
@@ -240,9 +233,6 @@ function modAttack(rSource, rTarget, rRoll)
 
 	-- Check applying Effects
 	if rSource then
-		local aAttackFilter = {}
-		local bEffects = false
-
 		-- Determine attack type
 		local sAttackType = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]");
 		if not sAttackType then
@@ -255,6 +245,7 @@ function modAttack(rSource, rTarget, rRoll)
 		-- if sModStat then
 			-- sActionStat = DataCommon.ability_stol[sModStat];
 		-- end
+		
 		-- Build attack filter
 		if sAttackType == "M" then
 			table.insert(aAttackFilter, "melee");
@@ -372,53 +363,51 @@ function modAttack(rSource, rTarget, rRoll)
 		
 		-- Get condition modifiers
 		-- ToDo: List all conditions
-		-- if EffectManager5E.hasEffect(rSource, "ADVATK", rTarget) then
-			-- bADV = true;
-			-- bEffects = true;
-		-- elseif #(EffectManager5E.getEffectsByType(rSource, "ADVATK", aAttackFilter, rTarget)) > 0 then
-			-- bADV = true;
-			-- bEffects = true;
-		-- end
-		-- if EffectManager5E.hasEffect(rSource, "DISATK", rTarget) then
-			-- bDIS = true;
-			-- bEffects = true;
-		-- elseif #(EffectManager5E.getEffectsByType(rSource, "DISATK", aAttackFilter, rTarget)) > 0 then
-			-- bDIS = true;
-			-- bEffects = true;
-		-- end
-		if EffectManager5E.hasEffectCondition(rSource, "Blinded") then
-			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
-			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
-			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
-			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Invisible") then
-			bEffects = true;
+		if EffectManager5E.hasEffect(rSource, "ADVATK", rTarget) then
 			bADV = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
 			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager.hasCondition(rSource, "Prone") then
+		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVATK", aAttackFilter, rTarget)) > 0 then
+			bADV = true;
 			bEffects = true;
-			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Restrained") then
+		elseif EffectManager5E.hasEffectCondition(rSource, "Invisible") then
+			bADV = true;
 			bEffects = true;
-			bDIS = true;
 		end
-		if EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
+
+		if EffectManager5E.hasEffect(rSource, "DISATK", rTarget) then
+			bDIS = true;
+			bEffects = true;
+		elseif #(EffectManager5E.getEffectsByType(rSource, "DISATK", aAttackFilter, rTarget)) > 0 then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Blinded") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Frightened") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager.hasCondition(rSource, "Prone") then
+			bDIS = true;
+			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Restrained") then
+			bDIS = true;
+			bEffects = true;
+		end
+
+		local bFrozen = EffectManager5E.hasEffectCondition(rSource, "Paralyzed") or
+				EffectManager5E.hasEffectCondition(rSource, "Petrified") or
+				EffectManager5E.hasEffectCondition(rSource, "Stunned") or
+				EffectManager5E.hasEffectCondition(rSource, "Unconscious");
+		if bFrozen then
 			bEffects = true;
 		end
 
@@ -433,9 +422,7 @@ function modAttack(rSource, rTarget, rRoll)
 		-- local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
 		-- if nExhaustCount > 0 then
 			-- bEffects = true;
-			-- if nExhaustMod >= 3 then
-				-- bDIS = true;
-			-- end
+			-- nAddMod = nAddMod - (2 * nExhaustMod);
 		-- end
 		
 		-- Determine crit range
@@ -461,14 +448,26 @@ function modAttack(rSource, rTarget, rRoll)
 			-- end
 		-- end
 
+		-- Check Reliable state
+		-- local bReliable = false;
+		-- if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			-- bEffects = true;
+			-- bReliable = true;
+		-- elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLEATK") then
+			-- bEffects = true;
+			-- bReliable = true;
+		-- end
+		-- if bReliable then
+			-- table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		-- end
+
 		-- If effects, then add them
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
 			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
-
 	end
-	
+
 	-- if bSuperiorCover then
 		-- nAddMod = nAddMod - 5;
 	-- elseif bCover then
@@ -487,6 +486,15 @@ function modAttack(rSource, rTarget, rRoll)
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
+	
+	-- ActionsManager2.encodeDesktopMods(rRoll);
+	-- for _,vDie in ipairs(aAddDice) do
+		-- if vDie:sub(1,1) == "-" then
+			-- table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
+		-- else
+			-- table.insert(rRoll.aDice, "p" .. vDie:sub(2));
+		-- end
+	-- end
 	rRoll.nMod = rRoll.nMod + nAddMod;
 
 	-- Set maximum Bonus and Penalty Dice
@@ -495,9 +503,7 @@ function modAttack(rSource, rTarget, rRoll)
 	-- ActionsManager2.encodeAdvantage(rRoll, bADV, bDIS);
 end
 
---
 -- Adjusted
---
 function onAttack(rSource, rTarget, rRoll)
 	-- ActionAttack.decodeAttackRoll(rRoll);
 	-- ActionsManager2.decodeAdvantage(rRoll);

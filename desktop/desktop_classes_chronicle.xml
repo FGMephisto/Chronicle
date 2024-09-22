@@ -22,19 +22,15 @@
 		</sheetdata>
 	</windowclass>
 	
-	<!-- -->
 	<!-- Adjusted -->
-	<!-- -->
 	<panel name="modifierstack" merge="join">
 		<bounds>15,-100,320,57</bounds>
 	</panel>
 
-	<!-- -->
 	<!-- Adjusted -->
-	<!-- -->
-	<windowclass name="modifierstack">
+	<windowclass name="modifierstack" merge="join">
 		<sizelimits>
-			<minimum width="200" height="60" />
+			<minimum width="200" height="62" />
 		</sizelimits>
 		<sheetdata>
 			<modifierstack_base name="base">

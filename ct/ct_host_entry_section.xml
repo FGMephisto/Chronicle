@@ -532,6 +532,124 @@
 		</sheetdata>
 	</windowclass>
 	<windowclass name="ct_section_defense_npc">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("ct_section_defense_npc_2024", nodeRecord);
+				else
+					sub_content.setValue("ct_section_defense_npc_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<hs name="version">
+				<script>
+					function onValueChanged()
+						window.onVersionChanged();
+					end
+				</script>
+			</hs>
+
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_npc_2024">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<number_ct_ability name="strength" source="abilities.strength.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>strength</target>
+			</number_ct_ability>
+			<label_ct_ability name="strength_label">
+				<anchored to="strength" />
+				<static textres="str" />
+			</label_ct_ability>
+			<number_ct_ability name="dexterity" source="abilities.dexterity.score">
+				<anchored to="strength" position="righthigh" offset="50,0" />
+				<target>dexterity</target>
+			</number_ct_ability>
+			<label_ct_ability name="dexterity_label">
+				<anchored to="dexterity" />
+				<static textres="dex" />
+			</label_ct_ability>
+			<number_ct_ability name="constitution" source="abilities.constitution.score">
+				<anchored to="dexterity" position="righthigh" offset="50,0" />
+				<target>constitution</target>
+			</number_ct_ability>
+			<label_ct_ability name="constitution_label">
+				<anchored to="constitution" />
+				<static textres="con" />
+			</label_ct_ability>
+			<number_ct_ability name="intelligence" source="abilities.intelligence.score">
+				<anchored to="constitution" position="righthigh" offset="50,0" />
+				<target>intelligence</target>
+			</number_ct_ability>
+			<label_ct_ability name="intelligence_label">
+				<anchored to="intelligence" />
+				<static textres="int" />
+			</label_ct_ability>
+			<number_ct_ability name="wisdom" source="abilities.wisdom.score">
+				<anchored to="intelligence" position="righthigh" offset="50,0" />
+				<target>wisdom</target>
+			</number_ct_ability>
+			<label_ct_ability name="wisdom_label">
+				<anchored to="wisdom" />
+				<static textres="wis" />
+			</label_ct_ability>
+			<number_ct_ability name="charisma" source="abilities.charisma.score">
+				<anchored to="wisdom" position="righthigh" offset="50,0" />
+				<target>charisma</target>
+			</number_ct_ability>
+			<label_ct_ability name="charisma_label">
+				<anchored to="charisma" />
+				<static textres="cha" />
+			</label_ct_ability>
+
+			<string_ct_section_labeled name="damagevulnerabilities" />
+			<label_ct_section name="damagevulnerabilities_label">
+				<anchored to="damagevulnerabilities" />
+				<static textres="ct_label_vulnerabilities" />
+				<tooltip textres="ct_tooltip_vulnerabilities" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageresistances" />
+			<label_ct_section name="damageresistances_label">
+				<anchored to="damageresistances" />
+				<static textres="ct_label_resistances" />
+				<tooltip textres="ct_tooltip_resistances" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageimmunities" />
+			<label_ct_section name="damageimmunities_label">
+				<anchored to="damageimmunities" />
+				<static textres="ct_label_immunities" />
+				<tooltip textres="ct_tooltip_immunities" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="damageimmunities" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_npc_2014">
 		<sheetdata>
 			<icon_ct_section name="icon_section">
 				<icon>button_fist_down</icon>
@@ -625,6 +743,124 @@
 		</sheetdata>
 	</windowclass>
 	<windowclass name="ct_section_defense_vehicle">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("ct_section_defense_vehicle_2024", nodeRecord);
+				else
+					sub_content.setValue("ct_section_defense_vehicle_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<hs name="version">
+				<script>
+					function onValueChanged()
+						window.onVersionChanged();
+					end
+				</script>
+			</hs>
+
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_vehicle_2024">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<number_ct_ability name="strength" source="abilities.strength.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>strength</target>
+			</number_ct_ability>
+			<label_ct_ability name="strength_label">
+				<anchored to="strength" />
+				<static textres="str" />
+			</label_ct_ability>
+			<number_ct_ability name="dexterity" source="abilities.dexterity.score">
+				<anchored to="strength" position="righthigh" offset="50,0" />
+				<target>dexterity</target>
+			</number_ct_ability>
+			<label_ct_ability name="dexterity_label">
+				<anchored to="dexterity" />
+				<static textres="dex" />
+			</label_ct_ability>
+			<number_ct_ability name="constitution" source="abilities.constitution.score">
+				<anchored to="dexterity" position="righthigh" offset="50,0" />
+				<target>constitution</target>
+			</number_ct_ability>
+			<label_ct_ability name="constitution_label">
+				<anchored to="constitution" />
+				<static textres="con" />
+			</label_ct_ability>
+			<number_ct_ability name="intelligence" source="abilities.intelligence.score">
+				<anchored to="constitution" position="righthigh" offset="50,0" />
+				<target>intelligence</target>
+			</number_ct_ability>
+			<label_ct_ability name="intelligence_label">
+				<anchored to="intelligence" />
+				<static textres="int" />
+			</label_ct_ability>
+			<number_ct_ability name="wisdom" source="abilities.wisdom.score">
+				<anchored to="intelligence" position="righthigh" offset="50,0" />
+				<target>wisdom</target>
+			</number_ct_ability>
+			<label_ct_ability name="wisdom_label">
+				<anchored to="wisdom" />
+				<static textres="wis" />
+			</label_ct_ability>
+			<number_ct_ability name="charisma" source="abilities.charisma.score">
+				<anchored to="wisdom" position="righthigh" offset="50,0" />
+				<target>charisma</target>
+			</number_ct_ability>
+			<label_ct_ability name="charisma_label">
+				<anchored to="charisma" />
+				<static textres="cha" />
+			</label_ct_ability>
+
+			<string_ct_section_labeled name="damagevulnerabilities" />
+			<label_ct_section name="damagevulnerabilities_label">
+				<anchored to="damagevulnerabilities" />
+				<static textres="ct_label_vulnerabilities" />
+				<tooltip textres="ct_tooltip_vulnerabilities" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageresistances" />
+			<label_ct_section name="damageresistances_label">
+				<anchored to="damageresistances" />
+				<static textres="ct_label_resistances" />
+				<tooltip textres="ct_tooltip_resistances" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageimmunities" />
+			<label_ct_section name="damageimmunities_label">
+				<anchored to="damageimmunities" />
+				<static textres="ct_label_immunities" />
+				<tooltip textres="ct_tooltip_immunities" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="damageimmunities" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_vehicle_2014">
 		<sheetdata>
 			<icon_ct_section name="icon_section">
 				<icon>button_fist_down</icon>

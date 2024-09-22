@@ -22,7 +22,7 @@ function addToArmorDB(nodeItem)
 		bArmorAllowed = false;
 		
 		for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
-			local sClassName = StringManager.trim(DB.getValue(v, "name", "")):lower();
+			local sClassName = StringManager.simplify(DB.getValue(v, "name", ""));
 			if (sClassName == CharManager.CLASS_BARBARIAN) then
 				break;
 			elseif (sClassName == CharManager.CLASS_MONK) then
@@ -66,7 +66,7 @@ function removeFromArmorDB(nodeItem)
 end
 
 function hasNaturalArmor(nodeChar)
-	return CharManager.hasFeat(nodeChar, CharManager.FEAT_DRAGON_HIDE) or
+	return CharManager.hasFeat2014(nodeChar, CharManager.FEAT_DRAGON_HIDE) or
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_NATURAL_ARMOR) or 
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_ARMORED_CASING) or 
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_CHAMELEON_CARAPACE);
@@ -108,7 +108,7 @@ function calcItemArmorClass(nodeChar)
 			nNaturalArmorTotal = (tonumber(sNaturalArmorTotal) or 10) - 10;
 		end
 	end
-	local nodeDragonHide = CharManager.getFeatRecord(nodeChar, CharManager.FEAT_DRAGON_HIDE);
+	local nodeDragonHide = CharManager.getFeatRecord2014(nodeChar, CharManager.FEAT_DRAGON_HIDE);
 	if nodeDragonHide then
 		local sNaturalArmorDesc = DB.getText(nodeDragonHide, "text", ""):lower();
 		local sNaturalArmorTotal = sNaturalArmorDesc:match("your ac as (%d+)");
@@ -135,7 +135,7 @@ function calcItemArmorClass(nodeChar)
 			nNaturalArmorTotal = math.max(nNaturalArmorTotal, nNewNaturalArmorTotal);
 		end
 	end
-	local nodeDraconicResilience = CharManager.getFeatureRecord(nodeChar, CharManager.FEATURE_DRACONIC_RESILIENCE);
+	local nodeDraconicResilience = CharManager.getFeatureRecord2014(nodeChar, CharManager.FEATURE_DRACONIC_RESILIENCE);
 	if nodeDraconicResilience then
 		local sNaturalArmorDesc = DB.getText(nodeDraconicResilience, "text", ""):lower();
 		local sNaturalArmorTotal = sNaturalArmorDesc:match("your ac equals (%d+)");
@@ -144,6 +144,8 @@ function calcItemArmorClass(nodeChar)
 		end
 	end
 
+	local bFeatMediumArmorMaster = CharManager.hasFeat(nodeChar, CharManager.FEAT_MEDIUM_ARMOR_MASTER);
+	
 	for _,vNode in ipairs(DB.getChildList(nodeChar, "inventorylist")) do
 		if DB.getValue(vNode, "carried", 0) == 2 then
 			if ItemManager.isArmor(vNode) then
@@ -179,7 +181,7 @@ function calcItemArmorClass(nodeChar)
 						if sItemDexBonus:match("yes") then
 							local nMaxBonus = tonumber(sItemDexBonus:match("max (%d)")) or 0;
 							if nMaxBonus == 2 then
-								if CharManager.hasFeat(nodeChar, CharManager.FEAT_MEDIUM_ARMOR_MASTER) and bMediumArmor then
+								if bFeatMediumArmorMaster and bMediumArmor then
 									if sMainDexBonus == "" then
 										sMainDexBonus = "max3";
 									end
@@ -200,21 +202,24 @@ function calcItemArmorClass(nodeChar)
 					
 					local sItemStealth = DB.getValue(vNode, "stealth", ""):lower();
 					if sItemStealth == "disadvantage" then
-						if CharManager.hasFeat(nodeChar, CharManager.FEAT_MEDIUM_ARMOR_MASTER) and bMediumArmor then
+						if bFeatMediumArmorMaster and bMediumArmor then
 							-- NOTE: Do not apply stealth disadvantage from armor in this case
 						else
 							nMainStealthDis = 1;
 						end
 					end
 					
-					local sItemStrength = StringManager.trim(DB.getValue(vNode, "strength", "")):lower();
-					local nItemStrRequired = tonumber(sItemStrength:match("str (%d+)")) or 0;
+					local nItemStrRequired = tonumber(DB.getValue(vNode, "strength", ""):match("(%d+)")) or 0;
 					if nItemStrRequired > 0 then
 						nMainStrRequired = math.max(nMainStrRequired, nItemStrRequired);
 					end
 				end
 			end
 		end
+	end
+
+	if CharManager.hasFeat2024(nodeChar, CharManager.FEAT_DEFENSE) and (nMainArmorTotal > 0) then
+		nMainArmorTotal = nMainArmorTotal + 1;
 	end
 	
 	nMainArmorTotal = math.max(nMainArmorTotal, nNaturalArmorTotal);

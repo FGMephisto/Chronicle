@@ -7,54 +7,41 @@
 -->
 
 <root>
-	<!-- -->
 	<!-- Adjusted -->
-	<!-- -->
 	<windowclass name="combattracker_client" merge="join">
-		<placement>
-			<size width="600" height="600" />
-		</placement>
 		<sizelimits>
-			<minimum width="600" height="600" />
-			<dynamic />
+			<minimum width="600" />
 		</sizelimits>
-		<script file="ct/scripts/clientct_window_dnd.lua" />
+		<script file="ct/scripts/clientct_window_chronicle.lua" />
+	</windowclass>
+
+	<!-- Adjusted -->
+	<windowclass name="sub_ct_header_client" merge="join">
 		<sheetdata>
-			<spacer_ct_client_header_buttons name="spacer_buttons_header_add" insertbefore="label_init">
-				<anchored width="5" />
-			</spacer_ct_client_header_buttons>
-
-			<frame_ctbox_client_header name="frame_label" insertbefore="label_init" />
-
-			<label_ct_right name="label_status" insertbefore="label_init">
+			<label_ct_header_right name="label_status" insertbefore="label_init">
 				<anchored width="190" />
 				<static textres="ct_label_status" />
-			</label_ct_right>
-
-			<label_ct_right name="label_wounds" insertbefore="label_init">
+			</label_ct_header_right>
+			<label_ct_header_right name="label_wounds" insertbefore="label_init">
 				<static textres="ct_label_wounds" />
 				<tooltip textres="ct_tooltip_wounds" />
-			</label_ct_right>
-
-			<label_ct_right name="label_trauma" insertbefore="label_init">
+			</label_ct_header_right>
+			<label_ct_header_right name="label_trauma" insertbefore="label_init">
 				<static textres="ct_label_trauma" />
 				<tooltip textres="ct_tooltip_trauma" />
-			</label_ct_right>
-
-			<label_ct_right name="label_injuries" insertbefore="label_init">
+			</label_ct_header_right>
+			<label_ct_header_right name="label_injuries" insertbefore="label_init">
 				<static textres="ct_label_injuries" />
 				<tooltip textres="ct_tooltip_injuries" />
-			</label_ct_right>
-
-			<label_ct_right name="label_fatigue" insertbefore="label_init">
+			</label_ct_header_right>
+			<label_ct_header_right name="label_fatigue" insertbefore="label_init">
 				<static textres="ct_label_fatigue" />
 				<tooltip textres="ct_tooltip_fatigue" />
-			</label_ct_right>
-
-			<label_ct_right name="label_hp" insertbefore="label_init">
+			</label_ct_header_right>
+			<label_ct_header_right name="label_hp" insertbefore="label_init">
 				<static textres="hp" />
 				<tooltip textres="hitpoints" />
-			</label_ct_right>
+			</label_ct_header_right>
 		</sheetdata>
 	</windowclass>
 </root>

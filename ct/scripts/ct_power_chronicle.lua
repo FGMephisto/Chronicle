@@ -122,9 +122,7 @@ function usePower(rPower)
 	end
 end
 
---
 -- Adjusted
---
 function actionAbility(draginfo, rAction)
 	local bResult = true;
 	-- USAGE

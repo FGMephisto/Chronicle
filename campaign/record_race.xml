@@ -19,99 +19,209 @@
 			<class>reference_race_main</class>
 			<embed />
 		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_race_header" copy="record_header" />
 
 	<windowclass name="reference_race_main">
-		<margins control="0,0,0,7" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_race_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_race_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if WindowManager.getReadOnlyState(getDatabaseNode()) then
+					return true;
+				end
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					local nodeSource = draginfo.getDatabaseNode();
+					
+					if sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
+						self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+					end
+					return true;
+				end
+			end
+			function addTrait(sName, sText)
+				local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "traits"));
+				if nodeTrait then
+					DB.setValue(nodeTrait, "name", "string", sName);
+					DB.setValue(nodeTrait, "text", "formattedtext", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_race_main_2024">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				ignoresubrace.update(bReadOnly);
-
-				if DB.getChildCount(getDatabaseNode(), "subraces") &lt;= 0 then
-					subraces_header.setVisible(false);
-					subraces_iedit.setVisible(false);
-					subraces_iadd.setVisible(false);
-					subraces.setVisible(false);
-				else
-					subraces.update(bReadOnly);
-				end
-				traits.update(bReadOnly);
+				local tFields = { "type", "size", "speed", "list", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
+
+			<label_content_column name="type_label">
+				<static textres="race_label_type" />
+			</label_content_column>
+			<string_content_columnh name="type" />
 			
-			<label_column name="ignoresubrace_label">
+			<label_content_column name="size_label">
+				<static textres="race_label_size" />
+			</label_content_column>
+			<string_content_columnh name="size" />
+			
+			<label_content_column name="speed_label">
+				<static textres="race_label_speed" />
+			</label_content_column>
+			<string_content_columnh name="speed" />
+			
+			<header_content_framed_headersimple name="list_header">
+				<static textres="race_header_traits"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="list_iedit">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+				<edittarget>list</edittarget>
+			</button_iedit>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="22,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.traits</datasource>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_race_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				WindowManager.callSafeControlUpdate(self, "ignoresubrace", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "list", bReadOnly);
+
+				local bHideOld = (DB.getChildCount(getDatabaseNode(), "subraces") &lt;= 0);
+				WindowManager.callSafeControlUpdate(self, "subraces", bReadOnly, bHideOld);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="ignoresubrace_label">
 				<static textres="race_label_ignoresubrace" />
-			</label_column>
-			<button_checkbox_columnh name="ignoresubrace" />
+			</label_content_column>
+			<button_checkbox_content_columnh name="ignoresubrace" />
 			
-			<header_column name="subraces_header">
+			<header_content_framed_headersimple name="subraces_header">
 				<static textres="race_header_subraces"/>
-				<center />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="subraces_iedit">
-				<anchored to="subraces_header" position="righthigh" offset="-20,0" />
+				<anchored to="subraces_header" position="insidetopright" offset="2,0" />
 				<target>subraces</target>
 			</button_iedit>
 			<button_iadd name="subraces_iadd">
-				<anchored to="subraces_iedit" position="lefthigh" offset="5,0" />
+				<anchored to="subraces_header" position="insidetopright" offset="22,0" />
 				<target>subraces</target>
 			</button_iadd>
-			<list_column name="subraces">
+			<list_content_column name="subraces">
 				<datasource>.subraces</datasource>
-				<class>ref_racial_subrace</class>
-			</list_column>
-			
-			<header_column name="traits_header">
+				<class>reference_subrace_listitem</class>
+			</list_content_column>
+
+			<header_content_framed_headersimple name="list_header">
 				<static textres="race_header_traits"/>
-				<center />
-			</header_column>
-			<button_iedit name="traits_iedit">
-				<anchored to="traits_header" position="righthigh" offset="-20,0" />
-				<target>traits</target>
+			</header_content_framed_headersimple>
+			<button_iedit name="list_iedit">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+				<edittarget>list</edittarget>
 			</button_iedit>
-			<button_iadd name="traits_iadd">
-				<anchored to="traits_iedit" position="lefthigh" offset="5,0" />
-				<target>traits</target>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="22,0" />
 			</button_iadd>
-			<list_column name="traits">
+			<list_content_column name="list">
 				<datasource>.traits</datasource>
-				<class>ref_racial_trait</class>
-			</list_column>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_racial_subrace">
+	<windowclass name="reference_racialtrait_listitem">
 		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				WindowManager.callSafeControlUpdate(self, "name", bReadOnly);
+			end
+		</script>
 		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
-				<class>reference_subrace</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
 
-			<string_listitem_column_name name="name">
-				<empty textres="library_recordtype_empty_race_subrace" />
-			</string_listitem_column_name>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_racial_trait">
-		<margins control="0,0,0,2" />
-		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
+			<linkc_listitem_right name="shortcut">
 				<class>reference_racialtrait</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete>
 
-			<string_listitem_column_name name="name">
+			<string_listitem_center name="name">
 				<empty textres="library_recordtype_empty_racialtrait" />
-			</string_listitem_column_name>
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_subrace_listitem">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<linkc_listitem_right name="shortcut">
+				<class>reference_subrace</class>
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>subraces_iedit</editmode>
+			</button_listitem_idelete>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_race_subrace" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
 		</sheetdata>
 	</windowclass>
 

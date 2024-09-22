@@ -19,77 +19,330 @@
 			<class>reference_background_main</class>
 			<embed />
 		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_background_header" copy="record_header" />
 
 	<windowclass name="reference_background_main">
-		<margins control="0,0,0,7" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_background_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_background_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_background_main_2024">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				local node = getDatabaseNode();
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.wealth"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.items.*.name"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.items.*.count"), "onUpdate", updateEquipmentString);
+
+				self.update();
+				self.updateEquipmentString();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				local tFields = { "abilities", "feat", "skill", "tool", "features", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "equipment", bReadOnly, not bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "equipmentlist", bReadOnly, bReadOnly);
+			end
+			function updateEquipmentString()
+				local node = getDatabaseNode();
+				local aChoiceLetters = { "A", "B", "C" };
+				local tOptions = {};
+				local tOptionsList = DB.getChildList(node, "equipmentlist");
+				for k,v in ipairs(tOptionsList) do
+					local tItems = {};
+					local sOption = ("(%s)"):format(aChoiceLetters[k]);
+					if k > 1 then
+						if k == #tOptionsList then
+							sOption = ("; or (%s)"):format(aChoiceLetters[k]);
+						else
+							sOption = ("; (%s)"):format(aChoiceLetters[k]);
+						end
+					end
+					local tItemsList = DB.getChildList(v, "items");
+					for k2,v2 in ipairs(tItemsList) do
+						local sName = DB.getValue(v2, "name", "");
+						local nCount = DB.getValue(v2, "count", 0);
+						local sItem = "";
+						if nCount > 1 then
+							sItem = ("%s %s"):format(nCount, sName);
+						else
+							sItem = ("%s"):format(sName);
+						end
+						table.insert(tItems, sItem);
+					end
+					local nWealth = DB.getValue(v, "wealth", 0);
+					if nWealth > 0 then
+						table.insert(tItems, ("%s GP"):format(nWealth));
+					end
+
+					table.insert(tOptions, ("%s %s"):format(sOption, table.concat(tItems, ", ")));
+				end
+
+				if #tOptions > 0 then
+					local sText = "Choose %s:";
+					if #tOptions == 2 then
+						sText = sText:format("A or B");
+					elseif #tOptions == 3 then
+						sText = sText:format("A, B, or C");
+					end
+
+					sText = ("%s %s"):format(sText, table.concat(tOptions, " "));
+					DB.setValue(node, "equipment", "string", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="abilities_label">
+				<static textres="background_label_abilities" />
+			</label_content_column>
+			<string_content_columnh name="abilities" />
+			
+			<label_content_column name="feat_label">
+				<static textres="background_label_feat" />
+			</label_content_column>
+			<string_content_columnh name="feat" />
+			
+			<label_content_column name="skill_label">
+				<static textres="background_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="skill" />
+			
+			<label_content_column name="tool_label">
+				<static textres="background_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="tool" />
+			
+			<label_content_column name="equipment_label">
+				<static textres="background_label_equipment" />
+			</label_content_column>
+			<string_content_columnh name="equipment" />
+
+			<header_content_framed_headersimple name="equipmentlist_header">
+				<static textres="background_label_equipment" />
+			</header_content_framed_headersimple>
+			<button_iedit name="equipmentlist_iedit">
+				<anchored to="equipmentlist_header" position="righthigh" offset="-20,0" />
+				<target>equipmentlist</target>
+			</button_iedit>
+			<button_iadd name="equipmentlist_iadd">
+				<anchored to="equipmentlist_iedit" position="lefthigh" offset="5,0" />
+				<target>equipmentlist</target>
+			</button_iadd>
+			<list_content_column name="equipmentlist">
+				<datasource>.equipmentlist</datasource>
+				<class>equipment_option_entry</class>
+				<script>
+					function onListChanged()
+						for k,v in ipairs(self.getWindows()) do
+							v.option.setValue("Option " .. k);
+						end
+
+						window.updateEquipmentString();
+					end
+				</script>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="equipment_option_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				items_iadd.setVisible(not bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "wealth", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "items", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					return CampaignDataManager2.handleKitItemDrop(draginfo, items.getDatabaseNode());
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+			<genericcontrol name="frame_header">
+				<anchored height="23">
+					<left />
+					<top />
+					<right />
+				</anchored>
+				<frame name="rowshade" offset="5,2,5,2" />
+			</genericcontrol>
+			<button_listitem_idelete>
+				<editmode>equipment_iedit</editmode>
+			</button_listitem_idelete>
+			<button_iedit name="items_iedit">
+				<anchored to="rightanchor" >
+					<top />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<target>items</target>
+			</button_iedit>
+			<button_iadd name="items_iadd">
+				<anchored to="rightanchor" >
+					<top />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<target>items</target>
+			</button_iadd>
+
+			<stringc_listitem_center_noframe_static name="option">
+				<font name="sheetlabel" />
+			</stringc_listitem_center_noframe_static>
+			<list_content_column name="items">
+				<anchored to="option">
+					<right parent="" />
+				</anchored>
+				<datasource>.items</datasource>
+				<class>equipment_item_entry</class>
+			</list_content_column>
+
+			<label_content_column name="wealth_label">
+				<anchored to="option">
+					<left offset="17" />
+				</anchored>
+				<static>GP</static>
+			</label_content_column>
+			<number_content_columnh name="wealth">
+				<anchored to="option">
+					<left offset="55" />
+				</anchored>
+				<nodrag />
+			</number_content_columnh>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="equipment_item_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				count.setReadOnly(bReadOnly);
+				name.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<number_listitem_left name="count">
+				<min>1</min>
+				<default>1</default>
+				<nodrag />
+			</number_listitem_left>
+
+			<anchor_listitem_right />
+			<button_listitem_idelete name="idelete">
+				<editmode>items_iedit</editmode>
+			</button_listitem_idelete>
+			<linkc_listitem_right name="shortcut">
+				<class>item</class>
+			</linkc_listitem_right>
+
+			<string_listitem_center name="name">
+				<delaykeyupdate />
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_background_main_2014">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				skill.update(bReadOnly);
-				languages.update(bReadOnly);
-				tool.update(bReadOnly);
-				equipment.update(bReadOnly);
-				features.update(bReadOnly);
+				local tFields = { "skill", "languages", "tool", "equipment", "features", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 			
-			<label_column name="skill_label">
+			<label_content_column name="skill_label">
 				<static textres="background_label_skills" />
-			</label_column>
-			<string_columnh name="skill" />
+			</label_content_column>
+			<string_content_columnh name="skill" />
 			
-			<label_column name="languages_label">
+			<label_content_column name="languages_label">
 				<static textres="background_label_languages" />
-			</label_column>
-			<string_columnh name="languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
 			
-			<label_column name="tool_label">
+			<label_content_column name="tool_label">
 				<static textres="background_label_tools" />
-			</label_column>
-			<string_columnh name="tool" />
+			</label_content_column>
+			<string_content_columnh name="tool" />
 			
-			<label_column name="equipment_label">
+			<label_content_column name="equipment_label">
 				<static textres="background_label_equipment" />
-			</label_column>
-			<string_columnh name="equipment" />
+			</label_content_column>
+			<string_content_columnh name="equipment" />
 			
-			<header_column name="features_header">
+			<header_content_framed_headersimple name="list_header">
 				<static textres="background_header_features"/>
-				<center />
-			</header_column>
-			<button_iedit name="features_iedit">
-				<anchored to="features_header" position="righthigh" offset="-20,0" />
-				<target>features</target>
+			</header_content_framed_headersimple>
+			<button_iedit name="list_iedit">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+				<edittarget>list</edittarget>
 			</button_iedit>
-			<button_iadd name="features_iadd">
-				<anchored to="features_iedit" position="lefthigh" offset="5,0" />
-				<target>features</target>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="22,0" />
 			</button_iadd>
-			<list_column name="features">
+			<list_content_column name="list">
 				<datasource>.features</datasource>
-				<class>ref_background_feature</class>
-			</list_column>
+				<class>reference_backgroundfeature_listitem</class>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="ref_background_feature">
+	<windowclass name="reference_backgroundfeature_listitem">
 		<margins control="0,0,0,2" />
 		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
-				<class>reference_backgroundfeature</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
 
-			<string_listitem_column_name name="name">
+			<linkc_listitem_right name="shortcut">
+				<class>reference_backgroundfeature</class>
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete>
+
+			<string_listitem_center name="name">
 				<empty textres="library_recordtype_empty_backgroundfeature" />
-			</string_listitem_column_name>
+				<font>sheetlabel</font>
+			</string_listitem_center>
 		</sheetdata>
 	</windowclass>
 	

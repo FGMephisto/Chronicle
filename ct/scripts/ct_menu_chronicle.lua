@@ -4,16 +4,15 @@
 -- File adjusted for Chronicle System
 --
 
---
 -- Adjusted
---
 function onInit()
+	setColor(ColorManager.getButtonTextColor());
 	if Session.IsHost then
-		registerMenuItem(Interface.getString("menu_init"), "turn", 7);
-		registerMenuItem(Interface.getString("menu_initall"), "shuffle", 7, 8);
-		registerMenuItem(Interface.getString("menu_initnpc"), "mask", 7, 7);
-		registerMenuItem(Interface.getString("menu_initpc"), "portrait", 7, 6);
-		registerMenuItem(Interface.getString("menu_initclear"), "pointer_circle", 7, 4);
+		registerMenuItem(Interface.getString("ct_menu_initmenu"), "turn", 7);
+		registerMenuItem(Interface.getString("ct_menu_initall"), "shuffle", 7, 8);
+		registerMenuItem(Interface.getString("ct_menu_initnpc"), "mask", 7, 7);
+		registerMenuItem(Interface.getString("ct_menu_initpc"), "portrait", 7, 6);
+		registerMenuItem(Interface.getString("ct_menu_initclear"), "pointer_circle", 7, 4);
 
 		registerMenuItem(Interface.getString("menu_rest"), "lockvisibilityon", 8);
 		-- registerMenuItem(Interface.getString("menu_restshort"), "pointer_cone", 8, 8);
@@ -32,7 +31,6 @@ end
 function onClickDown(button, x, y)
 	return true;
 end
-
 function onClickRelease(button, x, y)
 	if button == 1 then
 		Interface.openRadialMenu();
@@ -40,9 +38,7 @@ function onClickRelease(button, x, y)
 	end
 end
 
---
 -- Adjusted
---
 function onMenuSelection(selection, subselection)
 	if Session.IsHost then
 		if selection == 7 then
@@ -57,8 +53,13 @@ function onMenuSelection(selection, subselection)
 			end
 		end
 		if selection == 8 then
-			ChatManager.Message(Interface.getString("ct_message_rest"), true);
-			CombatManager2.rest(false);
+			-- if subselection == 8 then
+				ChatManager.Message(Interface.getString("message_restallshort"), true);
+				CombatManager2.rest(false);
+			-- elseif subselection == 6 then
+				-- ChatManager.Message(Interface.getString("message_restalllong"), true);
+				-- CombatManager2.rest(true);
+			-- end
 		end
 		if selection == 5 then
 			if subselection == 7 then

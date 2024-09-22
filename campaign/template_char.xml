@@ -6,34 +6,6 @@
 -->
 
 <root>
-	<template name="sub_charsheet_overview">
-		<subwindow>
-			<anchored position="insidetopleft" offset="15,20">
-				<right offset="-30" />
-			</anchored>
-			<activate />
-			<fastinit />
-			<class>charsheet_overview</class>
-		</subwindow>
-	</template>
-	<template name="sub_charsheet">
-		<subwindow>
-			<anchored>
-				<left offset="15" />
-				<top parent="overview" anchor="bottom" offset="0" />
-				<right offset="-30" />
-				<bottom offset="-20" />
-			</anchored>
-		</subwindow>
-	</template>
-
-	<template name="scrollbar_charcontents">
-		<scrollbar>
-			<anchored to="contents" offset="-5,-10"/>
-			<target>contents</target>
-		</scrollbar>
-	</template>
-
 	<template name="number_chartotal">
 		<number_modifier_framed>
 			<showemptywidget />
@@ -90,19 +62,15 @@
 					update();
 					DB.addHandler(DB.getPath(window.getDatabaseNode(), "classes"), "onChildUpdate", update);
 				end
-				
 				function onClose()
 					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "classes"), "onChildUpdate", update);
 				end
-				
 				function update()
-					setValue(CharClassManager.getCharClassSummary(window.getDatabaseNode()));
+					setValue(CharManager.getClassSummary(window.getDatabaseNode()));
 				end
-
 				function onClickDown(button, x, y)
 					return true;
 				end
-
 				function onClickRelease(button, x, y)
 					Interface.openWindow("charsheet_classes", window.getDatabaseNode());
 				end
@@ -156,7 +124,7 @@
 
 					local node = window.getDatabaseNode();
 					if DB.getValue(node, "abilities." .. target[1] .. ".saveprof", 0) == 1 then
-						nValue = nValue + DB.getValue(node, "profbonus", 0);
+						nValue = nValue + DB.getValue(node, "profbonus", 2);
 					end
 					
 					setValue(nValue);
@@ -244,11 +212,11 @@
 					
 					local nProf = DB.getValue(nodeSkill, "prof", 0);
 					if nProf == 1 then
-						nValue = nValue + DB.getValue(nodeChar, "profbonus", 0);
+						nValue = nValue + DB.getValue(nodeChar, "profbonus", 2);
 					elseif nProf == 2 then
-						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 0));
+						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 2));
 					elseif nProf == 3 then
-						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
+						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
 					end
 					
 					setValue(nValue);
@@ -271,6 +239,11 @@
 			<state icon="button_prof" tooltipres="char_tooltip_prof_off" />
 			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" />
 		</buttonfield>
+	</template>
+	<template name="button_initprof">
+		<button_prof>
+			<anchored position="insidebottomright" offset="-7,-5" width="12" height="12" />
+		</button_prof>
 	</template>
 	<template name="button_saveprof">
 		<button_prof>
@@ -376,21 +349,30 @@
 			<font>reference-b-large</font>
 			<rollable />
 			<displaysign />
-			<modifiersize>mini</modifiersize>
 			<modifierfield>initiative.temporary</modifierfield>
 			<source><name>initiative.misc</name><op>+</op></source>
 			<source><name>abilities.dexterity.bonus</name><op>+</op></source>
 			<script>
+				function onInit()
+					addSource("initiative.prof");
+					super.onInit();
+				end
+				function onSourceUpdate()
+					local nValue = calculateSources();
+					local node = window.getDatabaseNode();
+					if DB.getValue(node, "initiative.prof", 0) == 1 then
+						nValue = nValue + DB.getValue(node, "profbonus", 2);
+					end
+					setValue(nValue);
+				end
 				function action(draginfo)
 					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
 					ActionInit.performRoll(draginfo, rActor);
 					return true;
 				end
-				
 				function onDragStart(button, x, y, draginfo)
 					return action(draginfo);
 				end
-					
 				function onDoubleClick(x,y)
 					return action();
 				end
@@ -409,107 +391,40 @@
 		</number_chartotal>
 	</template>
 
-	<template name="list_abilities">
-		<list_text>
-			<child></child>
-			<child><backcolor>1A40301E</backcolor></child>
-			<allowcreate />
-			<allowdelete />
-			<sortby mergerule="replace"><control>name</control></sortby>
-			<noscroll />
-			<script>
-				function onListChanged()
-					if listheader and listheader[1] and not isVisible() then
-						window[listheader[1]].expand();
-					end
-				end
-			</script>
-		</list_text>
-	</template>
-
 	<template name="number_charskill">
-		<basicnumber>
-			<anchored width="32" height="20" />
+		<number_listitem_right>
+			<anchored width="40" />
 			<delaykeyupdate />
 			<hideonvalue>0</hideonvalue>
 			<nodrag />
 			<displaysign />
-		</basicnumber>
+		</number_listitem_right>
 	</template>
 	<template name="number_charskilltotal">
-		<number_linked_framed>
-			<anchored width="32" height="20" />
+		<number_listitem_linked_right>
+			<anchored width="40" />
 			<rollable />
 			<displaysign />
-			<script>
-				function onInit()
-					local nodeChar = DB.getChild(window.getDatabaseNode(), "...");
-					DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
-					DB.addHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
-
-					addSource("stat", "string");
-					addSource("prof");
-					addSourceWithOp("misc", "+");
-
-					super.onInit();
-				end
-				
-				function onClose()
-					local nodeChar = DB.getChild(window.getDatabaseNode(), "...");
-					DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
-					DB.removeHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
-				end
-
-				function onSourceUpdate(node)
-					local nValue = calculateSources();
-
-					local nodeSkill = window.getDatabaseNode();
-					local nodeChar = DB.getChild(nodeSkill, "...");
-
-					local sAbility = DB.getValue(nodeSkill, "stat", "");
-					if sAbility ~= "" then
-						local nScore = DB.getValue(nodeChar, "abilities." .. sAbility .. ".score", 0)
-						nValue = nValue + math.floor((nScore - 10) / 2);
-					end
-					
-					local nProf = DB.getValue(nodeSkill, "prof", 0);
-					if nProf == 1 then
-						nValue = nValue + DB.getValue(nodeChar, "profbonus", 0);
-					elseif nProf == 2 then
-						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 0));
-					elseif nProf == 3 then
-						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
-					end
-					
-					setValue(nValue);
-				end
-				
-				function action(draginfo)
-					local nodeSkill = window.getDatabaseNode();
-					local nodeChar = DB.getChild(nodeSkill, "...");
-					local rActor = ActorManager.resolveActor(nodeChar);
-					ActionSkill.performRoll(draginfo, rActor, nodeSkill);
-					return true;
-				end
-				
-				function onDragStart(button, x, y, draginfo)
-					return action(draginfo);
-				end
-					
-				function onDoubleClick(x,y)
-					return action();
-				end
-			</script>
-		</number_linked_framed>
+			<script file="campaign/scripts/char_skill_total.lua" />
+		</number_listitem_linked_right>
 	</template>
 	<template name="button_skillprof">
-		<buttonfield>
-			<anchored width="12" height="12" />
-			<state icon="button_prof" tooltipres="char_tooltip_prof_off" />
-			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" />
-			<state icon="button_prof_double" tooltipres="char_tooltip_prof_double" />
-			<state icon="button_prof_half" tooltipres="char_tooltip_prof_half" />
-		</buttonfield>
+		<button_listitem_left>
+			<state icon="button_prof" tooltipres="char_tooltip_prof_off" merge="add" />
+			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" merge="add" />
+			<state icon="button_prof_double" tooltipres="char_tooltip_prof_double" merge="add" />
+			<state icon="button_prof_half" tooltipres="char_tooltip_prof_half" merge="add" />
+		</button_listitem_left>
+	</template>
+	<template name="cycler_charskillability">
+		<stringcycler_listitem_right name="stat">
+			<anchored width="30" />
+			<parameters>
+				<defaultlabelres mergerule="replace">dash</defaultlabelres>
+				<labelsres>str|dex|con|int|wis|cha</labelsres>
+				<values>strength|dexterity|constitution|intelligence|wisdom|charisma</values>
+			</parameters>
+		</stringcycler_listitem_right>
 	</template>
 
 	<template name="string_charinv_attunecalc">
@@ -519,20 +434,14 @@
 		</stringcontrol>
 	</template>
 	
-	<template name="string_char_background">
-		<stringu>
-			<multilinespacing>20</multilinespacing>
-		</stringu>
-	</template>
-	
-	<template name="list_charweapon">
-		<windowlist>
-			<datasource>.weaponlist</datasource>
-			<sortby><control>name</control></sortby>
-			<allowcreate />
-			<allowdelete />
-			<script file="campaign/scripts/char_weaponlist.lua" />
-		</windowlist>
+	<template name="button_charweaponcarried">
+		<button_listitem_left>
+			<state icon="button_char_inv_none" tooltipres="char_tooltip_inv_none" merge="add" />
+			<state icon="button_char_inv_carried" tooltipres="char_tooltip_inv_carried" merge="add" />
+			<state icon="button_char_inv_equipped" tooltipres="char_tooltip_inv_equipped" merge="add" />
+			<default>1</default>
+			<script file="common/scripts/button_crosslink.lua" />
+		</button_listitem_left>
 	</template>
 	<template name="state_charweapontype">
 		<buttonfield>
@@ -549,12 +458,6 @@
 			<state icon="char_weapon_hand2" tooltipres="char_tooltip_weaponhand2" />
 			<state icon="char_weapon_handoff" tooltipres="char_tooltip_weaponhandoff" />
 		</buttonfield>
-	</template>
-	<template name="button_weaponprof">
-		<button_prof>
-			<anchored position="insidebottomright" offset="0,2" width="12" height="12" />
-			<default>1</default>
-		</button_prof>
 	</template>
 	<template name="state_charammocounter">
 		<buttongroup_counter>

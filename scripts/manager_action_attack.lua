@@ -108,16 +108,18 @@ function getRoll(rActor, rAction)
 	end
 	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
 	
+	local tAddText = {};
+
 	-- Add crit range
 	if rAction.nCritRange then
-		rRoll.sDesc = rRoll.sDesc .. " [CRIT " .. rAction.nCritRange .. "]";
+		table.insert(tAddText, "[CRIT " .. rAction.nCritRange .. "]");
 	end
 	
 	-- Add ability modifiers
 	if rAction.stat then
 		local sAbilityEffect = DataCommon.ability_ltos[rAction.stat];
 		if sAbilityEffect then
-			rRoll.sDesc = rRoll.sDesc .. " [MOD:" .. sAbilityEffect .. "]";
+			table.insert(tAddText, "[MOD:" .. sAbilityEffect .. "]");
 		end
 
 		-- Check for armor non-proficiency
@@ -126,7 +128,7 @@ function getRoll(rActor, rAction)
 			if StringManager.contains({"strength", "dexterity"}, rAction.stat) then
 				local nodePC = ActorManager.getCreatureNode(rActor);
 				if DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0 then
-					rRoll.sDesc = rRoll.sDesc .. " " .. Interface.getString("roll_msg_armor_nonprof");
+					table.insert(tAddText, string.format("[%s]", Interface.getString("roll_msg_armor_nonprof")));
 					bDIS = true;
 				end
 			end
@@ -135,10 +137,17 @@ function getRoll(rActor, rAction)
 	
 	-- Add advantage/disadvantage tags
 	if bADV then
-		rRoll.sDesc = rRoll.sDesc .. " [ADV]";
+		table.insert(tAddText, "[ADV]");
 	end
 	if bDIS then
-		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
+		table.insert(tAddText, "[DIS]");
+	end
+
+	if #tAddText > 0 then
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(tAddText, " ");
+	end
+	if #(rAction.tAddText or {}) > 0 then
+		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(rAction.tAddText, " ");
 	end
 
 	return rRoll;
@@ -153,21 +162,20 @@ function modAttack(rSource, rTarget, rRoll)
 	
 	-- Check for opportunity attack
 	local bOpportunity = ModifierManager.getKey("ATT_OPP") or Input.isShiftPressed();
-
 	if bOpportunity then
 		table.insert(aAddDesc, "[OPPORTUNITY]");
 	end
 
-	-- Check defense modifiers
+	-- Check cover
 	local bCover = ModifierManager.getKey("DEF_COVER");
 	local bSuperiorCover = ModifierManager.getKey("DEF_SCOVER");
-	
 	if bSuperiorCover then
 		table.insert(aAddDesc, "[COVER -5]");
 	elseif bCover then
 		table.insert(aAddDesc, "[COVER -2]");
 	end
 	
+	-- Check advantage/disadvantage
 	local bADV = false;
 	local bDIS = false;
 	if rRoll.sDesc:match(" %[ADV%]") then
@@ -219,47 +227,45 @@ function modAttack(rSource, rTarget, rRoll)
 		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVATK", aAttackFilter, rTarget)) > 0 then
 			bADV = true;
 			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Invisible") then
+			bADV = true;
+			bEffects = true;
 		end
+
 		if EffectManager5E.hasEffect(rSource, "DISATK", rTarget) then
 			bDIS = true;
 			bEffects = true;
 		elseif #(EffectManager5E.getEffectsByType(rSource, "DISATK", aAttackFilter, rTarget)) > 0 then
 			bDIS = true;
 			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Blinded") then
-			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Blinded") then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
 			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
 			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Frightened") then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
 			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Invisible") then
 			bEffects = true;
-			bADV = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
-			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
 			bDIS = true;
-		end
-		if EffectManager.hasCondition(rSource, "Prone") then
 			bEffects = true;
+		elseif EffectManager.hasCondition(rSource, "Prone") then
 			bDIS = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Restrained") then
 			bEffects = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "Restrained") then
 			bDIS = true;
+			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
+
+		local bFrozen = EffectManager5E.hasEffectCondition(rSource, "Paralyzed") or
+				EffectManager5E.hasEffectCondition(rSource, "Petrified") or
+				EffectManager5E.hasEffectCondition(rSource, "Stunned") or
+				EffectManager5E.hasEffectCondition(rSource, "Unconscious");
+		if bFrozen then
 			bEffects = true;
 		end
 
@@ -272,11 +278,18 @@ function modAttack(rSource, rTarget, rRoll)
 		
 		-- Get exhaustion modifiers
 		local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
-		if nExhaustCount > 0 then
-			bEffects = true;
-			if nExhaustMod >= 3 then
-				bDIS = true;
+		local sOptionGAVE = OptionsManager.getOption("GAVE");
+		local bIs2024 = (sOptionGAVE == "2024");
+		if bIs2024 then
+			if nExhaustMod > 0 then
+				bEffects = true;
+				nAddMod = nAddMod - (2 * nExhaustMod);
 			end
+		else
+			if nExhaustMod > 2 then
+				bEffects = true;
+				bDIS = true;
+			end		
 		end
 		
 		-- Determine crit range
@@ -302,12 +315,24 @@ function modAttack(rSource, rTarget, rRoll)
 			end
 		end
 
+		-- Check Reliable state
+		local bReliable = false;
+		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLEATK") then
+			bEffects = true;
+			bReliable = true;
+		end
+		if bReliable then
+			table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		end
+
 		-- If effects, then add them
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
 			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
-
 	end
 	
 	if bSuperiorCover then
@@ -342,7 +367,9 @@ end
 function onAttack(rSource, rTarget, rRoll)
 	ActionAttack.decodeAttackRoll(rRoll);
 
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = rMessage.text:gsub(" %[MOD:[^]]*%]", "");

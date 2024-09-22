@@ -4,26 +4,30 @@
 --
 
 function onInit()
-	if super and super.onInit then
-		super.onInit();
-	end
-
-	local node = getDatabaseNode();
-	DB.addHandler(DB.getPath(node, "isidentified"), "onUpdate", onAttuneRelatedAttributeUpdate);
-	DB.addHandler(DB.getPath(node, "rarity"), "onUpdate", onAttuneRelatedAttributeUpdate);
-	onAttuneRelatedAttributeUpdate();
+	self.addHandlers();
+	self.onAttuneRelatedAttributeUpdate();
 end
-
 function onClose()
-	if super and super.onClose then
-		super.onClose();
-	end
-
-	local node = getDatabaseNode();
-	DB.removeHandler(DB.getPath(node, "isidentified"), "onUpdate", onAttuneRelatedAttributeUpdate);
-	DB.removeHandler(DB.getPath(node, "rarity"), "onUpdate", onAttuneRelatedAttributeUpdate);
+	self.removeHandlers();
 end
 
+function addHandlers()
+	local node = getDatabaseNode();
+	DB.addHandler(node, "onDelete", self.onDelete);
+	DB.addHandler(DB.getPath(node, "isidentified"), "onUpdate", self.onAttuneRelatedAttributeUpdate);
+	DB.addHandler(DB.getPath(node, "rarity"), "onUpdate", self.onAttuneRelatedAttributeUpdate);
+end
+function removeHandlers()
+	local node = getDatabaseNode();
+	DB.removeHandler(node, "onDelete", self.onDelete);
+	DB.removeHandler(DB.getPath(node, "isidentified"), "onUpdate", self.onAttuneRelatedAttributeUpdate);
+	DB.removeHandler(DB.getPath(node, "rarity"), "onUpdate", self.onAttuneRelatedAttributeUpdate);
+end
+
+function onDelete(node)
+	ItemManager.onCharRemoveEvent(node);
+	self.removeHandlers();
+end
 function onAttuneRelatedAttributeUpdate(nodeAttribute)
 	local bRequiresAttune = CharAttunementManager.doesItemAllowAttunement(getDatabaseNode());
 	attune.setVisible(bRequiresAttune);

@@ -10,7 +10,7 @@ function onInit()
 	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
 	DB.addHandler(DB.getPath(nodeChar, "weapon.twoweaponfighting"), "onUpdate", onDataChanged);
 
-	onDataChanged();
+	self.onDataChanged();
 end
 
 function onClose()
@@ -38,31 +38,28 @@ function onLinkChanged()
 end
 
 function onDataChanged()
-	onLinkChanged();
-	onAttackChanged();
-	onDamageChanged();
+	self.onLinkChanged();
+	self.onAttackChanged();
+	self.onDamageChanged();
 	
 	local bRanged = (type.getValue() ~= 0);
 	label_ammo.setVisible(bRanged);
 	maxammo.setVisible(bRanged);
 	ammocounter.setVisible(bRanged);
 end
-
-function highlightAttack(bOnControl)
-	if bOnControl then
-		attackshade.setFrame("rowshade");
-	else
-		attackshade.setFrame(nil);
-	end
-end
-
 function onAttackChanged()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
 
 	local nMod = CharWeaponManager.getAttackBonus(nodeChar, nodeWeapon);
-	
 	attackview.setValue(nMod);
+end
+function onDamageChanged()
+	local nodeWeapon = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeWeapon, "...")
+	
+	local sDamage = CharWeaponManager.buildDamageString(nodeChar, nodeWeapon);
+	damageview.setValue(sDamage);
 end
 
 function onAttackAction(draginfo)
@@ -82,16 +79,6 @@ function onAttackAction(draginfo)
 	ActionAttack.performRoll(draginfo, rActor, rAction);
 	return true;
 end
-
-function onDamageChanged()
-	local nodeWeapon = getDatabaseNode();
-	local nodeChar = DB.getChild(nodeWeapon, "...")
-	
-	local sDamage = CharWeaponManager.buildDamageString(nodeChar, nodeWeapon);
-
-	damageview.setValue(sDamage);
-end
-
 function onDamageAction(draginfo)
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")

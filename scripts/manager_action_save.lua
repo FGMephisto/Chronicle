@@ -91,6 +91,10 @@ function performVsRoll(draginfo, rActor, sSave, nTargetDC, bSecretRoll, rSource,
 		rRoll.bSecret = true;
 	end
 	rRoll.nTarget = nTargetDC;
+	local nTotal, nEffectCount = EffectManager5E.getEffectsBonus(rSource, "SAVEDC", true, {}, rActor, false)
+	if nEffectCount > 0 then
+		rRoll.nTarget = rRoll.nTarget + nTotal;
+	end
 	if bRemoveOnMiss then
 		rRoll.bRemoveOnMiss = "true";
 	end
@@ -175,6 +179,7 @@ function modSave(rSource, rTarget, rRoll)
 	end
 	
 	if rSource then
+		local nodeActor = ActorManager.getCreatureNode(rSource);
 		local bEffects = false;
 
 		-- Build filter
@@ -203,6 +208,9 @@ function modSave(rSource, rTarget, rRoll)
 		elseif sSave == "death" and EffectManager5E.hasEffect(rSource, "ADVDEATH") then
 			bADV = true;
 			bEffects = true;
+		elseif sSave == "concentration" and EffectManager5E.hasEffect(rSource, "ADVCONC") then
+			bADV = true;
+			bEffects = true;
 		end
 		if EffectManager5E.hasEffect(rSource, "DISSAV", rTarget) then
 			bDIS = true;
@@ -210,15 +218,17 @@ function modSave(rSource, rTarget, rRoll)
 		elseif #(EffectManager5E.getEffectsByType(rSource, "DISSAV", aSaveFilter, rTarget)) > 0 then
 			bDIS = true;
 			bEffects = true;
+		elseif sSave == "dexterity" and EffectManager5E.hasEffectCondition(rSource, "Restrained") then
+			bDIS = true;
+			bEffects = true;
 		elseif sSave == "death" and EffectManager5E.hasEffect(rSource, "DISDEATH") then
+			bDIS = true;
+			bEffects = true;
+		elseif sSave == "concentration" and EffectManager5E.hasEffect(rSource, "DISCONC") then
 			bDIS = true;
 			bEffects = true;
 		end
 		if sSave == "dexterity" then
-			if EffectManager5E.hasEffectCondition(rSource, "Restrained") then
-				bDIS = true;
-				bEffects = true;
-			end
 			if nCover < 5 then
 				if EffectManager5E.hasEffect(rSource, "SCOVER", rTarget) then
 					nCover = 5;
@@ -231,19 +241,13 @@ function modSave(rSource, rTarget, rRoll)
 				end
 			end
 		end
-		if StringManager.contains({ "strength", "dexterity" }, sSave) then
-			if EffectManager5E.hasEffectCondition(rSource, "Paralyzed") then
-				bAutoFail = true;
-				bEffects = true;
-			end
-			if EffectManager5E.hasEffectCondition(rSource, "Stunned") then
-				bAutoFail = true;
-				bEffects = true;
-			end
-			if EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
-				bAutoFail = true;
-				bEffects = true;
-			end
+		local bFrozen = EffectManager5E.hasEffectCondition(rSource, "Paralyzed") or
+				EffectManager5E.hasEffectCondition(rSource, "Petrified") or
+				EffectManager5E.hasEffectCondition(rSource, "Stunned") or
+				EffectManager5E.hasEffectCondition(rSource, "Unconscious");
+		if bFrozen and StringManager.contains({ "strength", "dexterity" }, sSave) then
+			bAutoFail = true;
+			bEffects = true;
 		end
 		if StringManager.contains({ "strength", "dexterity", "constitution", "concentration", "systemshock" }, sSave) then
 			if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
@@ -252,12 +256,9 @@ function modSave(rSource, rTarget, rRoll)
 			end
 		end
 		if sSave == "dexterity" and EffectManager5E.hasEffectCondition(rSource, "Dodge") and 
-				not (EffectManager5E.hasEffectCondition(rSource, "Paralyzed") or
-				EffectManager5E.hasEffectCondition(rSource, "Stunned") or
-				EffectManager5E.hasEffectCondition(rSource, "Unconscious") or
-				EffectManager5E.hasEffectCondition(rSource, "Incapacitated") or
-				EffectManager5E.hasEffectCondition(rSource, "Grappled") or
-				EffectManager5E.hasEffectCondition(rSource, "Restrained")) then
+				not (bFrozen or 
+					EffectManager5E.hasEffectCondition(rSource, "Grappled") or
+					EffectManager5E.hasEffectCondition(rSource, "Restrained")) then
 			bEffects = true;
 			bADV = true;
 		end
@@ -270,11 +271,8 @@ function modSave(rSource, rTarget, rRoll)
 					if EffectManager5E.hasEffectCondition(rSource, "Gnome Cunning") then
 						bMagicResistance = true;
 					else
-						local sSourceNodeType, nodeSource = ActorManager.getTypeAndNode(rSource);
-						if nodeSource and (sSourceNodeType == "pc") then
-							if CharManager.hasTrait(nodeSource, CharManager.TRAIT_GNOME_CUNNING) then
-								bMagicResistance = true;
-							end
+						if ActorManager.isPC(rSource) and CharManager.hasTrait(nodeActor, CharManager.TRAIT_GNOME_CUNNING) then
+							bMagicResistance = true;
 						end
 					end
 				end
@@ -302,19 +300,53 @@ function modSave(rSource, rTarget, rRoll)
 		
 		-- Get exhaustion modifiers
 		local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
-		if nExhaustCount > 0 then
-			bEffects = true;
-			if nExhaustMod >= 3 then
-				bDIS = true;
+		local sOptionGAVE = OptionsManager.getOption("GAVE");
+		local bIs2024 = (sOptionGAVE == "2024");
+		if bIs2024 then
+			if nExhaustMod > 0 then
+				bEffects = true;
+				nAddMod = nAddMod - (2 * nExhaustMod);
 			end
+		else
+			if nExhaustMod > 2 then
+				bEffects = true;
+				bDIS = true;
+			end		
 		end
 
 		-- Handle War Caster feat
-		if sSave == "concentration" and ActorManager.isPC(rSource) and CharManager.hasFeat(ActorManager.getCreatureNode(rSource), CharManager.FEAT_WAR_CASTER) then
-			bADV = true;
-			rRoll.sDesc = rRoll.sDesc .. " [" .. CharManager.FEAT_WAR_CASTER:upper() .. "]";
+		if sSave == "concentration" and ActorManager.isPC(rSource) then
+			if CharManager.hasFeat(nodeActor, CharManager.FEAT_WAR_CASTER) then
+				bADV = true;
+				rRoll.sDesc = rRoll.sDesc .. string.format("[%s]", Interface.getString("roll_msg_feature_warcaster"));
+			elseif CharManager.hasFeature(nodeActor, CharManager.FEATURE_ELDRITCH_INVOCATION_ELDRITCH_MIND) then
+				bADV = true;
+				rRoll.sDesc = rRoll.sDesc .. string.format("[%s]", Interface.getString("roll_msg_feature_eldritchinvocationeldritchmind"));
+			end
 		end
 		
+		-- Check Reliable state
+		local bReliable = false;
+		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLESAV") then
+			bEffects = true;
+			bReliable = true;
+		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLESAV", aSaveFilter)) > 0 then
+			bEffects = true;
+			bReliable = true;
+		elseif (sSave == "concentration") and EffectManager5E.hasEffectCondition(rSource, "RELIABLECONC") then
+			bEffects = true;
+			bReliable = true;
+		elseif (sSave == "death") and EffectManager5E.hasEffectCondition(rSource, "RELIABLEDEATH") then
+			bEffects = true;
+			bReliable = true;
+		end
+		if bReliable then
+			table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		end
+
 		-- If effects apply, then add note
 		if bEffects then
 			for _, vDie in ipairs(aAddDice) do
@@ -356,7 +388,9 @@ function modSave(rSource, rTarget, rRoll)
 	end
 end
 function onSave(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
@@ -408,14 +442,23 @@ function applySave(rSource, rOrigin, rAction, sUser)
 					if EffectManager5E.hasEffectCondition(rSource, "Avoidance") then
 						bAvoidDamage = true;
 						msgLong.text = msgLong.text .. " [AVOIDANCE]";
-					elseif EffectManager5E.hasEffectCondition(rSource, "Evasion") then
-						local sSave = rAction.sDesc:match("%[SAVE%] (%w+)");
-						if sSave then
-							sSave = sSave:lower();
+					else
+						local bEvasion = EffectManager5E.hasEffectCondition(rSource, "Evasion");
+						if not bEvasion and ActorManager.isPC(rSource) then
+							local nodeActor = ActorManager.getCreatureNode(rActor);
+							if CharManager.hasFeature(nodeActor, CharManager.FEATURE_EVASION) then
+								bEvasion = true;
+							end
 						end
-						if sSave == "dexterity" then
-							bAvoidDamage = true;
-							msgLong.text = msgLong.text .. " [EVASION]";
+						if bEvasion then
+							local sSave = rAction.sDesc:match("%[SAVE%] (%w+)");
+							if sSave then
+								sSave = sSave:lower();
+							end
+							if sSave == "dexterity" then
+								bAvoidDamage = true;
+								msgLong.text = msgLong.text .. " [EVASION]";
+							end
 						end
 					end
 				end
@@ -495,7 +538,9 @@ function performSystemShockRoll(draginfo, rActor)
 end
 
 function onSystemShockRoll(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
@@ -648,7 +693,9 @@ function performDeathRoll(draginfo, rActor, bAuto)
 end
 
 function onDeathRoll(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
@@ -799,7 +846,7 @@ function notifyApplyConc(rSource, bSecret, rRoll)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
-function performConcentrationRoll(draginfo, rActor, nTargetDC)
+function performConcentrationRoll(draginfo, rActor, nTargetDC, tData)
 	local rRoll = { };
 	rRoll.sType = "concentration";
 	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
@@ -807,13 +854,16 @@ function performConcentrationRoll(draginfo, rActor, nTargetDC)
 	rRoll.nMod = nMod;
 	
 	rRoll.sDesc = "[CONCENTRATION]";
-	if sAddText and sAddText ~= "" then
+	if (sAddText or "") ~= "" then
 		rRoll.sDesc = rRoll.sDesc .. " " .. sAddText;
 	end
-	if bADV then
+	if (tData.sAddText or "") ~= "" then
+		rRoll.sDesc = rRoll.sDesc .. " " .. tData.sAddText;
+	end
+	if bADV and (not tData or not tData.bDIS) then
 		rRoll.sDesc = rRoll.sDesc .. " [ADV]";
 	end
-	if bDIS then
+	if bDIS or (not bADV and tData and tData.bDIS) then
 		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
 	end
 
@@ -823,7 +873,9 @@ function performConcentrationRoll(draginfo, rActor, nTargetDC)
 end
 
 function onConcentrationRoll(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	if Session.IsHost and ActorManager.isPC(rSource) then

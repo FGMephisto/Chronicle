@@ -21,4 +21,36 @@
 			</button_charwizard>
 		</sheetdata>
 	</windowclass>
+
+	<windowclass name="pregen_main">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="race_label">
+				<static textres="pregen_label_race" />
+			</label_content_column>
+			<string_content_column name="race">
+				<nodragselect />
+				<readonly />
+			</string_content_column>
+			<label_content_column name="background_label">
+				<static textres="pregen_label_background" />
+			</label_content_column>
+			<string_content_column name="background">
+				<nodragselect />
+				<readonly />
+			</string_content_column>
+			<label_content_column name="class_label">
+				<static textres="pregen_label_class" />
+			</label_content_column>
+			<stringc_content_column name="class">
+				<script>
+					function onInit()
+						setValue(CharManager.getClassSummary(window.getDatabaseNode()));
+					end
+				</script>
+			</stringc_content_column>
+		</sheetdata>
+	</windowclass>
 </root>

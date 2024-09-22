@@ -8,9 +8,7 @@ function onInit()
 	registerOptions();
 end
 
---
 -- Adjusted
---
 function registerOptions()
 	OptionsManager.registerOption2("RMMT", true, "option_header_client", "option_label_RMMT", "option_entry_cycler", 
 			{ labels = "option_val_on|option_val_multi", values = "on|multi", baselabel = "option_val_off", baseval = "off", default = "multi" });

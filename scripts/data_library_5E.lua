@@ -3,6 +3,10 @@
 -- attribution and copyright information.
 --
 
+function getVersionValue(node)
+	return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "Legacy";
+end
+
 function getItemIsIdentified(vRecord, vDefault)
 	return LibraryData.getIDState("item", vRecord, true);
 end
@@ -99,6 +103,7 @@ aRecordOverrides = {
 		aGMListButtons = { "button_npc_byletter", "button_npc_bycr", "button_npc_bytype" },
 		aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
 		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["CR"] = { sField = "cr", sType = "number", fSort = sortNPCCRValues },
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
@@ -108,14 +113,22 @@ aRecordOverrides = {
 		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" }, 
 		aRecordDisplayClasses = { "item", "reference_magicitem", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
 		aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear", "button_item_template" },
+		--aGMEditButtons = { "button_add_item_import_text" },
 		aPlayerListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Type"] = { sField = "type" },
 			["Rarity"] = { sField = "rarity", fGetValue = getItemRarityValue },
 			["Attunement?"] = { sField = "rarity", fGetValue = getItemAttunementValue },
 		},
-		aCustom = {
-			tWindowMenu = { ["right"] = { "chat_output" } },
+	},
+	["vehicle"] = {
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Type"] = { sField = "type" },
 		},
 	},
 	
@@ -128,6 +141,7 @@ aRecordOverrides = {
 			bHidden = true,
 		},
 		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Type"] = { sField = "type" },
 		},
 	},
@@ -139,6 +153,9 @@ aRecordOverrides = {
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 		},
 	},
 	["class"] = {
@@ -152,6 +169,9 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+		},
 	},
 	["class_specialization"] = {
 		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
@@ -161,6 +181,7 @@ aRecordOverrides = {
 			bHidden = true,
 		},
 		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Class"] = { sField = "class" },
 		},
 	},
@@ -182,18 +203,25 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Category"] = { sField = "category" },
+		},
 	},
 	["race"] = {
 		aDataMap = { "race", "reference.racedata" }, 
 		sRecordDisplayClass = "reference_race", 
 		aGMListButtons = { "button_race_subrace" },
-		aGMEditButtons = { "button_add_race_import_text" },
+		aGMEditButtons = { "button_add_species_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
 		tOptions = {
 			bExport = true,
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 		},
 	},
 	["race_subrace"] = {
@@ -204,7 +232,8 @@ aRecordOverrides = {
 			bHidden = true,
 		},
 		aCustomFilters = {
-			["Race"] = { sField = "race" },
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Species"] = { sField = "race" },
 		},
 	},
 	["skill"] = {
@@ -216,21 +245,25 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+		},
 	},
 	["spell"] = {
 		aDataMap = { "spell", "reference.spelldata" }, 
 		aRecordDisplayClasses = { "power", "reference_spell" },
-		aCustomFilters = {
-			["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
-			["Level"] = { sField = "level", sType = "number" },
-			["Ritual"] = { sField = "ritual", sType = "boolean" },
-		},
 		tOptions = {
 			bExport = true,
 			bPicture = true,
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
+		aCustomFilters = {
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
+			["Level"] = { sField = "level", sType = "number" },
+			["Ritual"] = { sField = "ritual", sType = "boolean" },
 		},
 	},
 };

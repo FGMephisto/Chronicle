@@ -65,51 +65,122 @@ function handleItemCleanupOnTransfer(rSourceItem, rTempItem, rTargetItem)
 	end
 end
 
--- Added
+-- Test
 function getItemSourceTypeChronicle(vNode)
-	local sNodePath = nil;
-
+	local sPath = nil;
 	if type(vNode) == "databasenode" then
-		sNodePath = DB.getPath(vNode);
+		sPath = DB.getPath(vNode);
 	elseif type(vNode) == "string" then
-		sNodePath = vNode;
+		sPath = vNode;
+	end
+	if not sPath then
+		return "";
 	end
 
-	if not sNodePath then
+	local sRecordType = RecordDataManager.getRecordTypeFromRecordPath(sPath);
+	if sRecordType ~= "" then
+		if RecordDataManager.getRecordTypeOption(sRecordType, "bInventory") then
+			return sRecordType;
+		end
+		return "";
+	end
+
+	sRecordType = RecordDataManager.getRecordTypeFromListPath(sPath);
+	if sRecordType ~= "" then
+		if sRecordType == "item" then
+			return sRecordType;
+		end
+		return "";
+	end
+
+	local sParentPath = RecordDataManager.getListPathFromRecordPath(sPath);
+	if StringManager.contains({"partysheet", "partysheet.treasureparcelitemlist"}, sPath) or 
+			StringManager.contains({"partysheet", "partysheet.treasureparcelitemlist"}, sParentPath) then
+		return "partysheet";
+	end
+	if (sPath == "temp") or (sParentPath == "temp") then
+		return "temp";
+	end
+
+	for _,sRecordType in ipairs(RecordDataManager.getRecordTypes()) do
+		if RecordDataManager.getRecordTypeOption(sRecordType, "bInventory") then
+			local tItemPaths = ItemManager.getInventoryPaths(sRecordType);
+			for _,sDataPath in ipairs(RecordDataManager.getDataPaths(sRecordType)) do
+				for _,sList in ipairs(tItemPaths) do
+					local sListPath = string.format("%s.*.%s", sDataPath, sList);
+					if UtilityManager.isPathMatch(sListPath, sPath) or UtilityManager.isPathMatch(sListPath, sParentPath) then
+						return sRecordType;
+					end
+				end
+			end
+		end
+	end
+
+	if CombatManager.isTrackerCT(sPath) then
+		local sCTPath = CombatManager.getTrackerPath(CombatManager.getTrackerKeyFromCT(sPath));
+		local sCTListPath = string.format("%s.*.*", sCTPath);
+		if UtilityManager.isPathMatch(sCTListPath, sPath) then
+			local sPathSansList = StringManager.splitByPattern(sPath, "%.");
+			sPathSansList[#sPathSansList] = nil;
+			local sCTRecord = table.concat(sPathSansList, ".");
+			sRecordType = RecordDataManager.getRecordTypeFromRecordPath(table.concat(sPathSansList, "."));
+			if sRecordType ~= "" then
+				if RecordDataManager.getRecordTypeOption(sRecordType, "bInventory") then
+					return sRecordType;
+				end
+				return "";
+			end
+		end
+	end
+
+	return "";
+end
+
+-- Added
+function getItemSourceTypeChronicle2(vNode)
+	local sPath = nil;
+
+	if type(vNode) == "databasenode" then
+		sPath = DB.getPath(vNode);
+	elseif type(vNode) == "string" then
+		sPath = vNode;
+	end
+
+	if not sPath then
 		return "";
 	end
 
 	for _,vMapping in ipairs(LibraryData.getMappings("charsheet")) do
-		if StringManager.startsWith(sNodePath, vMapping) then
+		if StringManager.startsWith(sPath, vMapping) then
 			return "charsheet";
 		end
 		-- Added to allow drops for NPC
-		if StringManager.startsWith(sNodePath, "npc") then
+		if StringManager.startsWith(sPath, "npc") then
 			return "charsheet";
 		end
 		-- Added to allow drops for Combat Tracker
-		if StringManager.startsWith(sNodePath, "combattracker") then
+		if StringManager.startsWith(sPath, "combattracker") then
 			return "charsheet";
 		end
 	end
 
 	for _,vMapping in ipairs(LibraryData.getMappings("item")) do
-		if StringManager.startsWith(sNodePath, vMapping) then
+		if StringManager.startsWith(sPath, vMapping) then
 			return "item";
 		end
 	end
 
 	for _,vMapping in ipairs(LibraryData.getMappings("treasureparcel")) do
-		if StringManager.startsWith(sNodePath, vMapping) then
+		if StringManager.startsWith(sPath, vMapping) then
 			return "treasureparcel";
 		end
 	end
 
-	if StringManager.startsWith(sNodePath, "partysheet") then
+	if StringManager.startsWith(sPath, "partysheet") then
 		return "partysheet";
 	end
 
-	if StringManager.startsWith(sNodePath, "temp") then
+	if StringManager.startsWith(sPath, "temp") then
 		return "temp";
 	end
 

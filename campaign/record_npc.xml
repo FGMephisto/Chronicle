@@ -31,97 +31,621 @@
 			<embed />
 		</tab>
 		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
 			function onIDChanged()
 				super.onIDChanged();
 				if not Session.IsHost then
 					local bID = LibraryData.getIDState("npc", getDatabaseNode(), true);
 					tabs.setVisible(bID);
+					sub_version.setVisible(bID);
 				end
 			end
 		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 
 	<windowclass name="npc_combat">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("npc_combat_2024", nodeRecord);
+				else
+					sub_content.setValue("npc_combat_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_2024">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/npc_main.lua" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 			
-			<label_column name="size_label">
-				<static textres="npc_label_size" />
-			</label_column>
-			<string_columnh name="size">
+			<sub_content_column name="sub_top">
+				<class>npc_combat_top_2024</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_summon" />
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2024</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_bottom">
+				<class>npc_combat_bottom_2024</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_action">
+				<class>npc_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<sub_content_column name="sub_top">
+				<class>npc_combat_top_2014</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2014</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_bottom">
+				<class>npc_combat_bottom_2014</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_action">
+				<class>npc_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_summon_2024">
+		<script file="campaign/scripts/npc_main_summon.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<area_content_top name="area_variables">
+				<anchored height="34" />
+			</area_content_top>
+
+			<label name="summon_label">
+				<anchored to="area_variables" position="insidetopleft" offset="0,7" />
+				<static textres="npc_label_summon" />
+			</label>
+			<button_checkbox name="summon">
+				<anchored to="area_variables" position="insidetopleft" offset="105,7" width="30" height="20" />
 				<script>
 					function onValueChanged()
-						window.onSummaryChanged();
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonChanged");
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
-			</string_columnh>
+			</button_checkbox>
+
+			<number_content_columnh name="summon_level">
+				<anchored merge="replace" width="40" height="20">
+					<top offset="12" />
+					<left parent="summon" anchor="right" offset="27" />
+				</anchored>
+				<delaykeyupdate />
+				<nohide />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label_fieldtop name="summon_level_label">
+				<anchored to="summon_level" offset="10,1" />
+				<static textres="npc_label_summon_level" />
+			</label_fieldtop>
+
+			<number_content_columnh name="summon_attack">
+				<anchored merge="replace" to="summon_level" width="40" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<delaykeyupdate />
+				<nohide />
+				<displaysign />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label_fieldtop name="summon_attack_label">
+				<anchored to="summon_attack" offset="10,1" />
+				<static textres="npc_label_summon_attack" />
+			</label_fieldtop>
+
+			<number_content_columnh name="summon_dc">
+				<anchored merge="replace" to="summon_level" width="40" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<delaykeyupdate />
+				<nohide />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label_fieldtop name="summon_dc_label">
+				<anchored to="summon_dc" offset="10,1" />
+				<static textres="npc_label_summon_dc" />
+			</label_fieldtop>
+
+			<number_content_columnh name="summon_mod">
+				<anchored merge="replace" to="summon_level" width="40" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<delaykeyupdate />
+				<nohide />
+				<displaysign />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label_fieldtop name="summon_mod_label">
+				<anchored to="summon_mod" offset="10,1" />
+				<static textres="npc_label_summon_mod" />
+			</label_fieldtop>
+
+			<number_content_columnh name="summon_pb">
+				<anchored merge="replace" to="summon_level" width="40" height="20">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<delaykeyupdate />
+				<nohide />
+				<displaysign />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onProfBonusDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label_fieldtop name="summon_pb_label">
+				<anchored to="summon_pb" offset="10,1" />
+				<static textres="npc_label_summon_pb" />
+			</label_fieldtop>
+
+			<label_content_column name="summon_ac_base_label">
+				<static textres="npc_label_summon_ac" />
+			</label_content_column>
+			<number_content_columnh name="summon_ac_base">
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label name="summon_ac_plus_label">
+				<anchored to="summon_ac_base" position="righthigh" offset="5,0" />
+				<static>+</static>
+			</label>
+			<number_content_base name="summon_ac_mod">
+				<anchored to="summon_ac_plus_label" position="righthigh" offset="5,0" width="40" height="20" />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+					end
+				</script>
+			</number_content_base>
+			<label name="summon_ac_mod_label">
+				<anchored to="summon_ac_mod" position="righthigh" offset="5,0" />
+				<static textres="npc_label_summon_ac_mod" />
+			</label>
+
+			<label_content_column name="summon_hp_base_label">
+				<static textres="npc_label_summon_hp" />
+			</label_content_column>
+			<number_content_columnh name="summon_hp_base">
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+					end
+				</script>
+			</number_content_columnh>
+			<label name="summon_hp_plus_label">
+				<anchored to="summon_hp_base" position="righthigh" offset="5,0" />
+				<static>+</static>
+			</label>
+			<number_content_base name="summon_hp_mod">
+				<anchored to="summon_hp_plus_label" position="righthigh" offset="5,0" width="40" height="20" />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+					end
+				</script>
+			</number_content_base>
+			<label name="summon_hp_mod_label">
+				<anchored to="summon_hp_mod" position="righthigh" offset="5,0" />
+				<static textres="npc_label_summon_hp_mod" />
+			</label>
+			<number_content_base name="summon_hp_mod_threshold">
+				<anchored to="summon_hp_mod_label" position="righthigh" offset="5,0" width="40" height="20" />
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+					end
+				</script>
+			</number_content_base>
 			
-			<label_column name="type_label">
+			<line_content_top name="divider" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_top_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_top.lua" />
+		<sheetdata>
+			<hn name="dexterity" source="abilities.dexterity.score">
+				<default>10</default>
+				<script>
+					function onValueChanged()
+						window.onInitChanged();
+					end
+				</script>
+			</hn>
+			<hn name="initmiscmod" source="initiative.misc">
+				<script>
+					function onValueChanged()
+						window.onInitChanged();
+					end
+				</script>
+			</hn>
+
+			<anchor_content_top />
+			
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>npc_combat_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+			
+			<line_content_top />
+			
+			<label_content_column name="ac_label">
+				<static textres="armorclass" />
+			</label_content_column>
+			<number_content_column name="ac" />
+
+			<label_content_column_right name="initmod_label">
+				<anchored to="ac" />
+				<static textres="npc_label_init" />
+			</label_content_column_right>
+			<numberc_npc_initmod_2024 name="initmod">
+				<anchored to="ac" />
+			</numberc_npc_initmod_2024>
+
+			<label_content_column name="hp_label">
+				<static textres="hitpoints" />
+			</label_content_column>
+			<number_content_column name="hp" />
+			<string_content_column_remainder name="hd">
+				<anchored to="hp" />
+			</string_content_column_remainder>
+
+			<label_content_column name="damagethreshold_label">
+				<static textres="npc_label_damagethreshold" />
+				<tooltip textres="npc_tooltip_damagethreshold" />
+			</label_content_column>
+			<number_content_columnh name="damagethreshold" />
+
+			<label_content_column name="speed_label">
+				<static textres="npc_label_speed" />
+			</label_content_column>
+			<string_content_column name="speed" />
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_top_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_top.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>npc_combat_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+			
+			<line_content_top />
+			
+			<label_content_column name="ac_label">
+				<static textres="armorclass" />
+			</label_content_column>
+			<number_content_column name="ac" />
+			<string_content_column_remainder name="actext">
+				<anchored to="ac" />
+			</string_content_column_remainder>
+
+			<label_content_column name="hp_label">
+				<static textres="hitpoints" />
+			</label_content_column>
+			<number_content_column name="hp" />
+			<string_content_column_remainder name="hd">
+				<anchored to="hp" />
+			</string_content_column_remainder>
+
+			<label_content_column name="damagethreshold_label">
+				<static textres="npc_label_damagethreshold" />
+				<tooltip textres="npc_tooltip_damagethreshold" />
+			</label_content_column>
+			<number_content_columnh name="damagethreshold" />
+
+			<label_content_column name="speed_label">
+				<static textres="npc_label_speed" />
+			</label_content_column>
+			<string_content_column name="speed" />
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_summary_fields">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="size_label">
+				<static textres="npc_label_size" />
+			</label_content_column>
+			<string_content_columnh name="size">
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+			
+			<label_content_column name="type_label">
 				<static textres="npc_label_type" />
-			</label_column>
-			<string_columnh name="type">
+			</label_content_column>
+			<string_content_columnh name="type">
 				<delaykeyupdate />
 				<script>
 					function onValueChanged()
-						window.onSummaryChanged();
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
 					end
 				</script>
-			</string_columnh>
+			</string_content_columnh>
 			
-			<label_column name="alignment_label">
+			<label_content_column name="alignment_label">
 				<static textres="npc_label_alignment" />
-			</label_column>
-			<string_columnh name="alignment">
+			</label_content_column>
+			<string_content_columnh name="alignment">
 				<script>
 					function onValueChanged()
-						window.onSummaryChanged();
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
 					end
 				</script>
-			</string_columnh>
-			
-			<label_column name="summary_label">
-				<anchored>
-					<top relation="relative" />
+			</string_content_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_abilities_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_abilities.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<area_content_top name="area_labels">
+				<anchored height="15" />
+			</area_content_top>
+			<area_npc_abilitylabel_2024 name="area_labels_left">
+				<anchored to="area_labels">
+					<right anchor="center" offset="-75" />
 				</anchored>
-				<font>reference-b-large</font>
-			</label_column>
-			
-			<line_column />
-			
-			<label_column name="ac_label">
-				<static textres="armorclass" />
-			</label_column>
-			<number_column name="ac" />
-			<string_column_remainder name="actext">
-				<anchored to="ac" />
-			</string_column_remainder>
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_left">
+				<anchored to="area_labels_left" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_left">
+				<anchored to="area_labels_left" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
+			<area_npc_abilitylabel_2024 name="area_labels_center">
+				<anchored to="area_labels_left" position="righthigh" offset="15,0" />
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_center">
+				<anchored to="area_labels_center" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_center">
+				<anchored to="area_labels_center" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
+			<area_npc_abilitylabel_2024 name="area_labels_right">
+				<anchored to="area_labels_center" position="righthigh" offset="15,0" />
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_right">
+				<anchored to="area_labels_right" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_right">
+				<anchored to="area_labels_right" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
 
-			<label_column name="hp_label">
-				<static textres="hitpoints" />
-			</label_column>
-			<number_column name="hp" />
-			<string_column_remainder name="hd">
-				<anchored to="hp" />
-			</string_column_remainder>
+			<area_content_top name="area_physical">
+				<anchored height="24" />
+			</area_content_top>
+			<area_npc_abilityscore_2024 name="area_str">
+				<anchored to="area_physical">
+					<right anchor="center" offset="-75" />
+				</anchored>
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_str">
+				<anchored to="area_str" />
+				<static textres="STR" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="strength" source="abilities.strength.score">
+				<anchored to="area_str" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="strengthmod">
+				<anchored to="area_str" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="strengthsave">
+				<anchored to="area_str" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="strengthsavemod" source="abilities.strength.savemodifier">
+				<anchored to="area_str" />
+			</number_npc_abilitysavemod_2024>
 
-			<label_column name="damagethreshold_label">
-				<static textres="npc_label_damagethreshold" />
-				<tooltip textres="npc_tooltip_damagethreshold" />
-			</label_column>
-			<number_columnh name="damagethreshold" />
+			<area_npc_abilityscore_2024 name="area_dex">
+				<anchored to="area_str" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_dex">
+				<anchored to="area_dex" />
+				<static textres="DEX" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="dexterity" source="abilities.dexterity.score">
+				<anchored to="area_dex" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="dexteritymod">
+				<anchored to="area_dex" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="dexteritysave">
+				<anchored to="area_dex" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="dexteritysavemod" source="abilities.dexterity.savemodifier">
+				<anchored to="area_dex" />
+			</number_npc_abilitysavemod_2024>
 
-			<label_column name="speed_label">
-				<static textres="npc_label_speed" />
-			</label_column>
-			<string_column name="speed" />
+			<area_npc_abilityscore_2024 name="area_con">
+				<anchored to="area_dex" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_con">
+				<anchored to="area_con" />
+				<static textres="CON" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="constitution" source="abilities.constitution.score">
+				<anchored to="area_con" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="constitutionmod">
+				<anchored to="area_con" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="constitutionsave">
+				<anchored to="area_con" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="constitutionsavemod" source="abilities.constitution.savemodifier">
+				<anchored to="area_con" />
+			</number_npc_abilitysavemod_2024>
 
-			<line_column />
-			
+			<area_content_top name="area_mental">
+				<anchored height="24" />
+			</area_content_top>
+			<area_npc_abilityscore_2024 name="area_int">
+				<anchored to="area_mental">
+					<right anchor="center" offset="-75" />
+				</anchored>
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_int">
+				<anchored to="area_int" />
+				<static textres="INT" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="intelligence" source="abilities.intelligence.score">
+				<anchored to="area_int" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="intelligencemod">
+				<anchored to="area_int" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="intelligencesave">
+				<anchored to="area_int" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="intelligencesavemod" source="abilities.intelligence.savemodifier">
+				<anchored to="area_int" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_wis">
+				<anchored to="area_int" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_wis">
+				<anchored to="area_wis" />
+				<static textres="WIS" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="wisdom" source="abilities.wisdom.score">
+				<anchored to="area_wis" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="wisdommod">
+				<anchored to="area_wis" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="wisdomsave">
+				<anchored to="area_wis" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="wisdomsavemod" source="abilities.wisdom.savemodifier">
+				<anchored to="area_wis" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_cha">
+				<anchored to="area_wis" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_cha">
+				<anchored to="area_cha" />
+				<static textres="CHA" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="charisma" source="abilities.charisma.score">
+				<anchored to="area_cha" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="charismamod">
+				<anchored to="area_cha" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="charismasave">
+				<anchored to="area_cha" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="charismasavemod" source="abilities.charisma.savemodifier">
+				<anchored to="area_cha" />
+			</number_npc_abilitysavemod_2024>
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_abilities_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_abilities.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<area_content_top name="area_abilities">
+				<anchored height="50" />
+			</area_content_top>
+
+			<line_content_top />
+
 			<number_npc_abilityscore name="strength" source="abilities.strength.score">
-				<anchored merge="replace" width="40" height="30">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
+				<anchored width="40" height="30" merge="replace">
+					<top parent="" offset="10" />
 					<left anchor="center" offset="-202" />
 				</anchored>
 				<target>strength</target>
@@ -133,6 +657,7 @@
 			<hn name="strength_bonus" source="abilities.strength.bonus" />
 			<string_npc_abilitymodtext name="strength_modtext">
 				<anchored to="strength" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="strength" />
@@ -144,7 +669,7 @@
 			</button_npcabilitysave>
 			
 			<number_npc_abilityscore name="dexterity" source="abilities.dexterity.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
+				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
 					<left anchor="right" relation="relative" offset="30" />
 				</anchored>
@@ -157,6 +682,7 @@
 			<hn name="dexterity_bonus" source="abilities.dexterity.bonus" />
 			<string_npc_abilitymodtext name="dexterity_modtext">
 				<anchored to="dexterity" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="dexterity" />
@@ -168,7 +694,7 @@
 			</button_npcabilitysave>
 
 			<number_npc_abilityscore name="constitution" source="abilities.constitution.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
+				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
 					<left anchor="right" relation="relative" offset="30" />
 				</anchored>
@@ -181,6 +707,7 @@
 			<hn name="constitution_bonus" source="abilities.constitution.bonus" />
 			<string_npc_abilitymodtext name="constitution_modtext">
 				<anchored to="constitution" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="constitution" />
@@ -192,7 +719,7 @@
 			</button_npcabilitysave>
 
 			<number_npc_abilityscore name="intelligence" source="abilities.intelligence.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
+				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
 					<left anchor="right" relation="relative" offset="30" />
 				</anchored>
@@ -205,6 +732,7 @@
 			<hn name="intelligence_bonus" source="abilities.intelligence.bonus" />
 			<string_npc_abilitymodtext name="intelligence_modtext">
 				<anchored to="intelligence" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="intelligence" />
@@ -216,7 +744,7 @@
 			</button_npcabilitysave>
 
 			<number_npc_abilityscore name="wisdom" source="abilities.wisdom.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
+				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
 					<left anchor="right" relation="relative" offset="30" />
 				</anchored>
@@ -229,6 +757,7 @@
 			<hn name="wisdom_bonus" source="abilities.wisdom.bonus" />
 			<string_npc_abilitymodtext name="wisdom_modtext">
 				<anchored to="wisdom" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="wisdom" />
@@ -240,7 +769,7 @@
 			</button_npcabilitysave>
 
 			<number_npc_abilityscore name="charisma" source="abilities.charisma.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
+				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
 					<left anchor="right" relation="relative" offset="30" />
 				</anchored>
@@ -253,6 +782,7 @@
 			<hn name="charisma_bonus" source="abilities.charisma.bonus" />
 			<string_npc_abilitymodtext name="charisma_modtext">
 				<anchored to="charisma" />
+				<default>0</default>
 			</string_npc_abilitymodtext>
 			<button_npcabilitycheck>
 				<anchored to="charisma" />
@@ -262,80 +792,64 @@
 				<anchored to="charisma" />
 				<target>charisma</target>
 			</button_npcabilitysave>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_bottom_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
 			
-			<line_column>
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
-				</anchored>
-			</line_column>
-			
-			<label_column name="savingthrows_label">
-				<static textres="npc_label_savingthrows" />
-			</label_column>
-			<string_columnh name="savingthrows" />
-			
-			<label_column name="skills_label">
+			<label_content_column name="skills_label">
 				<static textres="npc_label_skills" />
-			</label_column>
-			<string_columnh_multiroll name="skills" >
+			</label_content_column>
+			<string_content_columnh_multiroll name="skills" >
 				<script file="campaign/scripts/npc_skill.lua" />
-			</string_columnh_multiroll>
+			</string_content_columnh_multiroll>
 			
-			<label_column name="damagevulnerabilities_label">
-				<static textres="npc_label_damagevulnerabilities" />
-				<tooltip textres="npc_tooltip_damagevulnerabilities" />
-			</label_column>
-			<string_columnh name="damagevulnerabilities" />
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
 			
-			<label_column name="damageresistances_label">
-				<static textres="npc_label_damageresistances" />
-				<tooltip textres="npc_tooltip_damageresistances" />
-			</label_column>
-			<string_columnh name="damageresistances" />
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
 			
-			<label_column name="damageimmunities_label">
-				<static textres="npc_label_damageimmunities" />
-				<tooltip textres="npc_tooltip_damageimmunities" />
-			</label_column>
-			<string_columnh name="damageimmunities" />
-			
-			<label_column name="conditionimmunities_label">
-				<static textres="npc_label_conditionimmunities" />
-				<tooltip textres="npc_tooltip_conditionimmunities" />
-			</label_column>
-			<string_columnh name="conditionimmunities" />
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_columnh name="damageimmunities" />
 						
-			<label_column name="senses_label">
+			<label_content_column name="senses_label">
 				<static textres="npc_label_senses" />
-			</label_column>
-			<string_columnh name="senses">
+			</label_content_column>
+			<string_content_columnh name="senses">
 				<delaykeyupdate />
-			</string_columnh>
+			</string_content_columnh>
 			
-			<label_column name="languages_label">
+			<label_content_column name="languages_label">
 				<static textres="npc_label_languages" />
-			</label_column>
-			<string_columnh name="languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
 			
-			<label_column name="cr_label">
+			<label_content_column name="cr_label">
 				<static textres="npc_label_challenge" />
-			</label_column>
-			<string_column name="cr" >
-				<anchored width="20">
+			</label_content_column>
+			<string_content_column name="cr" >
+				<anchored width="30">
 					<right merge="delete" />
 				</anchored>
+				<center />
 				<delaykeyupdate />
 				<script>
-					function onInit()
-						onValueChanged();
-					end
 					function onValueChanged()
-						local rActor = ActorManager.resolveActor(window.getDatabaseNode());
-						local nProfBonus = ActorManager5E.getAbilityScore(rActor, "prf");
-						window.profbonus.setValue(nProfBonus);
+						WindowManager.callOuterWindowFunction(window, "onProfBonusDataChanged");
 					end
 				</script>
-			</string_column>
+			</string_content_column>
 			
 			<label name="profbonus_label">
 				<anchored to="cr">
@@ -343,6 +857,7 @@
 					<right parent="" anchor="center" offset="50" />
 				</anchored>
 				<static textres="npc_label_profbonus" />
+				<tooltip textres="npc_tooltip_profbonus" />
 			</label>
 			<numberc_static name="profbonus">
 				<anchored to="cr" width="40" height="20">
@@ -352,17 +867,114 @@
 				<displaysign />
 			</numberc_static>
 			
-			<label_column_right name="xp_label">
-				<anchored to="cr" />
+			<label_content_column_right name="xp_label">
 				<static textres="xp" />
-			</label_column_right>
-			<number_column_right name="xp">
-				<anchored to="cr" />
-			</number_column_right>
+			</label_content_column_right>
+			<number_content_column_right name="xp" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="npc_combat_bottom_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
 			
-			<header_column name="traits_header">
+			<label_content_column name="savingthrows_label">
+				<static textres="npc_label_savingthrows" />
+			</label_content_column>
+			<string_content_columnh name="savingthrows" />
+			
+			<label_content_column name="skills_label">
+				<static textres="npc_label_skills" />
+			</label_content_column>
+			<string_content_columnh_multiroll name="skills" >
+				<script file="campaign/scripts/npc_skill.lua" />
+			</string_content_columnh_multiroll>
+			
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_damagevulnerabilities" />
+				<tooltip textres="npc_tooltip_damagevulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+			
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_damageresistances" />
+				<tooltip textres="npc_tooltip_damageresistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+			
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_damageimmunities" />
+				<tooltip textres="npc_tooltip_damageimmunities" />
+			</label_content_column>
+			<string_content_columnh name="damageimmunities" />
+			
+			<label_content_column name="conditionimmunities_label">
+				<static textres="npc_label_conditionimmunities" />
+				<tooltip textres="npc_tooltip_conditionimmunities" />
+			</label_content_column>
+			<string_content_columnh name="conditionimmunities" />
+						
+			<label_content_column name="senses_label">
+				<static textres="npc_label_senses" />
+			</label_content_column>
+			<string_content_columnh name="senses">
+				<delaykeyupdate />
+			</string_content_columnh>
+			
+			<label_content_column name="languages_label">
+				<static textres="npc_label_languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
+			
+			<label_content_column name="cr_label">
+				<static textres="npc_label_challenge" />
+			</label_content_column>
+			<string_content_column name="cr" >
+				<anchored width="30">
+					<right merge="delete" />
+				</anchored>
+				<center />
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onProfBonusDataChanged");
+					end
+				</script>
+			</string_content_column>
+			
+			<label name="profbonus_label">
+				<anchored to="cr">
+					<top />
+					<right parent="" anchor="center" offset="50" />
+				</anchored>
+				<static textres="npc_label_profbonus" />
+				<tooltip textres="npc_tooltip_profbonus" />
+			</label>
+			<numberc_static name="profbonus">
+				<anchored to="cr" width="40" height="20">
+					<top offset="1" />
+					<left parent="" anchor="center" offset="60" />
+				</anchored>
+				<displaysign />
+			</numberc_static>
+			
+			<label_content_column_right name="xp_label">
+				<static textres="xp" />
+			</label_content_column_right>
+			<number_content_column_right name="xp" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_actions">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_action.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<header_content_framed_headersimple name="traits_header">
 				<static textres="npc_header_traits"/>
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="traits_iedit">
 				<anchored to="traits_header" position="righthigh" offset="-20,0" />
 				<target>traits</target>
@@ -376,9 +988,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 			
-			<header_column name="actions_header">
+			<header_content_framed_headersimple name="actions_header">
 				<static textres="npc_header_actions" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="actions_iedit">
 				<anchored to="actions_header" position="righthigh" offset="-20,0" />
 				<target>actions</target>
@@ -392,9 +1004,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="bonusactions_header">
+			<header_content_framed_headersimple name="bonusactions_header">
 				<static textres="npc_header_bonusactions" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="bonusactions_iedit">
 				<anchored to="bonusactions_header" position="righthigh" offset="-20,0" />
 				<target>bonusactions</target>
@@ -408,9 +1020,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="reactions_header">
+			<header_content_framed_headersimple name="reactions_header">
 				<static textres="npc_header_reactions" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="reactions_iedit">
 				<anchored to="reactions_header" position="righthigh" offset="-20,0" />
 				<target>reactions</target>
@@ -424,9 +1036,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="legendaryactions_header">
+			<header_content_framed_headersimple name="legendaryactions_header">
 				<static textres="npc_header_legendaryactions" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="legendaryactions_iedit">
 				<anchored to="legendaryactions_header" position="righthigh" offset="-20,0" />
 				<target>legendaryactions</target>
@@ -440,9 +1052,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="lairactions_header">
+			<header_content_framed_headersimple name="lairactions_header">
 				<static textres="npc_header_lairactions" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="lairactions_iedit">
 				<anchored to="lairactions_header" position="righthigh" offset="-20,0" />
 				<target>lairactions</target>
@@ -456,21 +1068,21 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="innatespells_header">
+			<header_content_framed_headersimple name="innatespells_header">
 				<static textres="npc_header_innatespells" />
 				<script>
 					function onDrop(x, y, draginfo)
 						if draginfo.isType("shortcut") then
 							local sClass = draginfo.getShortcutData();
-							if sClass == "reference_spell" or sClass == "power" then
+							if sClass == "power" then
 								local nodeSource = draginfo.getDatabaseNode();
-								window.addSpellDrop(nodeSource, true);
+								WindowManager.callOuterWindowFunction(window, "addSpellDrop", nodeSource, true);
 								return true;
 							end
 						end
 					end
 				</script>
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="innatespells_iedit">
 				<anchored to="innatespells_header" position="righthigh" offset="-20,0" />
 				<target>innatespells</target>
@@ -486,7 +1098,7 @@
 					function onDrop(x, y, draginfo)
 						if draginfo.isType("shortcut") then
 							local sClass = draginfo.getShortcutData();
-							if sClass == "reference_spell" or sClass == "power" then
+							if sClass == "power" then
 								local nodeSource = draginfo.getDatabaseNode();
 								window.addSpellDrop(nodeSource, true);
 								return true;
@@ -496,9 +1108,9 @@
 				</script>
 			</list_npcactions>
 
-			<header_column name="spells_header">
+			<header_content_framed_headersimple name="spells_header">
 				<static textres="npc_header_spells" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="spells_iedit">
 				<anchored to="spells_header" position="righthigh" offset="-20,0" />
 				<target>spells</target>
@@ -507,14 +1119,10 @@
 				<anchored to="spells_iedit" position="lefthigh" offset="5,0" />
 				<target>spells</target>
 			</button_iadd>
-			<subwindow name="spellslots">
-				<anchored height="24">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
-					<left />
-					<right />
-				</anchored>
+			<sub_content_top name="spellslots">
+				<anchored height="24" />
 				<class>npc_spellslots</class>
-			</subwindow>
+			</sub_content_top>
 			<list_npcactions name="spells">
 				<datasource>.spells</datasource>
 				<class>npc_power</class>
@@ -526,7 +1134,6 @@
 			</list_npcactions>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="npc_spellslots">
 		<margins control="0,0,0,2" />
 		<sheetdata>
@@ -580,13 +1187,15 @@
 			<number_npc_spellslot name="spellslots9" source="spellslots.level9" />
 		</sheetdata>
 	</windowclass>
-	
 	<windowclass name="npc_power">
 		<margins control="0,0,0,2" />
 		<script>
 			function update(bReadOnly)
 				name.setReadOnly(bReadOnly);
 				desc.setReadOnly(bReadOnly);
+			end
+			function onSummonPowerDataChanged()
+				desc.onValueChanged();
 			end
 		</script>
 		<sheetdata>

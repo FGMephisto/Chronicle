@@ -30,6 +30,10 @@
 			<embed />
 		</tab>
 		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
 			function onIDChanged()
 				super.onIDChanged();
 				if not Session.IsHost then
@@ -38,269 +42,266 @@
 				end
 			end
 		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	
 	<windowclass name="vehicle_combat">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("vehicle_combat_2024", nodeRecord);
+				else
+					sub_content.setValue("vehicle_combat_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_2024">
+		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/vehicle_main.lua" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
+			
+			<sub_content_column name="sub_standard">
+				<class>vehicle_combat_standard</class>
+			</sub_content_column>
 
-			<label_column name="type_label">
+			<sub_content_column name="sub_top">
+				<class>vehicle_combat_top</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2024</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_bottom">
+				<class>vehicle_combat_bottom_2024</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_action">
+				<class>vehicle_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<sub_content_column name="sub_standard">
+				<class>vehicle_combat_standard</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_top">
+				<class>vehicle_combat_top</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2014</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_bottom">
+				<class>vehicle_combat_bottom_2014</class>
+			</sub_content_column>
+			
+			<sub_content_column name="sub_action">
+				<class>vehicle_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_combat_standard">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
+				local tFields = { "type", "size", "cost", "crew", "cargo", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+			end
+		</script>
+		<script file="campaign/scripts/vehicle_main_top.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="type_label">
 				<static textres="npc_label_type" />
-			</label_column>
-			<string_column name="type" />
+			</label_content_column>
+			<string_content_column name="type" />
 
-			<label_column name="size_label">
+			<label_content_column name="size_label">
 				<static textres="npc_label_size" />
-			</label_column>
-			<string_columnh name="size" />
+			</label_content_column>
+			<string_content_columnh name="size" />
 
-			<label_column name="cost_label">
+			<label_content_column name="cost_label">
 				<static textres="vehicle_label_cost" />
-			</label_column>
-			<string_columnh name="cost" />
+			</label_content_column>
+			<string_content_columnh name="cost" />
 
-			<label_column name="crew_label">
+			<label_content_column name="crew_label">
 				<static textres="vehicle_label_crew" />
-			</label_column>
-			<string_columnh name="crew" />
+			</label_content_column>
+			<string_content_columnh name="crew" />
 
-			<label_column name="cargo_label">
+			<label_content_column name="cargo_label">
 				<static textres="vehicle_label_cargo" />
-			</label_column>
-			<string_columnh name="cargo" />
+			</label_content_column>
+			<string_content_columnh name="cargo" />
 
-			<line_column />
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_top">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_top.lua" />
+		<sheetdata>
+			<anchor_content_top />
 
-			<label_column name="ac_label">
+			<label_content_column name="ac_label">
 				<static textres="armorclass" />
-			</label_column>
-			<number_column name="ac" />
-			<string_column_remainder name="actext">
+			</label_content_column>
+			<number_content_column name="ac" />
+			<string_content_column_remainder name="actext">
 				<anchored to="ac" />
-			</string_column_remainder>
+			</string_content_column_remainder>
 
-			<label_column name="hp_label">
+			<label_content_column name="hp_label">
 				<static textres="hitpoints" />
-			</label_column>
-			<number_column name="hp" />
+			</label_content_column>
+			<number_content_columnh name="hp" />
 
-			<label_column name="damagethreshold_label">
+			<label_content_column name="damagethreshold_label">
 				<static textres="vehicle_label_damagethreshold" />
 				<tooltip textres="vehicle_tooltip_damagethreshold" />
-			</label_column>
-			<number_column name="damagethreshold" />
+			</label_content_column>
+			<number_content_column name="damagethreshold" />
 
-			<label_column_right name="mishapthreshold_label">
+			<label_content_column_right name="mishapthreshold_label">
 				<anchored to="damagethreshold" />
 				<static textres="vehicle_label_mishapthreshold" />
 				<tooltip textres="vehicle_tooltip_mishapthreshold" />
-			</label_column_right>
-			<number_column_right name="mishapthreshold">
+			</label_content_column_right>
+			<number_content_column_right name="mishapthreshold">
 				<anchored to="damagethreshold" />
-			</number_column_right>
+			</number_content_column_right>
 			
-			<label_column name="speed_label">
+			<label_content_column name="speed_label">
 				<static textres="npc_label_speed" />
-			</label_column>
-			<string_columnh name="speed" />
+			</label_content_column>
+			<string_content_columnh name="speed" />
 
-			<line_column name="divider_specialdef" />
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
 
-			<label_column name="damagevulnerabilities_label">
-				<static textres="npc_label_damagevulnerabilities" />
-				<tooltip textres="npc_tooltip_damagevulnerabilities" />
-			</label_column>
-			<string_columnh name="damagevulnerabilities" />
-
-			<label_column name="damageresistances_label">
-				<static textres="npc_label_damageresistances" />
-				<tooltip textres="npc_tooltip_damageresistances" />
-			</label_column>
-			<string_columnh name="damageresistances" />
-
-			<label_column name="damageimmunities_label">
-				<static textres="npc_label_damageimmunities" />
-				<tooltip textres="npc_tooltip_damageimmunities" />
-			</label_column>
-			<string_columnh name="damageimmunities">
+	<windowclass name="vehicle_combat_bottom_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+			
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+			
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_column name="damageimmunities">
 				<anchored>
-					<right offset="-20" />
+					<right offset="-25" />
 				</anchored>
-			</string_columnh>
+			</string_content_column>
 			<button_checkbox name="disablestandarddamageimmunities">
-				<anchored to="damageimmunities" position="righthigh" width="20" height="20" />
+				<anchored to="damageimmunities" position="righthigh" offset="5,0" width="20" height="20" />
 				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
 			</button_checkbox>
 
-			<label_column name="conditionimmunities_label">
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_bottom_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+			
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+			
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_column name="damageimmunities">
+				<anchored>
+					<right offset="-25" />
+				</anchored>
+			</string_content_column>
+			<button_checkbox name="disablestandarddamageimmunities">
+				<anchored to="damageimmunities" position="righthigh" offset="5,0" width="20" height="20" />
+				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
+			</button_checkbox>
+
+			<label_content_column name="conditionimmunities_label">
 				<static textres="npc_label_conditionimmunities" />
 				<tooltip textres="npc_tooltip_conditionimmunities" />
-			</label_column>
-			<string_columnh name="conditionimmunities">
+			</label_content_column>
+			<string_content_column name="conditionimmunities">
 				<anchored>
-					<right offset="-20" />
+					<right offset="-25" />
 				</anchored>
-			</string_columnh>
+			</string_content_column>
 			<button_checkbox name="disablestandardconditionimmunities">
-				<anchored to="conditionimmunities" position="righthigh" width="20" height="20" />
+				<anchored to="conditionimmunities" position="righthigh" offset="5,0" width="20" height="20" />
 				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
 			</button_checkbox>
 
-			<line_column name="divider_ability" />
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
 
-			<number_npc_abilityscore name="strength" source="abilities.strength.score">
-				<anchored merge="replace" width="40" height="30">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="12" />
-					<left anchor="center" offset="-202" />
-				</anchored>
-				<target>strength</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="strength_label">
-				<anchored to="strength" />
-				<static textres="STR" />
-			</label_npc_abilityscore>
-			<hn name="strength_bonus" source="abilities.strength.bonus" />
-			<string_npc_abilitymodtext name="strength_modtext">
-				<anchored to="strength" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="strength_abilitycheck">
-				<anchored to="strength" />
-				<target>strength</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="strength_abilitysave">
-				<anchored to="strength" />
-				<target>strength</target>
-			</button_npcabilitysave>
-
-			<number_npc_abilityscore name="dexterity" source="abilities.dexterity.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
-					<top />
-					<left anchor="right" relation="relative" offset="30" />
-				</anchored>
-				<target>dexterity</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="dexterity_label">
-				<anchored to="dexterity" />
-				<static textres="DEX" />
-			</label_npc_abilityscore>
-			<hn name="dexterity_bonus" source="abilities.dexterity.bonus" />
-			<string_npc_abilitymodtext name="dexterity_modtext">
-				<anchored to="dexterity" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="dexterity_abilitycheck">
-				<anchored to="dexterity" />
-				<target>dexterity</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="dexterity_abilitysave">
-				<anchored to="dexterity" />
-				<target>dexterity</target>
-			</button_npcabilitysave>
-
-			<number_npc_abilityscore name="constitution" source="abilities.constitution.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
-					<top />
-					<left anchor="right" relation="relative" offset="30" />
-				</anchored>
-				<target>constitution</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="constitution_label">
-				<anchored to="constitution" />
-				<static textres="CON" />
-			</label_npc_abilityscore>
-			<hn name="constitution_bonus" source="abilities.constitution.bonus" />
-			<string_npc_abilitymodtext name="constitution_modtext">
-				<anchored to="constitution" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="constitution_abilitycheck">
-				<anchored to="constitution" />
-				<target>constitution</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="constitution_abilitysave">
-				<anchored to="constitution" />
-				<target>constitution</target>
-			</button_npcabilitysave>
-
-			<number_npc_abilityscore name="intelligence" source="abilities.intelligence.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
-					<top />
-					<left anchor="right" relation="relative" offset="30" />
-				</anchored>
-				<default>0</default>
-				<target>intelligence</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="intelligence_label">
-				<anchored to="intelligence" />
-				<static textres="INT" />
-			</label_npc_abilityscore>
-			<hn name="intelligence_bonus" source="abilities.intelligence.bonus" />
-			<string_npc_abilitymodtext name="intelligence_modtext">
-				<anchored to="intelligence" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="intelligence_abilitycheck">
-				<anchored to="intelligence" />
-				<target>intelligence</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="intelligence_abilitysave">
-				<anchored to="intelligence" />
-				<target>intelligence</target>
-			</button_npcabilitysave>
-
-			<number_npc_abilityscore name="wisdom" source="abilities.wisdom.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
-					<top />
-					<left anchor="right" relation="relative" offset="30" />
-				</anchored>
-				<default>0</default>
-				<target>wisdom</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="wisdom_label">
-				<anchored to="wisdom" />
-				<static textres="WIS" />
-			</label_npc_abilityscore>
-			<hn name="wisdom_bonus" source="abilities.wisdom.bonus" />
-			<string_npc_abilitymodtext name="wisdom_modtext">
-				<anchored to="wisdom" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="wisdom_abilitycheck">
-				<anchored to="wisdom" />
-				<target>wisdom</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="wisdom_abilitysave">
-				<anchored to="wisdom" />
-				<target>wisdom</target>
-			</button_npcabilitysave>
-
-			<number_npc_abilityscore name="charisma" source="abilities.charisma.score">
-				<anchored merge="replace" to="strength" width="40" height="30">
-					<top />
-					<left anchor="right" relation="relative" offset="30" />
-				</anchored>
-				<default>0</default>
-				<target>charisma</target>
-			</number_npc_abilityscore>
-			<label_npc_abilityscore name="charisma_label">
-				<anchored to="charisma" />
-				<static textres="CHA" />
-			</label_npc_abilityscore>
-			<hn name="charisma_bonus" source="abilities.charisma.bonus" />
-			<string_npc_abilitymodtext name="charisma_modtext">
-				<anchored to="charisma" />
-			</string_npc_abilitymodtext>
-			<button_npcabilitycheck name="charisma_abilitycheck">
-				<anchored to="charisma" />
-				<target>charisma</target>
-			</button_npcabilitycheck>
-			<button_npcabilitysave name="charisma_abilitysave">
-				<anchored to="charisma" />
-				<target>charisma</target>
-			</button_npcabilitysave>
-
-			<spacer_column name="spacer_ability" />
-
-			<header_column name="traits_header">
+	<windowclass name="vehicle_combat_actions">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_action.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<header_content_framed_headersimple name="traits_header">
 				<static textres="npc_header_traits"/>
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="traits_iedit">
 				<anchored to="traits_header" position="righthigh" offset="-20,0" />
 				<target>traits</target>
@@ -314,9 +315,9 @@
 				<class>npc_power</class>
 			</list_npcactions>
 
-			<header_column name="components_header">
+			<header_content_framed_headersimple name="components_header">
 				<static textres="vehicle_header_components" />
-			</header_column>
+			</header_content_framed_headersimple>
 			<button_iedit name="components_iedit">
 				<anchored to="components_header" position="righthigh" offset="-20,0" />
 				<target>components</target>
@@ -345,33 +346,23 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
 
-			<genericcontrol name="rightanchor">
-				<anchored height="0" width="0">
-					<top />
-					<right />
-				</anchored>
-			</genericcontrol>
-			<button_idelete name="idelete">
-				<anchored>
-					<top offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
-				</anchored>
-			</button_idelete>
-			<link_listitem_column name="link">
-				<anchored>
-					<top offset="2" />
-				</anchored>
+			<linkc_listitem_right name="shortcut">
 				<class>item</class>
-			</link_listitem_column>
+			</linkc_listitem_right>
+			<button_listitem_idelete name="idelete">
+				<editmode>components_iedit</editmode>
+			</button_listitem_idelete>
 
-			<string_column_full name="name">
+			<string_listitem_center name="name">
 				<anchored>
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+					<top parent="contentanchor" relation="relative" offset="2" postoffset="2" />
 				</anchored>
 				<font>sheetlabel</font>
-			</string_column_full>
+			</string_listitem_center>
 
 			<list_npcactions name="actions">
 				<anchored>

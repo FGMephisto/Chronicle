@@ -156,10 +156,12 @@ function modHeal(rSource, rTarget, rRoll)
 end
 
 function onHeal(rSource, rTarget, rRoll)
+	ActionsManager2.handleHealerFeat(rSource, rRoll);
+	
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = rMessage.text:gsub(" %[MOD:[^]]*%]", "");
 	Comm.deliverChatMessage(rMessage);
-	
+
 	rRoll.nTotal = ActionsManager.total(rRoll);
 	rRoll.sDesc = rMessage.text;
 	ActionDamage.notifyApplyDamage(rSource, rTarget, rRoll);

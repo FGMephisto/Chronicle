@@ -4,14 +4,12 @@
 -- File adjusted for Chronicle System
 --
 
---
---
+-- Added
 function onInit()
 	setHoverCursor("hand");
 end
 
---
---
+-- Added
 function action(draginfo)
 	-- Initialize variables
 	local sActorPath = self.actorpath
@@ -44,14 +42,12 @@ function action(draginfo)
 	return true
 end
 
---
---
+-- Added
 function onDragStart(button, x, y, draginfo)
 	return action(draginfo)
 end
 
---
---
+-- Added
 function onDoubleClick(x,y)
 	return action()
 end

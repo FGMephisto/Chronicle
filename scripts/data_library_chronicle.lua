@@ -4,6 +4,12 @@
 -- File adjusted for Chronicle System
 --
 
+-- Adjusted
+function getVersionValue(node)
+	-- return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "2014";
+	return "20244"
+end
+
 function getItemIsIdentified(vRecord, vDefault)
 	return LibraryData.getIDState("item", vRecord, true);
 end
@@ -87,9 +93,7 @@ function getSpellViewCastTime(vNode, vDefault)
 	return s;
 end
 
---
 -- Adjusted
---
 aRecordOverrides = {
 	-- CoreRPG overrides
 	["quest"] = { 
@@ -101,8 +105,9 @@ aRecordOverrides = {
 	["npc"] = { 
 		aDataMap = { "npc", "reference.npcdata" }, 
 		aGMListButtons = { "button_npc_byletter", "button_npc_bytype" },
-		-- aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
+		aGMEditButtons = { "button_add_npc_import" },
 		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["CR"] = { sField = "cr", sType = "number", fSort = sortNPCCRValues },
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
@@ -112,29 +117,38 @@ aRecordOverrides = {
 		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" }, 
 		aRecordDisplayClasses = { "item", "reference_magicitem", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
 		aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
+		--aGMEditButtons = { "button_add_item_import_text" },
 		aPlayerListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
+		aCustom = {
+			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
 		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Type"] = { sField = "type" },
 			-- ["Rarity"] = { sField = "rarity", fGetValue = getItemRarityValue },
 			-- ["Attunement?"] = { sField = "rarity", fGetValue = getItemAttunementValue },
 		},
-		aCustom = {
-			tWindowMenu = { ["right"] = { "chat_output" } },
+	},
+	["vehicle"] = {
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Type"] = { sField = "type" },
 		},
 	},
 	
 	-- New record types
-	-- ["itemtemplate"] = { 
-		-- aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
-		-- aGMListButtons = { "button_forge_item"  };
-		-- tOptions = {
-			-- bExport = true,
-			-- bHidden = true,
-		-- },
-		-- aCustomFilters = {
-			-- ["Type"] = { sField = "type" },
-		-- },
-	-- },
+	["itemtemplate"] = { 
+		aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
+		aGMListButtons = { "button_forge_item"  };
+		tOptions = {
+			bExport = true,
+			bHidden = true,
+		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Type"] = { sField = "type" },
+		},
+	},
 	["background"] = {
 		aDataMap = { "background", "reference.backgrounddata" }, 
 		sRecordDisplayClass = "reference_background", 
@@ -143,6 +157,9 @@ aRecordOverrides = {
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 		},
 	},
 	["class"] = {
@@ -156,7 +173,10 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
-   	},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+		},
+	},
 	["class_specialization"] = {
 		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
 		sRecordDisplayClass = "reference_class_specialization", 
@@ -165,6 +185,7 @@ aRecordOverrides = {
 			bHidden = true,
 		},
 		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Class"] = { sField = "class" },
 		},
 	},
@@ -186,18 +207,25 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Category"] = { sField = "category" },
+		},
 	},
 	["race"] = {
 		aDataMap = { "race", "reference.racedata" }, 
 		sRecordDisplayClass = "reference_race", 
 		aGMListButtons = { "button_race_subrace" },
-		aGMEditButtons = { "button_add_race_import_text" },
+		aGMEditButtons = { "button_add_species_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
 		tOptions = {
 			bExport = true,
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
+		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 		},
 	},
 	["race_subrace"] = {
@@ -208,7 +236,8 @@ aRecordOverrides = {
 			bHidden = true,
 		},
 		aCustomFilters = {
-			["Race"] = { sField = "race" },
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Species"] = { sField = "race" },
 		},
 	},
 	["skill"] = {
@@ -220,15 +249,13 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+		},
 	},
 	["spell"] = {
 		aDataMap = { "spell", "reference.spelldata" }, 
-		sRecordDisplayClass = "power", 
-		aCustomFilters = {
-			-- ["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
-			-- ["Level"] = { sField = "level", sType = "number" },
-			-- ["Ritual"] = { sField = "ritual", sType = "boolean" },
-		},
+		aRecordDisplayClasses = { "power", "reference_spell" },
 		tOptions = {
 			bExport = true,
 			bPicture = true,
@@ -236,12 +263,16 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
+		aCustomFilters = {
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			-- ["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
+			-- ["Level"] = { sField = "level", sType = "number" },
+			["Ritual"] = { sField = "ritual", sType = "boolean" },
+		},
 	},
 };
 
---
 --Adjusted
---
 aListViews = {
 	["npc"] = {
 		["byletter"] = {
@@ -253,16 +284,16 @@ aListViews = {
 			aGroups = { { sDBField = "name", nLength = 1 } },
 			aGroupValueOrder = { },
 		},
-		-- ["bycr"] = {
-			-- aColumns = {
-				-- { sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				-- { sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
-			-- },
-			-- aFilters = { },
-			-- aGroups = { { sDBField = "cr", sPrefix = "CR" } },
-			-- aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2", 
-								-- "CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8", "CR 9" },
-		-- },
+		["bycr"] = {
+			aColumns = {
+				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
+				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
+			},
+			aFilters = { },
+			aGroups = { { sDBField = "cr", sPrefix = "CR" } },
+			aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2", 
+								"CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8", "CR 9" },
+		},
 		["bytype"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
@@ -380,27 +411,18 @@ aListViews = {
 			aGroupValueOrder = { },
 		},
 	},
-	["skilllist"] = {
-		["armor"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
-			},
-			aFilters = { { sDBField = "type", vFilterValue = "Armor" } },
-			aGroups = { { sDBField = "groupid" } },
-			aGroupValueOrder = { "10", "20", "30" },
-		},
-	},
 };
 
---
 -- Adjusted
---
 function onInit()
 	LibraryData.setCustomFilterHandler("item_isidentified", getItemIsIdentified);
+	-- LibraryData.setCustomGroupOutputHandler("spell_view_level_group", getSpellViewGroup);
+	-- LibraryData.setCustomColumnHandler("spell_view_castingtime", getSpellViewCastTime);
 
 	LibraryData.overrideRecordTypes(aRecordOverrides);
 	LibraryData.setRecordViews(aListViews);
 	
-	-- Remove "Vehicles" from the sidebar
+	-- Remove "Classes" & "Vehicles" from the sidebar
+	LibraryData.setRecordTypeInfo("class", nil);
 	LibraryData.setRecordTypeInfo("vehicle", nil);
 end

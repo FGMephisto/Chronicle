@@ -11,53 +11,42 @@
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
 					local sClass, sRecord = draginfo.getShortcutData();
-
-					if StringManager.contains({"ref_adventure"}, sClass) then
-						CharManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
-						return true;
+					if sClass == "ref_adventure" then
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
 					end
 				end
 			end
 		</script>
 		<sheetdata>
-			<button_iedit name="logs_iedit">
-				<anchored position="insidebottomright" offset="10,10" />
-				<tooltip textres="char_logs_tooltip_edit" />
-				<edittarget>contents</edittarget>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<area_content_framed_groupbox_bottom name="area_controls">
+				<anchored height="20" />
+			</area_content_framed_groupbox_bottom>
+			<button_iedit name="sheet_iedit">
+				<anchored to="area_controls" position="insidetopright" offset="0,0" />
+				<edittarget>content</edittarget>
 			</button_iedit>
 
-			<subwindow name="contents">
-				<anchored>
-					<top offset="0" />
-					<bottom offset="-30" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
+			<sub_content name="content">
 				<class>charsheet_logs_contents</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-			<scrollbar_charcontents />
+			</sub_content>
+			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
 
-	<!-- charsheet_log_contents -->
 	<windowclass name="charsheet_logs_contents">
 		<margins control="0,0,0,2" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<metalplate name="detailstitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
-					<left offset="15" />
-					<right offset="-10" />
-				</anchored>
-			</metalplate>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate name="details_header" />
+			<area_content_top name="details">
+				<anchored height="20" />
+			</area_content_top>
 			<stringu name="faction">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="5" />
-					<left parent="detailstitle" />
+				<anchored to="details" position="insidetopleft" offset="0,0" height="20">
 					<right anchor="center" offset="-5" />
 				</anchored>
 			</stringu>
@@ -66,10 +55,8 @@
 				<static textres="char_label_faction" />
 			</label_charfieldtop>
 			<stringu name="dci">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
-					<left parent="detailstitle" anchor="center" offset="5" />
-					<right parent="detailstitle" />
+				<anchored to="details" position="insidetopright" offset="0,0" height="20">
+					<left anchor="center" offset="5" />
 				</anchored>
 			</stringu>
 			<label_charfieldtop>
@@ -77,65 +64,49 @@
 				<static textres="char_label_dci" />
 			</label_charfieldtop>
 
-			<label_charframetop name="adventurestitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
 					<left offset="15" />
-					<right offset="-10" />
-				</anchored>
-				<static textres="char_logs_label_adventures" />
-				<icons>char_notes</icons>
-			</label_charframetop>
-			<list_text name="adventurelist">
-				<anchored to="adventurestitle">
-					<top anchor="bottom" relation="relative" offset="5" />
-					<left />
 					<right />
 				</anchored>
-				<allowcreate />
-				<allowdelete />
-				<noscroll />
-				<datasource>.adventurelist</datasource>
-				<class>adventure_item</class>
-				<sortby mergerule="replace"><control>name</control></sortby>
-			</list_text>
-			<button_iadd name="adventurelist_iadd">
-				<anchored to="adventurestitle" position="insidetopright" offset="5,0" />
-				<target>adventurelist</target>
+				<icons>char_notes</icons>
+				<static textres="char_logs_label_adventures" />
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_logs_label_adventures" />
+				<icon>char_notes</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
 			</button_iadd>
+
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.adventurelist</datasource>
+				<class>char_log_item</class>
+				<allowdelete />
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="adventure_item">
+	<windowclass name="char_log_item">
 		<margins control="0,0,0,2" />
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
-			</genericcontrol>
-			<linkcontrol name="shortcut">
-				<anchored to="rightanchor" width="20" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-5" />
-				</anchored>
-				<class>ref_adventure</class>
-				<readonly />
-			</linkcontrol>
-			<button_idelete name="idelete">
-				<anchored to="rightanchor">
-					<top />
-					<right anchor="left" offset="-5" />
-				</anchored>
-				<editmode>logs_iedit</editmode>
-			</button_idelete>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
 
-			<string_textlistitem name="name">
-				<anchored to="rightanchor">
-					<top />
-					<left parent="" offset="5" />
-					<right anchor="left" relation="relative" offset="-10" />
-				</anchored>
-				<multilinespacing>20</multilinespacing>
-			</string_textlistitem>
+			<button_listitem_idelete name="idelete">
+				<editmode>sheet_iedit</editmode>
+			</button_listitem_idelete>
+			<linkc_listitem_right name="shortcut">
+				<class>ref_adventure</class>
+			</linkc_listitem_right>
+
+			<string_listitem_center_text name="name" />
 		</sheetdata>
 	</windowclass>
 </root>

@@ -91,19 +91,19 @@ ability_stol = {
 
 -- Basic class values (not display values)
 classes = {
-	"artificer",
-	"barbarian",
-	"bard",
-	"cleric",
-	"druid",
-	"fighter",
-	"monk",
-	"paladin",
-	"ranger",
-	"rogue",
-	"sorcerer",
-	"warlock",
-	"wizard",
+	-- "artificer",
+	-- "barbarian",
+	-- "bard",
+	-- "cleric",
+	-- "druid",
+	-- "fighter",
+	-- "monk",
+	-- "paladin",
+	-- "ranger",
+	-- "rogue",
+	-- "sorcerer",
+	-- "warlock",
+	-- "wizard",
 };
 
 -- Values for wound comparison
@@ -168,7 +168,7 @@ creaturetype = {
 	-- "elemental",
 	-- "fey",
 	-- "fiend",
-	"giant",
+	-- "giant",
 	"humanoid",
 	-- "monstrosity",
 	-- "ooze",
@@ -206,7 +206,7 @@ creaturesubtype = {
 	-- "troglodyte",
 	-- "yuan-ti",
 	-- "yugoloth",
-	"troll"
+	"ogre"
 };
 
 -- Values supported in effect conditionals
@@ -225,15 +225,14 @@ conditions = {
 	"grappled", 
 	"incapacitated",
 	"intoxicated",
-	-- "invisible", 
+	"invisible", 
 	"paralyzed",
-	-- "petrified",
+	"petrified",
 	"poisoned",
 	"prone", 
 	"restrained",
 	-- "stable", 
 	"stunned",
-	-- "turned",
 	"unconscious"
 };
 
@@ -365,7 +364,7 @@ rangetypes = {
 
 -- Damage types supported
 dmgtypes = {
-	"acid",		-- ENERGY TYPES
+	-- "acid",		-- ENERGY TYPES
 	"cold",
 	"fire",
 	-- "force",
@@ -378,7 +377,7 @@ dmgtypes = {
 	-- "adamantine", 	-- WEAPON PROPERTY DAMAGE TYPES
 	"bludgeoning",
 	-- "cold-forged iron",
-	"magic",
+	-- "magic",
 	"piercing",
 	-- "silver",
 	"slashing",
@@ -386,7 +385,7 @@ dmgtypes = {
 };
 
 specialdmgtypes = {
-	-- "critical",
+	"critical",
 };
 
 -- Bonus types supported in power descriptions
@@ -647,9 +646,7 @@ function onInit()
 		Interface.getString("skill_value_dedication")
 	};
 	
-	-- --
-	-- Added -->
-	-- --
+	-- Added
 	-- Weapon grade list data
 	wpngradedata = {
 		"Common",
@@ -658,6 +655,7 @@ function onInit()
 		"Poor"
 	};
 
+	-- Added
 	-- Weapon skill list data
 	wpnskilldata = {
 		"None",
@@ -676,6 +674,7 @@ function onInit()
 		Interface.getString("skill_value_thrown"),
 	};
 
+	-- Added
 	-- Weapon damage abilities list data
 	wpndmgabilitydata = {
 		Interface.getString("agility"),

@@ -7,15 +7,6 @@
 -->
 
 <root>
-	<!-- Character wizard -->
-	<icon name="button_alert" file="graphics/buttons/button_window_alert.png" />	
-
-	<!-- Character Sheet -->
-	<icon name="button_prof" file="graphics/buttons/button_prof.png" />
-	<icon name="button_prof_down" file="graphics/buttons/button_prof_down.png" />
-	<icon name="button_prof_double" file="graphics/buttons/button_prof_double.png" />
-	<icon name="button_prof_half" file="graphics/buttons/button_prof_half.png" />
-
 	<!-- Weapons - Added -->
 	<icon name="button_success_degree_1" file="graphics/buttons_chronicle/degree_of_sucess_1.png" />
 	<icon name="button_success_degree_2" file="graphics/buttons_chronicle/degree_of_sucess_2.png" />

@@ -7,6 +7,46 @@
 -->
 
 <root>
+	<!-- 2024 Version Section -->
+	<template name="sub_record_version">
+		<sub_content_framed_groupbox_bottom name="sub_version">
+			<class>record_version</class>
+		</sub_content_framed_groupbox_bottom>
+	</template>
+	<windowclass name="record_version">
+		<margins control="0,0,0,5" />
+		<script>
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());				
+				version.setReadOnly(bReadOnly);
+				parentcontrol.setVisible(not bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<button_stringcycler name="version">
+				<anchored width="80">
+					<top offset="5" />
+					<left anchor="center" offset="-20" />
+				</anchored>
+				<parameters>
+					<labelsres>record_label_2024</labelsres>
+					<values>2024</values>
+					<defaultlabelres>record_label_2014</defaultlabelres>
+				</parameters>
+				<script>
+					function onValueChanged()
+						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onVersionChanged");
+					end
+				</script>
+			</button_stringcycler>
+			<label name="version_label">
+				<anchored to="version" position="lefthigh" offset="10,0" />
+				<static textres="record_label_version" />
+			</label>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Master Index Buttons -->
 	<template name="button_forge_item">
 		<button_masterindex_option>
 			<state textres="item_button_forge" />
@@ -17,7 +57,6 @@
 			</script>
 		</button_masterindex_option>
 	</template>
-
 	<template name="button_race_subrace">
 		<button_masterindex_option>
 			<state textres="library_recordtype_label_race_subrace" />
@@ -28,7 +67,6 @@
 			</script>
 		</button_masterindex_option>
 	</template>
-	
 	<template name="button_class_specialization">
 		<button_masterindex_option>
 			<anchored width="100" />
@@ -40,7 +78,6 @@
 			</script>
 		</button_masterindex_option>
 	</template>
-		
 	<template name="button_class_spell_view">
 		<button_masterindex_option>
 			<anchored width="100" />
@@ -52,7 +89,6 @@
 			</script>
 		</button_masterindex_option>
 	</template>
-	
 	<template name="button_class_spell_list">
 		<button_masterindex_option>
 			<anchored width="100" />
@@ -64,17 +100,43 @@
 			</script>
 		</button_masterindex_option>
 	</template>
+	<template name="button_add_item_import_text">
+		<button_add_record_import_text>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("import_item", "");
+				end
+			</script>
+		</button_add_record_import_text>
+	</template>
+	<template name="button_add_npc_import_text">
+		<button_add_record_import_text>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("import_npc", "");
+				end
+			</script>
+		</button_add_record_import_text>
+	</template>
+	<template name="button_add_species_import_text">
+		<button_add_record_import_text>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("import_species", "");
+				end
+			</script>
+		</button_add_record_import_text>
+	</template>
 
+	<!-- Common Record Templates -->
 	<template name="label_abilityscore">
 		<label_fieldtop>
-			<anchored offset="-2,-6" />
+			<anchored offset="-2,-5" />
 			<frame name="abilityscore" />
 		</label_fieldtop>
 	</template>
 	
-	<!-- -->
 	<!-- Adjusted -->
-	<!-- -->
 	<template name="number_abilityscore">
 		<basicnumber>
 			<default>2</default>
@@ -82,7 +144,6 @@
 			<script file="campaign/scripts/number_abilityscore_chronicle.lua" />
 		</basicnumber>
 	</template>
-	
 	<template name="string_abilitymodtext">
 		<stringcontrol>
 			<anchored position="below" offset="-8,-5" />
@@ -92,35 +153,17 @@
 			<center />
 		</stringcontrol>
 	</template>
-	
+
+	<!-- NPC Record Templates -->
 	<template name="label_npc_abilityscore">
 		<label_abilityscore />
 	</template>
-	
 	<template name="number_npc_abilityscore">
 		<number_abilityscore />
 	</template>
-	
 	<template name="string_npc_abilitymodtext">
 		<string_abilitymodtext />
 	</template>
-	
-	<template name="string_column_npc_remainder">
-		<basicstring>
-			<anchored position="righthigh" offset="10,0" height="20">
-				<right parent="" offset="-5" />
-			</anchored>
-		</basicstring>
-	</template>
-	
-	<template name="string_columnh_npc_specialdef">
-		<string_columnh>
-			<anchored>
-				<left offset="140"/>
-			</anchored>
-		</string_columnh>
-	</template>
-	
 	<template name="button_npcabilitycheck">
 		<buttoncontrol>
 			<anchored position="righthigh" offset="5,0" width="15" height="15" />
@@ -144,7 +187,6 @@
 			</script>
 		</buttoncontrol>
 	</template>
-	
 	<template name="button_npcabilitysave">
 		<buttoncontrol>
 			<anchored position="righthigh" offset="5,15" width="15" height="15" />
@@ -168,14 +210,12 @@
 			</script>
 		</buttoncontrol>
 	</template>
-	
 	<template name="list_npcactions">
-		<list_column>
+		<list_content_column>
 			<child merge="delete" />
 			<sortby merge="delete" />
-		</list_column>
+		</list_content_column>
 	</template>
-	
 	<template name="label_npc_spellslot">
 		<label>
 			<anchored to="anchor_spellslots">
@@ -184,7 +224,6 @@
 			</anchored>
 		</label>
 	</template>
-	
 	<template name="number_npc_spellslot">
 		<basicnumber>
 			<anchored to="anchor_spellslots" width="18" height="20">
@@ -199,31 +238,142 @@
 			</script>
 		</basicnumber>
 	</template>
-	
-	<template name="button_enc_refreshcr">
-		<button_refresh>
-			<anchored to="cr" position="rightlow" offset="5,0" />
-			<tooltip textres="enc_tooltip_refreshcr" />
+
+	<template name="area_npc_abilitylabel_2024">
+		<genericcontrol>
+			<anchored height="15" width="120">
+				<top />
+			</anchored>
+		</genericcontrol>
+	</template>
+	<template name="label_npc_abilitymod_2024">
+		<stringcontrol>
+			<anchored position="insidetopleft" offset="60,2" width="35" height="15" />
+			<font>sheetlabelmini</font>
+			<center />
+		</stringcontrol>
+	</template>
+	<template name="label_npc_abilitysave_2024">
+		<stringcontrol>
+			<anchored position="insidetopleft" offset="90,2" width="35" height="15" />
+			<font>sheetlabelmini</font>
+			<center />
+		</stringcontrol>
+	</template>
+	<template name="area_npc_abilityscore_2024">
+		<genericcontrol>
+			<anchored height="20" width="120">
+				<top />
+			</anchored>
+		</genericcontrol>
+	</template>
+	<template name="label_npc_abilityscore_2024">
+		<label>
+			<anchored position="insidetopleft" offset="0,2" width="30" />
+		</label>
+	</template>
+	<template name="number_npc_abilityscore_2024">
+		<basicnumber>
+			<anchored position="insidetopleft" offset="30,2" width="25" height="20" />
+			<default>10</default>
 			<script>
-				function onButtonPress()
-					CombatManager2.calcBattleCR(window.getDatabaseNode());
+				function onInit()
+					self.onValueChanged();
+				end
+				function onValueChanged()
+					window.onAbilityChanged(getName());
 				end
 			</script>
-		</button_refresh>
+		</basicnumber>
 	</template>
-	
-	<template name="button_enc_refreshxp">
-		<button_refresh>
-			<icon normal="button_enc_refreshxp" pressed="button_enc_refreshxp_down" />
-			<tooltip textres="enc_tooltip_refreshxp" />
+	<template name="number_npc_abilitymod_2024">
+		<numberc_static>
+			<anchored position="insidetopleft" offset="65,2" width="25" height="20" />
+			<displaysign />
 			<script>
-				function onButtonPress()
-					CombatManager2.calcBattleXP(window.getDatabaseNode());
+				function action(draginfo)
+					local sAbility = getName():gsub("mod$", "");
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+					ActionCheck.performRoll(draginfo, rActor, sAbility);
+					return true;
+				end
+				function onDragStart(button, x, y, draginfo)
+					return action(draginfo);
+				end
+				function onDoubleClick(x, y)
+					return action();
 				end
 			</script>
-		</button_refresh>
+		</numberc_static>
 	</template>
-	
+	<template name="number_npc_abilitysave_2024">
+		<numberc_static>
+			<anchored position="insidetopleft" offset="95,2" width="25" height="20" />
+			<displaysign />
+			<script>
+				function action(draginfo)
+					local sAbility = getName():gsub("save$", "");
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+					ActionSave.performRoll(draginfo, rActor, sAbility);
+					return true;
+				end
+				function onDragStart(button, x, y, draginfo)
+					return action(draginfo);
+				end
+				function onDoubleClick(x, y)
+					return action();
+				end
+				function onWheel(n)
+					if not Input.isControlPressed() then
+						return false;
+					end
+					local sAbility = getName():gsub("save$", "");
+					if window[sAbility].isReadOnly() then
+						return false;
+					end
+
+					window[sAbility .. "savemod"].setValue(window[sAbility .. "savemod"].getValue() + n);
+					return true;
+				end
+			</script>
+		</numberc_static>
+	</template>
+	<template name="number_npc_abilitysavemod_2024">
+		<hn>
+			<script>
+				function onValueChanged()
+					local sAbility = getName():gsub("savemod$", "");
+					window.onAbilityChanged(sAbility);
+				end
+			</script>
+		</hn>
+	</template>
+	<template name="numberc_npc_initmod_2024">
+		<numberc_static>
+			<anchored width="40" height="20">
+				<top relation="current" offset="-23" />
+				<right parent="" offset="-5" />
+			</anchored>
+			<displaysign />
+			<script>
+				function onWheel(n)
+					if not Input.isControlPressed() then
+						return false;
+					end
+					local nodeRecord = window.getDatabaseNode();
+					local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
+					if bReadOnly then
+						return false;
+					end
+
+					window.initmiscmod.setValue(window.initmiscmod.getValue() + n);
+					return true;
+				end
+			</script>
+		</numberc_static>
+	</template>
+
+	<!-- Common Power Roll Templates -->
 	<template name="list_editor">
 		<windowlist name="list">
 			<anchored>
@@ -231,52 +381,15 @@
 				<left />
 				<right />
 			</anchored>
+			<allowcreate />
 			<allowdelete />
 			<child></child>
 			<child><backcolor>1A40301E</backcolor></child>
 			<noscroll />
-			<script>
-				function onInit()
-					registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
-				end
-				
-				function onMenuSelection(selection)
-					if selection == 5 then
-						self.addEntry(true);
-					end
-				end
-				
-				function addEntry(bFocus)
-					return createWindow();
-				end
-			</script>
 		</windowlist>
 	</template>
 	
-	<!-- Import templates -->
-	<template name="button_add_npc_import_text">
-		<button_add_record_import_text>
-			<script>
-				function onButtonPress()
-					Interface.openWindow("import_npc", "");
-				end
-			</script>
-		</button_add_record_import_text>
-	</template>
-	
-	<template name="button_add_race_import_text">
-		<button_add_record_import_text>
-			<script>
-				function onButtonPress()
-					Interface.openWindow("import_race", "");
-				end
-			</script>
-		</button_add_record_import_text>
-	</template>
-	
-	<!-- -->
 	<!-- Added -->
-	<!-- -->
 	<template name="button_toggledetail">
 		<buttoncontrol>
 			<anchored width="20" height="20" />
@@ -291,34 +404,4 @@
 			</script>
 		</buttoncontrol>
 	</template>
-	
-	<!-- -->
-	<!-- Already covered -->
-	<!-- -->
-	<!-- <template name="number_npc_abilityscore"> -->
-		<!-- <number_abilityscore> -->
-			<!-- <anchored to="statstitle" width="40" height="30"> -->
-				<!-- <top anchor="bottom" relation="relative" offset="18" /> -->
-				<!-- <left anchor="center" offset="-20" /> -->
-			<!-- </anchored> -->
-			<!-- <rollable /> -->
-			<!-- <script> -->
-				<!-- function action(draginfo) -->
-					<!-- local rActor = ActorManager.resolveActor(window.getDatabaseNode()); -->
-					<!-- ActionCheck.performRoll(draginfo, rActor, self.target[1]); -->
-					<!-- return true; -->
-				<!-- end -->
-
-				<!-- function onDragStart(button, x, y, draginfo) -->
-					<!-- action(draginfo); -->
-					<!-- return true; -->
-				<!-- end -->
-					
-				<!-- function onButtonPress() -->
-					<!-- action(); -->
-					<!-- return true; -->
-				<!-- end -->
-			<!-- </script> -->
-		<!-- </number_abilityscore> -->
-	<!-- </template> -->
 </root>

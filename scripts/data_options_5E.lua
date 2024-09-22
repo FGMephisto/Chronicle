@@ -43,4 +43,7 @@ function registerOptions()
 			{ labels = "option_val_HRHV_fast|option_val_HRHV_slow", values = "fast|slow", baselabel = "option_val_standard", baseval = "", default = "" });
 	OptionsManager.registerOption2("HRIS", false, "option_header_houserule", "option_label_HRIS", "option_entry_cycler", 
 			{ labelsraw = "2|3", values = "2|3", baselabel = "option_val_standard", baseval = "", default = "" });
+
+	OptionsManager.registerOption2("GAVE", false, "option_header_game", "option_label_GAVE", "option_entry_cycler", 
+			{ labels = "record_label_2024", values = "2024", baselabel = "record_label_2014", baseval = "record_label_version", default = "2014" });
 end

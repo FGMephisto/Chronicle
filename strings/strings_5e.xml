@@ -38,27 +38,8 @@
 	<string name="melee">Melee</string>
 	<string name="ranged">Ranged</string>
 	<string name="dc">DC</string>
-	<string name="armor">Armor</string>
-	<string name="weapon">Weapon</string>
-	<string name="tool">Tool</string>
-	<string name="skill">Skill</string>
-	<string name="savingthrow">Saving Throw</string>
-	<string name="racial">Racial</string>
-	<string name="subracial">Subracial</string>
-	<string name="background">Background</string>
 	<string name="2nd">2nd</string>
 
-	<string name="menu_rest">Rest</string>
-	<string name="menu_restshort">Short Rest</string>
-	<string name="menu_restlong">Long Rest</string>
-	<string name="message_restshort">Taking short rest.</string>
-	<string name="message_restlong">Taking long rest.</string>
-	<string name="menu_init">Initiative</string>
-	<string name="menu_initall">Roll All Initiatives</string>
-	<string name="menu_initnpc">Roll NPC Initiatives</string>
-	<string name="menu_initpc">Roll PC Initiatives</string>
-	<string name="menu_initclear">Clear All Initiatives</string>
-	
 	<!-- Records -->
 	<string name="library_recordview_label_item_vehicledrawn">Tack, Harness, And Drawn Vehicles</string>
 	<string name="library_recordview_label_item_vehiclemount">Mounts And Other Animals</string>
@@ -66,9 +47,42 @@
 	<string name="library_recordview_label_item_vehiclecomponent">Vehicle Components</string>
 	<string name="library_recordview_label_item_vehiclecomponentupgrade">Vehicle Component Upgrades</string>
 	
+	<string name="library_recordtype_label_race">Species</string>
+	<string name="library_recordtype_single_race">Species</string>
+	<string name="library_recordtype_empty_race">&#171; New Species &#187;</string>
+
+	<string name="library_recordtype_label_race_subrace">Ancestries</string>
+	<string name="library_recordtype_single_race_subrace">Ancestry</string>
+	<string name="library_recordtype_empty_race_subrace">&#171; New Ancestry &#187;</string>
+
+	<string name="library_recordtype_label_class_specialization">Subclasses</string>
+	<string name="library_recordtype_single_class_specialization">Subclass</string>
+	<string name="library_recordtype_empty_class_specialization">&#171; New Subclass &#187;</string>
+	<string name="class_button_specialization">Subclasses</string>
+
+	<string name="record_label_version">Version</string>
+	<string name="record_label_2024">2024</string>
+	<string name="record_label_2014">Legacy</string>
+	<string name="record_label_version_title">Use the 2024 D&amp;D Rules as Your Default?</string>	
+	<string name="record_label_version_prompt">Do you want to use the new D&amp;D 2024 Rules by default?\r\n\r\nYou can use both the 2024 D&amp;D rules and the Legacy rules interchangeably, but this will set the default choice whenever you create a new game element record. You can change this at any time in the Campaign Options sidebar menu.</string>
+	<string name="record_label_prerequisite">Prerequisite</string>
+
 	<!-- Rolls -->
-	<string name="roll_msg_armor_nonprof">[ARMOR NON-PROF]</string>
-	<string name="roll_msg_armor_disstealth">[ARMOR STEALTH PENALTY]</string>
+	<string name="roll_msg_trait_luck">LUCK TRAIT REROLL</string>
+	<string name="roll_msg_feature_eldritchinvocationeldritchmind">ELDRITCH MIND</string>
+	<string name="roll_msg_feature_jackofalltrades">JACK OF ALL TRADES</string>
+	<string name="roll_msg_feature_reliable">RELIABLE</string>
+	<string name="roll_msg_feature_improved_critical">IMPROVED CRITICAL</string>
+	<string name="roll_msg_feature_superior_critical">SUPERIOR CRITICAL</string>
+	<string name="roll_msg_feature_warcaster">WAR CASTER</string>
+	<string name="roll_msg_feat_healer">HEALER FEAT REROLL</string>
+	<string name="roll_msg_feat_archery">STYLE: ARCHERY +2</string>
+	<string name="roll_msg_feat_dueling">STYLE: DUELING +2</string>
+	<string name="roll_msg_feat_greatweaponfighting">STYLE: GREAT WEAPON</string>
+	<string name="roll_msg_feat_thrownweaponfighting">STYLE: THROWN +2</string>
+	<string name="roll_msg_feat_twoweaponfighting">STYLE: TWO WEAPON</string>
+	<string name="roll_msg_armor_nonprof">ARMOR NON-PROFICIENCY</string>
+	<string name="roll_msg_armor_disstealth">ARMOR STEALTH PENALTY</string>
 
 	<!-- Options -->
 	<string name="option_label_NPCD">NPC: Rolls (Variable or Fixed)</string>
@@ -85,6 +99,8 @@
 	<string name="option_label_HREN">PC: Encumbrance</string>
 	<string name="option_label_HRHV">PC: Healing variants</string>
 	<string name="option_label_HRIS">PC: Inspiration slots</string>
+
+	<string name="option_label_GAVE">Game: Base Record Version</string>
 
 	<!-- Languages -->
 	<string name="language_value_common">Common</string>
@@ -115,7 +131,12 @@
 	<string name="language_value_thievescant">Thieves' Cant</string>
 
 	<!-- Combat Tracker -->
+	<string name="ct_tooltip_offense">Offense</string>
+	<string name="ct_tooltip_defense">Defense</string>
+	
 	<string name="ct_label_reaction">React?</string>
+	<string name="ct_tooltip_reactionon">Reaction Used</string>
+	<string name="ct_tooltip_reactionoff">Reaction Not Used</string>
 	<string name="ct_label_speed">Spd</string>
 	<string name="ct_label_traits">Traits</string>
 	<string name="ct_label_actions">Actions</string>
@@ -125,27 +146,26 @@
 	<string name="ct_label_lairactions">Lair Actns</string>
 	<string name="ct_label_innatespells">Inn Spells</string>
 	<string name="ct_label_spells">Spells</string>
-	<string name="ct_label_damagevulnerabilities">Dmg Vuln</string>
-	<string name="ct_label_damageresistances">Dmg Res</string>
-	<string name="ct_label_damageimmunities">Dmg Imm</string>
-	<string name="ct_label_conditionimmunities">Cnd Imm</string>
 	<string name="ct_label_components">Component</string>
 
 	<string name="ct_tooltip_attribute">Attributes</string>
-	<string name="ct_tooltip_offense">Offense</string>
-	<string name="ct_tooltip_defense">Defense</string>
-	<string name="ct_tooltip_reactionon">Reaction Used</string>
-	<string name="ct_tooltip_reactionoff">Reaction Not Used</string>
+	<string name="ct_label_damagevulnerabilities">Dmg Vuln</string>
 	<string name="ct_tooltip_damagevulnerabilities">Damage Vulnerabilities</string>
+	<string name="ct_label_damageresistances">Dmg Res</string>
 	<string name="ct_tooltip_damageresistances">Damage Resistances</string>
+	<string name="ct_label_damageimmunities">Dmg Imm</string>
 	<string name="ct_tooltip_damageimmunities">Damage Immunities</string>
+	<string name="ct_label_conditionimmunities">Cnd Imm</string>
 	<string name="ct_tooltip_conditionimmunities">Condition Immunities</string>
-	
-	<string name="ct_message_rest">Party taking short rest.</string>
-	<string name="ct_message_restlong">Party taking long rest.</string>
-	
+	<string name="ct_label_vulnerabilities">Vuln</string>
+	<string name="ct_tooltip_vulnerabilities">Vulnerabilities</string>
+	<string name="ct_label_resistances">Resist</string>
+	<string name="ct_tooltip_resistances">Resistances</string>
+	<string name="ct_label_immunities">Immune</string>
+	<string name="ct_tooltip_immunities">Immunities</string>
+
 	<!-- Party Sheet -->
-	<string name="ps_label_race">Race</string>
+	<string name="ps_label_race">Species</string>
 	<string name="ps_label_classlevel">Class &amp; Level</string>
 	<string name="ps_label_abilities">Abilities</string>
 	<string name="ps_label_ac">AC</string>
@@ -178,22 +198,18 @@
 	<string name="modifier_label_DMG_HALF">Half</string>
 	
 	<!-- Import -->
+	<string name="import_item_window_title">Import - Item</string>
 	<string name="import_npc_window_title">Import - NPC</string>
-	<string name="import_race_window_title">Import - Race</string>
+	<string name="import_race_window_title">Import - Species</string>
 
-	<string name="import_npc_mode_2022">2022 - Monsters of the Multiverse</string>
-	<string name="import_race_mode_2022">2022 - Monsters of the Multiverse</string>
+	<string name="import_mode_2022">2022 - Monsters of the Multiverse</string>
+	<string name="import_mode_2024">2024 - D&amp;D Core Rules</string>
 
-	<string name="ft_empty_import_statblock">Paste a stat block here.
-
-	Formatting is NOT preserved.</string>
-	<string name="ft_empty_import_description">Paste your description text here.
-	
-	You can include bold, italic, lists, links, or anything else that would be relevant for the description.</string>	
-
-	<string name="ft_empty_import_description_race">Paste the race text here.
-
-	Formatting is NOT preserved.</string>
+	<string name="ft_empty_import_item_listdata">Paste item list data here.\r\rFormatting is NOT preserved.</string>
+	<string name="ft_empty_import_item_description">Paste the item text here.\r\rFormatting is NOT preserved.</string>
+	<string name="ft_empty_import_npc_statblock">Paste a stat block here.\r\rFormatting is NOT preserved.</string>
+	<string name="ft_empty_import_npc_description">Paste your description text here.\r\rYou can include bold, italic, lists, links, or anything else that would be relevant for the description.</string>	
+	<string name="ft_empty_import_species">Paste the species text here.\r\rFormatting is NOT preserved.</string>
 
 	<!-- Characters - Overall -->
 	<string name="char_tooltip_prof_off">Not Proficient</string>
@@ -208,7 +224,7 @@
 	<string name="char_button_levelup">LVL UP</string>
 	<string name="char_label_profbonus">PROF</string>
 	<string name="char_label_background">BACKGROUND</string>
-	<string name="char_label_race">RACE</string>
+	<string name="char_label_race">SPECIES</string>
 
 	<string name="char_label_stats">ABILITIES</string>
 	<string name="char_label_save">SAVES</string>
@@ -232,7 +248,7 @@
 	<string name="char_label_hd">HIT DIE</string>
 	<string name="char_label_hdused">USED</string>
 	<string name="char_tooltip_hdused">Hit Dice Used</string>
-	<string name="char_label_class_specialization">Specialization:</string>
+	<string name="char_label_class_specialization">Subclass:</string>
 	
 	<string name="char_button_powers">POWERS</string>	
 	<string name="char_tooltip_powers">Click to open Powers</string>	
@@ -251,28 +267,6 @@
 	<string name="char_label_addprof_weapon">Weapon</string>
 	<string name="char_label_addprof_tool">Tool</string>
 	
-	<string name="char_error_missingrecord">Unable to find record to match link dropped. Check to make sure the correct modules are open.</string>
-	<string name="char_error_addskill">Unknown format for class skill proficiency.</string>
-	<string name="char_error_addsubrace">To add this race to your character, you must choose exactly one subrace.</string>
-	<string name="char_error_addclasshd">Unable to find class hit die type (assuming d6).</string>
-	<string name="char_error_addclassspecialization">Please choose exactly one specialization option.</string>
-	<string name="char_error_missingclassspecialization">Unable to find class specialization chosen.</string>
-	<string name="char_error_missingsubrace">Unable to find subrace chosen.</string>
-	<string name="char_error_missingracefromsubrace">Unable to find race from subrace chosen.</string>
-
-	<string name="char_error_wizard_import_missingclass">Unable to import. Unable to open class record(s) not loaded.</string>
-	<string name="char_error_wizard_import_missingclassspecialization">Unable to import. Unable to open class specialization record(s) not loaded.</string>
-
-	<string name="char_build_title_selectabilityincrease">Select Ability Scores</string>
-	<string name="char_build_message_selectabilityincrease">Choose %d abilities from the list below to increase by %d.</string>
-	<string name="char_build_message_selectabilityincrease1">Choose 1 ability to increase by %d.</string>
-	<string name="char_build_title_selectskills">Select Skills</string>
-	<string name="char_build_message_selectskills">Choose %d skill(s) from the list below in which your character will become proficient.</string>
-	<string name="char_build_title_selectsubrace">Select Sub-Race</string>
-	<string name="char_build_message_selectsubrace">Choose sub-race from the list below.</string>
-	<string name="char_build_title_selectspecialization">Select Specialization</string>
-	<string name="char_build_message_selectspecialization">Choose specialization from the list below.</string>
-	
 	<string name="char_classes_title">CLASS &amp; LEVEL</string>
 	<string name="char_label_class">CLASS</string>
 	<string name="char_label_level">LEVEL</string>
@@ -284,6 +278,7 @@
 	
 	<string name="char_combatcalc_title">COMBAT CALC</string>
 	<string name="char_label_initdetail">Init:</string>
+	<string name="char_label_initprof">Proficient?</string>
 	<string name="char_label_speeddetail">Speed:</string>
 	<string name="char_label_speedarmor">Armor</string>
 	<string name="char_label_armordetail">Armor:</string>
@@ -321,31 +316,6 @@
 	<string name="char_abilities_label_proficiencies">PROFICIENCIES</string>
 	<string name="char_abilities_label_languages">LANGUAGES</string>
 	<string name="char_abilities_tooltip_edit">Edit Abilities</string>
-	
-	<string name="char_abilities_message_classadd">One level of class '%s' added to '%s'.</string>
-	<string name="char_abilities_message_raceadd">Race '%s' added to '%s'.</string>
-	<string name="char_abilities_message_subraceadd">Subrace '%s' added to '%s'.</string>
-	<string name="char_abilities_message_backgroundadd">Background '%s' added to '%s'.</string>
-
-	<string name="char_abilities_message_abilityadd">Ability adjustment '%s %+d' applied to '%s'.</string>
-	<string name="char_abilities_message_abilityset">Ability %s set to %d for '%s'.</string>
-	<string name="char_abilities_message_hpaddmax">Maximum hit points for first %s level added to '%s'. (%d)</string>
-	<string name="char_abilities_message_hpaddavg">Average hit points for additional %s level added to '%s'. (%d)</string>
-	<string name="char_abilities_message_hpaddtrait">Hit points for trait '%s' added to '%s'. (%d)</string>
-	<string name="char_abilities_message_hpaddfeature">Hit points for feature '%s' added to '%s'. (%d)</string>
-	<string name="char_abilities_message_hpaddfeat">Hit points for feat '%s' added to '%s'. (%d)</string>
-	<string name="char_abilities_message_saveadd">Saving throw proficiency '%s' added to '%s'.</string>
-	<string name="char_abilities_message_featureadd">Feature '%s' added to '%s'.</string>
-	<string name="char_abilities_message_skilladd">Skill '%s' added to '%s'.</string>
-	<string name="char_abilities_message_expertiseadd">Skill expertise '%s' added to '%s'.</string>
-	<string name="char_abilities_message_featadd">Feat '%s' added to '%s'.</string>
-	<string name="char_abilities_message_profadd">Proficiency '%s' added to '%s'.</string>
-	<string name="char_abilities_message_traitadd">Trait '%s' added to '%s'.</string>
-	<string name="char_abilities_message_languageadd">Language '%s' added to '%s'.</string>
-	<string name="char_abilities_message_initadd">Initiative adjustment %+d applied to '%s'.</string>
-	<string name="char_abilities_message_passiveadd">Passive Perception adjustment %+d applied to '%s'.</string>
-	<string name="char_abilities_message_basespeedset">Base speed set to %d for '%s'.</string>
-	<string name="char_abilities_message_basespeedadj">Base speed adjusment %+d applied to '%s'.</string>
 	
 	<!-- Character - Inventory -->
 	<string name="char_label_inventory">EQUIPMENT</string>
@@ -439,18 +409,25 @@
 	<string name="char_tooltip_actionaddweapon">Add Weapon</string>
 	
 	<!-- Pregens -->
-	<string name="pregen_label_race">Race</string>
+	<string name="pregen_label_race">Species</string>
 	<string name="pregen_label_class">Class</string>
 	<string name="pregen_label_background">Background</string>
 	<string name="pregen_error_missingdata">[ERROR] One or more data records (features, traits, inventory, spells) were unable to be loaded. Please ensure that your Player's Handbook or Basic Rules - Player modules are loaded; and re-add the pregen character.</string>
 
 	<!-- Backgrounds -->
 	<string name="background_header_features">FEATURES</string>
+	<string name="background_label_abilities">Abilities</string>
+	<string name="background_label_feat">Feat</string>
 	<string name="background_label_equipment">Equipment</string>
 	<string name="background_label_languages">Languages</string>
 	<string name="background_label_skills">Skills</string>
 	<string name="background_label_tools">Tools</string>
 
+	<!-- Battles -->
+	<string name="battle_tooltip_refreshcr">Refresh CR</string>
+	<string name="battle_tooltip_refreshxp">Refresh XP</string>
+	<string name="battle_error_missingnpclink">[ERROR] Link for NPC '%s' is not working. Make sure the correct modules have been opened in the Library.</string>
+	
 	<!-- Classes -->
 	<string name="class_value_artificer">Artificer</string>
 	<string name="class_value_barbarian">Barbarian</string>
@@ -479,23 +456,32 @@
 	<string name="class_short_warlock">War</string>
 	<string name="class_short_wizard">Wiz</string>
 
-	<string name="class_label_hitdice">HD Per Level</string>
-	<string name="classprof_label_armor">Armor</string>
-	<string name="classprof_value_armor">Armor</string>
+	<string name="class_header_features">FEATURES</string>
+	<string name="class_header_featurechoices">FEATURE CHOICES</string>
+
+	<string name="library_recordtype_empty_classfeature">&#171; New Class Feature &#187;</string>
+	<string name="library_recordtype_empty_classfeaturechoice">&#171; New Class Feature Choice &#187;</string>
+	<string name="classfeaturechoice_empty_choicetype">&#171; Type &#187;</string>
+	<string name="classfeaturechoice_label_choicetype">Type</string>
+	<string name="classfeaturechoice_label_prerequisite">Prerequisite</string>
+	<string name="classfeaturechoice_label_repeatable">Repeatable</string>
+
+	<string name="class_label_ability">Primary Ability</string>
+	<string name="class_label_hitdice">HP Die</string>
+	<string name="class_tooltip_hitdice">Hit Point Die</string>
+	<string name="classprof_label_armor">Armor Training</string>
 	<string name="classprof_label_savingthrows">Saving Throws</string>
-	<string name="classprof_value_savingthrows">Saving Throws</string>
 	<string name="classprof_label_skills">Skills</string>
-	<string name="classprof_value_skills">Skills</string>
 	<string name="classprof_label_tools">Tools</string>
-	<string name="classprof_value_tools">Tools</string>
 	<string name="classprof_label_weapons">Weapons</string>
-	<string name="classprof_value_weapons">Weapons</string>
 	<string name="classfeature_label_specializationchoice">Spec. Choice?</string>
 	<string name="classfeature_label_specialization">Spec. Required</string>
-	<string name="class_header_features">FEATURES</string>
-	<string name="class_header_multiclassproficiencies">MULTI-CLASS PROFICIENCIES</string>
 	<string name="class_header_proficiencies">FIRST LEVEL PROFICIENCIES</string>
+	<string name="class_header_multiclassproficiencies">MULTI-CLASS PROFICIENCIES</string>
+	<string name="class_header_equipment">Starting Equipment</string>
 	<string name="class_header_specializations">SPECIALIZATIONS</string>
+
+	<string name="library_recordtype_empty_classproficiency">&#171; New Class Proficiency &#187;</string>
 
 	<!-- Class Specializations -->
 	<string name="class_specialization_label_class">Class</string>
@@ -503,48 +489,85 @@
 	<!-- Class Spell Lists -->
 	<string name="class_spell_list_header_spells">Spells</string>
 
-	<!-- Races -->
-	<string name="race_header_subraces">SUB-RACES</string>
-	<string name="race_header_traits">TRAITS</string>
-	<string name="race_label_ignoresubrace">Skip subrace?</string>
+	<!-- Feats -->
+	<string name="feat_label_category">Category</string>
+	<string name="feat_label_repeatable">Repeatable</string>
 
-	<!-- Subraces -->
-	<string name="race_subrace_label_race">Race</string>
+	<!-- Items -->
+	<string name="item_button_forge">Forge</string>
+	<string name="item_label_type">Type</string>
+	<string name="item_label_subtype">Subtype</string>
+	<string name="item_label_rarity">Rarity</string>
+	<string name="item_label_bonus">Bonus</string>
+	<string name="item_label_damage">Damage</string>
+	<string name="item_label_mastery">Mastery</string>
+	<string name="item_label_ac">AC Base</string>
+	<string name="item_label_dexbonus">Dex Bonus</string>
+	<string name="item_label_speed">Speed</string>
+	<string name="item_label_properties">Properties</string>
+	<string name="item_label_bonus">Bonus</string>
+	<string name="item_label_aura">Aura</string>
+	<string name="item_label_carryingcapacity">Cargo</string>
+	<string name="item_label_strength">Strength</string>
+	<string name="item_label_stealth">Stealth</string>
 
-	<!-- Skills -->
-	<string name="skill_label_ability">Ability</string>
-	<string name="skill_value_acrobatics">Acrobatics</string>
-	<string name="skill_value_animalhandling">Animal Handling</string>
-	<string name="skill_value_arcana">Arcana</string>
-	<string name="skill_value_athletics">Athletics</string>
-	<string name="skill_value_deception">Deception</string>
-	<string name="skill_value_history">History</string>
-	<string name="skill_value_insight">Insight</string>
-	<string name="skill_value_intimidation">Intimidation</string>
-	<string name="skill_value_investigation">Investigation</string>
-	<string name="skill_value_medicine">Medicine</string>
-	<string name="skill_value_nature">Nature</string>
-	<string name="skill_value_perception">Perception</string>
-	<string name="skill_value_performance">Performance</string>
-	<string name="skill_value_persuasion">Persuasion</string>
-	<string name="skill_value_religion">Religion</string>
-	<string name="skill_value_sleightofhand">Sleight of Hand</string>
-	<string name="skill_value_stealth">Stealth</string>
-	<string name="skill_value_survival">Survival</string>
+	<string name="item_vehicle_label_cover">Cover</string>
+	<string name="item_vehicle_label_load">Load</string>
+	<string name="item_vehicle_label_aim">Aim</string>
+	<string name="item_vehicle_label_fire">Fire</string>
+	<string name="item_vehicle_component_cover_none">None</string>
+	<string name="item_vehicle_component_cover_half">1/2</string>
+	<string name="item_vehicle_component_cover_threequarter">3/4</string>
+	<string name="item_vehicle_component_cover_full">Full</string>
+
+	<string name="item_grouped_label_name">Name</string>
+	<string name="item_grouped_label_cost">Cost</string>
+	<string name="item_grouped_label_weight">Wt</string>
+	<string name="item_grouped_tooltip_weight">Weight</string>
+	<string name="item_grouped_label_ac">AC</string>
+	<string name="item_grouped_tooltip_ac">Armor Class</string>
+	<string name="item_grouped_label_dexbonus">Dex</string>
+	<string name="item_grouped_tooltip_dexbonus">Dexterity Adjustment</string>
+	<string name="item_grouped_label_strength">Str</string>
+	<string name="item_grouped_tooltip_strength">Strength Required</string>
+	<string name="item_grouped_label_stealth">Stealth</string>
+	<string name="item_grouped_tooltip_stealth">Stealth Adjustment</string>
+	<string name="item_grouped_label_damage">Damage</string>
+	<string name="item_grouped_label_properties">Properties</string>
+	<string name="item_grouped_label_speed">Speed</string>
+	<string name="item_grouped_label_carryingcapacity">Carry</string>
+	<string name="item_grouped_tooltip_carryingcapacity">Carrying Capacity</string>
 
 	<!-- NPCs -->
+	<string name="npc_label_summon">Summon?</string>
+	<string name="npc_label_summon_level">Spell Lvl</string>
+	<string name="npc_label_summon_attack">Spell Atk</string>
+	<string name="npc_label_summon_dc">Spell DC</string>
+	<string name="npc_label_summon_mod">Spell Mod</string>
+	<string name="npc_label_summon_pb">Prof</string>
+	<string name="npc_label_summon_ac">Summon AC</string>
+	<string name="npc_label_summon_ac_mod">per spell level</string>
+	<string name="npc_label_summon_hp">Summon HP</string>
+	<string name="npc_label_summon_hp_mod">for each spell level above</string>
+
 	<string name="npc_label_type">Type</string>
+	<string name="npc_label_init">Initiative</string>
 	<string name="npc_label_damagethreshold">Dmg Thresh</string>
 	<string name="npc_tooltip_damagethreshold">Damage Threshold</string>
 	<string name="npc_label_speed">Speed</string>
 	<string name="npc_label_senses">Senses</string>
 	<string name="npc_label_abilities">Abilities</string>
+	<string name="npc_label_abilitymod">MOD</string>
+	<string name="npc_label_abilitysave">SAVE</string>
 	<string name="npc_label_skills">Skills</string>
 	<string name="npc_label_challenge">Challenge</string>
 	<string name="npc_label_profbonus">Proficiency Bonus</string>
 	<string name="npc_label_alignment">Alignment</string>
 	<string name="npc_label_languages">Languages</string>
 	<string name="npc_label_savingthrows">Saving Throws</string>
+	<string name="npc_label_vulnerabilities">Vulnerabilities</string>
+	<string name="npc_label_resistances">Resistances</string>
+	<string name="npc_label_immunities">Immunities</string>
 	<string name="npc_label_damagevulnerabilities">Dmg Vuln</string>
 	<string name="npc_tooltip_damagevulnerabilities">Damage Vulnerabilities</string>
 	<string name="npc_label_damageresistances">Dmg Resist</string>
@@ -589,57 +612,56 @@
 	
 	<string name="npc_menu_parsespells">Parse NPC Spells</string>
 
-	<!-- Encounters -->
-	<string name="enc_tooltip_refreshcr">Refresh CR</string>
-	<string name="enc_tooltip_refreshxp">Refresh XP</string>
-	<string name="enc_message_refreshxp_missingnpclink">[ERROR] Link for NPC '%s' is not working. Make sure the correct modules have been opened in the Library.</string>
-	
-	<!-- Items -->
-	<string name="item_button_forge">Forge</string>
-	<string name="item_label_type">Type</string>
-	<string name="item_label_subtype">Subtype</string>
-	<string name="item_label_rarity">Rarity</string>
-	<string name="item_label_bonus">Bonus</string>
-	<string name="item_label_damage">Damage</string>
-	<string name="item_label_critical">Critical</string>
-	<string name="item_label_ac">AC Base</string>
-	<string name="item_label_dexbonus">Dex Bonus</string>
-	<string name="item_label_speed">Speed</string>
-	<string name="item_label_properties">Properties</string>
-	<string name="item_label_bonus">Bonus</string>
-	<string name="item_label_aura">Aura</string>
-	<string name="item_label_carryingcapacity">Cargo</string>
-	<string name="item_label_strength">Strength</string>
-	<string name="item_label_stealth">Stealth</string>
+	<!-- Races -->
+	<string name="race_label_type">Creature Type</string>
+	<string name="race_label_size">Size</string>
+	<string name="race_label_speed">Speed</string>
+	<string name="race_header_traits">TRAITS</string>
+	<string name="race_label_ignoresubrace">Skip subrace?</string>
+	<string name="race_header_subraces">SUB-RACES</string>
 
-	<string name="item_label_crew">Crew</string>
-	<string name="item_label_hp">HP</string>
-	<string name="item_label_load">Load</string>
-	<string name="item_label_aim">Aim</string>
-	<string name="item_label_fire">Fire</string>
-	<string name="item_label_cover">Cover</string>
-	<string name="item_vehicle_component_cover_none">None</string>
-	<string name="item_vehicle_component_cover_half">1/2</string>
-	<string name="item_vehicle_component_cover_threequarter">3/4</string>
-	<string name="item_vehicle_component_cover_full">Full</string>
+	<!-- Subraces -->
+	<string name="race_subrace_label_race">Species</string>
 
-	<string name="item_grouped_label_name">Name</string>
-	<string name="item_grouped_label_cost">Cost</string>
-	<string name="item_grouped_label_weight">Wt</string>
-	<string name="item_grouped_tooltip_weight">Weight</string>
-	<string name="item_grouped_label_ac">AC</string>
-	<string name="item_grouped_tooltip_ac">Armor Class</string>
-	<string name="item_grouped_label_dexbonus">Dex</string>
-	<string name="item_grouped_tooltip_dexbonus">Dexterity Adjustment</string>
-	<string name="item_grouped_label_strength">Str</string>
-	<string name="item_grouped_tooltip_strength">Strength Required</string>
-	<string name="item_grouped_label_stealth">Stealth</string>
-	<string name="item_grouped_tooltip_stealth">Stealth Adjustment</string>
-	<string name="item_grouped_label_damage">Damage</string>
-	<string name="item_grouped_label_properties">Properties</string>
-	<string name="item_grouped_label_speed">Speed</string>
-	<string name="item_grouped_label_carryingcapacity">Carry</string>
-	<string name="item_grouped_tooltip_carryingcapacity">Carrying Capacity</string>
+	<!-- Skills -->
+	<string name="skill_label_ability">Ability</string>
+	<string name="skill_value_acrobatics">Acrobatics</string>
+	<string name="skill_value_animalhandling">Animal Handling</string>
+	<string name="skill_value_arcana">Arcana</string>
+	<string name="skill_value_athletics">Athletics</string>
+	<string name="skill_value_deception">Deception</string>
+	<string name="skill_value_history">History</string>
+	<string name="skill_value_insight">Insight</string>
+	<string name="skill_value_intimidation">Intimidation</string>
+	<string name="skill_value_investigation">Investigation</string>
+	<string name="skill_value_medicine">Medicine</string>
+	<string name="skill_value_nature">Nature</string>
+	<string name="skill_value_perception">Perception</string>
+	<string name="skill_value_performance">Performance</string>
+	<string name="skill_value_persuasion">Persuasion</string>
+	<string name="skill_value_religion">Religion</string>
+	<string name="skill_value_sleightofhand">Sleight of Hand</string>
+	<string name="skill_value_stealth">Stealth</string>
+	<string name="skill_value_survival">Survival</string>
+
+	<!-- Spells -->
+	<string name="spell_label_source">Source</string>
+	<string name="spell_label_ritual">Ritual</string>
+	<string name="spell_label_school">School</string>
+	<string name="spell_label_castingtime">Casting Time</string>
+	<string name="spell_label_range">Range</string>
+	<string name="spell_label_components">Components</string>
+	<string name="spell_label_duration">Duration</string>
+
+	<string name="spell_label_cantrip">cantrip</string>
+	<string name="spell_label_shortdescription">Summary</string>
+
+	<string name="spell_view_grouped_label_level">Level</string>
+	<string name="spell_view_grouped_label_name">Name</string>
+	<string name="spell_view_grouped_label_castingtime">Casting Time</string>
+	<string name="spell_view_grouped_label_duration">Duration</string>
+	<string name="spell_view_grouped_label_range">Range/Area</string>
+	<string name="spell_view_grouped_label_components">Components</string>
 
 	<!-- Vehicles -->
 	<string name="vehicle_tooltip_actions_summary">Load/Aim/Fire</string>
@@ -654,13 +676,15 @@
 	<string name="vehicle_label_ac">Armor Class</string>
 	<string name="vehicle_label_hp">HP</string>
 	<string name="vehicle_tooltip_disablestandardimmunities">Disable standard vehicle immunities</string>
-	
-	<!-- Powers -->
+
+	<!-- Record Powers -->
+	<string name="power_tooltip_grouptypeability">Abilities</string>
+	<string name="power_tooltip_grouptypeprep">Spells</string>
+
 	<string name="power_label_useperiod_daily">Daily</string>
 	<string name="power_label_useperiod_enc">Rest</string>
 	<string name="power_label_useperiod_once">Once</string>
-	<string name="power_tooltip_grouptypeability">Abilities</string>
-	<string name="power_tooltip_grouptypeprep">Spells</string>
+	<string name="power_label_useperiod_dual">Dual</string>
 
 	<string name="power_label_mode">Mode</string>
 	<string name="power_label_modestd">Standard</string>
@@ -698,25 +722,6 @@
 	<string name="power_error_spellgroupnotfound">[ERROR] Unable to locate spell group to resolve spell modifiers or DCs.</string>
 	<string name="power_error_spellcastingnotfound">[ERROR] Unable to locate spellcasting trait to resolve spell modifiers or DCs.</string>
 	<string name="power_error_innatespellcastingnotfound">[ERROR] Unable to locate innate spellcasting trait to resolve spell modifiers or DCs.</string>
-
-	<!-- Reference -->
-	<string name="spell_label_source">Source</string>
-	<string name="spell_label_ritual">Ritual</string>
-	<string name="spell_label_school">School</string>
-	<string name="spell_label_castingtime">Casting Time</string>
-	<string name="spell_label_range">Range</string>
-	<string name="spell_label_components">Components</string>
-	<string name="spell_label_duration">Duration</string>
-
-	<string name="spell_label_cantrip">cantrip</string>
-	<string name="spell_label_shortdescription">Summary</string>
-
-	<string name="spell_view_grouped_label_level">Level</string>
-	<string name="spell_view_grouped_label_name">Name</string>
-	<string name="spell_view_grouped_label_castingtime">Casting Time</string>
-	<string name="spell_view_grouped_label_duration">Duration</string>
-	<string name="spell_view_grouped_label_range">Range/Area</string>
-	<string name="spell_view_grouped_label_components">Components</string>
 
 	<!-- Editors -->
 	<string name="weapon_title">Weapon</string>
@@ -804,6 +809,4 @@
 	<string name="library_recordtype_empty_backgroundfeature">&#171; New Background Feature &#187;</string>
 	<string name="library_recordtype_empty_racialtrait">&#171; New Racial Trait &#187;</string>
 	<string name="library_recordtype_empty_subracialtrait">&#171; New Sub-Racial Trait &#187;</string>
-	<string name="library_recordtype_empty_classproficiency">&#171; New Class Proficiency &#187;</string>
-	<string name="library_recordtype_empty_classfeature">&#171; New Class Feature &#187;</string>
 </root>

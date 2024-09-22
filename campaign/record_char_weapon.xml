@@ -10,175 +10,100 @@
 		<margins control="0,0,0,5" />
 		<script file="campaign/scripts/char_weapon.lua" />
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored width="0" height="0">
-					<top />
-					<right />
-				</anchored>
-				<invisible />
-			</genericcontrol>
-			<linkfield name="shortcut">
-				<anchored to="rightanchor" width="20" height="20">
-					<top offset="8" />
-					<right anchor="left" relation="relative" offset="-2" />
-				</anchored>
-			</linkfield>
-			<button_idelete name="idelete">
-				<anchored to="rightanchor">
-					<top offset="8" />
-					<right anchor="left" offset="-2" />
-				</anchored>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<button_charweaponcarried name="carried" />
+			
+			<button_listitem_idelete name="idelete">
 				<editmode>actions_iedit</editmode>
-			</button_idelete>
-			<button_details name="activatedetail">
-				<anchored to="rightanchor">
-					<top offset="8" />
-					<right anchor="left" relation="relative" offset="-3" />
-				</anchored>
+			</button_listitem_idelete>
+			<link_listitem_right name="shortcut" />
+			<buttonc_listitem_right name="activatedetail">
+				<icon normal="button_details" pressed="button_details_down" />
 				<script>
 					function onButtonPress()
 						Interface.openWindow("char_weapon_editor", window.getDatabaseNode());
 					end
 				</script>
-			</button_details>
+			</buttonc_listitem_right>
 
-			<stringcontrol name="damageview">
-				<anchored to="rightanchor" width="91">
-					<top offset="8" />
-					<right anchor="left" relation="relative" offset="-5" />
-				</anchored>
+			<stringc_listitem_right_static name="damageview">
+				<anchored width="90" />
+				<frame name="fieldlight" offset="10,10,10,10" />
 				<multilinespacing>20</multilinespacing>
-				<frame name="fielddark" offset="7,8,7,8" />
-				<stateframe>
-					<hover name="rowshade" offset="7,8,7,8" />
-				</stateframe>
 				<cursor hover="hand" />
-				<readonly />
 				<script>
 					function onDoubleClick(x,y)
 						return window.onDamageAction();
 					end			
-
 					function onDragStart(button, x, y, draginfo)
 						return window.onDamageAction(draginfo);
 					end
 				</script>
-			</stringcontrol>
+			</stringc_listitem_right_static>
 
-			<genericcontrol name="attackshade">
-				<anchored to="rightanchor" width="80" height="36">
-					<top />
-					<right anchor="left" relation="relative" offset="-7" />
-				</anchored>
-			</genericcontrol>
-			<genericcontrol name="attackframe">
-				<anchored to="attackshade" position="over" />
-				<frame name="fielddark" />
+			<spacer_listitem_right name="attackframe">
+				<anchored width="70" />
+				<frame name="fieldlight" offset="5,10,5,10" />
+				<cursor hover="hand" />
 				<script>
-					function onInit()
-						setHoverCursor("hand");
-					end
-					
-					function onHover(bOnControl)
-						window.highlightAttack(bOnControl);
-					end
-
 					function onDoubleClick(x,y)
 						return window.onAttackAction();
 					end			
-
 					function onDragStart(button, x, y, draginfo)
 						return window.onAttackAction(draginfo);
 					end
 				</script>
-			</genericcontrol>
+			</spacer_listitem_right>
 			<genericcontrol name="attackicon">
-				<anchored to="attackframe" position="insidetopleft" offset="5,0" width="30" height="35" />
+				<anchored to="attackframe" position="insidetopleft" offset="10,0" width="20" height="20" />
 				<icon>d20icon</icon>
+				<cursor hover="hand" />
 				<script>
-					function onInit()
-						setHoverCursor("hand");
-					end
-					
-					function onHover(bOnControl)
-						window.highlightAttack(bOnControl);
-					end
-
 					function onDoubleClick(x,y)
 						return window.onAttackAction();
 					end			
-
 					function onDragStart(button, x, y, draginfo)
 						return window.onAttackAction(draginfo);
 					end
 				</script>
 			</genericcontrol>
-			<simplenumberc name="attackview">
-				<anchored to="attackicon" position="righthigh" width="35" height="35" />
-				<displaysign />
-				<readonly />
+			<numberc_text_noframe_static name="attackview">
+				<anchored to="attackicon" position="righthigh" width="40" height="20" />
+				<cursor hover="hand" />
 				<script>
-					function onInit()
-						setHoverCursor("hand");
-					end
-					
-					function onHover(bOnControl)
-						window.highlightAttack(bOnControl);
-					end
-
 					function onDoubleClick(x,y)
 						return window.onAttackAction();
 					end			
-
 					function onDragStart(button, x, y, draginfo)
 						return window.onAttackAction(draginfo);
 					end
 				</script>
-			</simplenumberc>
-			<button_weaponprof name="prof">
-				<anchored to="attackframe" />
+			</numberc_text_noframe_static>
+
+			<button_prof name="prof">
+				<anchored to="attackview" position="rightlow" offset="-7,-10" width="12" height="12" />
 				<script>
 					function onValueChanged()
 						window.onAttackChanged();
 					end
 				</script>
-			</button_weaponprof>
-
+			</button_prof>
 			<state_charweaponhand name="handling">
-				<anchored to="rightanchor">
-					<top offset="2" />
-					<right anchor="left" relation="relative" offset="0" />
+				<anchored to="rightanchor" width="30" height="30">
+					<top offset="-5" />
+					<right relation="relative" offset="-2" postoffset="-2" />
 				</anchored>
 			</state_charweaponhand>
 			<state_charweapontype name="type">
-				<anchored to="rightanchor">
-					<top offset="2" />
-					<right anchor="left" relation="relative" offset="2" />
+				<anchored to="rightanchor" width="30" height="30">
+					<top offset="-5" />
+					<right relation="relative" offset="-2" postoffset="-2" />
 				</anchored>
 			</state_charweapontype>
 
-			<genericcontrol name="leftanchor">
-				<anchored width="0" height="0">
-					<top />
-					<left />
-				</anchored>
-				<invisible />
-			</genericcontrol>
-			<button_char_inv_carried name="carried">
-				<anchored to="leftanchor" width="20" height="20">
-					<top offset="5" />
-					<left anchor="right" relation="relative" offset="0" />
-				</anchored>
-				<script file="common/scripts/button_crosslink.lua" />
-			</button_char_inv_carried>
-			
-			<stringu name="name">
-				<anchored height="20">
-					<top offset="8" />
-					<left parent="leftanchor" anchor="right" relation="relative" offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="0" />
-				</anchored>
-			</stringu>
+			<string_listitem_center_underline name="name" />
 
 			<label name="label_ammo">
 				<anchored width="50">

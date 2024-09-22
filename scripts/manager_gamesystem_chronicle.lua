@@ -118,7 +118,7 @@ end
 
 -- Adjusted
 function getPregenCharSelectDetail(nodePregenChar)
-	-- return CharClassManager.getCharClassSummary(nodePregenChar);
+	-- return CharManager.getClassSummary(nodePregenChar);
 end
 
 -- Adjusted

@@ -5,38 +5,60 @@
 
 CLASS_ARTIFICER = "artificer";
 CLASS_BARBARIAN = "barbarian";
+CLASS_BARD = "bard";
 CLASS_MONK = "monk";
+CLASS_PALADIN = "paladin";
+CLASS_RANGER = "ranger";
 CLASS_SORCERER = "sorcerer";
+CLASS_WIZARD = "wizard";
 
+TRAIT_ARMORED_CASING = "armored casing";
+TRAIT_CHAMELEON_CARAPACE = "chameleon carapace";
 TRAIT_DWARVEN_TOUGHNESS = "dwarven toughness";
 TRAIT_GNOME_CUNNING = "gnome cunning";
-TRAIT_POWERFUL_BUILD = "powerful build";
-TRAIT_LITTLE_GIANT = "little giant";
-TRAIT_NATURAL_ARMOR = "natural armor";
-TRAIT_CATS_CLAWS = "cat's claws";
-TRAIT_ARMORED_CASING = "armored casing";
 TRAIT_HIPPO_BUILD = "hippo build";
-TRAIT_CHAMELEON_CARAPACE = "chameleon carapace";
+TRAIT_LITTLE_GIANT = "little giant";
+TRAIT_LUCK = "luck";
+TRAIT_LUCKY = "lucky";
+TRAIT_NATURAL_ARMOR = "natural armor";
+TRAIT_POWERFUL_BUILD = "powerful build";
+TRAIT_RESOURCEFUL = "resourceful";
 
-FEATURE_UNARMORED_DEFENSE = "unarmored defense";
-FEATURE_DRACONIC_RESILIENCE = "draconic resilience";
-FEATURE_PACT_MAGIC = "pact magic";
-FEATURE_SPELLCASTING = "spellcasting";
-FEATURE_ELDRITCH_INVOCATIONS = "eldritch invocations";
-FEATURE_MAGIC_ITEM_ADEPT = "magic item adept";
-FEATURE_MAGIC_ITEM_SAVANT = "magic item savant";
-FEATURE_MAGIC_ITEM_MASTER = "magic item master";
+FEATURE_ABJURATION_SAVANT = "abjuration savant";
 FEATURE_ASPECT_OF_THE_BEAR = "aspect of the bear";
+FEATURE_DIVINATION_SAVANT = "divination savant";
+FEATURE_DRACONIC_RESILIENCE = "draconic resilience";
+FEATURE_ELDRITCH_INVOCATION_ELDRITCH_MIND = "eldritch invocation (eldritch mind)";
+FEATURE_EVASION = "evasion";
+FEATURE_EVOCATION_SAVANT = "evocation savant";
+FEATURE_ILLUSION_SAVANT = "illusion savant";
+FEATURE_IMPROVED_CRITICAL = "improved critical";
+FEATURE_JACK_OF_ALL_TRADES = "jack of all trades";
+FEATURE_PACT_MAGIC = "pact magic";
+FEATURE_RELIABLE_TALENT = "reliable talent";
+FEATURE_SPELLCASTING = "spellcasting";
+FEATURE_SILVER_TONGUE = "silver tongue";
+FEATURE_SUPERIOR_CRITICAL = "superior critical";
+FEATURE_UNARMORED_DEFENSE = "unarmored defense";
+FEATURE_BODY_AND_MIND = "body and mind";
 
-FEAT_DRAGON_HIDE = "dragon hide";
-FEAT_DURABLE = "durable";
-FEAT_MEDIUM_ARMOR_MASTER = "medium armor master";
-FEAT_TOUGH = "tough";
-FEAT_WAR_CASTER = "war caster";
+FEAT_ARCHERY = "archery"; -- 2024
+FEAT_DEFENSE = "defense"; -- 2024
+FEAT_DRAGON_HIDE = "dragon hide"; -- 2014
+FEAT_DUELING = "dueling"; -- 2024
+FEAT_DURABLE = "durable"; -- 2014
+FEAT_GREAT_WEAPON_FIGHTING = "great weapon fighting"; -- 2024
+FEAT_HEALER = "healer"; -- 2024
+FEAT_MAGE_SLAYER = "mage slayer"; -- 2024
+FEAT_MEDIUM_ARMOR_MASTER = "medium armor master"; -- 2024 / 2014
+FEAT_TOUGH = "tough"; -- 2024 / 2014
+FEAT_THROWN_WEAPON_FIGHTING = "thrown weapon fighting"; -- 2024
+FEAT_TWO_WEAPON_FIGHTING = "two-weapon fighting"; -- 2024
+FEAT_WAR_CASTER = "war caster"; -- 2024 / 2014 
 
 function onInit()
-	ItemManager.setCustomCharAdd(onCharItemAdd);
-	ItemManager.setCustomCharRemove(onCharItemDelete);
+	ItemManager.setCustomCharAdd(CharManager.onCharItemAdd);
+	ItemManager.setCustomCharRemove(CharManager.onCharItemDelete);
 
 	if Session.IsHost then
 		CharInventoryManager.enableInventoryUpdates();
@@ -53,13 +75,18 @@ function onInit()
 	end
 end
 
+-- Legacy
+function outputUserMessage(sResource, ...)
+	ChatManager.SystemMessageResource(sResource, ...);
+end
+
 --
 --	CALLBACK REGISTRATIONS
 --
 
 function onCharItemAdd(nodeItem)
-	local sTypeLower = StringManager.trim(DB.getValue(DB.getPath(nodeItem, "type"), "")):lower();
-	if StringManager.contains({"mounts and other animals", "waterborne vehicles", "tack, harness, and drawn vehicles" }, sTypeLower) then
+	local sTypeLower = StringManager.simplify(DB.getValue(DB.getPath(nodeItem, "type"), ""));
+	if StringManager.contains({ "mountsandotheranimals", "waterbornevehicles", "tackharnessanddrawnvehicles" }, sTypeLower) then
 		DB.setValue(nodeItem, "carried", "number", 0);
 	else
 		DB.setValue(nodeItem, "carried", "number", 1);
@@ -94,9 +121,14 @@ function rest(nodeChar, bLong)
 	CharManager.resetHealth(nodeChar, bLong);
 	if bLong then
 		CombatManager2.reduceExhaustion(ActorManager.getCTNode(nodeChar));
+
+		if CharManager.hasTrait(nodeChar, CharManager.TRAIT_RESOURCEFUL) then
+			if DB.getValue(nodeChar, "inspiration", 0) <= 0 then
+				DB.setValue(nodeChar, "inspiration", "number", 1);
+			end
+		end
 	end
 end
-
 function resetHealth(nodeChar, bLong)
 	local bResetWounds = false;
 	local bResetTemp = false;
@@ -145,7 +177,7 @@ function resetHealth(nodeChar, bLong)
 
 	-- Reset half or quarter of hit dice (assume biggest hit dice selected first)
 	if bResetHalfHitDice or bResetQuarterHitDice then
-		local nHDUsed, nHDTotal = CharClassManager.getCharClassHDUsage(nodeChar);
+		local nHDUsed, nHDTotal = CharManager.getClassHDUsage(nodeChar);
 		if nHDUsed > 0 then
 			local nHDRecovery;
 			if bResetQuarterHitDice then
@@ -197,776 +229,629 @@ function resetHealth(nodeChar, bLong)
 end
 
 --
--- CHARACTER SHEET DROPS
+-- CHARACTER CHECKS
 --
 
-function addInfoDB(nodeChar, sClass, sRecord)
-	-- Validate parameters
+function hasFeat(nodeChar, s)
+	return (CharManager.getFeatRecord(nodeChar, s) ~= nil);
+end
+function hasFeat2024(nodeChar, s)
+	return (CharManager.getFeatRecord2024(nodeChar, s) ~= nil);
+end
+function hasFeat2014(nodeChar, s)
+	return (CharManager.getFeatRecord2014(nodeChar, s) ~= nil);
+end
+function hasFeature(nodeChar, s)
+	return (CharManager.getFeatureRecord(nodeChar, s) ~= nil);
+end
+function hasGroupPower(nodeChar, sGroup, s)
+	return (CharManager.getGroupPowerRecord(nodeChar, sGroup, s) ~= nil);
+end
+function hasLanguage(nodeChar, s)
+	return (CharManager.getLanguageRecord(nodeChar, s) ~= nil);
+end
+function hasSaveProficiency(nodeChar, s)
+	if not nodeChar or ((s or "") == "") then
+		return false;
+	end
+	local sLower = s:lower();
+	if not StringManager.contains(DataCommon.abilities, sLower) then
+		return false;
+	end
+	return (DB.getValue(nodeChar, "abilities." .. sLower .. ".saveprof", 0) == 1);
+end
+function hasSkill(nodeChar, s)
+	return (CharManager.getSkillRecord(nodeChar, s) ~= nil);
+end
+function hasSkillProficiency(nodeChar, s)
+	local nodeSkill = CharManager.getSkillRecord(nodeChar, s);
+	if not nodeSkill then
+		return false;
+	end
+	local nSkillProf = DB.getValue(nodeSkill, "prof", 0);
+	return ((nSkillProf == 1) or (nSkillProf == 2));
+end
+function hasSkillExpertise(nodeChar, s)
+	local nodeSkill = CharManager.getSkillRecord(nodeChar, s);
+	if not nodeSkill then
+		return false;
+	end
+	return (DB.getValue(nodeSkill, "prof", 0) == 2);
+end
+function hasTrait(nodeChar, s)
+	return (CharManager.getTraitRecord(nodeChar, s) ~= nil);
+end
+
+--
+-- CHARACTER DATA
+--
+
+function getAbility(nodeChar, s)
+	if (s or "") == "" then
+		return 0;
+	end
+	return DB.getValue(nodeChar, string.format("abilities.%s.score", s:lower()), 0);
+end
+
+function getLevel(nodeChar)
 	if not nodeChar then
-		return false;
+		return 0;
+	end
+	local nTotal = 0;
+	for _,nodeClass in ipairs(DB.getChildList(nodeChar, "classes")) do
+		local nClassLevel = DB.getValue(nodeClass, "level", 0);
+		if nClassLevel > 0 then
+			nTotal = nTotal + nClassLevel;
+		end
+	end
+	return nTotal;
+end
+function getClassLevel(nodeChar, s)
+	local nodeCharClass = CharManager.getClassRecord(nodeChar, s, true);
+	local nodeCharClass2 = CharManager.getClassRecord(nodeChar, s, false);
+
+	local nResult = 0;
+	if nodeCharClass then
+		nResult = math.max(nResult, DB.getValue(nodeCharClass, "level", 0));
+	end
+	if nodeCharClass2 then
+		nResult = math.max(nResult, DB.getValue(nodeCharClass2, "level", 0));
+	end
+	return nResult;
+end
+function getClassSummary(nodeChar, bShort)
+	if not nodeChar then
+		return "";
 	end
 	
-	if sClass == "reference_race" or sClass == "reference_subrace" then
-		CharRaceManager.addRaceDrop(nodeChar, sClass, sRecord);
-	elseif sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
-		CharRaceManager.addRaceTrait(nodeChar, sClass, sRecord);
+	local tSorted = {};
+	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
+		table.insert(tSorted, nodeChild);
+	end
+	table.sort(tSorted, function(a,b) return DB.getValue(a, "name", "") < DB.getValue(b, "name", ""); end);
+			
+	local tClasses = {};
+	for _,nodeChild in pairs(tSorted) do
+		local sClass = DB.getValue(nodeChild, "name", "");
+		local nLevel = DB.getValue(nodeChild, "level", 0);
+		if nLevel > 0 then
+			if bShort then
+				sClass = sClass:sub(1,3);
+			end
+			table.insert(tClasses, sClass .. " " .. math.floor(nLevel*100)*0.01);
+		end
+	end
 
-	elseif sClass == "reference_class" then
-		CharClassManager.addClass(nodeChar, sClass, sRecord);
-	elseif sClass == "reference_classproficiency" then
-		CharClassManager.addClassProficiency(nodeChar, sClass, sRecord);
-	elseif sClass == "reference_classfeature" then
-		CharClassManager.addClassFeature(nodeChar, sClass, sRecord);
+	return table.concat(tClasses, " / ");
+end
+function getClassHDUsage(nodeChar)
+	if not nodeChar then
+		return 0, 0;
+	end
 
-	elseif sClass == "reference_background" then
-		CharBackgroundManager.addBackground(nodeChar, sClass, sRecord);
-	elseif sClass == "reference_backgroundfeature" then
-		CharBackgroundManager.addBackgroundFeature(nodeChar, sClass, sRecord);
-
-	elseif sClass == "reference_feat" then
-		CharFeatManager.addFeat(nodeChar, sClass, sRecord);
-		
-	elseif sClass == "reference_skill" then
-		CharManager.addSkill(nodeChar, sClass, sRecord);
-	elseif sClass == "ref_adventure" then
-		CharManager.addAdventure(nodeChar, sClass, sRecord);
-
-	else
-		return false;
+	local nHD = 0;
+	local nHDUsed = 0;
+	
+	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
+		local nLevel = DB.getValue(nodeChild, "level", 0);
+		local nHDMult = #(DB.getValue(nodeChild, "hddie", {}));
+		nHD = nHD + (nLevel * nHDMult);
+		nHDUsed = nHDUsed + DB.getValue(nodeChild, "hdused", 0);
 	end
 	
-	return true;
+	return nHDUsed, nHD;
 end
-
-function getFullAbilitySelectList()
-	local aAbilities = {};
-	for _,v in ipairs(DataCommon.abilities) do
-		table.insert(aAbilities, StringManager.capitalize(v));
-	end
-	return aAbilities;
-end
-function onAbilitySelectDialog(nodeChar, tAbilitySelect)
-	if #tAbilitySelect == 0 then
-		return;
+function getSubclass(nodeChar, s, bSource2024)
+	local nodeCharClass = CharManager.getClassRecord(nodeChar, s, bSource2024);
+	if not nodeCharClass then
+		return "";
 	end
 
-	-- Check for empty or missing ability list, then use full list
-	if not tAbilitySelect[1].aAbilities or (#(tAbilitySelect[1].aAbilities) == 0) then 
-		tAbilitySelect[1].aAbilities = CharManager.getFullAbilitySelectList(); 
+	local sSpecName = StringManager.trim(DB.getValue(nodeCharClass, "specialization", ""));
+	if sSpecName ~= "" then
+		return sSpecName;
 	end
-	local nPicks = tAbilitySelect[1].nPicks or 1;
-	local nAbilityAdj = tAbilitySelect[1].nAbilityAdj or 1;
 
-	local rAbilitySelectMeta = { nodeChar = nodeChar, tAbilitySelect = tAbilitySelect };
-	local wSelect = Interface.openWindow("select_dialog", "");
-	local sTitle = Interface.getString("char_build_title_selectabilityincrease");
-	local sMessage;
-	if nPicks == 1 then
-		sMessage = string.format(Interface.getString("char_build_message_selectabilityincrease1"), nAbilityAdj);
-	else
-		sMessage = string.format(Interface.getString("char_build_message_selectabilityincrease"), nPicks, nAbilityAdj);
-	end
-	wSelect.requestSelection(sTitle, sMessage, tAbilitySelect[1].aAbilities, onAbilitySelectComplete, rAbilitySelectMeta, nPicks, nil, true);
-end
-
-function onAbilitySelectComplete(aSelection, rAbilitySelectMeta)
-	local rAbilitySelect = rAbilitySelectMeta.tAbilitySelect[1];
-	for _,sAbility in ipairs(aSelection) do
-		CharManager.addAbilityAdjustment(rAbilitySelectMeta.nodeChar, sAbility, rAbilitySelect.nAbilityAdj or 1, rAbilitySelect.nAbilityMax);
-		
-		if rAbilitySelect.bSaveProfAdd then
-			local sAbilityLower = StringManager.trim(sAbility):lower();
-			if StringManager.contains(DataCommon.abilities, sAbilityLower) then
-				DB.setValue(rAbilitySelectMeta.nodeChar, "abilities." .. sAbilityLower .. ".saveprof", "number", 1);
-				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sAbility, DB.getValue(rAbilitySelectMeta.nodeChar, "name", ""));
+	local bIs2024 = (DB.getValue(nodeCharClass, "version", "") == "2024");
+	if not bIs2024 then
+		local tSubclassOptions = CharClassManager.getSubclassOptions(nodeCharClass);
+		for _,vSubclass in ipairs(tSubclassOptions) do
+			if CharManager.hasFeature(vSubclass.text) then
+				return vSubclass.text;
 			end
 		end
 	end
 
-	table.remove(rAbilitySelectMeta.tAbilitySelect, 1);
-	if #(rAbilitySelectMeta.tAbilitySelect) > 0 then
-		for _,vSelect in ipairs(rAbilitySelectMeta.tAbilitySelect) do
-			if vSelect.bOther then
-				if not vSelect.aAbilities or (#vSelect.aAbilities == 0) then 
-					vSelect.aAbilities = CharManager.getFullAbilitySelectList(); 
-				end
-				local aNewAbilities = {};
-				for _,vAbility in ipairs(vSelect.aAbilities) do
-					if not StringManager.contains(aSelection, vAbility) then
-						table.insert(aNewAbilities, vAbility);
-					end
-				end
-				vSelect.aAbilities = aNewAbilities;
+	return "";
+end
+function getSpellcastingData(nodeChar)
+	local tCharClassMagicData = {};
+	for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
+		local sClassName = DB.getValue(vClass, "name", "");
+		local nClassLevel = DB.getValue(vClass, "level", 0);
+		local bPactMagic = (DB.getValue(vClass, "casterpactmagic", 0) > 0);
+		local nSpellSlotMult = DB.getValue(vClass, "casterlevelinvmult", 0);
+		if nSpellSlotMult > 0 then
+			table.insert(tCharClassMagicData, { sName = sClassName, nLevel = nClassLevel, bPactMagic = bPactMagic, nSpellSlotMult = nSpellSlotMult });
+		end
+	end
+	return tCharClassMagicData;
+end
+
+function getClassRecord(nodeChar, s, bSource2024)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if (DB.getValue(v, "version", "") == "2024") == bSource2024 then
+				return v;
 			end
 		end
-		CharManager.onAbilitySelectDialog(rAbilitySelectMeta.nodeChar, rAbilitySelectMeta.tAbilitySelect);
 	end
+	return nil;
 end
-
-function addAbilityAdjustment(nodeChar, sAbility, nAdj, nAbilityMax)
-	local k = StringManager.trim(sAbility):lower();
-	if StringManager.contains(DataCommon.abilities, k) then
-		local sPath = "abilities." .. k .. ".score";
-		local nCurrent = DB.getValue(nodeChar, sPath, 10);
-		local nNewScore = nCurrent + nAdj;
-		if nAbilityMax then
-			nNewScore = math.max(math.min(nNewScore, nAbilityMax), nCurrent);
-		end
-		if nNewScore ~= nCurrent then
-			DB.setValue(nodeChar, sPath, "number", nNewScore);
-			ChatManager.SystemMessageResource("char_abilities_message_abilityadd", StringManager.capitalize(k), nNewScore - nCurrent, DB.getValue(nodeChar, "name", ""));
-		end
-	end
-end
-
-function onSkillSelect(aSelection, rSkillAdd)
-	-- For each selected skill, add it to the character
-	for _,sSkill in ipairs(aSelection) do
-		CharManager.helperAddSkill(rSkillAdd.nodeChar, sSkill, rSkillAdd.nProf or 1);
-	end
-end
-
-function addProficiency(nodeChar, sType, sText)
-	-- Get the list we are going to add to
-	local nodeList = DB.createChild(nodeChar, "proficiencylist");
-	if not nodeList then
-		return nil;
-	end
-
-	-- If proficiency is not none, then add it to the list
-	if sText == "None" then
+function getFeatRecord(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
 		return nil;
 	end
 	
-	-- Make sure this item does not already exist
-	for _,vProf in ipairs(DB.getChildList(nodeList)) do
-		if DB.getValue(vProf, "name", "") == sText then
-			return vProf;
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "featlist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
 		end
 	end
-	
-	local nodeEntry = DB.createChild(nodeList);
-	local sValue;
-	if sType == "armor" then
-		sValue = Interface.getString("char_label_addprof_armor");
-	elseif sType == "weapons" then
-		sValue = Interface.getString("char_label_addprof_weapon");
-	else
-		sValue = Interface.getString("char_label_addprof_tool");
-	end
-	sValue = sValue .. ": " .. sText;
-	DB.setValue(nodeEntry, "name", "string", sValue);
-
-	-- Announce
-	ChatManager.SystemMessageResource("char_abilities_message_profadd", DB.getValue(nodeEntry, "name", ""), DB.getValue(nodeChar, "name", ""));
-	return nodeEntry;
+	return nil;
 end
+function getFeatRecord2024(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "featlist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if DB.getValue(v, "version", "") == "2024" then
+				return v;
+			end
+		end
+	end
+	return nil;
+end
+function getFeatRecord2014(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "featlist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if DB.getValue(v, "version", "") ~= "2024" then
+				return v;
+			end
+		end
+	end
+	return nil;
+end
+function getFeatureRecord(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "featurelist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+function getFeatureRecord2014(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "featurelist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if DB.getValue(v, "version", "") ~= "2024" then
+				return v;
+			end
+		end
+	end
+	return nil;
+end
+function getGroupPowerRecord(nodeChar, sGroup, s)
+	if not nodeChar or ((sGroup or "") == "") or (s or "") == "" then
+		return nil;
+	end
+	
+	local sGroupLower = StringManager.simplify(sGroup);
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "powers")) do
+		if StringManager.simplify(DB.getValue(v, "group", "")) == sGroupLower and 
+				StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+function getLanguageRecord(nodeChar, s)
+	if not nodeChar or (s or "") == "" then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "languagelist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+function getPowerGroupRecord(nodeChar, s)
+	if not nodeChar then
+		return nil;
+	end
 
-function helperAddSkill(nodeChar, sSkill, nProficient)
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "powergroup")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+function getSkillRecord(nodeChar, s, bCreate)
+	if not nodeChar then
+		return nil;
+	end
+
 	-- Get the list we are going to add to
 	local nodeList = DB.createChild(nodeChar, "skilllist");
 	if not nodeList then
 		return nil;
 	end
-	
-	-- Make sure this item does not already exist
-	local nodeSkill = nil;
-	for _,vSkill in ipairs(DB.getChildList(nodeList)) do
-		if DB.getValue(vSkill, "name", "") == sSkill then
-			nodeSkill = vSkill;
-			break;
+
+	-- Find or create the skill entry
+	local nodeSkill;
+	for _,nodeSkill in ipairs(DB.getChildList(nodeList)) do
+		if DB.getValue(nodeSkill, "name", "") == s then
+			return nodeSkill;
 		end
-	end
-		
-	-- Add the item
-	if not nodeSkill then
-		nodeSkill = DB.createChild(nodeList);
-		DB.setValue(nodeSkill, "name", "string", sSkill);
-		if DataCommon.skilldata[sSkill] then
-			DB.setValue(nodeSkill, "stat", "string", DataCommon.skilldata[sSkill].stat);
-		end
-	end
-	if nProficient then
-		if nProficient and type(nProficient) ~= "number" then
-			nProficient = 1;
-		end
-		DB.setValue(nodeSkill, "prof", "number", nProficient);
 	end
 
-	-- Announce
+	if bCreate then
+		nodeSkill = DB.createChild(nodeList);
+		DB.setValue(nodeSkill, "name", "string", s);
+		if DataCommon.skilldata[s] then
+			DB.setValue(nodeSkill, "stat", "string", DataCommon.skilldata[s].stat);
+		end
+	end
+	return nodeSkill;
+end
+function getTraitRecord(nodeChar, s)
+	if not nodeChar or ((s or "") == "") then
+		return nil;
+	end
+	
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeChar, "traitlist")) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+
+--
+-- CHARACTER ADDITIONS
+--
+
+function addAbilityAdjustment(nodeChar, sAbility, nAdj, nAbilityMax)
+	if not nodeChar or ((sAbility or "") == "") or not nAdj then
+		return false;
+	end
+	local sAbilityLower = StringManager.simplify(sAbility);
+	if not StringManager.contains(DataCommon.abilities, sAbilityLower) then
+		return false;
+	end
+
+	local sPath = "abilities." .. sAbilityLower .. ".score";
+	local nCurrent = DB.getValue(nodeChar, sPath, 10);
+	local nNewScore = nCurrent + nAdj;
+	if nAbilityMax then
+		nNewScore = math.max(math.min(nNewScore, nAbilityMax), nCurrent);
+	end
+	if nNewScore ~= nCurrent then
+		DB.setValue(nodeChar, sPath, "number", nNewScore);
+		ChatManager.SystemMessageResource("char_abilities_message_abilityadd", StringManager.capitalize(sAbility), nNewScore - nCurrent, DB.getValue(nodeChar, "name", ""));
+	end
+	return true;
+end
+function addHP(nodeChar, vHP)
+	local nHP = tonumber(vHP) or 0;
+	if not nodeChar or (nHP <= 0) then
+		return false;
+	end
+	DB.setValue(nodeChar, "hp.total", "number", DB.getValue(nodeChar, "hp.total", 0) + nHP);
+end
+function setSize(nodeChar, s)
+	if not nodeChar then
+		return false;
+	end
+	DB.setValue(nodeChar, "size", "string", s or "Medium");
+	return true;
+end
+function setSpeed(nodeChar, vSpeed)
+	local nSpeed = tonumber(vSpeed) or 0;
+	if not nodeChar or (nSpeed <= 0) then
+		return false;
+	end
+
+	local nCurrSpeed = DB.getValue(nodeChar, "speed.base", 0);
+	if nCurrSpeed >= nSpeed then
+		return true;
+	end
+	DB.setValue(nodeChar, "speed.base", "number", nSpeed);
+	ChatManager.SystemMessageResource("char_abilities_message_basespeedset", nSpeed, DB.getValue(nodeChar, "name", ""));
+	return true;
+end
+function addSpeed(nodeChar, vSpeed)
+	local nSpeed = tonumber(vSpeed) or 0;
+	if not nodeChar or (nSpeed <= 0) then
+		return false;
+	end
+	DB.setValue(nodeChar, "speed.misc", "number", DB.getValue(nodeChar, "speed.misc", 0) + nSpeed);
+end
+function addSpecialMove(nodeChar, s, vDist)
+	local nDist = math.max(tonumber(vDist) or 0, 0);
+	if not nodeChar or ((s or "") == "") then
+		return false;
+	end
+
+	local sSpecialMove = StringManager.trim(DB.getValue(nodeChar, "speed.special", ""));
+	local tSplit = StringManager.splitByPattern(sSpecialMove, ",", true);
+
+	if nDist == 0 then
+		if StringManager.contains(tSplit, s) then
+			return true;
+		end
+		table.insert(tSplit, s);
+	else
+		local sNewMove = string.format("%s %d", s, nDist);
+		local sPatternMove = string.format("^%s %%d+$", s);
+		local bPatternMatch = false;
+		for k,v in ipairs(tSplit) do
+			local sPatternMatch = sSpecialMove:match(sPatternMove);
+			if sPatternMatch then
+				if (tonumber(sPatternMatch) or 0) >= nDist then
+					return true;
+				end
+				tSplit[k] = sNewMove;
+				bPatternMatch = true;
+				break;
+			end
+		end
+		if not bPatternMatch then
+			table.insert(tSplit, sNewMove);
+		end
+	end
+
+	DB.setValue(nodeChar, "speed.special", "string", table.concat(tSplit, ", "));
+	return true;
+end
+function addSense(nodeChar, s, vDist)
+	local nDist = tonumber(vDist) or 0;
+	if not nodeChar or ((s or "") == "") or (nDist <= 0) then
+		return false;
+	end
+
+	local sNewSense = string.format("%s %d", s, nDist);
+	local sPatternSense = string.format("%s %%d+", s);
+
+	local sSenses = StringManager.trim(DB.getValue(nodeChar, "senses", ""));
+	local sPatternMatch = sSenses:match(sPatternSense);
+	if sPatternMatch then
+		if (tonumber(sPatternMatch) or 0) >= nDist then
+			return true;
+		end
+		sSenses = sSenses:gsub(sPatternSense, sNewSense);
+	elseif sSenses == "" then
+		sSenses = sNewSense;
+	else
+		sSenses = string.format("%s, %s", sSenses, sNewSense);
+	end
+	DB.setValue(nodeChar, "senses", "string", sSenses);
+	return true;
+end
+function addSaveProficiency(nodeChar, s)
+	if not nodeChar or ((s or "") == "") then
+		return false;
+	end
+	local sLower = s:lower();
+	if not StringManager.contains(DataCommon.abilities, sLower) then
+		return false;
+	end
+
+	DB.setValue(nodeChar, "abilities." .. sLower .. ".saveprof", "number", 1);
+	ChatManager.SystemMessageResource("char_abilities_message_saveadd", s, DB.getValue(nodeChar, "name", ""));
+	return true;
+end
+function addSkillProficiency(nodeChar, s)
+	local nodeSkill = CharManager.getSkillRecord(nodeChar, s, true);
+	if not nodeSkill then
+		return nil;
+	end
+
+	local nCurrProf = DB.getValue(nodeSkill, "prof", 0);
+	if (nCurrProf == 1) or (nCurrProf == 2) then
+		return nodeSkill;
+	end
+
+	DB.setValue(nodeSkill, "prof", "number", 1);
 	ChatManager.SystemMessageResource("char_abilities_message_skilladd", DB.getValue(nodeSkill, "name", ""), DB.getValue(nodeChar, "name", ""));
 	return nodeSkill;
 end
-
-function parseSkillProficiencyText(nodeSkillProf)
-	if not nodeSkillProf then
-		return 0, {};
-	end
-	local sText = DB.getValue(nodeSkillProf, "text", "");
-	if (sText or "") == "" then
-		return 0, {};
+function increaseSkillProficiency(nodeChar, s, nIncrease)
+	local nodeSkill = CharManager.getSkillRecord(nodeChar, s, true);
+	if not nodeSkill then
+		return nil;
 	end
 
-	local tSkills = {};
-	local sPicks;
-	if sText:match("Choose any ") then
-		sPicks = sText:match("Choose any (%w+)");
-
-	elseif sText:match("Choose ") then
-		sPicks = sText:match("Choose (%w+) ");
-
-		sText = sText:gsub("Choose (%w+) from ", "");
-		sText = sText:gsub("Choose (%w+) skills? from ", "");
-		sText = sText:gsub("and ", "");
-		sText = sText:gsub("or ", "");
-
-		for sSkill in sText:gmatch("(%a[%a%s]+)%,?") do
-			table.insert(tSkills, StringManager.trim(sSkill));
-		end
-	else
-		local tCheckSkills = StringManager.split(sText, ",")
-		for _,v in ipairs(tCheckSkills) do
-			if DataCommon.skilldata[v:lower()] then
-				table.insert(tSkills, v:lower());
-			end
-		end
+	local nProf = DB.getValue(nodeSkill, "prof", 0);
+	if (nProf == 1) or ((nIncrease or 1) == 2) then
+		DB.setValue(nodeSkill, "prof", "number", 2);
+		ChatManager.SystemMessageResource("char_abilities_message_expertiseadd", DB.getValue(nodeSkill, "name", ""), DB.getValue(nodeChar, "name", ""));
+	elseif nProf ~= 2 then
+		DB.setValue(nodeSkill, "prof", "number", 1);
+		ChatManager.SystemMessageResource("char_abilities_message_skilladd", DB.getValue(nodeSkill, "name", ""), DB.getValue(nodeChar, "name", ""));
 	end
-
-	local nPicks = CharManager.convertSingleNumberTextToNumber(sPicks) or 0;
-
-	return nPicks, tSkills;
 end
+function addProficiency(nodeChar, sType, s)
+	s = StringManager.trim(s);
+	if ((s or "") == "") or (s == "None") then
+		return nil;
+	end
 
-function parseSkillsFromString(sSkills)
-	local aSkills = {};
-	sSkills = sSkills:gsub("and ", "");
-	sSkills = sSkills:gsub("or ", "");
-	local nPeriod = sSkills:match("%.()");
-	if nPeriod then
-		sSkills = sSkills:sub(1, nPeriod);
+	local nodeList = DB.createChild(nodeChar, "proficiencylist");
+	if not nodeList then
+		return nil;
 	end
-	for sSkill in string.gmatch(sSkills, "(%a[%a%s]+)%,?") do
-		local sTrim = StringManager.trim(sSkill);
-		table.insert(aSkills, sTrim);
-	end
-	return aSkills;
-end
 
-function pickSkills(nodeChar, aSkills, nPicks, nProf)
-	-- Check for empty or missing skill list, then use full list
-	if not aSkills then 
-		aSkills = {}; 
+	local sValue;
+	if sType == "armor" then
+		sValue = Interface.getString("char_label_addprof_armor");
+	elseif sType == "weapons" then
+		sValue = Interface.getString("char_label_addprof_weapon");
+	else -- "tools"
+		sValue = Interface.getString("char_label_addprof_tool");
 	end
-	if #aSkills == 0 then
-		for k,_ in pairs(DataCommon.skilldata) do
-			table.insert(aSkills, k);
-		end
-		table.sort(aSkills);
-	end
-		
-	-- Add links (if we can find them)
-	for k,v in ipairs(aSkills) do
-		local rSkillData = DataCommon.skilldata[v];
-		if rSkillData then
-			local rSkill = { text = v, linkclass = "", linkrecord = "" };
-			local nodeSkill = RecordManager.findRecordByStringI("skill", "name", v);
-			if nodeSkill then
-				rSkill.linkclass = "reference_skill";
-				rSkill.linkrecord = DB.getPath(nodeSkill);
-			end
-			aSkills[k] = rSkill;
+	sValue = string.format("%s: %s", sValue, s);
+
+	for _,nodeProf in ipairs(DB.getChildList(nodeList)) do
+		if DB.getValue(nodeProf, "name", "") == sValue then
+			return nodeProf;
 		end
 	end
 	
-	-- Display dialog to choose skill selection
-	local rSkillAdd = { nodeChar = nodeChar, nProf = nProf };
-	local wSelect = Interface.openWindow("select_dialog", "");
-	local sTitle = Interface.getString("char_build_title_selectskills");
-	local sMessage = string.format(Interface.getString("char_build_message_selectskills"), nPicks);
-	wSelect.requestSelection (sTitle, sMessage, aSkills, CharManager.onSkillSelect, rSkillAdd, nPicks);
+	local nodeEntry = DB.createChild(nodeList);
+	DB.setValue(nodeEntry, "name", "string", sValue);
+
+	ChatManager.SystemMessageResource("char_abilities_message_profadd", sValue, DB.getValue(nodeChar, "name", ""));
+	return nodeEntry;
 end
-
-function checkSkillProficiencies(nodeChar, sText)
-	-- Tabaxi - Cat's Talent - Volo
-	local sSkill, sSkill2 = sText:match("proficiency in the ([%w%s]+) and ([%w%s]+) skills");
-	if sSkill and sSkill2 then
-		CharManager.helperAddSkill(nodeChar, sSkill, 1);
-		CharManager.helperAddSkill(nodeChar, sSkill2, 1);
-		return true;
-	end
-	-- Elf - Keen Senses - PHB
-	-- Half-Orc - Menacing - PHB
-	-- Goliath - Natural Athlete - Volo
-	local sSkill = sText:match("proficiency in the ([%w%s]+) skill");
-	if sSkill then
-		CharManager.helperAddSkill(nodeChar, sSkill, 1);
-		return true;
-	end
-	-- Bugbear - Sneaky - Volo
-	-- (FALSE POSITIVE) Dwarf - Stonecunning
-	sSkill = sText:match("proficient in the ([%w%s]+) skill");
-	if sSkill then
-		CharManager.helperAddSkill(nodeChar, sSkill, 1);
-		return true;
-	end
-	-- Orc - Menacing - Volo
-	sSkill = sText:match("trained in the ([%w%s]+) skill");
-	if sSkill then
-		CharManager.helperAddSkill(nodeChar, sSkill, 1);
-		return true;
-	end
-
-	-- Half-Elf - Skill Versatility - PHB
-	-- Human (Variant) - Skills - PHB
-	local sPicks = sText:match("proficiency in (%w+) skills? of your choice");
-	if sPicks then
-		local nPicks = CharManager.convertSingleNumberTextToNumber(sPicks);
-		CharManager.pickSkills(nodeChar, nil, nPicks);
-		return true;
-	end
-	-- Cleric - Acolyte of Nature - PHB
-	local nMatchEnd = sText:match("proficiency in one of the following skills of your choice()")
-	if nMatchEnd then
-		CharManager.pickSkills(nodeChar, CharManager.parseSkillsFromString(sText:sub(nMatchEnd)), 1);
-		return true;
-	end
-	-- Lizardfolk - Hunter's Lore - Volo
-	sPicks, nMatchEnd = sText:match("proficiency with (%w+) of the following skills of your choice()")
-	if sPicks then
-		local nPicks = CharManager.convertSingleNumberTextToNumber(sPicks);
-		CharManager.pickSkills(nodeChar, CharManager.parseSkillsFromString(sText:sub(nMatchEnd)), nPicks);
-		return true;
-	end
-	-- Cleric - Blessings of Knowledge - PHB
-	-- Kenku - Kenuku Training - Volo
-	sPicks, nMatchEnd = sText:match("proficient in your choice of (%w+) of the following skills()")
-	if sPicks then
-		local nPicks = CharManager.convertSingleNumberTextToNumber(sPicks);
-		local nProf = 1;
-		if sText:match("proficiency bonus is doubled") then
-			nProf = 2;
-		end
-		CharManager.pickSkills(nodeChar, CharManager.parseSkillsFromString(sText:sub(nMatchEnd)), nPicks, nProf);
-		return true;
-	end
-	return false;
-end
-
-function addLanguage(nodeChar, sLanguage)
-	-- Get the list we are going to add to
+function addLanguage(nodeChar, s)
 	local nodeList = DB.createChild(nodeChar, "languagelist");
 	if not nodeList then
-		return false;
+		return nil;
 	end
 	
-	-- Make sure this item does not already exist
-	if sLanguage ~= "Choice" then
+	if s ~= "Choice" then
 		for _,v in ipairs(DB.getChildList(nodeList)) do
-			if DB.getValue(v, "name", "") == sLanguage then
-				return false;
+			if DB.getValue(v, "name", "") == s then
+				return v;
 			end
 		end
 	end
 
-	-- Add the item
-	local vNew = DB.createChild(nodeList);
-	DB.setValue(vNew, "name", "string", sLanguage);
+	local nodeNew = DB.createChild(nodeList);
+	DB.setValue(nodeNew, "name", "string", s);
 
-	-- Announce
-	ChatManager.SystemMessageResource("char_abilities_message_languageadd", DB.getValue(vNew, "name", ""), DB.getValue(nodeChar, "name", ""));
-	return true;
+	ChatManager.SystemMessageResource("char_abilities_message_languageadd", s, DB.getValue(nodeChar, "name", ""));
+	return nodeNew;
 end
-
-function addSkill(nodeChar, sClass, sRecord)
-	local nodeSource = DB.findNode(sRecord);
-	if not nodeSource then
-		return;
-	end
-	
-	-- Add skill entry
-	local nodeSkill = CharManager.helperAddSkill(nodeChar, DB.getValue(nodeSource, "name", ""));
-	if nodeSkill then
-		DB.setValue(nodeSkill, "text", "formattedtext", DB.getValue(nodeSource, "text", ""));
-	end
-end
-
-function addAdventure(nodeChar, sClass, sRecord)
-	local nodeSource = DB.findNode(sRecord);
-	if not nodeSource then
-		return;
-	end
-
-	-- Get the list we are going to add to
-	local nodeList = DB.createChild(nodeChar, "adventurelist");
-	if not nodeList then
-		return nil;
-	end
-	
-	-- Copy the adventure record data
-	local vNew = DB.createChildAndCopy(nodeList, nodeSource);
-	DB.setValue(vNew, "locked", "number", 1);
-	
-	-- Notify
-	ChatManager.SystemMessageResource("char_logs_message_adventureadd", DB.getValue(nodeSource, "name", ""), DB.getValue(nodeChar, "name", ""));
-end
-
-function hasTrait(nodeChar, sTrait)
-	return (CharManager.getTraitRecord(nodeChar, sTrait) ~= nil);
-end
-function getTraitRecord(nodeChar, sTrait)
-	if (sTrait or "") == "" then
-		return nil;
-	end
-	
-	local sTraitLower = StringManager.trim(sTrait):lower();
-	for _,v in ipairs(DB.getChildList(nodeChar, "traitlist")) do
-		local sMatch = StringManager.trim(DB.getValue(v, "name", "")):lower();
-		if sMatch == sTraitLower then
-			return v;
-		end
-	end
-	return nil;
-end
-
-function hasFeature(nodeChar, s)
-	return (CharManager.getFeatureRecord(nodeChar, s) ~= nil);
-end
-function getFeatureRecord(nodeChar, s)
-	if (s or "") == "" then
-		return nil;
-	end
-	
-	local sLower = StringManager.trim(s):lower();
-	for _,v in ipairs(DB.getChildList(nodeChar, "featurelist")) do
-		local sMatch = StringManager.trim(DB.getValue(v, "name", "")):lower();
-		if sMatch == sLower then
-			return v;
-		end
-	end
-	return nil;
-end
-
-function hasFeat(nodeChar, sFeat)
-	return (CharManager.getFeatRecord(nodeChar, sFeat) ~= nil);
-end
-function getFeatRecord(nodeChar, sFeat)
-	if (sFeat or "") == "" then
-		return nil;
-	end
-	
-	local sFeatLower = StringManager.trim(sFeat:lower());
-	for _,v in ipairs(DB.getChildList(nodeChar, "featlist")) do
-		local sMatch = StringManager.trim(DB.getValue(v, "name", "")):lower();
-		if sMatch == sFeatLower then
-			return v;
-		end
-	end
-	return nil;
-end
-
-function convertSingleNumberTextToNumber(s)
-	if s then
-		if s == "one" then return 1; end
-		if s == "two" then return 2; end
-		if s == "three" then return 3; end
-		if s == "four" then return 4; end
-		if s == "five" then return 5; end
-		if s == "six" then return 6; end
-		if s == "seven" then return 7; end
-		if s == "eight" then return 8; end
-		if s == "nine" then return 9; end
-	end
-	return 0;
-end
-
-function helperBuildAddStructure(nodeChar, sClass, sRecord, bWizard)
-	if not nodeChar or ((sClass or "") == "") or ((sRecord or "") == "") then
+function addFeat(nodeChar, s, tData)
+	if not nodeChar or ((s or "") == "") then
 		return nil;
 	end
 
-	local rAdd = { };
-	rAdd.nodeSource = DB.findNode(sRecord);
-	if not rAdd.nodeSource then
+	local tFilters = {
+		{ sField = "name", sValue = s, },
+		{ sField = "version", sValue = (tData and tData.bSource2024 and "2024" or ""), },
+	};
+	local nodeFeat = RecordManager.findRecordByFilter("feat", tFilters);
+	if not nodeFeat then
+		return;
+	end
+	CharFeatManager.addFeat(nodeChar, DB.getPath(nodeFeat), { bWizard = tData and tData.bWizard });
+end
+function addPowerGroup(nodeChar, tData)
+	if not nodeChar or not tData then
 		return nil;
 	end
 
-	rAdd.sSourceClass = sClass;
-	rAdd.sSourceName = StringManager.trim(DB.getValue(rAdd.nodeSource, "name", ""));
-	rAdd.nodeChar = nodeChar;
-	rAdd.sCharName = StringManager.trim(DB.getValue(nodeChar, "name", ""));
-	rAdd.bWizard = bWizard;
-
-	rAdd.sSourceType = StringManager.simplify(rAdd.sSourceName);
-	if rAdd.sSourceType == "" then
-		rAdd.sSourceType = DB.getName(rAdd.nodeSource);
+	local nodePowerGroup = CharManager.getPowerGroupRecord(nodeChar, tData.sName);
+	if nodePowerGroup then
+		return nodePowerGroup;
 	end
 
-	return rAdd;
+	nodePowerGroup = DB.createChild(DB.createChild(nodeChar, "powergroup"));
+
+	DB.setValue(nodePowerGroup, "name", "string", tData.sName or "");
+	if (tData.sCasterType or "") ~= "" then
+		DB.setValue(nodePowerGroup, "castertype", "string", tData.sCasterType);
+	end
+	if (tData.sAbility or "") ~= "" then
+		DB.setValue(nodePowerGroup, "stat", "string", tData.sAbility:lower());
+	elseif tData.bChooseSpellAbility then
+		CharBuildDropManager.chooseSpellGroupAbility(nodePowerGroup);
+	end
+	if tData.nPrepared then
+		DB.setValue(nodePowerGroup, "prepared", "number", tData.nPrepared);
+	end
+
+	return nodePowerGroup;
 end
-function helperCheckActionsAdd(nodeChar, nodeSource, sSanitizedName, sPowerGroup)
-	if not nodeSource then
-		return;
+function addSpell(nodeChar, tData)
+	if not nodeChar or not tData or ((tData.sName or "") == "") then
+		return nil;
 	end
 
-	local tAction = CharWizardDataAction.parsedata[sSanitizedName];
-	if not tAction then
-		return;
+	local tFilters = {
+		{ sField = "name", sValue = tData.sName, bIgnoreCase = true, },
+		{ sField = "version", sValue = (tData.bSource2024 and "2024" or ""), },
+	};
+	local nodeSpell = RecordManager.findRecordByFilter("spell", tFilters)
+	if not nodeSpell then
+		return nil;
 	end
 
-	if tAction["actions"] then
-		local rActionsAdd = {
-			nodeSource = nodeSource,
-			nodeChar = nodeChar,
-			sPowerGroup = sPowerGroup,
-			tPowerActions = tAction["actions"],
-			nPowerPrepared = tAction.prepared,
-			sUsePeriod = tAction.usesperiod,
-		};
-		CharManager.helperAddActions(rActionsAdd);
-	elseif tAction["multiple_actions"] then
-		local rActionsAdd = {
-			nodeSource = nodeSource,
-			nodeChar = nodeChar,
-			sPowerGroup = sPowerGroup,
-		};
-		for k,v in pairs(tAction["multiple_actions"]) do
-			if v["actions"] then
-				rActionsAdd.sPowerName = k;
-				rActionsAdd.tPowerActions = v["actions"];
-				rActionsAdd.nPowerPrepared = v.prepared;
-				rActionsAdd.sUsePeriod = v.usesperiod;
-				CharManager.helperAddActions(rActionsAdd);
-			end
-		end
-	end
-end
-function helperAddActions(rActionsAdd)
-	local nodePowerList = DB.createChild(rActionsAdd.nodeChar, "powers");
-	if not nodePowerList then
-		return;
+	local nodeNew = PowerManager.addPower("power", nodeSpell, nodeChar, tData.sGroup);
+	if not nodeNew then
+		return nil;
 	end
 
-	local nodeNewPower = DB.createChildAndCopy(nodePowerList, rActionsAdd.nodeSource);
-	if not nodeNewPower then
-		return;
+	if tData.bRitual then
+		local sNewName = string.format("%s (%s)", DB.getValue(nodeNew, "name", ""), Interface.getString("spell_label_ritual"));
+		DB.setValue(nodeNew, "name", "string", sNewName);
+	end
+	if tData.nPrepared and (tData.nPrepared > 0) and (DB.getValue(nodeNew, "level", 0) > 0) then
+		DB.setValue(nodeNew, "prepared", "number", tData.nPrepared);
 	end
 
-	-- Set specific data
-	DB.setValue(nodeNewPower, "locked", "number", 1);
-	DB.setValue(nodeNewPower, "group", "string", rActionsAdd.sPowerGroup);
-	if rActionsAdd.nPowerPrepared and (rActionsAdd.nPowerPrepared > 0) then
-		DB.setValue(nodeNewPower, "prepared", "number", rActionsAdd.nPowerPrepared);
-	end
-	if rActionsAdd.sUsePeriod then
-		DB.setValue(nodeNewPower, "usesperiod", "string", rActionsAdd.sUsePeriod);
-	end
-	if rActionsAdd.sPowerName then
-		DB.setValue(nodeNewPower, "name", "string", rActionsAdd.sPowerName);
-	end
-
-	-- Clean up
-	DB.deleteChild(nodeNewPower, "level");
-	local nodeActions = DB.createChild(nodeNewPower, "actions");
-	DB.deleteChildren(nodeActions);
-
-	-- Convert text to description
-	local nodeText = DB.getChild(nodeNewPower, "text");
-	if nodeText then
-		local nodeDesc = DB.createChild(nodeNewPower, "description", "formattedtext");
-		DB.copyNode(nodeText, nodeDesc);
-		DB.deleteNode(nodeText);
-	end
-
-	-- See if we have specific actions to add
-	if not rActionsAdd.tPowerActions then
-		return;
-	end
-
-	local nodeCastAction = nil;
-	for _,vAction in pairs(rActionsAdd.tPowerActions) do
-		if vAction.type then
-			if vAction.type == "attack" then
-				if not nodeCastAction then
-					nodeCastAction = DB.createChild(nodeActions);
-					DB.setValue(nodeCastAction, "type", "string", "cast");
-				end
-				if nodeCastAction then
-					if vAction.range == "R" then
-						DB.setValue(nodeCastAction, "atktype", "string", "ranged");
-					else
-						DB.setValue(nodeCastAction, "atktype", "string", "melee");
-					end
-
-					if vAction.modifier then
-						DB.setValue(nodeCastAction, "atkbase", "string", "fixed");
-						DB.setValue(nodeCastAction, "atkmod", "number", tonumber(vAction.modifier) or 0);
-					end
-				end
-
-			elseif vAction.type == "damage" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "damage");
-
-				local nodeDmgList = DB.createChild(nodeAction, "damagelist");
-				for _,vDamage in ipairs(vAction.clauses) do
-					local nodeEntry = DB.createChild(nodeDmgList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vDamage.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vDamage.bonus);
-					if vDamage.stat then
-						DB.setValue(nodeEntry, "stat", "string", vDamage.stat);
-					end
-					if vDamage.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vDamage.statmult);
-					end
-					DB.setValue(nodeEntry, "type", "string", vDamage.dmgtype);
-				end
-
-			elseif vAction.type == "heal" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "heal");
-
-				if vAction.subtype == "temp" then
-					DB.setValue(nodeAction, "healtype", "string", "temp");
-				end
-				if vAction.sTargeting then
-					DB.setValue(nodeAction, "healtargeting", "string", vAction.sTargeting);
-				end
-
-				local nodeHealList = DB.createChild(nodeAction, "heallist");
-				for _,vHeal in ipairs(vAction.clauses) do
-					local nodeEntry = DB.createChild(nodeHealList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vHeal.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vHeal.bonus);
-					if vHeal.stat then
-						DB.setValue(nodeEntry, "stat", "string", vHeal.stat);
-					end
-					if vHeal.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vHeal.statmult);
-					end
-				end
-
-			elseif vAction.type == "powersave" then
-				if not nodeCastAction then
-					nodeCastAction = DB.createChild(nodeActions);
-					DB.setValue(nodeCastAction, "type", "string", "cast");
-				end
-				if nodeCastAction then
-					DB.setValue(nodeCastAction, "savetype", "string", vAction.save);
-					DB.setValue(nodeCastAction, "savemagic", "number", 1);
-
-					if vAction.savemod then
-						DB.setValue(nodeCastAction, "savedcbase", "string", "fixed");
-						DB.setValue(nodeCastAction, "savedcmod", "number", tonumber(vAction.savemod) or 8);
-					elseif vAction.savestat then
-						if vAction.savestat ~= "base" then
-							DB.setValue(nodeCastAction, "savedcbase", "string", "ability");
-							DB.setValue(nodeCastAction, "savedcstat", "string", vAction.savestat);
-						end
-					end
-					if vAction.onmissdamage == "half" then
-						DB.setValue(nodeCastAction, "onmissdamage", "string", "half");
-					end
-				end
-
-			elseif vAction.type == "effect" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "effect");
-
-				DB.setValue(nodeAction, "label", "string", vAction.sName);
-
-				if vAction.sTargeting then
-					DB.setValue(nodeAction, "targeting", "string", vAction.sTargeting);
-				end
-				if vAction.sApply then
-					DB.setValue(nodeAction, "apply", "string", vAction.sApply);
-				end
-
-				local nDuration = tonumber(vAction.nDuration) or 0;
-				if nDuration ~= 0 then
-					DB.setValue(nodeAction, "durmod", "number", nDuration);
-					DB.setValue(nodeAction, "durunit", "string", vAction.sUnits);
-				end
-			end
-		end
-	end
-end
-function helperParseAbilitySpells(nodeSource)
-	local tAbilitySpells = {};
-
-	local sText = DB.getText(nodeSource, "text", ""):lower();
-	local tSentences = StringManager.split(sText, ".");
-	for _,vSentence in pairs(tSentences) do
-	 	local sSpellText = vSentence:match("you know the (.-) cantrip");
-		if not sSpellText then
-		 	sSpellText = vSentence:match("you know the cantrip[s]? ([%w%s]+)");
-		end
-	 	if not sSpellText then
-		 	sSpellText = vSentence:match("you can cast the (.-) on");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("to cast the (.-) spell");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("you can cast (.-) once with ");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("you can cast the (.-) with this trait");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("you can cast (.-) with this trait");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("you can also cast the (.-) with this trait");
-		end
-		if not sSpellText then
-			sSpellText = vSentence:match("gain the ability to cast (.-), but only");
-		end
-		if not sSpellText then
-			break;
-		else
-			sSpellText = sSpellText:gsub(" an unlimited number of times", "")
-			sSpellText = sSpellText:gsub(" %(targeting yourself", "")
-			sSpellText = sSpellText:gsub(" as a 2nd-level", "")
-			sSpellText = sSpellText:gsub(" as a 2nd level", "")
-			sSpellText = sSpellText:gsub(", but", "")
-			sSpellText = sSpellText:gsub(" spell", "")
-
-			sSpellText = StringManager.trim(sSpellText);
-
-			local sSplit1, sSplit2 = sSpellText:match("(detect magic) and (detect poison and disease)")
-			if not sSplit1 and not sSplit2 then
-				sSplit1, sSplit2 = sSpellText:match("([%w%s]+) and ([%w%s]+)");
-			end
-
-			local tSplit = {};
-			if sSplit1 and sSplit2 then
-				table.insert(tSplit, sSplit1);
-				table.insert(tSplit, sSplit2);
-			end
-
-			if #tSplit > 0 then
-				for _,v in pairs(tSplit) do
-					if vSentence:match("3rd") then
-						-- Skip?
-					elseif vSentence:match("5th") then
-						-- Skip?
-					else
-						table.insert(tAbilitySpells, v);
-					end
-				end
-			else
-				if vSentence:match("3rd") then
-					-- Skip?
-				elseif vSentence:match("5th") then
-					-- Skip?
-				else
-					table.insert(tAbilitySpells, sSpellText);
-				end
-			end
-		end
-	end
-
-	return tAbilitySpells;
+	return nodeNew;
 end

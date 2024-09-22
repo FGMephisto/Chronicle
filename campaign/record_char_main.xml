@@ -11,17 +11,13 @@
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
 					local sClass, sRecord = draginfo.getShortcutData();
-
-					if StringManager.contains({"reference_class", "reference_race", "reference_subrace", "reference_background"}, sClass) then
-						CharManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
-						return true;
+					if StringManager.contains({ "reference_class", "reference_race", "reference_subrace", "reference_background", "reference_feat", }, sClass) then
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
 					end
 				end
 			end
-			
 			function onHealthChanged()
-				local sColor = ActorManager5E.getPCSheetWoundColor(getDatabaseNode());
-				wounds.setColor(sColor);
+				wounds.setColor(ActorManager5E.getPCSheetWoundColor(getDatabaseNode()));
 			end
 		</script>
 		<sheetdata>
@@ -82,7 +78,7 @@
 				</anchored>
 			</stringu>
 
-			<label_charframetop name="racetitle">
+			<label_charframetop name="speciestitle">
 				<anchored height="20">
 					<top offset="65" />
 					<left anchor="center" offset="15" />
@@ -91,12 +87,12 @@
 				<icons>char_race</icons>
 				<static textres="char_label_race" />
 			</label_charframetop>
-			<genericcontrol name="racerightanchor">
-				<anchored to="racetitle" position="belowright" offset="-5,5" width="0" height="20" />
+			<genericcontrol name="speciesrightanchor">
+				<anchored to="speciestitle" position="belowright" offset="-5,5" width="0" height="20" />
 				<disabled />
 			</genericcontrol>
 			<linkfield_statich name="subracelink">
-				<anchored to="racerightanchor" width="20" height="20">
+				<anchored to="speciesrightanchor" width="20" height="20">
 					<top />
 					<right anchor="left" relation="relative" offset="0" />
 				</anchored>
@@ -104,7 +100,7 @@
 				<closetoggle />
 			</linkfield_statich>
 			<linkfield_statich name="racelink">
-				<anchored to="racerightanchor" width="20" height="20">
+				<anchored to="speciesrightanchor" width="20" height="20">
 					<top />
 					<right anchor="left" relation="relative" offset="0" />
 				</anchored>
@@ -112,8 +108,8 @@
 				<closetoggle />
 			</linkfield_statich>
 			<stringu name="race">
-				<anchored to="racetitle" position="belowleft" offset="-5,5" height="20">
-					<right parent="racerightanchor" anchor="left" relation="relative" offset="-5" />
+				<anchored to="speciestitle" position="belowleft" offset="-5,5" height="20">
+					<right parent="speciesrightanchor" anchor="left" relation="relative" offset="-5" />
 				</anchored>
 			</stringu>
 
@@ -325,15 +321,10 @@
 			<basicnumber name="temphp" source="hp.temporary">
 				<anchored to="hp" position="righthigh" offset="15,0" width="40" height="30" />
 				<font>reference-b-large</font>
+				<color>0000AA</color>
 				<description textres="temphp" />
 				<hideonvalue>0</hideonvalue>
 				<script>
-					function onInit()
-						if super and super.onInit then
-							super.onInit();
-						end
-						setColor(ColorManager.getUIColor("health_shield"));
-					end
 					function onDrop(x, y, draginfo)
 						if draginfo.getType() == "number" then
 							if draginfo.getNumberData() &gt; 0 then
@@ -505,6 +496,9 @@
 					<left anchor="center" offset="-20" />
 				</anchored>
 			</number_charinit>
+			<button_initprof name="initprof" source="initiative.prof">
+				<anchored to="initiative" />
+			</button_initprof>
 			<label_charfieldtop>
 				<anchored to="initiative" offset="0,15" />
 				<static textres="char_label_initiative" />
@@ -625,10 +619,8 @@
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
 					local sClass, sRecord = draginfo.getShortcutData();
-
 					if sClass == "reference_class" then
-						CharManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
-						return true;
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
 					end
 				end
 			end
@@ -783,9 +775,10 @@
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
 					local sClass, sRecord = draginfo.getShortcutData();
-					if sClass == "reference_classability" or sClass == "reference_class_specialization" then
+					if sClass == "reference_class_specialization" or sClass == "reference_classability" then
 						local node = getDatabaseNode();
 						DB.setValue(node, "specialization", "string", DB.getValue(DB.getPath(sRecord, "name"), ""));
+						DB.setValue(node, "specializationversion", "string", DB.getValue(DB.getPath(sRecord, "version"), ""));
 						DB.setValue(node, "specializationlink", "windowreference", sClass, sRecord);
 					end
 				end
@@ -924,6 +917,14 @@
 				<static textres="misc" />
 			</label_fieldtop>
 			
+			<label name="label_initprof">
+				<anchored to="initmiscbonus" position="righthigh" offset="15,0" />
+				<static textres="char_label_initprof" />
+			</label>
+			<button_prof name="initprof" source="initiative.prof">
+				<anchored to="label_initprof" position="righthigh" offset="10,0" width="20" height="20" />
+			</button_prof>
+
 			<!-- Speed Detail -->
 			<label name="label_speeddetail">
 				<anchored width="60">

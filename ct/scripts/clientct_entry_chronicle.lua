@@ -13,7 +13,6 @@ function onFactionChanged()
 	super.onFactionChanged();
 	updateHealthDisplay();
 end
-
 function onActiveChanged()
 	super.onActiveChanged();
 	
@@ -27,13 +26,11 @@ function onActiveChanged()
 		sub_active.setVisible(false);
 	end
 end
-
 function onIDChanged()
 	super.onIDChanged();
 	
 	self.onActiveChanged();
 end
-
 function onHealthChanged()
 	local rActor = ActorManager.resolveActor(getDatabaseNode())
 	local sColor = ActorHealthManager.getHealthColor(rActor);
@@ -42,11 +39,8 @@ function onHealthChanged()
 	status.setColor(sColor);
 end
 
---
 -- Adjusted
---
 function updateHealthDisplay()
-	-- Debug.chat("FN: updateHealthDisplay in clientct_entry")
 	local sOption;
 	if friendfoe.getStringValue() == "friend" then
 		sOption = OptionsManager.getOption("SHPC");
@@ -56,23 +50,23 @@ function updateHealthDisplay()
 	
 	if sOption == "detailed" then
 		hptotal.setVisible(true);
-		trauma.setVisible(true);
-		injuries.setVisible(true);
 		fatigue.setVisible(true);
+		injuries.setVisible(true);
+		trauma.setVisible(true);
 		wounds.setVisible(true);
 		status.setVisible(false);
 	elseif sOption == "status" then
 		hptotal.setVisible(false);
-		trauma.setVisible(false);
-		injuries.setVisible(false);
 		fatigue.setVisible(false);
+		injuries.setVisible(false);
+		trauma.setVisible(false);
 		wounds.setVisible(false);
 		status.setVisible(true);
 	else
 		hptotal.setVisible(false);
-		trauma.setVisible(false);
-		injuries.setVisible(false);
 		fatigue.setVisible(false);
+		injuries.setVisible(false);
+		trauma.setVisible(false);
 		wounds.setVisible(false);
 		status.setVisible(false);
 	end

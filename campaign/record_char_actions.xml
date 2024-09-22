@@ -9,10 +9,10 @@
 	<windowclass name="charsheet_actions">
 		<script>
 			function onDrop(x, y, draginfo)
-				if contents.subwindow.actions.subwindow.onDrop(x, y, draginfo) then
+				if content.subwindow.actions.subwindow.onDrop(x, y, draginfo) then
 					return true;
 				end
-				if contents.subwindow.weapons.onDrop(x, y, draginfo) then
+				if content.subwindow.weapons.onDrop(x, y, draginfo) then
 					return true;
 				end
 				return false;
@@ -22,16 +22,24 @@
 
 				powermode_label.setVisible(not bEditMode);
 				powermode.setVisible(not bEditMode);
-				powerdisplay_label.setVisible(not bEditMode);
-				powerdisplaymode.setVisible(not bEditMode);
 				if bEditMode then
 					DB.setValue(getDatabaseNode(), "powermode", "string", "standard");
 				end
+
+				-- TODO (2024) - Remove old display code
+				-- powerdisplay_label.setVisible(not bEditMode);
+				-- powerdisplaymode.setVisible(not bEditMode);
 			end
 		</script>
 		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<area_content_framed_groupbox_bottom name="area_controls">
+				<anchored height="20" />
+			</area_content_framed_groupbox_bottom>
 			<button_iedit name="actions_iedit">
-				<anchored position="insidebottomright" offset="10,10" />
+				<anchored to="area_controls" position="insidetopright" offset="0,0" />
 				<tooltip textres="char_tooltip_actionedit" />
 			</button_iedit>
 			<buttoncontrol name="powers_iadd">
@@ -40,7 +48,7 @@
 				<tooltip textres="char_tooltip_actionaddpower" />
 				<script>
 					function onButtonPress()
-						window.contents.subwindow.actions.subwindow.addPower(true);
+						window.content.subwindow.actions.subwindow.addPower(true);
 						DB.setValue(window.getDatabaseNode(), "powermode", "string", "standard");
 					end
 				</script>
@@ -51,26 +59,12 @@
 				<tooltip textres="char_tooltip_actionaddweapon" />
 				<script>
 					function onButtonPress()
-						window.contents.subwindow.weapons.createWindow(nil, true);
+						window.content.subwindow.weapons.createWindow(nil, true);
 					end
 				</script>
 			</buttoncontrol>
-
-			<subwindow name="contents">
-				<anchored>
-					<bottom offset="-40" />
-					<top offset="0" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
-				<class>charsheet_actions_contents</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-			<scrollbar_charcontents />
-	
 			<label name="powermode_label">
-				<anchored position="insidebottomleft" offset="10,10" />
+				<anchored to="area_controls" position="insidetopleft" offset="0,0" />
 				<static textres="power_label_mode" />
 			</label>
 			<button_stringcycler name="powermode">
@@ -82,11 +76,13 @@
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.onModeChanged();
+						window.content.subwindow.onModeChanged();
 					end
 				</script>
 			</button_stringcycler>
 
+			<!-- TODO (2024) - Remove old display code -->
+			<!--
 			<label name="powerdisplay_label">
 				<anchored to="powermode" position="righthigh" offset="15,0" />
 				<static textres="power_label_display" />
@@ -94,16 +90,22 @@
 			<button_stringcycler name="powerdisplaymode">
 				<anchored to="powerdisplay_label" position="righthigh" offset="10,0" width="80" />
 				<parameters>
-					<labelsres>power_label_displaysummary|power_label_displayaction</labelsres>
-					<values>summary|action</values>
+					<labelsres>power_label_displayaction</labelsres>
+					<values>action</values>
 					<defaultlabelres>power_label_displaygroup</defaultlabelres>
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.actions.subwindow.onDisplayChanged();
+						window.content.subwindow.actions.subwindow.onDisplayChanged();
 					end
 				</script>
 			</button_stringcycler>
+			-->
+
+			<sub_content name="content">
+				<class>charsheet_actions_contents</class>
+			</sub_content>
+			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
 
@@ -119,13 +121,13 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_charframetop name="weapontitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
+			<anchor_content_top />
+
+			<label_charframetop name="weapon_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
 					<left offset="15" />
-					<right offset="-10" />
+					<right />
 				</anchored>
 				<icons>char_attacks</icons>
 				<static textres="char_label_weapon" />
@@ -133,7 +135,6 @@
 					function onClickDown()
 						return true;
 					end
-					
 					function onClickRelease()
 						local bVisible = window.weapons.isVisible ();
 						if bVisible then
@@ -147,8 +148,30 @@
 					end
 				</script>
 			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="weapon_header">
+				<static textres="char_label_weapon" />
+				<icon>char_attacks</icon>
+				<script>
+					function onClickDown()
+						return true;
+					end
+					function onClickRelease()
+						local bVisible = window.weapons.isVisible ();
+						if bVisible then
+							setFont("subwindowsmalltitle_disabled");
+							window.weapons.setVisible(false);
+						else
+							setFont("subwindowsmalltitle");
+							window.weapons.setVisible(true);
+						end
+						return true;
+					end
+				</script>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
 			<button_details name="weapons_global_detail">
-				<anchored to="weapontitle" position="insidetopright" offset="20,1" />
+				<anchored to="weapon_header" position="insidetopright" offset="5,0" />
 				<script>
 					function onButtonPress()
 						Interface.openWindow("char_weaponmeta", window.getDatabaseNode());
@@ -156,50 +179,25 @@
 				</script>
 			</button_details>
 
-			<list_charweapon name="weapons">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="2" />
-					<left offset="10" />
-					<right offset="-5" />
-				</anchored>
+			<list_content_noscroll_top name="weapons">
+				<datasource>.weaponlist</datasource>
 				<class>char_weapon</class>
-				<noscroll />
-			</list_charweapon>
+				<sortby><control>name</control></sortby>
+				<allowdelete />
+				<script file="campaign/scripts/char_weaponlist.lua" />
+			</list_content_noscroll_top>
 
-			<subwindow name="spellslots_prep">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="0" />
-					<left />
-					<right />
-				</anchored>
+			<sub_content_top name="spellslots_prep">
 				<class>power_slots_prep</class>
-				<activate />
-				<fastinit />
 				<invisible />
-			</subwindow>
-			
-			<subwindow name="spellslots_cast">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="0" />
-					<left />
-					<right />
-				</anchored>
+			</sub_content_top>
+			<sub_content_top name="spellslots_cast">
 				<class>power_slots_cast</class>
-				<activate />
-				<fastinit />
 				<invisible />
-			</subwindow>
-
-			<subwindow name="actions">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="0" />
-					<left />
-					<right />
-				</anchored>
-				<activate />
-				<fastinit />
+			</sub_content_top>
+			<sub_content_top name="actions">
 				<class>power_page</class>
-			</subwindow>
+			</sub_content_top>
 		</sheetdata>
 	</windowclass>
 	

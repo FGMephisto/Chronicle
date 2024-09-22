@@ -14,8 +14,9 @@ function onMenuSelection(selection, subselection)
 end
 
 function onEditModeChanged()
-	local bEditMode = WindowManager.getEditMode(windowlist, "skills_iedit");
-	idelete.setVisible(self.isCustom() and bEditMode);
+	local bEditMode = WindowManager.getEditMode(windowlist, "sheet_iedit");
+	idelete.setVisible(bEditMode and self.isCustom());
+	idelete_spacer.setVisible(bEditMode and not self.isCustom());
 end
 
 -- This function is called to set the entry to non-custom or custom.

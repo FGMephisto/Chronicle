@@ -19,62 +19,78 @@
 			<class>reference_subrace_main</class>
 			<embed />
 		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_subrace_header" copy="record_header" />
 
 	<windowclass name="reference_subrace_main">
-		<margins control="0,0,0,7" />
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				update();
 			end
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				race.setReadOnly(bReadOnly);
-				traits.update(bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "race", bReadOnly);
+				WindowManager.callSafeControlUpdate(self, "list", bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if WindowManager.getReadOnlyState(getDatabaseNode()) then
+					return true;
+				end
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					local nodeSource = draginfo.getDatabaseNode();
+					
+					if sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
+						self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+					end
+					return true;
+				end
+			end
+			function addTrait(sName, sText)
+				local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "traits"));
+				if nodeTrait then
+					DB.setValue(nodeTrait, "name", "string", sName);
+					DB.setValue(nodeTrait, "text", "formattedtext", sText);
+				end
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 			
-			<label_column name="race_label">
+			<label_content_column name="race_label">
 				<static textres="race_subrace_label_race" />
-			</label_column>
-			<string_columnh name="race" />
+			</label_content_column>
+			<string_content_columnh name="race" />
 
-			<header_column name="traits_header">
+			<header_content_framed_headersimple name="list_header">
 				<static textres="race_header_traits"/>
-				<center />
-			</header_column>
-			<button_iedit name="traits_iedit">
-				<anchored to="traits_header" position="righthigh" offset="-20,0" />
-				<target>traits</target>
+			</header_content_framed_headersimple>
+			<button_iedit name="list_iedit">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+				<edittarget>list</edittarget>
 			</button_iedit>
-			<button_iadd name="traits_iadd">
-				<anchored to="traits_iedit" position="lefthigh" offset="5,0" />
-				<target>traits</target>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="22,0" />
 			</button_iadd>
-			<list_column name="traits">
+			<list_content_column name="list">
 				<datasource>.traits</datasource>
-				<class>ref_subracial_trait</class>
-			</list_column>
-		</sheetdata>
-	</windowclass>
-	<windowclass name="ref_subracial_trait">
-		<margins control="0,0,0,2" />
-		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<link_listitem_column name="shortcut">
-				<class>reference_subracialtrait</class>
-			</link_listitem_column>
-			<button_listitem_column_delete name="idelete" />
-
-			<string_listitem_column_name name="name">
-				<empty textres="library_recordtype_empty_subracialtrait" />
-			</string_listitem_column_name>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
 
+	<!-- Legacy embedded subraces -->
 	<windowclass name="reference_subracialtrait" copy="record_window_text" />
 	<windowclass name="reference_subracialtrait_header" copy="record_header">
 		<name_emptyres>library_recordtype_empty_subracialtrait</name_emptyres>

@@ -7,13 +7,12 @@
 -->
 
 <root>
-	<!-- -->
 	<!-- Possible values for <rolltype> used in the lua script are: "attack, check, damage, init, skill -->
 	<!-- Possible values for <stat> are all abilities present in DB -->
 	<!-- Possible values for <skill> are all skills present in DB -->
 	<!-- These tags are used in the lua script to determine what dice script to use and what fields to display -->
 	<!-- <Actorpath> holds the number of DB levels the script needs to traverse up to find the Actor of the DB node. Enter ".." for the first level and one "." for each additional level to climb, i.e. "..." will climb 2 levels -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol">
 		<genericcontrol>
 			<anchored width="60" height="35" />
@@ -26,8 +25,7 @@
 		</genericcontrol>
 	</template>
 
-	<!-- -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol_attack">
 		<genericcontrol>
 			<anchored width="60" height="35" />
@@ -40,8 +38,7 @@
 		</genericcontrol>
 	</template>
 
-	<!-- -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol_init">
 		<genericcontrol>
 			<anchored width="60" height="35" />
@@ -54,8 +51,7 @@
 		</genericcontrol>
 	</template>
 
-	<!-- -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol_ability">
 		<simplenumberc>
 			<color>FFFFFF</color>
@@ -64,8 +60,7 @@
 		</simplenumberc>
 	</template>
 
-	<!-- -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol_skill">
 		<simplenumberc>
 			<color>FFFFFF</color>
@@ -74,8 +69,7 @@
 		</simplenumberc>
 	</template>
 
-	<!-- -->
-	<!-- -->
+	<!-- Added -->
 	<template name="dicecontrol_interface">
 		<genericcontrol>
 			<rolltype></rolltype>

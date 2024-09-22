@@ -49,7 +49,6 @@ function onInit()
 	DB.addHandler(DB.getPath(node, "powers.*.group"), "onUpdate", onPowerGroupChanged);
 	DB.addHandler(DB.getPath(node, "powers.*.level"), "onUpdate", onPowerGroupChanged);
 end
-
 function onClose()
 	local node = getDatabaseNode();
 	
@@ -89,6 +88,25 @@ function onClose()
 	DB.removeHandler(DB.getPath(node, "powers.*.level"), "onUpdate", onPowerGroupChanged);
 end
 
+function onModeChanged()
+	self.rebuildGroups();
+	self.updateUses();
+end
+-- TODO (2024) - Remove old display code
+-- function onDisplayChanged()
+-- 	for _,v in pairs(powers.getWindows()) do
+-- 		if v.getClass() ~= "power_group_header" then
+-- 			v.onDisplayChanged();
+-- 		end
+-- 	end
+-- end
+function onEditModeChanged()
+	for _,v in pairs(powers.getWindows()) do
+		if v.getClass() ~= "power_group_header" then
+			v.onDisplayChanged();
+		end
+	end
+end
 function onAbilityChanged()
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() ~= "power_group_header" then
@@ -105,33 +123,16 @@ function onAbilityChanged()
 		end
 	end
 end
-
-function onModeChanged()
-	self.rebuildGroups();
-	self.updateUses();
-end
-
-function onDisplayChanged()
-	for _,v in pairs(powers.getWindows()) do
-		if v.getClass() ~= "power_group_header" then
-			v.onDisplayChanged();
-		end
-	end
-end
-
 function onUsesChanged()
 	self.rebuildGroups();
 	self.updateUses();
 end
-
 function onGroupListChanged()
 	self.updatePowerGroups();
 end
-
 function onGroupTypeChanged()
 	self.updatePowerGroups();
 end
-
 function onGroupNameChanged(nodeGroupName)
 	if bUpdatingGroups then
 		return;
@@ -166,32 +167,20 @@ function onGroupNameChanged(nodeGroupName)
 	
 	self.updatePowerGroups();
 end
-
 function onPowerListChanged()
 	self.updatePowerGroups();
 end
-
 function onPowerGroupChanged(node)
 	self.updatePowerGroups();
 end
 
 function addPower(bFocus)
-	local w = powers.createWindow();
-	if bFocus then
-		if w.header and w.header.subwindow and w.header.subwindow.name then
-			w.header.subwindow.name.setFocus();
-		end
-	end
-	return w;
+	return powers.createWindow(nil, true);
 end
-
 function addGroupPower(sGroup, nLevel)
-	local w = powers.createWindow();
+	local w = powers.createWindow(nil, true);
 	w.level.setValue(nLevel);
 	w.group.setValue(sGroup);
-	if w.header and w.header.subwindow and w.header.subwindow.name then
-		w.header.subwindow.name.setFocus();
-	end
 	return w;
 end
 
@@ -239,7 +228,6 @@ function updatePowerGroups()
 	self.updateHeaders();
 	self.updateUses();
 end
-
 function updateHeaders()
 	if bUpdatingGroups then
 		return;
@@ -287,7 +275,6 @@ end
 function onPowerWindowAdded(w)
 	self.updatePowerWindowUses(getDatabaseNode(), w);
 end
-
 function updatePowerWindowUses(nodeChar, w)
 	local sMode = DB.getValue(nodeChar, "powermode", "");
 	local bShow = true;
@@ -617,7 +604,6 @@ function getWindowSortByNode(node)
 
 	return sCategory, sGroup, nLevel;
 end
-
 function getWindowSort(w)
 	local sGroup = w.group.getValue();
 	local nLevel = w.level.getValue();
@@ -629,7 +615,6 @@ function getWindowSort(w)
 
 	return sCategory;
 end
-
 function onSortCompare(w1, w2)
 	local vCategory1 = self.getWindowSort(w1);
 	local vCategory2 = self.getWindowSort(w2);

@@ -87,6 +87,23 @@ function modRoll(rSource, rTarget, rRoll)
 
 	if rSource then
 		local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = getEffectAdjustments(rSource);
+
+		-- Check Reliable state
+		local bReliable = false;
+		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLEINIT") then
+			bEffects = true;
+			bReliable = true;
+		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
+			bEffects = true;
+			bReliable = true;
+		end
+		if bReliable then
+			rRoll.sDesc = string.format("%s %s", rRoll.sDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
+		end
+
 		if bEffects then
 			for _,vDie in ipairs(aEffectDice) do
 				if vDie:sub(1,1) == "-" then
@@ -174,6 +191,10 @@ function getEffectAdjustments(rActor)
 		bEffects = true;
 		bEffectADV = true;
 	end
+	if EffectManager5E.hasEffectCondition(rActor, "Invisible") then
+		bEffects = true;
+		bEffectDIS = true;
+	end
 	if EffectManager5E.hasEffectCondition(rActor, "DISCHK") then
 		bEffects = true;
 		bEffectDIS = true;
@@ -197,21 +218,34 @@ function getEffectAdjustments(rActor)
 		bEffects = true;
 		bEffectDIS = true;
 	end
+	if EffectManager5E.hasEffectCondition(rActor, "Incapacitated") then
+		bEffects = true;
+		bEffectDIS = true;
+	end
 
 	-- Get exhaustion modifiers
-	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rActor, {"EXHAUSTION"}, true);
-	if nExhaustCount > 0 then
-		bEffects = true;
-		if nExhaustMod >= 1 then
-			bEffectDIS = true;
+	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
+	local sOptionGAVE = OptionsManager.getOption("GAVE");
+	local bIs2024 = (sOptionGAVE == "2024");
+	if bIs2024 then
+		if nExhaustMod > 0 then
+			bEffects = true;
+			nEffectMod = nEffectMod - (2 * nExhaustMod);
 		end
+	else
+		if nExhaustMod > 0 then
+			bEffects = true;
+			bDIS = true;
+		end		
 	end
 	
 	return bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS;
 end
 
 function onResolve(rSource, rTarget, rRoll)
+	ActionsManager2.handleLuckTrait(rSource, rRoll);
 	ActionsManager2.decodeAdvantage(rRoll);
+	ActionsManager2.handleReliable(rSource, rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);

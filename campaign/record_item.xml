@@ -6,6 +6,81 @@
 -->
 
 <root>
+	<template name="sub_item_type">
+		<sub_content_column name="sub_type">
+			<script>
+				function update(bReadOnly, bID)
+					if bID then
+						local nodeRecord = window.getDatabaseNode();
+						if ItemManager.isWeapon(nodeRecord) then
+							setValue("item_main_weapon", nodeRecord);
+							subwindow.update(bReadOnly, bID);
+							return;
+						end
+						if ItemManager.isArmor(nodeRecord) then
+							setValue("item_main_armor", nodeRecord);
+							subwindow.update(bReadOnly, bID);
+							return;
+						end
+
+						local sTypeLower = StringManager.simplify(DB.getValue(nodeRecord, "type", ""));
+						local bArcaneFocus = (sTypeLower == "rod") or (sTypeLower == "staff") or (sTypeLower == "wand");
+						if bArcaneFocus then
+							setValue("item_main_arcanefocus", nodeRecord);
+							subwindow.update(bReadOnly, bID);
+							return;
+						end
+	
+						local bVehicleComponent = (sTypeLower == "vehicle component");
+						if bVehicleComponent then
+							setValue("item_main_vehicle", nodeRecord);
+							subwindow.update(bReadOnly, bID);
+							return;
+						end
+
+						local bLegacyVehicle = (sTypeLower == "waterborne vehicles") or (sTypeLower == "mounts and other animals");
+						if bLegacyVehicle then
+							setValue("item_main_vehicle_legacy", nodeRecord);
+							subwindow.update(bReadOnly, bID);
+							return;
+						end
+					end
+					setValue("", "");
+				end
+			</script>
+		</sub_content_column>
+	</template>
+
+	<windowclass name="item" copy="record_window_tabbed">
+		<minimize>minimized_item</minimize>
+		<tab>
+			<name>main</name>
+			<resource>tab_main</resource>
+			<class>item_main</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_content_framed_groupbox_top name="header">
+				<class>item_header</class>
+			</sub_content_framed_groupbox_top>
+
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="item_header" copy="record_header" /> 
+
 	<!-- Legacy window classes - Maintain for older DLC -->
 	<windowclass name="reference_magicitem" copy="item" />
 	<windowclass name="reference_weapon" copy="item" />
@@ -20,224 +95,241 @@
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/item_main.lua" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="nonidentified_label">
-				<static textres="item_label_unidentifiednotes" />
-			</label_column>
-			<string_columnh name="nonidentified" />
-			
-			<line_column name="divider" />
-			
-			<label_column name="type_label">
+			<anchor_content_top />
+
+			<sub_record_nonid_notes name="sub_nonid" />
+			<sub_item_standard name="sub_standard" />
+			<sub_item_type name="sub_type" />
+
+			<ft_content_columnh_full name="description" />
+
+			<sub_item_pack name="sub_pack" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="item_main_standard">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly, bID)
+				local tFields = { "type", "subtype", "rarity", "cost", "weight", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="type_label">
 				<static textres="item_label_type" />
-			</label_column>
-			<string_columnh name="type">
+			</label_content_column>
+			<string_content_columnh name="type">
 				<nohide />
 				<delaykeyupdate />
 				<script>
 					function onValueChanged()
-						window.update();
+						WindowManager.callOuterWindowFunction(window, "onTypeChanged");
 					end
 				</script>
-			</string_columnh>
+			</string_content_columnh>
 
-			<label_column name="subtype_label">
+			<label_content_column name="subtype_label">
 				<static textres="item_label_subtype" />
-			</label_column>
-			<string_columnh name="subtype">
+			</label_content_column>
+			<string_content_columnh name="subtype">
 				<delaykeyupdate />
 				<script>
 					function onValueChanged()
-						window.update();
+						WindowManager.callOuterWindowFunction(window, "onTypeChanged");
 					end
 				</script>
-			</string_columnh>
+			</string_content_columnh>
 
-			<label_column name="rarity_label">
+			<label_content_column name="rarity_label">
 				<static textres="item_label_rarity" />
-			</label_column>
-			<string_columnh name="rarity">
+			</label_content_column>
+			<string_content_columnh name="rarity">
 				<delaykeyupdate />
-			</string_columnh>
+			</string_content_columnh>
 
-			<line_column name="divider2" />
-
-			<label_column name="cost_label">
+			<label_content_column name="cost_label">
 				<static textres="item_label_cost" />
-			</label_column>
-			<string_columnh name="cost" />
+			</label_content_column>
+			<string_content_columnh name="cost" />
 
-			<label_column name="weight_label">
+			<label_content_column name="weight_label">
 				<static textres="item_label_weight" />
-			</label_column>
-			<number_columnh name="weight" />
+			</label_content_column>
+			<number_content_columnh name="weight" />
 
-			<line_column name="divider3" />
-
-			<sub_column name="type_stats" />
-
-			<line_column name="divider4" />
-
-			<ft_columnh name="description" />
-
-			<sub_column name="type_lists" />
+			<line_content_top name="divider" />
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="item_main_weapon">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				bonus.setReadOnly(bReadOnly);
-				damage.setReadOnly(bReadOnly);
-				properties.setReadOnly(bReadOnly);
+			function update(bReadOnly, bID)
+				local tFields = { "bonus", "damage", "properties" };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+
+				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
+				WindowManager.callSafeControlUpdate(self, "mastery", bReadOnly, not bID or not bIs2024);
+
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
-			<label_column name="bonus_label">
+			<label_content_column name="bonus_label">
 				<static textres="item_label_bonus" />
-			</label_column>
-			<number_columnh name="bonus">
+			</label_content_column>
+			<number_content_columnh name="bonus">
 				<delaykeyupdate />
 				<displaysign />
-			</number_columnh>
+			</number_content_columnh>
 
-			<label_column name="damage_label">
+			<label_content_column name="damage_label">
 				<static textres="item_label_damage" />
-			</label_column>
-			<string_columnh name="damage" />
+			</label_content_column>
+			<string_content_column name="damage" />
 
-			<label_column name="properties_label">
+			<label_content_column name="properties_label">
 				<static textres="item_label_properties" />
-			</label_column>
-			<string_columnh name="properties" />
+			</label_content_column>
+			<string_content_columnh name="properties" />
+
+			<label_content_column name="mastery_label">
+				<static textres="item_label_mastery" />
+			</label_content_column>
+			<string_content_columnh name="mastery" />
+
+			<line_content_top name="divider" />
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="item_main_armor">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				bonus.setReadOnly(bReadOnly);
-				ac.setReadOnly(bReadOnly);
-				dexbonus.setReadOnly(bReadOnly);
-				strength.setReadOnly(bReadOnly);
-				stealth.setReadOnly(bReadOnly);
-				properties.setReadOnly(bReadOnly);
+			function update(bReadOnly, bID)
+				local tFields = { "bonus", "ac", "dexbonus", "strength", "stealth", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+
+				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
+				WindowManager.callSafeControlUpdate(self, "properties", bReadOnly, not bID or bIs2024);
+
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
-			<label_column name="bonus_label">
+			<label_content_column name="bonus_label">
 				<static textres="item_label_bonus" />
-			</label_column>
-			<number_columnh name="bonus">
+			</label_content_column>
+			<number_content_columnh name="bonus">
 				<delaykeyupdate />
 				<displaysign />
-			</number_columnh>
+			</number_content_columnh>
 
-			<label_column name="ac_label">
+			<label_content_column name="ac_label">
 				<static textres="item_label_ac" />
-			</label_column>
-			<number_columnh name="ac">
+			</label_content_column>
+			<number_content_column name="ac">
 				<delaykeyupdate />
-			</number_columnh>
+			</number_content_column>
 
-			<label_column name="dexbonus_label">
+			<label_content_column name="dexbonus_label">
 				<static textres="item_label_dexbonus" />
-			</label_column>
-			<string_columnh name="dexbonus">
+			</label_content_column>
+			<string_content_columnh name="dexbonus">
 				<delaykeyupdate />
-			</string_columnh>
+			</string_content_columnh>
 
-			<label_column name="strength_label">
+			<label_content_column name="strength_label">
 				<static textres="item_label_strength" />
-			</label_column>
-			<string_columnh name="strength" />
+			</label_content_column>
+			<string_content_columnh name="strength" />
 
-			<label_column name="stealth_label">
+			<label_content_column name="stealth_label">
 				<static textres="item_label_stealth" />
-			</label_column>
-			<string_columnh name="stealth">
+			</label_content_column>
+			<string_content_columnh name="stealth">
 				<delaykeyupdate />
-			</string_columnh>
+			</string_content_columnh>
 
-			<label_column name="properties_label">
+			<label_content_column name="properties_label">
 				<static textres="item_label_properties" />
-			</label_column>
-			<string_columnh name="properties" />
+			</label_content_column>
+			<string_content_columnh name="properties" />
+
+			<line_content_top name="divider" />
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="item_main_arcanefocus">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				bonus.setReadOnly(bReadOnly);
+			function update(bReadOnly, bID)
+				local tFields = { "bonus", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
-			<label_column name="bonus_label">
+			<label_content_column name="bonus_label">
 				<static textres="item_label_bonus" />
-			</label_column>
-			<number_columnh name="bonus">
+			</label_content_column>
+			<number_content_columnh name="bonus">
 				<delaykeyupdate />
 				<displaysign />
-			</number_columnh>
+			</number_content_columnh>
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="item_main_vehicle">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				crew.setReadOnly(bReadOnly);
-				cover.setReadOnly(bReadOnly);
-				ac.setReadOnly(bReadOnly);
-				hp.setReadOnly(bReadOnly);
+			function update(bReadOnly, bID)
+				local tFields = { "crew", "ac", "damagethreshold", "hp", "cover", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
-			<label_column name="crew_label">
-				<static textres="item_label_crew" />
-			</label_column>
-			<number_column name="crew" />
+			<label_content_column name="crew_label">
+				<static textres="vehicle_label_crew" />
+			</label_content_column>
+			<number_content_column name="crew" />
 
-			<label_column name="ac_label">
+			<label_content_column name="ac_label">
 				<static textres="ac" />
 				<tooltip textres="armorclass" />
-			</label_column>
-			<number_column name="ac">
+			</label_content_column>
+			<number_content_column name="ac">
 				<delaykeyupdate />
-			</number_column>
+			</number_content_column>
 
-			<label_column_right name="damagethreshold_label">
+			<label_content_column_right name="damagethreshold_label">
 				<anchored to="ac" />
 				<static textres="dt" />
 				<tooltip textres="damagethreshold" />
-			</label_column_right>
-			<number_column_right name="damagethreshold">
+			</label_content_column_right>
+			<number_content_column_right name="damagethreshold">
 				<anchored to="ac" />
 				<delaykeyupdate />
-			</number_column_right>
+			</number_content_column_right>
 
-			<label_column name="hp_label">
-				<static textres="item_label_hp" />
-			</label_column>
-			<number_column name="hp" />
+			<label_content_column name="hp_label">
+				<static textres="hitpoints" />
+			</label_content_column>
+			<number_content_column name="hp" />
 
-			<label_column_right name="cover_label">
+			<label_content_column_right name="cover_label">
 				<anchored to="hp" />
-				<static textres="item_label_cover" />
-			</label_column_right>
+				<static textres="item_vehicle_label_cover" />
+			</label_content_column_right>
 			<button_stringcycler name="cover">
 				<anchored to="hp" width="40" height="20">
 					<top />
@@ -323,7 +415,7 @@
 			</basicnumber>
 			<label name="actions_load_label">
 				<anchored to="actions_load" position="lefthigh" offset="10,0" />
-				<static textres="item_label_load" />
+				<static textres="item_vehicle_label_load" />
 			</label>
 
 			<label name="actions_aim_label">
@@ -331,7 +423,7 @@
 					<top offset="27" />
 					<left anchor="center" offset="-40" />
 				</anchored>
-				<static textres="item_label_aim" />
+				<static textres="item_vehicle_label_aim" />
 			</label>
 			<basicnumber name="actions_aim">
 				<anchored to="actions_aim_label" position="righthigh" offset="10,0" width="40" height="20" />
@@ -342,7 +434,7 @@
 			</basicnumber>
 			<label name="actions_fire_label">
 				<anchored to="actions_fire" position="lefthigh" offset="10,0" />
-				<static textres="item_label_fire" />
+				<static textres="item_vehicle_label_fire" />
 			</label>
 
 			<basicstring name="desc">
@@ -359,9 +451,10 @@
 	<windowclass name="item_main_vehicle_legacy">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				speed.setReadOnly(bReadOnly);
-				carryingcapacity.setReadOnly(bReadOnly);
+			function update(bReadOnly, bID)
+				local tFields = { "speed", "carryingcapacity", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>
 		<sheetdata>
