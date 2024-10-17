@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+	Please see the license.html file included with this distribution for
+	attribution and copyright information.
+-->
+
+<root>
+	<template name="button_charlevelup">
+		<button_text>
+			<state textres="char_button_levelup" />
+			<script>
+				function onInit()
+					super.onInit();
+					setVisible(DB.isOwner(window.getDatabaseNode()));
+				end
+				function onButtonPress()
+					CharWizardManager.importCharacter(window.getDatabaseNode());
+				end
+			</script>
+		</button_text>
+	</template>
+
+	<template name="anchor_charwizard_tab">
+		<genericcontrol name="leftanchor">
+			<anchored position="insidetopleft" offset="10,10" width="0" height="20" />
+			<disabled />
+		</genericcontrol>
+	</template>
+	<template name="button_charwizard_tab">
+		<button_text>
+			<anchored to="leftanchor" width="85" height="30">
+				<top />
+				<left relation="relative" offset="5" postoffset="5" />
+			</anchored>
+			<script>
+				function onButtonPress()
+					CharWizardManager.onTabButtonPressed(UtilityManager.getTopWindow(window), getName():gsub("button_", ""));
+				end
+			</script>
+		</button_text>
+	</template>
+
+	<template name="button_charwizard_iadd">
+		<button_iadd_base name="button_select">
+			<anchored to="leftanchor" >
+				<top />
+				<left relation="relative" offset="2" postoffset="2" />
+			</anchored>
+			<invisible />
+		</button_iadd_base>
+	</template>
+	<template name="button_charwizard_idelete">
+		<buttonc_listitem_right>
+			<icon normal="button_dialog_cancel" pressed="button_dialog_cancel_down" />
+			<tooltip textres="button_delete" />
+			<invisible />
+		</buttonc_listitem_right>
+	</template>
+	<template name="button_charwizard_list_idelete">
+		<buttonc_listitem_left>
+			<icon normal="button_dialog_cancel" pressed="button_dialog_cancel_down" />
+			<tooltip textres="button_delete" />
+			<invisible />
+		</buttonc_listitem_left>
+	</template>
+	<template name="button_charwizard_alert">
+		<buttonc_listitem_left name="alert">
+			<icon>button_alert</icon>
+			<invisible />
+		</buttonc_listitem_left>
+	</template>
+	<template name="comboboxc_charwizard_source">
+		<comboboxc name="module">
+			<anchored to="rightanchor" width="300" height="20">
+				<top />
+				<right relation="relative" offset="-10" postoffset="-10" />
+			</anchored>
+			<frame>
+				<name>fieldlight</name>
+				<offset>10,5,10,5</offset>
+			</frame>
+			<font>sheetlabel</font>
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<center />
+			<invisible />
+		</comboboxc>
+	</template>
+	<template name="ftc_charwizard_desc">
+		<simpleft>
+			<anchored to="contentanchor">
+				<left />
+				<right />
+				<top relation="relative" offset="5" postoffset="5" />
+			</anchored>
+			<readonly />
+			<invisible />
+		</simpleft>
+	</template>
+
+	<template name="button_charwizard_class_level_up">
+		<buttoncontrol name="level_up">
+			<anchored to="rightanchor" width="20" height="20">
+				<top />
+				<right relation="relative" offset="-3" postoffset="-0" />
+			</anchored>
+			<icon normal="arrow_sm_up" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					window.level.setValue(window.level.getValue() + 1);
+					CharWizardClassManager.onUpdateClassLevel(window);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<template name="button_charwizard_class_level_down">
+		<buttoncontrol name="level_down">
+			<anchored to="rightanchor" width="20" height="20">
+				<top />
+				<right relation="relative" offset="-0" postoffset="-3" />
+			</anchored>
+			<icon normal="arrow_sm_down" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					window.level.setValue(window.level.getValue() - 1);
+					CharWizardClassManager.onUpdateClassLevel(window);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<template name="button_charwizard_class_features">
+		<button_text_toggle_sm>
+			<anchored width="80" height="20" />
+			<invisible />
+			<script>
+				function onClickDown()
+					return true;
+				end
+				function onClickRelease()
+					window.onToggle(getName():gsub("button_", ""));
+					return true;
+				end
+			</script>
+		</button_text_toggle_sm>
+	</template>
+	<template name="button_charwizard_class_spell_filter">
+		<button_text_toggle_sm>
+			<anchored to="leftanchor" width="40" height="30">
+				<top />
+				<left relation="relative" offset="10" />
+			</anchored>
+			<script>
+				function onButtonPress()
+					local sLevelName = getName();
+					local sLevel = tonumber(sLevelName:match("(%d+)"));
+					if not sLevel then
+						sLevel = "0";
+					end
+					local tSlots = WindowManager.callOuterWindowFunction(window, "getSlotFilters");
+					for _,v in pairs(tSlots) do
+						if v ~= self then
+							v.setValue(0);
+						end
+					end
+					if getValue() == 0 then
+						sLevel = "";
+					end
+					window.parentcontrol.window.onLevelFilterChanged(sLevel);
+				end
+			</script>
+		</button_text_toggle_sm>
+	</template>
+	<template name="comboboxc_charwizard_decision_choice">
+		<comboboxc name="decision_choice">
+			<anchored to="contentanchor">
+				<top relation="relative" offset="0" postoffset="0" />
+				<left offset="10" />
+				<right offset="-10" />
+			</anchored>
+			<listdirection>down</listdirection>
+			<listmaxsize>7</listmaxsize>
+			<script>
+				function onValueChanged()
+					window.onDecisionChoiceChanged();
+				end
+			</script>
+		</comboboxc>
+	</template>
+
+	<template name="number_charwizard_abilitytotal">
+		<basicnumberc>
+			<anchored width="60" height="60">
+				<top parent="strength_total" anchor="top" />
+				<left parent="strength_total" anchor="right" relation="relative" offset="20" />
+			</anchored>
+			<modifiersize>mini</modifiersize>
+			<hideonvalue>0</hideonvalue>
+			<nodrag />
+			<readonly />
+		</basicnumberc>
+	</template>
+	<template name="number_charwizard_abilitymod">
+		<basicnumberc>
+			<nodrag />
+			<hideonvalue>0</hideonvalue>
+		</basicnumberc>
+	</template>
+	<template name="number_charwizard_abilitybase">
+		<number_charwizard_abilitymod>
+			<anchored width="40" height="40">
+				<top parent="strength_base" anchor="top" />
+				<left parent="strength_base" anchor="right" relation="relative" offset="40" />
+			</anchored>
+			<hideonvalue>0</hideonvalue>
+			<readonly />
+			<script>
+				function onInit()
+					super.onInit();
+					setHoverCursor("hand");
+				end
+				function onDragStart(button, x, y, draginfo)
+					draginfo.setType("number");
+					draginfo.setNumberData(getValue());
+					draginfo.setCustomData(self);
+					return true
+				end
+				function onDrop(x, y, draginfo)
+					if draginfo.isType("number") then
+						local cSwap = draginfo.getCustomData();
+						if cSwap then
+							CharWizardAbilitiesManager.setAbilityBase(cSwap.getName():gsub("_.*", ""), getValue());
+						end
+						CharWizardAbilitiesManager.setAbilityBase(getName():gsub("_.*", ""), draginfo.getNumberData());
+						return true;
+					end
+				end
+			</script>
+		</number_charwizard_abilitymod>
+	</template>
+	<template name="number_charwizard_abilitybackground">
+		<number_charwizard_abilitymod>
+			<anchored width="40" height="40">
+				<top parent="strength_background" anchor="top" />
+				<left parent="strength_background" relation="relative" offset="40" />
+			</anchored>
+			<displaysign />
+			<readonly />
+		</number_charwizard_abilitymod>
+	</template>
+	<template name="number_charwizard_abilityspecies">
+		<number_charwizard_abilitymod>
+			<anchored width="40" height="40">
+				<top parent="strength_species" anchor="top" />
+				<left parent="strength_species" relation="relative" offset="40" />
+			</anchored>
+			<displaysign />
+			<readonly />
+		</number_charwizard_abilitymod>
+	</template>
+	<template name="number_charwizard_abilityasi">
+		<number_charwizard_abilitymod>
+			<anchored width="40" height="40">
+				<top parent="strength_asi" anchor="top" />
+				<left parent="strength_asi" relation="relative" offset="40" />
+			</anchored>
+			<displaysign />
+			<readonly />
+		</number_charwizard_abilitymod>
+	</template>
+	<template name="number_charwizard_abilitymisc">
+		<number_charwizard_abilitymod>
+			<anchored width="40" height="40">
+				<top parent="strength_misc" anchor="top" />
+				<left parent="strength_misc" relation="relative" offset="40" />
+			</anchored>
+			<displaysign />
+			<script>
+				function onValueChanged()
+					CharWizardAbilitiesManager.setAbilityMisc(getName():gsub("_.*", ""), getValue());
+				end
+			</script>
+		</number_charwizard_abilitymod>
+	</template>
+
+	<template name="button_charwizard_ability_genvalup">
+		<buttoncontrol>
+			<anchored position="aboveright" offset="-25,-20" width="20" height="20" />
+			<icon normal="arrow_sm_up" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName(), 1);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<template name="button_charwizard_ability_genvaldown">
+		<buttoncontrol>
+			<anchored position="belowright" offset="-25,-20" width="20" height="20" />
+			<icon normal="arrow_sm_down" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName(), -1);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+
+	<template name="button_charwizard">
+		<button_text_sm>
+			<anchored width="120" />
+			<state textres="charwizard_window_title" />
+			<script>
+				function onButtonPress()
+					Interface.openWindow("charwizard", "");
+				end	
+			</script>
+		</button_text_sm>
+	</template>
+
+	<windowclass name="list_entry_charwizard_item">
+		<margins control="0,0,0,10" />
+		<frame>groupbox</frame>
+		<script>
+			function onInit()
+				self.onVisibilityChanged();
+			end
+			function onVisibilityChanged()
+				local bShow = (button_toggle.getValue() == 0);
+				list_decisions.setVisible(bShow);
+				feature_desc.setVisible(bShow);
+			end
+			function toggleDetailsVisible()
+				button_toggle.setValue((button_toggle.getValue() == 0) and 1 or 0);
+			end
+			function setDetailsVisible(bState)
+				button_toggle.setValue(bState and 0 or 1);
+			end
+		</script>
+		<sheetdata>
+			<hlinkc name="shortcut" />
+
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_right>
+			<anchor_content_top>
+				<anchored>
+					<left parent="leftanchor" offset="10" />
+					<right parent="rightanchor" offset="-10" />
+				</anchored>
+			</anchor_content_top>
+
+			<button_charwizard_alert name="alert" />
+			<hnc name="level">
+				<default>-1</default>
+				<script>
+					function onValueChanged()
+						window.level_label.onLevelChanged();
+					end
+				</script>
+			</hnc>
+			<stringc_listitem_noframe_static_base name="level_label">
+				<anchored to="leftanchor" height="20">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<font>sheetlabel</font>
+				<script>
+					function onLevelChanged()
+						local nLevel = window.level.getValue();
+						if nLevel &gt;= 0 then
+							setValue(string.format("(Level %02d)", nLevel));
+							setVisible(true);
+						else
+							setValue("");
+							setVisible(false);
+						end
+					end
+				</script>
+			</stringc_listitem_noframe_static_base>
+
+			<button_collapse_expand_toggle name="button_toggle">
+				<anchored to="rightanchor">
+					<top />
+					<right relation="relative" offset="-5" postoffset="-5" />
+				</anchored>
+				<default>1</default>
+				<colortarget>feature</colortarget>
+				<script>
+					function onValueChanged()
+						window.onVisibilityChanged();
+					end
+				</script>
+			</button_collapse_expand_toggle>
+
+			<label_listitem_center name="feature">
+				<anchored>
+					<top parent="contentanchor" relation="relative" offset="10" postoffset="5" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<script>
+					function onClickDown()
+						return true;
+					end
+					function onClickRelease()
+						window.toggleDetailsVisible();
+					end
+				</script>
+			</label_listitem_center>
+
+			<ftc_charwizard_desc name="feature_desc" />
+			<list_content_noscroll_top name="list_decisions">
+				<class>list_entry_charwizard_item_decision</class>
+				<invisible />
+			</list_content_noscroll_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_charwizard_item_decision">
+		<margins control="0,0,0,10" />
+		<frame>groupbox</frame>
+		<script file="charwizard/scripts/decision.lua" />
+		<sheetdata>
+			<hsc name="decisiontype" />
+			
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_right>
+			<anchor_content_top>
+				<anchored>
+					<left parent="leftanchor" offset="10" />
+					<right parent="rightanchor" offset="-10" />
+				</anchored>
+			</anchor_content_top>
+
+			<button_charwizard_alert name="alert" />
+
+			<button_charwizard_idelete name="button_modify">
+				<script>
+					function onButtonPress()
+						window.onResetButtonPressed();
+					end
+				</script>
+			</button_charwizard_idelete>
+			<label_listitem_right name="choice">
+				<anchored width="150" />
+			</label_listitem_right>
+
+			<label_listitem_center name="decision">
+				<anchored>
+					<top parent="contentanchor" relation="relative" offset="10" postoffset="5" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</label_listitem_center>
+
+			<ftc_charwizard_desc name="decision_desc" />
+			
+			<comboboxc_charwizard_decision_choice name="decision_choice" />
+			<sub_content_hidden_top name="sub_decision_choice" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_charwizard_item_selection">
+		<margins control="0,0,10,10" />
+		<frame>groupbox</frame>
+		<script file="charwizard/scripts/selection.lua" />
+		<sheetdata>
+			<hlinkc name="shortcut" />
+
+			<anchor_listitem_left name="leftanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_left>
+			<anchor_listitem_right name="rightanchor">
+				<anchored offset="10,10" />
+			</anchor_listitem_right>
+
+			<button_charwizard_iadd name="button_select">
+				<script>
+					function onButtonPress()
+						window.onSelectButtonPressed();
+					end
+				</script>
+			</button_charwizard_iadd>
+
+			<comboboxc_charwizard_source name="module">
+				<script>
+					function onValueChanged()
+						window.onModuleValueChanged();
+					end
+				</script>
+			</comboboxc_charwizard_source>
+
+			<string_listitem_center_noframe_static_linked name="name">
+				<linktarget>shortcut</linktarget>
+			</string_listitem_center_noframe_static_linked>
+		</sheetdata>
+	</windowclass>
+</root>

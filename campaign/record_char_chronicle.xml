@@ -21,31 +21,41 @@
 		<minimize>minimized_char</minimize>
 		<tooltip field="name" />
 		<export>character</export>
+		<windowmenu>
+			<showlink />
+		</windowmenu>
+		<helplinkres>help_record_charsheet</helplinkres>
 		<script file="campaign/scripts/char_chronicle.lua" />
 		<sheetdata>
-			<sub_charsheet_overview name="overview" />
+			<windowmenubar_charsheet name="menubar" />
+			<anchor_content_charsheet_tabbed_top name="contentanchor" />
+			<anchor_content_charsheet_bottom name="bottomanchor" />
 
-			<!-- <sub_charsheet name="main"> -->
+			<sub_content_top name="overview">
+				<class>charsheet_overview</class>
+			</sub_content_top>
+
+			<!-- <sub_contentt_hidden name="main"> -->
 				<!-- <class>charsheet_main</class> -->
-			<!-- </sub_charsheet> -->
-			<sub_charsheet name="skills">
+			<!-- </sub_content_hidden> -->
+			<sub_content_hidden name="skills">
 				<class>charsheet_skills</class>
-			</sub_charsheet>
-			<sub_charsheet name="abilities">
+			</sub_content_hidden>
+			<sub_content_hidden name="abilities">
 				<class>charsheet_abilities</class>
-			</sub_charsheet>
-			<sub_charsheet name="inventory">
+			</sub_content_hidden>
+			<sub_content_hidden name="inventory">
 				<class>charsheet_inventory</class>
-			</sub_charsheet>
-			<sub_charsheet name="notes">
+			</sub_content_hidden>
+			<sub_content_hidden name="notes">
 				<class>charsheet_notes</class>
-			</sub_charsheet>
-			<!-- <sub_charsheet name="logs"> -->
+			</sub_content_hidden>
+			<!-- <sub_content_hidden name="logs"> -->
 				<!-- <class>charsheet_logs</class> -->
-			<!-- </sub_charsheet> -->
-			<sub_charsheet name="actions">
+			<!-- </sub_content_hidden> -->
+			<sub_content_hidden name="actions">
 				<class>charsheet_actions</class>
-			</sub_charsheet>
+			</sub_content_hidden>
 
 			<tabs_charsheet name="tabs">
 				<!-- <tab> -->
@@ -76,10 +86,8 @@
 					<tabres>tab_actions</tabres>
 					<subwindow>actions</subwindow>
 				</tab>
-				<activate>1</activate>
 			</tabs_charsheet>
 
-			<close_charsheet />
 			<resize_charsheet />
 		</sheetdata>
 	</windowclass>

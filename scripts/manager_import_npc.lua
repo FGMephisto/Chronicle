@@ -5,6 +5,7 @@
 
 function onTabletopInit()
 	ImportUtilityManager.registerImportMode("npc", "2024", Interface.getString("import_mode_2024"), ImportNPCManager.import2024);
+	ImportUtilityManager.registerImportMode("npc", "2024_dndb", Interface.getString("import_mode_dndb_2024"), ImportNPCManager.importDNDB2024);
 	ImportUtilityManager.registerImportMode("npc", "2022", Interface.getString("import_mode_2022"), ImportNPCManager.import2022);
 end
 
@@ -58,6 +59,48 @@ function import2024(sStats, sDesc)
 	ImportNPCManager.finalizeDescription(tImportState);
 	
 	ImportNPCManager.importHelperVersion(tImportState, "2024");
+	
+	-- Open new record window and matching campaign list
+	ImportUtilityManager.showRecord("npc", tImportState.node);
+end
+
+function importDNDB2024(sStats, sDesc)
+	-- Track state information
+	local tImportState = ImportNPCManager.initImportState(sStats, sDesc);
+
+	-- Assume name on Line 1
+	ImportNPCManager.importHelperName(tImportState);
+
+	-- Assume size/type/alignment on Line 2
+	ImportNPCManager.importHelperSizeTypeAlignment(tImportState);
+	
+	-- Assume AC on Line 3, HP on Line 4, and Speed on Line 5
+	ImportNPCManager.importHelperACHPSpeed2024(tImportState);
+
+	-- Assume all abilities start on line 6 with a single line per
+	-- ability and a header of Mod Save at the start and after CON
+	ImportNPCManager.importHelperAbilitiesDNDB2024(tImportState);
+	
+	-- Assume the following optional fields in the following order:
+	--		Saving throws
+	--		Skills
+	--		Damage Vulnerabilities, 
+	--		Damage Resistances
+	--		Damage Immunities, 
+	--		Condition Immunities
+	--		Senses
+	--		Languages
+	--		Challenge
+	ImportNPCManager.importHelperOptionalFields2024(tImportState);
+	
+	-- Assume NPC actions appear next with the following headers: (Assume Traits until a header found)
+	--		Traits, Actions, Bonus Actions, Reactions, Legendary Actions, Lair Actions
+	ImportNPCManager.importHelperActions(tImportState);
+
+	-- Update Description by adding the statblock text as well
+	ImportNPCManager.finalizeDescription(tImportState);
+	
+	ImportNPCManager.importHelperVersion(tImportState,"2024");
 	
 	-- Open new record window and matching campaign list
 	ImportUtilityManager.showRecord("npc", tImportState.node);
@@ -304,7 +347,6 @@ end
 function importHelperAbilities2024(tImportState)
 	-- Check next line for ability list
 	ImportNPCManager.nextImportLine(tImportState); -- Line 6
-	
 
 	-- Check for short ability list
 	local sSTR, sDEX, sCON, sINT, sWIS, sCHA;
@@ -316,7 +358,7 @@ function importHelperAbilities2024(tImportState)
 	ImportNPCManager.nextImportLine(tImportState); -- Line 7
 	tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);	
 
-	if  (StringManager.trim(tAbilityWords[1] or "")):lower() == "str" then
+	if (StringManager.trim(tAbilityWords[1] or "")):lower() == "str" then
 		sSTR = tAbilityWords[2] or "";
 		sSTRBonus = (tAbilityWords[3] or ""):match("[+-]?%d+");
 		sSTRSave = (tAbilityWords[4] or ""):match("[+-]?%d+");
@@ -333,7 +375,7 @@ function importHelperAbilities2024(tImportState)
 			sDEXSaveMod = tostring(tonumber(sDEXSave) - tonumber(sDEXBonus));
 		end
 	end
-	if  (StringManager.trim(tAbilityWords[9] or "")):lower() == "con" then
+	if (StringManager.trim(tAbilityWords[9] or "")):lower() == "con" then
 		sCON = tAbilityWords[10] or "";
 		sCONBonus = (tAbilityWords[11] or ""):match("[+-]?%d+");
 		sCONSave = (tAbilityWords[12] or ""):match("[+-]?%d+");
@@ -346,7 +388,7 @@ function importHelperAbilities2024(tImportState)
 	ImportNPCManager.nextImportLine(tImportState); -- Line 8
 	tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);	
 	
-	if  (StringManager.trim(tAbilityWords[1] or "")):lower() == "int" then
+	if (StringManager.trim(tAbilityWords[1] or "")):lower() == "int" then
 		sINT = tAbilityWords[2] or "";
 		sINTBonus = (tAbilityWords[3] or ""):match("[+-]?%d+");
 		sINTSave = (tAbilityWords[4] or ""):match("[+-]?%d+");
@@ -354,7 +396,7 @@ function importHelperAbilities2024(tImportState)
 			sINTSaveMod = tostring(tonumber(sINTSave) - tonumber(sINTBonus));
 		end
 	end
-	if  (StringManager.trim(tAbilityWords[5] or "")):lower() == "wis" then
+	if (StringManager.trim(tAbilityWords[5] or "")):lower() == "wis" then
 		sWIS = tAbilityWords[6] or "";
 		sWISBonus = (tAbilityWords[7] or ""):match("[+-]?%d+");
 		sWISSave = (tAbilityWords[8] or ""):match("[+-]?%d+");
@@ -440,6 +482,116 @@ function importHelperAbilities2024(tImportState)
 		ImportNPCManager.addStatOutput(tImportState, string.format("<td>%s</td>", sCHASave or ""));
 	ImportNPCManager.addStatOutput(tImportState, "</tr>");
 	ImportNPCManager.addStatOutput(tImportState, "</table>");
+end
+
+	-- Assume ability headers start on Line 6 
+	-- Line  6: Mod Save
+	-- Line  7: Str X +M +S
+	-- Line  8: Dex X +M +S
+	-- Line  9: Con X +M +S
+	-- Line 10: Mod Save
+	-- Line 11: Int X +M +S
+	-- Line 12: Wis X +M +S
+	-- Line 13: Cha X +M +S
+function importHelperAbilitiesDNDB2024(tImportState)
+    -- First line is "Mod Save" header, skip this
+    ImportNPCManager.nextImportLine(tImportState);
+
+    -- Initialize variables for ability scores, bonuses, and saves
+    local sSTR, sDEX, sCON, sINT, sWIS, sCHA;
+    local sSTRBonus, sDEXBonus, sCONBonus, sINTBonus, sWISBonus, sCHABonus;
+    local sSTRSave, sDEXSave, sCONSave, sINTSave, sWISSave, sCHASave;
+
+    -- Parsing abilities for STR, DEX, and CON (first set of abilities)
+    for i = 1, 3 do
+        ImportNPCManager.nextImportLine(tImportState); -- Process each ability line (STR, DEX, CON)
+        local tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);
+
+        -- STR
+        if i == 1 then
+            sSTR = tAbilityWords[2] or "";
+            sSTRBonus = tAbilityWords[3] or "";
+            sSTRSave = tAbilityWords[4] or "";
+        -- DEX
+        elseif i == 2 then
+            sDEX = tAbilityWords[2] or "";
+            sDEXBonus = tAbilityWords[3] or "";
+            sDEXSave = tAbilityWords[4] or "";
+        -- CON
+        elseif i == 3 then
+            sCON = tAbilityWords[2] or "";
+            sCONBonus = tAbilityWords[3] or "";
+            sCONSave = tAbilityWords[4] or "";
+        end
+    end
+
+    -- Second line for "Mod Save" header, skip this
+    ImportNPCManager.nextImportLine(tImportState);
+
+    -- Parsing abilities for INT, WIS, and CHA (second set of abilities)
+    for i = 1, 3 do
+        ImportNPCManager.nextImportLine(tImportState); -- Process each ability line (INT, WIS, CHA)
+        local tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);
+
+        -- INT
+        if i == 1 then
+            sINT = tAbilityWords[2] or "";
+            sINTBonus = tAbilityWords[3] or "";
+            sINTSave = tAbilityWords[4] or "";
+        -- WIS
+        elseif i == 2 then
+            sWIS = tAbilityWords[2] or "";
+            sWISBonus = tAbilityWords[3] or "";
+            sWISSave = tAbilityWords[4] or "";
+        -- CHA
+        elseif i == 3 then
+            sCHA = tAbilityWords[2] or "";
+            sCHABonus = tAbilityWords[3] or "";
+            sCHASave = tAbilityWords[4] or "";
+        end
+    end
+
+	local sSTRSaveMod, sDEXSaveMod, sCONSaveMod, sINTSaveMod, sWISSaveMod, sCHASaveMod = "0", "0", "0", "0", "0", "0"
+	if sSTRBonus and sSTRSave then
+		sSTRSaveMod = tostring(tonumber(sSTRSave) - tonumber(sSTRBonus));
+	end
+	if sDEXBonus and sDEXSave then
+		sDEXSaveMod = tostring(tonumber(sDEXSave) - tonumber(sDEXBonus));
+	end
+	if sCONBonus and sCONSave then
+		sCONSaveMod = tostring(tonumber(sCONSave) - tonumber(sCONBonus));
+	end
+	if sINTBonus and sINTSave then
+		sINTSaveMod = tostring(tonumber(sINTSave) - tonumber(sINTBonus));
+	end
+	if sWISBonus and sWISSave then
+		sWISSaveMod = tostring(tonumber(sWISSave) - tonumber(sWISBonus));
+	end
+	if sCHABonus and sCHASave then
+		sCHASaveMod = tostring(tonumber(sCHASave) - tonumber(sCHABonus));
+	end
+
+    -- Set the values in the DB for abilities, modifiers, and saves
+    DB.setValue(tImportState.node, "abilities.strength.score", "number", sSTR);
+    DB.setValue(tImportState.node, "abilities.dexterity.score", "number", sDEX);
+    DB.setValue(tImportState.node, "abilities.constitution.score", "number", sCON);
+    DB.setValue(tImportState.node, "abilities.intelligence.score", "number", sINT);
+    DB.setValue(tImportState.node, "abilities.wisdom.score", "number", sWIS);
+    DB.setValue(tImportState.node, "abilities.charisma.score", "number", sCHA);
+
+    DB.setValue(tImportState.node, "abilities.strength.bonus", "number", sSTRBonus);
+    DB.setValue(tImportState.node, "abilities.dexterity.bonus", "number", sDEXBonus);
+    DB.setValue(tImportState.node, "abilities.constitution.bonus", "number", sCONBonus);
+    DB.setValue(tImportState.node, "abilities.intelligence.bonus", "number", sINTBonus);
+    DB.setValue(tImportState.node, "abilities.wisdom.bonus", "number", sWISBonus);
+    DB.setValue(tImportState.node, "abilities.charisma.bonus", "number", sCHABonus);
+
+    DB.setValue(tImportState.node, "abilities.strength.savemodifier", "number", sSTRSaveMod);
+    DB.setValue(tImportState.node, "abilities.dexterity.savemodifier", "number", sDEXSaveMod);
+    DB.setValue(tImportState.node, "abilities.constitution.savemodifier", "number", sCONSaveMod);
+    DB.setValue(tImportState.node, "abilities.intelligence.savemodifier", "number", sINTSaveMod);
+    DB.setValue(tImportState.node, "abilities.wisdom.savemodifier", "number", sWISSaveMod);
+    DB.setValue(tImportState.node, "abilities.charisma.savemodifier", "number", sCHASaveMod);
 end
 
 -- Assumes ability headers on next line, and ability scores/bonuses on following line

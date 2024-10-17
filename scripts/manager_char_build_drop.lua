@@ -36,7 +36,7 @@ function addInfoDB(nodeChar, sClass, sRecord)
 
 	elseif sClass == "reference_feat" then
 		CharFeatManager.addFeat(nodeChar, sRecord);
-		
+
 	elseif sClass == "reference_skill" then
 		CharBuildDropManager.addSkillRecord(nodeChar, sRecord);
 	elseif sClass == "ref_adventure" then
@@ -106,7 +106,7 @@ function helperBuildAddStructure(nodeChar, sClass, sRecord, tData)
 		rAdd.sSourceType = DB.getName(rAdd.nodeSource);
 	end
 
-	if StringManager.contains({ "reference_background", "reference_class", "reference_feat", "reference_race", "reference_subrace", }, sClass) then
+	if StringManager.contains({ "reference_background", "reference_class", "reference_class_specialization", "reference_feat", "reference_race", "reference_subrace", }, sClass) then
 		rAdd.bSource2024 = (DB.getValue(rAdd.nodeSource, "version", "") == "2024");
 	elseif StringManager.contains({ "reference_backgroundfeature", "reference_classfeature", "reference_classfeaturechoice", "reference_racialtrait", "reference_subracialtrait", }, sClass) then
 		rAdd.bSource2024 = (DB.getValue(rAdd.nodeSource, "...version", "") == "2024");
@@ -144,15 +144,23 @@ function handleAbilitiesField(rAdd)
 	CharBuildDropManager.pickInitialAbilityAdjust(rAdd.nodeChar, CharBuildManager.parseAbilitiesFromString(s), rAdd.bSource2024);
 end
 
--- Species
-function handleSizeField(rAdd)
+-- SPECIES
+function handleSizeField2024(rAdd)
 	CharBuildDropManager.pickSize(rAdd.nodeChar, CharBuildManager.parseSizesFromString(DB.getValue(rAdd.nodeSource, "size", "")));
 end
-function handleSpeedField(rAdd)
+function handleSpeedField2024(rAdd)
 	CharManager.setSpeed(rAdd.nodeChar, DB.getValue(rAdd.nodeSource, "speed", ""):match("%d+"));
 end
+function handleSpeciesLanguage2024(rAdd)
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesLanguages2024();
 
--- Class
+	for _,s in ipairs(tBase) do
+		CharManager.addLanguage(rAdd.nodeChar, s);
+	end
+	CharBuildDropManager.pickLanguage(rAdd.nodeChar, tOptions, nPicks);
+end
+
+-- CLASS
 function handleClassSavesField(rAdd)
 	if not CharBuildDropManager.helperBuildGetText(rAdd) then
 		return;
@@ -212,7 +220,7 @@ function handleClassToolsField(rAdd)
 	CharBuildDropManager.pickProficiency(rAdd.nodeChar, "tools", tOptions, nPicks);
 end
 
--- Background
+-- BACKGROUND
 function handleBackgroundSkillsField(rAdd)
 	local s = StringManager.trim(DB.getValue(rAdd.nodeSource, "skill", ""));
 	if (s == "") or (s == "None") then
@@ -220,7 +228,6 @@ function handleBackgroundSkillsField(rAdd)
 	end
 
 	local tBase, tOptions, nPicks = CharBuildManager.parseSkillsField(s, rAdd.bSource2024);
-
 	for _,s in ipairs(tBase) do
 		CharManager.addSkillProficiency(rAdd.nodeChar, s);
 	end
@@ -231,9 +238,8 @@ function handleBackgroundToolsField(rAdd)
 	if (s == "") or (s == "None") then
 		return;
 	end
-
+	
 	local tBase, tOptions, nPicks = CharBuildManager.parseToolsField(s, rAdd.bSource2024);
-
 	for _,s in ipairs(tBase) do
 		CharManager.addProficiency(rAdd.nodeChar, "tools", s);
 	end
@@ -246,11 +252,104 @@ function handleBackgroundLanguagesField(rAdd)
 	end
 
 	local tBase, tOptions, nPicks = CharBuildManager.parseLanguagesField(s, rAdd.bSource2024);
-
 	for _,s in ipairs(tBase) do
 		CharManager.addLanguage(rAdd.nodeChar, s);
 	end
-	CharBuildDropManager.pickLanguage(rAdd.nodeChar, "language", tOptions, nPicks);
+	CharBuildDropManager.pickLanguage(rAdd.nodeChar, tOptions, nPicks);
+end
+
+function addFeature(rAdd)
+	if not rAdd then
+		return;
+	end
+
+	if CharBuildDropManager.checkFeatureSkipAdd(rAdd) then
+		return;
+	end
+
+	CharBuildDropManager.addFeatureStandard(rAdd);
+
+	if not CharBuildDropManager.checkFeatureSpecialHandling(rAdd) then
+		CharBuildDropManager.checkFeatureDescription(rAdd);
+	end
+
+	CharBuildDropManager.checkFeatureActions(rAdd);
+end
+function checkFeatureSkipAdd(rAdd)
+	if not rAdd then
+		return true;
+	end
+
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
+		return CharClassManager.checkClassFeatureSkipAdd(rAdd);
+	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
+		return CharBackgroundManager.checkBackgroundFeatureSkipAdd(rAdd);
+	elseif rAdd.sSourceClass == "reference_racialtrait" then
+		return CharSpeciesManager.checkSpeciesTraitSkipAdd(rAdd);
+	elseif rAdd.sSourceClass == "reference_feat" then
+		return CharFeatManager.checkFeatSkipAdd(rAdd);
+	end
+
+	return false;
+end
+function addFeatureStandard(rAdd)
+	if not rAdd then
+		return;
+	end
+
+	if CharBuildDropManager.checkFeatureSkipStandardAdd(rAdd) then
+		return;
+	end
+
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
+		CharClassManager.addClassFeatureStandard(rAdd);
+	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
+		CharBackgroundManager.addBackgroundFeatureStandard(rAdd);
+	elseif rAdd.sSourceClass == "reference_racialtrait" then
+		CharSpeciesManager.addSpeciesTraitStandard(rAdd);
+	elseif rAdd.sSourceClass == "reference_feat" then
+		CharFeatManager.addFeatStandard(rAdd);
+	end
+end
+function checkFeatureSkipStandardAdd(rAdd)
+	if not rAdd then
+		return true;
+	end
+
+	-- Feats are always added
+	if rAdd.sSourceType == "reference_feat" then
+		return false;
+	end
+
+	-- Skip if not supposed to add standard sub-record
+	if rAdd.bSource2024 then
+		if CharWizardData.tBuildOptionsNoStandardAdd2024[rAdd.sSourceType] then
+			return true;
+		end
+	else
+		if CharWizardData.tBuildOptionsNoStandardAdd2014[rAdd.sSourceType] then
+			return true;
+		end
+	end
+
+	return false;
+end
+function checkFeatureSpecialHandling(rAdd)
+	if not rAdd then
+		return true;
+	end
+
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
+		return CharClassManager.checkClassFeatureSpecialHandling(rAdd);
+	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
+		return CharBackgroundManager.checkBackgroundFeatureSpecialHandling(rAdd);
+	elseif rAdd.sSourceClass == "reference_racialtrait" then
+		return CharSpeciesManager.checkSpeciesTraitSpecialHandling(rAdd);
+	elseif rAdd.sSourceClass == "reference_feat" then
+		return CharFeatManager.checkFeatSpecialHandling(rAdd);
+	end
+
+	return false;
 end
 
 function checkFeatureDescription(rAdd)
@@ -270,7 +369,7 @@ function checkFeatureDescription(rAdd)
 end
 function helperCheckFeatureSkills(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureSkills(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureSkills(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -289,7 +388,7 @@ function helperCheckFeatureSkills(rAdd)
 end
 function helperCheckFeatureArmorProf(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureArmorProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureArmorProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -308,7 +407,7 @@ function helperCheckFeatureArmorProf(rAdd)
 end
 function helperCheckFeatureWeaponProf(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureWeaponProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureWeaponProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -327,7 +426,7 @@ function helperCheckFeatureWeaponProf(rAdd)
 end
 function helperCheckFeatureToolProf(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureToolProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureToolProf(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -346,7 +445,7 @@ function helperCheckFeatureToolProf(rAdd)
 end
 function helperCheckFeatureLanguages(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureLanguages(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureLanguages(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -365,7 +464,7 @@ function helperCheckFeatureLanguages(rAdd)
 end
 function helperCheckFeatureSpells(rAdd)
 	local tBase, tOptions, nPicks;
-	if rAdd.sSourceClass == "reference_classfeature" then
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureSpells(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
 	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
 		tBase, tOptions, nPicks = CharBuildManager.getClassFeatureSpells(rAdd.sSourceName, rAdd.sSourceText, rAdd.bSource2024);
@@ -400,61 +499,79 @@ function helperCheckFeatureSpells(rAdd)
 	end
 end
 
+function checkFeatureActions(rAdd)
+	if not rAdd then
+		return false;
+	end
+
+	if rAdd.sSourceClass == "reference_classfeature" or rAdd.sSourceClass == "reference_classfeaturechoice" then
+		return CharBuildDropManager.checkClassFeatureActions(rAdd);
+	elseif rAdd.sSourceClass == "reference_backgroundfeature" then
+		return CharBuildDropManager.checkBackgroundFeatureActions(rAdd);
+	elseif rAdd.sSourceClass == "reference_racialtrait" then
+		return CharBuildDropManager.checkSpeciesTraitActions(rAdd);
+	elseif rAdd.sSourceClass == "reference_feat" then
+		return CharBuildDropManager.checkFeatActions(rAdd);
+	end
+	return false;
+end
 function checkBackgroundFeatureActions(rAdd)
 	if not rAdd or ((rAdd.sSourceType or "") == "") then
-		return;
+		return false;
 	end
 
 	if rAdd.bSource2024 then
 		-- No background features in 2024 records
+		return false;
 	else
-		rAdd.sPowerGroup = CharBackgroundManager.getClassSpellGroup(rAdd);
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
+		rAdd.sPowerGroup = CharBackgroundManager.getFeaturePowerGroup(rAdd);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
 	end
 end
 function checkClassFeatureActions(rAdd)
 	if not rAdd or ((rAdd.sSourceType or "") == "") then
-		return;
+		return false;
 	end
 
 	rAdd.sPowerGroup = CharClassManager.getFeaturePowerGroup(rAdd);
 	if rAdd.bSource2024 then
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataClass2024[rAdd.sSourceType]);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataClass2024[rAdd.sSourceType]);
 	else
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
 	end
 end
 function checkFeatActions(rAdd)
 	if not rAdd or ((rAdd.sSourceType or "") == "") then
-		return;
+		return false;
 	end
 
 	if rAdd.bSource2024 then
 		rAdd.sPowerGroup = CharFeatManager.getFeatPowerGroup(rAdd);
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataFeat2024[rAdd.sSourceType]);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataFeat2024[rAdd.sSourceType]);
 	else
 		-- Feat data not supported in 2014 records
+		return false;
 	end
 end
 function checkSpeciesTraitActions(rAdd)
 	if not rAdd or ((rAdd.sSourceType or "") == "") then
-		return;
+		return false;
 	end
 
 	rAdd.sPowerGroup = CharSpeciesManager.getTraitPowerGroup(rAdd);
 	if rAdd.bSource2024 then
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataSpecies2024[rAdd.sSourceType]);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.tBuildDataSpecies2024[rAdd.sSourceType]);
 	else
-		CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
+		return CharBuildDropManager.helperCheckActions(rAdd, CharWizardDataAction.parsedata[rAdd.sSourceType]);
 	end
 end
 
 function helperCheckActions(rAdd, tAction)
 	if not rAdd or not rAdd.nodeChar or not rAdd.nodeSource then
-		return;
+		return false;
 	end
 	if not tAction then
-		return;
+		return false;
 	end
 
 	if tAction.actions then
@@ -468,19 +585,6 @@ function helperCheckActions(rAdd, tAction)
 	if rAdd.bSource2024 and tAction.spells then
 		rAdd.sSpellGroup = tAction.spells.group;
 
-		-- Add Direct
-		CharManager.addPowerGroup(rAdd.nodeChar, { sName = rAdd.sSpellGroup, sAbility = tAction.spells.ability, })
-		for _,v in ipairs(tAction.spells) do
-			local tData = {
-				sName = v.name,
-				sGroup = tAction.spells.group,
-				bSource2024 = rAdd.bSource2024,
-				bRitual = v.ritual,
-				nPrepared = v.prepared, 
-			};
-			CharManager.addSpell(rAdd.nodeChar, tData);
-		end
-
 		-- Pick By Class and Level
 		for i = 0,9 do
 			local vPicks = tAction.spells["L" .. i];
@@ -489,7 +593,16 @@ function helperCheckActions(rAdd, tAction)
 					{ sField = "version", sValue = rAdd.bSource2024 and "2024" or "", },
 					{ sField = "level", sValue = tostring(i), },
 				};
-				local tData = { sClassName = tAction.spells.list, sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, };
+				local tData = { 
+					sClassName = tAction.spells.list,
+					sGroup = rAdd.sSpellGroup,
+					bWizard = rAdd.bWizard,
+				};
+				if i == 0 then
+					tData.sPickType = "cantrip";
+				else
+					tData.sPickType = "prepared";
+				end
 				CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, tonumber(vPicks) or 0, tData);
 			end
 		end
@@ -513,29 +626,13 @@ function helperCheckActions(rAdd, tAction)
 		end
 	end
 	if tAction.saveprof then
-		for _,v in ipairs(tAction.saveprof) do
-			CharManager.addSaveProficiency(rAdd.nodeChar, v);
+		if tAction.saveprof.innate then
+			for _,v in ipairs(tAction.saveprof.innate) do
+				CharManager.addSaveProficiency(rAdd.nodeChar, v);
+			end
 		end
 	end
-	if rAdd.bSource2024 then
-		if tAction.armorprof then
-			for _,v in ipairs(tAction.armorprof) do
-				CharManager.addProficiency(rAdd.nodeChar, "armor", v);
-			end
-		end
-		if tAction.weaponprof then
-			for _,v in ipairs(tAction.weaponprof) do
-				CharManager.addProficiency(rAdd.nodeChar, "weapons", v);
-			end
-		end
-		if tAction.toolprof then
-			for _,v in ipairs(tAction.toolprof) do
-				CharManager.addProficiency(rAdd.nodeChar, "tools", v);
-			end
-		end
-	else
-		-- TODO (2024) - Handle built-in 2014 armor/weapon/tool prof on drag and drop
-	end
+	return true;
 end
 function helperCheckActionsAdd(rAdd, tAction, sPowerName)
 	if not rAdd or not tAction then
@@ -552,6 +649,7 @@ function helperCheckActionsAdd(rAdd, tAction, sPowerName)
 	local rActionsAdd = {
 		nodeSource = rAdd.nodeSource,
 		nodeChar = rAdd.nodeChar,
+		bSource2024 = rAdd.bSource2024,
 		sPowerName = sPowerName,
 		sPowerGroup = tAction.group or rAdd.sPowerGroup,
 		tPowerActions = tAction.actions,
@@ -583,6 +681,7 @@ function helperCheckActionsAdd2(rActionsAdd)
 	if rActionsAdd.sPowerName then
 		DB.setValue(nodeNewPower, "name", "string", rActionsAdd.sPowerName);
 	end
+	DB.setValue(nodeNewPower, "version", "string", rActionsAdd.bSource2024 and "2024" or "");
 
 	-- Clean up
 	DB.deleteChild(nodeNewPower, "level");
@@ -718,7 +817,7 @@ function handleClassFeatureChoices(rAdd)
 		return false;
 	end
 
-	if rAdd.bSource2024 and not rAdd.bWizard then
+	if rAdd.bSource2024 then
 		return CharBuildDropManager.helperCheckChoices(rAdd, CharWizardDataAction.tBuildDataClass2024[rAdd.sSourceType]);
 	else
 		-- Feature Choices not supported in 2014 records
@@ -726,6 +825,102 @@ function handleClassFeatureChoices(rAdd)
 	return false;
 end
 function helperCheckChoices(rAdd, tAction)
+	if not rAdd or not tAction then
+		return false;
+	end
+	if rAdd.bWizard then
+		return CharBuildDropManager.helperCheckChoicesWizard(rAdd, CharWizardDataAction.tBuildDataClass2024[rAdd.sSourceType]);
+	else
+		return CharBuildDropManager.helperCheckChoicesDrop(rAdd, CharWizardDataAction.tBuildDataClass2024[rAdd.sSourceType]);
+	end
+end
+function helperCheckChoicesWizard(rAdd, tAction)
+	if not rAdd or not tAction or ((rAdd.sSourceClass or "") ~= "reference_classfeature") then
+		return false;
+	end
+	if tAction.choicetype then
+		return CharBuildDropManager.helperCheckChoicesWizardChoiceType(rAdd, tAction);
+	end
+	if tAction.followon then
+		return CharBuildDropManager.helperCheckChoicesWizardFollowOn(rAdd, tAction);
+	end
+	return false;
+end
+function helperCheckChoicesWizardChoiceType(rAdd, tAction)
+	if not rAdd or not tAction then
+		return false;
+	end
+
+	-- Get the class name for a class record or a subclass record
+	local sClassName = StringManager.trim(DB.getValue(rAdd.nodeClass, "class", ""));
+	if sClassName == "" then
+		sClassName = DB.getValue(rAdd.nodeClass, "name", "");
+	end
+
+	local tFeatureData = {
+		sClassName = sClassName,
+		sName = rAdd.sSourceName,
+		nLevel = DB.getValue(rAdd.nodeSource, "level", 0),
+	};
+
+	local tFeature = CharWizardClassManager.getClassFeatureData(tFeatureData);
+	if not tFeature then
+		return false;
+	end
+
+	local tChoices = CharWizardClassManager.collectFeatureChoicesByChoiceType(tFeatureData.sClassName, tAction.choicetype, true);
+
+	local tMatch = {};
+	for _,v in pairs(tChoices) do
+		local sOption = CharClassManager.getFeatureChoiceDisplayName(v);
+		if sOption == "Fighting Style" then
+			-- Do Nothing
+		elseif StringManager.contains(tFeature.featurechoice or {}, sOption) then
+			table.insert(tMatch, v);
+		end
+	end
+	if #tMatch == 0 then
+		return false;
+	end
+
+	-- NOTE: Disable bWizard for now; since choice details aren't handled in the wizard
+	local tData = {};-- { bWizard = rAdd.bWizard, };
+	for _,v in ipairs(tMatch) do
+		CharClassManager.addClassFeatureChoice(rAdd.nodeChar, DB.getPath(v), tData);
+	end
+
+	if tAction.choiceskipadd then
+		CharBuildDropManager.helperCheckActions(rAdd, tAction);
+		return true;
+	end
+	return false;
+end
+function helperCheckChoicesWizardFollowOn(rAdd, tAction)
+	if not rAdd or not tAction then
+		return false;
+	end
+	
+	local sClassName = DB.getValue(rAdd.nodeClass, "name", "");
+	for k,v in pairs(tAction.followon or {}) do
+		if CharManager.hasFeature(rAdd.nodeChar, k) then
+			local tChoices = CharWizardClassManager.collectFeatureChoicesByChoiceType(sClassName, v.choicetype, true);
+			for _,nodeChoice in ipairs(tChoices) do
+				if DB.getValue(nodeChoice, "choicetype", "") == (v.choicetype or "") and
+						DB.getValue(nodeChoice, "name", "") == (v.name or "") then
+					-- NOTE: Disable bWizard for now; since choice details aren't handled in the wizard
+					local tData = {};-- { bWizard = rAdd.bWizard, };
+					CharClassManager.addClassFeatureChoice(rAdd.nodeChar, DB.getPath(nodeChoice), tData);
+					CharBuildDropManager.helperCheckActions(rAdd, tAction);
+					return true;
+				end
+			end
+			break;
+		end
+	end
+
+	return false;
+end
+function helperCheckChoicesDrop(rAdd, tAction)
 	if not rAdd or not tAction then
 		return false;
 	end
@@ -770,25 +965,30 @@ function pickInitialAbilityAdjust(nodeChar, tAbilities, bSource2024)
 		return;
 	end
 
-	if #tAbilities > 2 then
-		local tOptions = {
-			Interface.getString("char_build_option_selectabilityadjby2then1"),
-			Interface.getString("char_build_option_selectabilityadj3by1"),
-		};
-		local tData = {
-			title = Interface.getString("char_build_title_selectabilityadjtype"),
-			msg = Interface.getString("char_build_message_selectabilityadjtype"):format(table.concat(tAbilities, ", ")),
-			options = tOptions,
-			callback = CharBuildDropManager.helperOnInitialAbilityAdjTypeSelect,
-			custom = { nodeChar = nodeChar, tAbilities = tAbilities, },
-		};
-		local wSelect = Interface.openWindow("select_dialog", "");
-		wSelect.requestSelectionByData(tData);
-	elseif #tAbilities == 2 then
-		CharBuildDropManager.helperAddBackgroundAdjBy2Then1(nodeChar, tAbilities);
-	elseif #tAbilities == 1 then
-		CharManager.addAbilityAdjustment(nodeChar, tAbilities[1], 2);
+	if #tAbilities <= 0 then
+		return;
 	end
+	if #tAbilities == 1 then
+		CharManager.addAbilityAdjustment(nodeChar, tAbilities[1], 2);
+		return;
+	end
+	if #tAbilities == 2 then
+		CharBuildDropManager.helperAddBackgroundAdjBy2Then1(nodeChar, tAbilities);
+		return;
+	end
+
+	local tOptions = {
+		Interface.getString("char_build_option_selectabilityadjby2then1"),
+		Interface.getString("char_build_option_selectabilityadj3by1"),
+	};
+	local tDialogData = {
+		title = Interface.getString("char_build_title_selectabilityadjtype"),
+		msg = Interface.getString("char_build_message_selectabilityadjtype"):format(table.concat(tAbilities, ", ")),
+		options = tOptions,
+		callback = CharBuildDropManager.helperOnInitialAbilityAdjTypeSelect,
+		custom = { nodeChar = nodeChar, tAbilities = tAbilities, },
+	};
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnInitialAbilityAdjTypeSelect(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -801,15 +1001,14 @@ function helperOnInitialAbilityAdjTypeSelect(tSelection, tData)
 	end
 end
 function helperInitialAbilityAdjBy2Then1(nodeChar, tAbilities)
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 2),
 		options = tAbilities,
 		callback = CharBuildDropManager.helperOnInitialAbilityAdjBy2,
 		custom = { nodeChar = nodeChar, tAbilities = tAbilities, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData, true);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnInitialAbilityAdjBy2(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -824,19 +1023,22 @@ function helperOnInitialAbilityAdjBy2(tSelection, tData)
 		end
 	end
 
+	if #(tData.tAbilities) <= 0 then
+		return;
+	end
 	if #(tData.tAbilities) == 1 then
 		CharManager.addAbilityAdjustment(tData.nodeChar, tSelection[1]:lower(), 1);
-	elseif #(tData.tAbilities) > 1 then
-		local tData = {
-			title = Interface.getString("char_build_title_selectabilityincrease"),
-			msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 1),
-			options = tData.tAbilities,
-			callback = CharBuildDropManager.helperOnInitialAbilityAdjThen1,
-			custom = { nodeChar = tData.nodeChar, },
-		};
-		local wSelect = Interface.openWindow("select_dialog", "");
-		wSelect.requestSelectionByData(tData, true);
+		return;
 	end
+
+	local tDialogData = {
+		title = Interface.getString("char_build_title_selectabilityincrease"),
+		msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 1),
+		options = tData.tAbilities,
+		callback = CharBuildDropManager.helperOnInitialAbilityAdjThen1,
+		custom = { nodeChar = tData.nodeChar, },
+	};
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnInitialAbilityAdjThen1(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -849,18 +1051,18 @@ function helperInitialAbilityAdj3By1(nodeChar, tAbilities)
 		for _,s in ipairs(tAbilities) do
 			CharManager.addAbilityAdjustment(nodeChar, s:lower(), 1);
 		end
-	else
-		local tData = {
-			title = Interface.getString("char_build_title_selectabilityincrease"),
-			msg = Interface.getString("char_build_message_selectabilityincrease"):format(3, 1),
-			options = tAbilities,
-			min = 3,
-			callback = CharBuildDropManager.helperOnInitialAbilityAdj3By1,
-			custom = { nodeChar = nodeChar, },
-		};
-		local wSelect = Interface.openWindow("select_dialog", "");
-		wSelect.requestSelectionByData(tData, true);
+		return;
 	end
+
+	local tDialogData = {
+		title = Interface.getString("char_build_title_selectabilityincrease"),
+		msg = Interface.getString("char_build_message_selectabilityincrease"):format(3, 1),
+		options = tAbilities,
+		min = 3,
+		callback = CharBuildDropManager.helperOnInitialAbilityAdj3By1,
+		custom = { nodeChar = nodeChar, },
+	};
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnInitialAbilityAdj3By1(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -891,7 +1093,7 @@ function pickAbility(nodeChar, tOptions, nPicks, tData)
 		return;
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(nPicks, tData.nAbilityAdj),
 		options = tOptions,
@@ -899,8 +1101,7 @@ function pickAbility(nodeChar, tOptions, nPicks, tData)
 		callback = CharBuildDropManager.onAbilitySelect,
 		custom = { nodeChar = nodeChar, nAbilityAdj = tData.nAbilityAdj, nAbilityMax = tData.nAbilityMax },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData, true);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onAbilitySelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -928,7 +1129,7 @@ function pickAbilities2014(nodeChar, tAbilitySelect)
 	local nPicks = tAbilitySelect[1].nPicks or 1;
 	local nAbilityAdj = tAbilitySelect[1].nAbilityAdj or 1;
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(nPicks, nAbilityAdj),
 		options = tAbilitySelect[1].aAbilities,
@@ -936,8 +1137,7 @@ function pickAbilities2014(nodeChar, tAbilitySelect)
 		callback = CharBuildDropManager.onAbilitiesSelect2014,
 		custom = { nodeChar = nodeChar, tAbilitySelect = tAbilitySelect, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData, true);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onAbilitiesSelect2014(aSelection, rAbilitySelectMeta)
 	local rAbilitySelect = rAbilitySelectMeta.tAbilitySelect[1];
@@ -980,20 +1180,43 @@ function getDefaultAbilityOptions2014()
 	return tOptions;
 end
 
+function pickASIOrFeat(nodeChar, bSource2024)
+	local tOptions = {
+		Interface.getString("char_build_option_asi"),
+		Interface.getString("char_build_option_feat"),
+	};
+	local tDialogData = {
+		title = Interface.getString("char_build_title_asiorfeat"),
+		msg = Interface.getString("char_build_message_asiorfeat"),
+		options = tOptions,
+		callback = CharBuildDropManager.helperOnASIOrFeatSelect,
+		custom = { nodeChar = nodeChar, bSource2024 = bSource2024, },
+	};
+	DialogManager.requestSelectionDialog(tDialogData);
+end
+function helperOnASIOrFeatSelect(tSelection, tData)
+	if not tSelection or not tSelection[1] then
+		return;
+	end
+	if tSelection[1] == Interface.getString("char_build_option_asi") then
+		CharBuildDropManager.pickAbilityAdjust(tData.nodeChar, tData.bSource2024);
+	else
+		CharBuildDropManager.pickFeat(tData.nodeChar, {}, 1, { bSource2024 = tData.bSource2024, });
+	end
+end
 function pickAbilityAdjust(nodeChar, bSource2024)
 	local tOptions = {
 		Interface.getString("char_build_option_selectabilityadjby2"),
 		Interface.getString("char_build_option_selectabilityadj2by1"),
 	};
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityadjtype"),
 		msg = Interface.getString("char_build_message_selectabilityadjtype"):format("Any"),
 		options = tOptions,
 		callback = CharBuildDropManager.helperOnAbilityAdjTypeSelect,
 		custom = { nodeChar = nodeChar, bSource2024 = bSource2024, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnAbilityAdjTypeSelect(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -1007,19 +1230,18 @@ function helperOnAbilityAdjTypeSelect(tSelection, tData)
 end
 function helperAbilityAdjBy2(nodeChar, bSource2024)
 	local nAbilityMax = 20;
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 2),
 		options = CharBuildDropManager.getAbilityOptions(nodeChar, nAbilityMax),
 		callback = CharBuildDropManager.helperOnAbilityAdj,
 		custom = { nodeChar = nodeChar, nAbilityAdj = 2, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData, true);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperAbilityAdj2By1(nodeChar, bSource2024)
 	local nAbilityMax = 20;
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(2, 1),
 		options = CharBuildDropManager.getAbilityOptions(nodeChar, nAbilityMax),
@@ -1027,8 +1249,7 @@ function helperAbilityAdj2By1(nodeChar, bSource2024)
 		callback = CharBuildDropManager.helperOnAbilityAdj,
 		custom = { nodeChar = nodeChar, nAbilityAdj = 1, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData, true);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnAbilityAdj(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1045,15 +1266,14 @@ function pickSize(nodeChar, tSizes)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectsize"),
 		msg = Interface.getString("char_build_message_selectsize"),
 		options = tSizes,
 		callback = CharBuildDropManager.onSizeSelect,
 		custom = { nodeChar = nodeChar },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSizeSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1081,7 +1301,7 @@ function pickSaveProficiency(nodeChar, tOptions, nPicks)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks or 1),
 		options = tSaveOptions,
@@ -1089,8 +1309,7 @@ function pickSaveProficiency(nodeChar, tOptions, nPicks)
 		callback = CharBuildDropManager.onSaveSelect,
 		custom = { nodeChar = nodeChar },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSaveSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1140,7 +1359,7 @@ function pickSkill(nodeChar, tSkills, nPicks, tData)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks or 1),
 		options = tSkillOptions,
@@ -1148,8 +1367,7 @@ function pickSkill(nodeChar, tSkills, nPicks, tData)
 		callback = CharBuildDropManager.onSkillSelect,
 		custom = { nodeChar = nodeChar, bAddExpertise = tData and tData.bAddExpertise, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSkillSelect(tSelection, tData)
 	for _,sSkill in ipairs(tSelection) do
@@ -1217,7 +1435,7 @@ function pickSkillExpertise(nodeChar, tSkills, nPicks)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectexpertises"),
 		msg = Interface.getString("char_build_message_selectexpertises"):format(nPicks),
 		options = tSkillOptions,
@@ -1225,8 +1443,7 @@ function pickSkillExpertise(nodeChar, tSkills, nPicks)
 		callback = CharBuildDropManager.onSkillExpertiseSelect,
 		custom = { nodeChar = nodeChar, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSkillExpertiseSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1279,7 +1496,7 @@ function pickSkillIncrease(nodeChar, tSkills, nPicks, tData)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofincreases"),
 		msg = Interface.getString("char_build_message_selectprofincreases"):format(nPicks),
 		options = tSkillOptions,
@@ -1287,8 +1504,7 @@ function pickSkillIncrease(nodeChar, tSkills, nPicks, tData)
 		callback = CharBuildDropManager.onSkillIncreaseSelect,
 		custom = { nodeChar = nodeChar, nIncrease = tData and tData.nIncrease, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSkillIncreaseSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1340,7 +1556,7 @@ function pickToolProficiencyBySubtype(nodeChar, s, nPicks)
 		return;
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks),
 		options = tOptions,
@@ -1348,8 +1564,7 @@ function pickToolProficiencyBySubtype(nodeChar, s, nPicks)
 		callback = CharBuildDropManager.onToolProfSelect,
 		custom = { nodeChar = nodeChar, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onToolProfSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1365,7 +1580,7 @@ function pickProficiency(nodeChar, sType, tOptions, nPicks)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks),
 		options = tOptions,
@@ -1373,8 +1588,7 @@ function pickProficiency(nodeChar, sType, tOptions, nPicks)
 		callback = CharBuildDropManager.onProficiencySelect,
 		custom = { nodeChar = nodeChar, sType = sType, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onProficiencySelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1383,28 +1597,69 @@ function onProficiencySelect(tSelection, tData)
 end
 
 function pickFeat(nodeChar, tOptions, nPicks, tData)
-	if nPicks >= #tOptions then
-		for _,v in ipairs(tOptions) do
+	nPicks = nPicks or 1;
+	if nPicks <= 0 then
+		return;
+	end
+
+	local tDialogOptions;
+	if #(tOptions or {}) == 0 then
+		tDialogOptions = CharBuildDropManager.getFeatOptions(nodeChar, tData and tData.bSource2024);
+	else
+		tDialogOptions = CharBuildDropManager.helperGetFeatOptionsFilter(nodeChar, tOptions);
+	end
+		
+	if nPicks >= #tDialogOptions then
+		for _,v in ipairs(tDialogOptions) do
 			CharManager.addFeat(nodeChar, v.text, tData);
 		end
 		return;
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectfeats"),
 		msg = Interface.getString("char_build_message_selectfeats"):format(nPicks),
-		options = tOptions,
+		options = tDialogOptions,
 		min = nPicks,
 		callback = CharBuildDropManager.onFeatSelect,
 		custom = { nodeChar = nodeChar, bSource2024 = tData and tData.bSource2024, bWizard = tData and tData.bWizard, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onFeatSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
 		CharManager.addFeat(tData.nodeChar, s, tData);
 	end
+end
+function getFeatOptions(nodeChar, bIs2024)
+	if not nodeChar then
+		return {};
+	end
+
+	local tFilters = {
+		{ sField = "version", sValue = bIs2024 and "2024" or "", },
+	};
+	local tOptions = RecordManager.getRecordOptionsByFilter("feat", tFilters, true);
+
+	return CharBuildDropManager.helperGetFeatOptionsFilter(nodeChar, tOptions);
+end
+function helperGetFeatOptionsFilter(nodeChar, tOptions)
+	local tFilteredOptions = {};
+	for _,v in ipairs(tOptions) do
+		local sFeat;
+		if type(v) == "string" then
+			sFeat = s;
+		elseif type(v) == "table" then
+			sFeat = v.text;
+		end
+		if sFeat then
+			local nodeFeat = CharManager.getFeatRecord(nodeChar, sFeat);
+			if not nodeFeat or (DB.getValue(nodeFeat, "repeatable", 0) == 1) then
+				table.insert(tFilteredOptions, v);
+			end
+		end
+	end
+	return tFilteredOptions;
 end
 
 function pickLanguage(nodeChar, tOptions, nPicks, tData)
@@ -1427,7 +1682,7 @@ function pickLanguage(nodeChar, tOptions, nPicks, tData)
 		return;
 	end
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectlanguages"),
 		msg = Interface.getString("char_build_message_selectlanguages"):format(nPicks),
 		options = tDialogOptions,
@@ -1435,8 +1690,7 @@ function pickLanguage(nodeChar, tOptions, nPicks, tData)
 		callback = CharBuildDropManager.onLanguageSelect,
 		custom = { nodeChar = nodeChar, bSource2024 = tData and tData.bSource2024, bWizard = tData and tData.bWizard, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onLanguageSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -1467,20 +1721,19 @@ function helperGetLanguageOptionsFilter(nodeChar, tOptions)
 end
 
 function pickSpellGroupAbility(rAdd, fnCallback)
-	local tData = {
+	local tDialogData = {
 		options = { "Intelligence", "Wisdom", "Charisma", },
 		callback = CharBuildDropManager.onSpellGroupAbilitySelect,
 		custom = { rAdd = rAdd, fnCallback = fnCallback },
 	};
 	if rAdd.bSpellGroupAbilityIncrease then
-		tData.title = Interface.getString("char_build_title_selectabilityincrease");
-		tData.msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 1);
+		tDialogData.title = Interface.getString("char_build_title_selectabilityincrease");
+		tDialogData.msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 1);
 	else
-		tData.title = Interface.getString("char_build_title_selectspellability");
-		tData.msg = Interface.getString("char_build_message_selectspellability");
+		tDialogData.title = Interface.getString("char_build_title_selectspellability");
+		tDialogData.msg = Interface.getString("char_build_message_selectspellability");
 	end
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSpellGroupAbilitySelect(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -1500,15 +1753,14 @@ function chooseSpellGroupAbility(nodePowerGroup)
 		return;
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectspellability"),
 		msg = Interface.getString("char_build_message_selectspellability"),
 		options = { "Intelligence", "Wisdom", "Charisma", },
 		callback = CharBuildDropManager.onSpellGroupAbilityChoice,
 		custom = { nodePowerGroup = nodePowerGroup, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onSpellGroupAbilityChoice(tSelection, tData)
 	if not tSelection or not tSelection[1] or not tData or not tData.nodePowerGroup then
@@ -1522,7 +1774,7 @@ function pickSpellByFilter(rAdd, tFilters, nPicks, tData)
 		return;
 	end
 
-	local tOptions = RecordManager.getRecordOptionsByFilter("spell", tFilters, true);
+	local tOptions = RecordManager.getRecordOptionsByFilter("spell", tFilters);
 
 	-- Handle class-specific filter differently, since it's a combination field
 	if tData and ((tData.sClassName or "") ~= "") then
@@ -1541,7 +1793,18 @@ function pickSpellByFilter(rAdd, tFilters, nPicks, tData)
 		tOptions = tTemp;
 	end
 
-	local tPickData = { sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, nPrepared = tData and tData.nPrepared, };
+	local tPickData = {
+		sGroup = rAdd.sSpellGroup,
+		bWizard = rAdd.bWizard,
+		bSource2024 = rAdd.bSource2024,
+		sPickType = tData and tData.sPickType,
+		nPrepared = tData and tData.nPrepared,
+		bFront = tData and tData.bFront,
+	};
+	if tData and tData.fnCallback then
+		tPickData.fnCallback = tData.fnCallback;
+		tPickData.tCallbackData = tData;
+	end
 	CharBuildDropManager.pickSpell(rAdd.nodeChar, tOptions, nPicks, tPickData);
 end
 function pickSpell(nodeChar, tOptions, nPicks, tData)
@@ -1559,25 +1822,64 @@ function pickSpell(nodeChar, tOptions, nPicks, tData)
 		
 	if nPicks >= #tDialogOptions then
 		for _,v in ipairs(tDialogOptions) do
-			CharManager.addSpell(nodeChar, { sName = v.text, sGroup = tData.sGroup, bSource2024 = tData.bSource2024, nPrepared = tData.nPrepared, });
+			CharManager.addSpell(nodeChar, { sRecord = v.linkrecord, sGroup = tData.sGroup, bSource2024 = tData.bSource2024, nPrepared = tData.nPrepared, });
+		end
+		if tData and tData.fnCallback then
+			tData.fnCallback(tData.tCallbackData);
 		end
 		return;
 	end
 
-	local tData = {
+	-- Add Level prefixes and sort
+	for _,v in ipairs(tDialogOptions) do
+		local nodeSpell = DB.findNode(v.linkrecord);
+		if nodeSpell then
+			v.text = string.format("[L%d] %s", DB.getValue(nodeSpell, "level", 0), v.text);
+		end
+	end
+	table.sort(tDialogOptions, function(a,b) return a.text < b.text; end);
+
+	local tLookup = {};
+	for _,v in ipairs(tOptions) do
+		tLookup[v.text] = v.linkrecord;
+	end
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectspells"),
 		msg = Interface.getString("char_build_message_selectspells"):format(nPicks),
 		min = nPicks,
 		options = tDialogOptions,
 		callback = CharBuildDropManager.onSpellSelect,
-		custom = { nodeChar = nodeChar, sGroup = tData.sGroup, bSource2024 = tData.bSource2024, nPrepared = tData.nPrepared, },
+		custom = {
+			nodeChar = nodeChar,
+			sGroup = tData.sGroup,
+			bSource2024 = tData.bSource2024,
+			nPrepared = tData.nPrepared,
+			tLookup = tLookup,
+		},
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	if tData and tData.fnCallback then
+		tDialogData.custom.fnCallback = tData.fnCallback;
+		tDialogData.custom.tCallbackData = tData.tCallbackData;
+	end
+	if tData and ((tData.sPickType or "") == "cantrip") then
+		tDialogData.title = Interface.getString("char_build_title_selectspellscantrip");
+		tDialogData.msg = Interface.getString("char_build_message_selectspellscantrip"):format(nPicks);
+	elseif tData and ((tData.sPickType or "") == "prepared") then
+		tDialogData.title = Interface.getString("char_build_title_selectspellsprepared");
+		tDialogData.msg = Interface.getString("char_build_message_selectspellsprepared"):format(nPicks);
+		tDialogData.custom.nPrepared = tDialogData.custom.nPrepared or 1;
+	elseif tData and ((tData.sPickType or "") == "known") then
+		tDialogData.title = Interface.getString("char_build_title_selectspellsknown");
+		tDialogData.msg = Interface.getString("char_build_message_selectspellsknown"):format(nPicks);
+	end
+	DialogManager.requestSelectionDialog(tDialogData, tData.bFront);
 end
 function onSpellSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
-		CharManager.addSpell(tData.nodeChar, { sName = s, sGroup = tData.sGroup, bSource2024 = tData.bSource2024, nPrepared = tData.nPrepared, });
+		CharManager.addSpell(tData.nodeChar, { sRecord = tData.tLookup[s], sGroup = tData.sGroup, bSource2024 = tData.bSource2024, nPrepared = tData.nPrepared, });
+	end
+	if tData.fnCallback then
+		tData.fnCallback(tData.tCallbackData);
 	end
 end
 function helperGetSpellOptionsFilter(nodeChar, sGroup, tOptions)
@@ -1635,7 +1937,7 @@ function pickClassFeatureChoice(nodeChar, tOptions, nPicks, tData)
 	for _,v in ipairs(tOptions) do
 		tLookup[v.text] = v.linkrecord;
 	end
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectclassfeaturechoices"),
 		msg = Interface.getString("char_build_message_selectclassfeaturechoices"):format(nPicks),
 		min = nPicks,
@@ -1643,8 +1945,7 @@ function pickClassFeatureChoice(nodeChar, tOptions, nPicks, tData)
 		callback = CharBuildDropManager.onClassFeatureChoiceSelect,
 		custom = { nodeChar = nodeChar, bWizard = tData.bWizard, bSource2024 = tData.bSource2024, tLookup = tLookup},
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function onClassFeatureChoiceSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do

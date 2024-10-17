@@ -408,7 +408,7 @@ end
 function evalAbilityHelper(rActor, sEffectAbility)
 	local sSign, sModifier, sTag = sEffectAbility:match("^%[([%+%-]?)([HTQ%d]?)([A-Z]+)%]$");
 	
-	local nAbility = ActorManager5E.getAbilityScore(rActor, sTag:lower());
+	local nAbility = ActorManager5E.getAbilityBonus(rActor, sTag:lower());
 	if nAbility then
 		if sSign == "-" then
 			nAbility = 0 - nAbility;

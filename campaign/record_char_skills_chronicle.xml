@@ -8,30 +8,6 @@
 
 <root>
 	<windowclass name="charsheet_skills">
-		<sheetdata>
-			<button_iedit name="skills_iedit">
-				<anchored position="insidebottomright" offset="0,10" />
-				<tooltip textres="char_skills_tooltip_edit" />
-				<edittarget>contents</edittarget>
-			</button_iedit>
-
-			<subwindow name="contents">
-				<anchored>
-					<top offset="0" />
-					<bottom offset="-35" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
-				<class>charsheet_skills_contents</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-			<scrollbar_charcontents />
-		</sheetdata>
-	</windowclass>
-
- 	<windowclass name="charsheet_skills_contents">
-		<margins control="0,0,0,2" />
 		<script>
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
@@ -44,27 +20,191 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
+			<anchor_content_bottom />
 
-		<!-- -->
-		<!-- Header Frame -->
-		<!-- -->
-			<label_charframetop name="statstitle">
-				<bounds>15,10,-10,20</bounds>
-				<!-- <anchored width="95" height="20"> -->
-					<!-- <top parent="columnanchor" anchor="bottom" offset="15" /> -->
-					<!-- <left offset="15" /> -->
-				<!-- </anchored> -->
+			<area_content_framed_groupbox_bottom name="area_controls">
+				<anchored height="20" />
+			</area_content_framed_groupbox_bottom>
+			<button_iedit name="sheet_iedit">
+				<anchored to="area_controls" position="insidetopright" offset="0,0" />
+				<edittarget>content</edittarget>
+			</button_iedit>
+
+			<sub_content_scroll name="content">
+				<class>charsheet_skills_contents</class>
+			</sub_content_scroll>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<!-- Adjusted -->
+ 	<windowclass name="charsheet_skills_contents">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_top name="stats">
+				<class>charsheet_stats_contents</class>
+			</sub_content_top>
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
+					<left offset="15" />
+					<right />
+				</anchored>
+				<icons>char_abilities_purple</icons>
+				<static textres="char_label_skills" />
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<icon>char_abilities_purple</icon>
+				<static textres="char_label_skills" />
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<!-- Filter Control -->
+			<hsc name="filter">
+				<script>
+					function onValueChanged()
+						Debug.chat("FA", self.getValue())
+					end
+				</script>
+			</hsc>
+
+			<!-- Skills List -->
+			<list_content_labeled_alternating_top name="list">
+				<datasource>.skilllist</datasource>
+				<class>char_skill_item</class>
+				<sortby><control>name</control></sortby>
+				<filter control="filter" />
+				<filteron control="filter_stat" />
+				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_idelete_label_right name="idelete_header">
+				<editmode>sheet_iedit</editmode>
+			</spacer_list_content_idelete_label_right>
+			<spacer_list_content_link_label_right name="spacer_link" />
+			<label_list_content_number_right name="label_total">
+				<anchored width="40" />
+				<static textres="char_label_skilltotal" />
+			</label_list_content_number_right>
+			<spacer_list_content_label_right name="spacer">
+				<anchored width="10" />
+			</spacer_list_content_label_right>
+			<label_list_content_number_right name="label_misc">
+				<anchored width="60" />
+				<static textres="char_label_skillmisc" />
+			</label_list_content_number_right>
+			<label_list_content_string_right name="label_stat">
+				<anchored width="30" />
+				<static textres="char_label_skillstat" />
+			</label_list_content_string_right>
+			<label_list_content_noframe name="label_name">
+				<static textres="char_label_skillname" />
+			</label_list_content_noframe>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Adjusted -->
+	<windowclass name="char_skill_item">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_skill_chronicle.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<!-- <button_skillprof name="prof"> -->
+				<!-- <tabtarget next="name" /> -->
+			<!-- </button_skillprof> -->
+
+			<button_listitem_idelete name="idelete" />
+			<button_listitem_idelete_spacer name="idelete_spacer" />
+			<button_listitem_right name="shortcut">
+				<icon normal="button_link" pressed="button_link_down" />
+				<script>
+					function onButtonPress()
+						window.openSkillLink();
+					end
+				</script>
+			</button_listitem_right>
+
+			<dicecontrol name="diceframe">
+				<anchored to="rightanchor">
+					<top offset="-6" />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<stat></stat>
+				<skill></skill>
+				<actorpath>...</actorpath>
+				<script>
+					function onInit()
+						local nodeSkill = window.getDatabaseNode()
+						self.stat[1] = DB.getValue(nodeSkill, "stat", "")
+						self.skill[1] = DB.getValue(nodeSkill, "name", "")
+						super.onInit()
+					end
+				</script>
+			</dicecontrol>
+
+			<spacer_listitem_right name="spacer">
+				<anchored width="10" />
+			</spacer_listitem_right>
+			<number_charskill name="misc">
+				<tabtarget prev="stat" />
+				<delaykeyupdate merge="delete" />
+			</number_charskill>
+
+			<cycler_charskillability name="stat">
+				<tabtarget next="misc" prev="name" />
+				<script>
+					function onInit()
+						super.onInit()
+					end
+				</script>
+			</cycler_charskillability>
+			
+			<hs name="filter_stat" source="stat" />
+
+			<icon_listitem_right name="armorwidget">
+				<icon>char_armorcheck</icon>
+				<invisible />
+			</icon_listitem_right>
+
+			<string_listitem_center_text name="name">
+				<tabtarget next="stat" prev="prof" />
+			</string_listitem_center_text>
+		</sheetdata>
+	</windowclass>
+	
+	<!--Stats -->
+	<windowclass name="charsheet_stats_contents">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
+					<left offset="15" />
+					<right />
+				</anchored>
 				<icons>char_senses</icons>
 				<static textres="char_abilities_title" />
 			</label_charframetop>
 
-		<!-- -->
-		<!-- Abilities -->
-		<!-- -->
+			<!-- Abilities -->
 			<!-- Abilities - Row 1 -->
 			<number_charabilityscore_filter name="agility" source="abilities.agility.score">
-				<anchored to="statstitle" >
+				<anchored to="header" >
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left offset="15" />
 				</anchored>
@@ -168,7 +308,7 @@
 				</stateframe>
 				<script>
 					function onClickDown()
-						window.parentcontrol.window.contents.subwindow.filter_ability.setValue("")
+						window.parentcontrol.window.parentcontrol.subwindow.filter.setValue("")
 					end
 				</script>
 			</label>
@@ -180,7 +320,7 @@
 
 			<!-- Abilities - Row 2 -->
 			<number_charabilityscore_filter name="fighting" source="abilities.fighting.score">
-				<anchored to="statstitle">
+				<anchored to="header">
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left offset="15" />
 				</anchored>
@@ -285,7 +425,7 @@
 
 			<!-- Abilities - Row 3 -->
 			<number_charabilityscore_filter name="survival" source="abilities.survival.score">
-				<anchored to="statstitle">
+				<anchored to="header">
 					<top anchor="bottom" relation="relative" offset="15" />
 					<left parent="knowledge" anchor="left" />
 				</anchored>
@@ -335,220 +475,6 @@
 				<static textres="WIL" />
 				<tooltip textres="char_skills_tooltip_will" />
 			</label_abilityscore>
-
-		<!-- -->
-		<!-- Header Frame -->
-		<!-- -->
-			<label_charframetop name="skillstitle">
-				<anchored to="statstitle" height="20">
-					<top anchor="bottom" relation="relative" offset="7" />
-					<left />
-					<right />
-				</anchored>
-				<icons>char_abilities_purple</icons>
-				<static textres="char_label_skills" />
-			</label_charframetop>
-
-		<!-- -->
-		<!-- Filter Control - Invisible -->
-		<!-- -->
-			<hsc name="filter_ability" />
-
-		<!-- -->
-		<!-- Skill List Header -->
-		<!-- -->
-			<genericcontrol name="rightanchor">
-				<anchored width="0" height="20">
-					<top parent="skillstitle" anchor="bottom" relation="relative" offset="4" />
-					<right offset="-15" />
-				</anchored>
-			</genericcontrol>
-
-			<genericcontrol name="shortcut_header">
-				<anchored to="rightanchor" width="20" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-3" />
-				</anchored>
-				<disabled />
-			</genericcontrol>
-
-			<label name="total_label">
-				<anchored to="rightanchor" width="40">
-					<top />
-					<right anchor="left" relation="relative" offset="-16" />
-				</anchored>
-				<center />
-				<static textres="char_label_skilltotal" />
-			</label>
-
-			<label name="misc_label">
-				<anchored to="rightanchor" width="40">
-					<top />
-					<right anchor="left" relation="relative" offset="-13" />
-				</anchored>
-				<center />
-				<static textres="char_label_skillmisc" />
-			</label>
-
-			<label name="stat_label">
-				<anchored to="rightanchor" width="40">
-					<top />
-					<right anchor="left" relation="relative" offset="-3" />
-				</anchored>
-				<center />
-				<static textres="char_label_skillstat" />
-			</label>
-
-			<label name="name_label">
-				<anchored>
-					<top parent="rightanchor" />
-					<left offset="35" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-17" />
-				</anchored>
-				<static textres="char_label_skillname" />
-				<center />
-			</label>
-
-			<button_iadd name="skills_iadd">
-				<anchored to="skillstitle" position="insidetopright" offset="0,0" />
-				<target>skills</target>
-			</button_iadd>
-
-			<!-- -->
-			<!-- Skills List -->
-			<!-- -->
-			<windowlist name="skills">
-				<anchored to="skillstitle">
-					<top parent="skillstitle" anchor="bottom" relation="relative" offset="0" />
-					<left offset="-5" />
-					<right offset="-5" />
-					<bottom parent="" anchor="bottom" offset="0" />
-				</anchored>
-				<datasource>.skilllist</datasource>
-				<class>skill_item</class>
-				<sortby><control>name</control></sortby>
-				<filter control="filter_ability" />
-				<filteron control="stat_filter" />
-				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
-			</windowlist>
-			<scrollbar>
-				<anchored to="skills" offset="-5,-10" />
-				<target>skills</target>
-			</scrollbar>
-		</sheetdata>
-	</windowclass>
-	
-	<!-- -->
-	<!-- Skill List Item -->
-	<!-- -->	
-	<windowclass name="skill_item">
-		<margins control="0,0,0,2" />
-		<script file="campaign/scripts/char_skill_chronicle.lua" />
-		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
-			</genericcontrol>
-
-			<buttoncontrol name="shortcut">
-				<anchored to="rightanchor" width="20" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-2" />
-				</anchored>
-				<icon normal="button_link" pressed="button_link_down" />
-				<script>
-					function onButtonPress()
-						window.openSkillLink();
-					end
-				</script>
-			</buttoncontrol>
-
-			<button_idelete name="idelete">
-				<anchored to="rightanchor">
-					<top />
-					<right anchor="left" offset="-2" />
-				</anchored>
-				<editmode>skills_iedit</editmode>
-			</button_idelete>
-
-			<!-- -->
-			<!-- Dice Field -->
-			<!-- -->
-			<dicecontrol name="diceframe">
-				<anchored to="rightanchor">
-					<top offset="-6" />
-					<right anchor="left" relation="relative" offset="-7" />
-				</anchored>
-				<stat></stat>
-				<skill></skill>
-				<actorpath>...</actorpath>
-				<script>
-					function onInit()
-						local nodeSkill = window.getDatabaseNode()
-						self.stat[1] = DB.getValue(nodeSkill, "stat", "")
-						self.skill[1] = DB.getValue(nodeSkill, "name", "")
-						super.onInit()
-					end
-				</script>
-			</dicecontrol>
-
-			<!-- -->
-			<number_charskill name="misc">
-				<anchored>
-					<top offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-7" />
-				</anchored>
-				<tabtarget prev="stat" />
-				<script>
-					function onValueChanged()
-						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
-						window.diceframe.onInit()
-					end
-				</script>
-			</number_charskill>
-
-			<cycler_ability name="stat">
-				<anchored to="rightanchor" width="30" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-12" />
-				</anchored>
-				<tabtarget next="misc" prev="name" />
-				<script>
-					function onValueChanged()
-						sAbility = DB.getValue(window.getDatabaseNode(), "stat", "")
-						-- Set "stat_filter" so the skill will show/hide on filter set
-						window.stat_filter.setValue(sAbility)
-						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
-						window.diceframe.onInit()
-					end
-				</script>
-			</cycler_ability>
-
-			<hsc name="stat_filter">
-				<script>
-					function onInit()
-						setValue(DB.getValue(window.getDatabaseNode(), "stat", ""))
-					end
-				</script>
-			</hsc>
-
-			<genericcontrol name="armorwidget">
-				<anchored to="rightanchor" width="8" height="9">
-					<top offset="5" />
-					<right anchor="left" relation="relative" offset="-5" />
-				</anchored>
-				<icon>char_armorcheck</icon>
-				<invisible />
-			</genericcontrol>
-			
-			<string_textlistitem name="name">
-				<anchored to="rightanchor">
-					<top />
-					<left parent="" offset="15" />
-					<right anchor="left" relation="relative" offset="-7" />
-				</anchored>
-				<multilinespacing>20</multilinespacing>
-				<tabtarget next="stat" />
-			</string_textlistitem>
 		</sheetdata>
 	</windowclass>
 </root>

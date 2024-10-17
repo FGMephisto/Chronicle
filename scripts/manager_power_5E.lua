@@ -41,17 +41,6 @@ function updatePowerDisplay(w)
 	local bEditMode = WindowManager.getEditMode(w, "actions_iedit");
 	w.header.subwindow.group.setVisible(bEditMode);
 	w.header.subwindow.actionsmini.setVisible(not bEditMode);
-
-	-- TODO (2024) - Remove old display code
-	-- local nodeActor = PowerManagerCore.getPowerActorNode(w.getDatabaseNode());
-	-- local sDisplayMode = DB.getValue(nodeActor, "powerdisplaymode", "");
-	-- if sDisplayMode == "action" then
-	-- 	w.header.subwindow.group.setVisible(false);
-	-- 	w.header.subwindow.actionsmini.setVisible(true);
-	-- else
-	-- 	w.header.subwindow.group.setVisible(true);
-	-- 	w.header.subwindow.actionsmini.setVisible(false);
-	-- end
 end
 
 function getActionButtonIcons(node, tData)

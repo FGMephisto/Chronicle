@@ -4,24 +4,19 @@
 -- File adjusted for Chronicle System
 --
 
---
 -- Adjusted
---
 function onInit()
 	super.onInit();
 	-- onValueChanged();
 end
 
---
---
-function update(bReadOnly)
-	setReadOnly(bReadOnly);
-end
+-- Adjusted
+-- function update(bReadOnly)
+	-- setReadOnly(bReadOnly);
+-- end
 
---
--- Disabled
---
-function onValueChanged()
+-- Adjusted
+-- function onValueChanged()
 	-- local nMod = math.floor((getValue() - 10) / 2);
 	
 	-- local bonusctrl = window[self.target[1] .. "_bonus"];
@@ -33,26 +28,20 @@ function onValueChanged()
 	-- if modctrl then
 		-- modctrl.setValue(string.format("%+d", nMod));
 	-- end
-end
+-- end
 
---
---
 function action(draginfo)
 	local rActor = ActorManager.resolveActor(window.getDatabaseNode());
 	ActionCheck.performRoll(draginfo, rActor, self.target[1]);
 	return true;
 end
 
---
---
 function onDragStart(button, x, y, draginfo)
 	if rollable then
 		return action(draginfo);
 	end
 end
-
---
---
+	
 function onDoubleClick(x, y)
 	if rollable then
 		return action();

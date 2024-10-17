@@ -443,7 +443,7 @@
 				<script>
 					function onListChanged()
 						for k,v in ipairs(self.getWindows()) do
-							v.option.setValue("Option " .. k);
+							v.option.setValue("Option " .. StringManager.convertNumberToAlpha(k));
 						end
 						window.updateEquipmentString();
 					end
@@ -494,9 +494,9 @@
 				<target>items</target>
 			</button_iadd>
 
-			<string_listitem_center_noframe_static name="option">
+			<stringc_listitem_center_noframe_static name="option">
 				<font name="sheetlabel" />
-			</string_listitem_center_noframe_static>
+			</stringc_listitem_center_noframe_static>
 			<list_content_column name="items">
 				<anchored to="option">
 					<right parent="" />
@@ -641,7 +641,7 @@
 			<anchor_listitem_right_sm name="rightanchor" />
 
 			<linkc_listitem_right name="shortcut">
-				<class>reference_classability</class>
+				<class>reference_class_specialization</class>
 			</linkc_listitem_right>
 			<button_listitem_idelete name="idelete">
 				<editmode>specializations_iedit</editmode>
@@ -724,11 +724,10 @@
 				self.update();
 			end
 			function update()
-				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
 				WindowManager.callSafeControlUpdate(self, "level", bReadOnly);
 				WindowManager.callSafeControlUpdate(self, "text", bReadOnly);
-				WindowManager.callSafeControlUpdate(self, "specializationchoice", bReadOnly or not bIs2024);
+				WindowManager.callSafeControlUpdate(self, "specializationchoice", bReadOnly);
 				WindowManager.callSafeControlUpdate(self, "specialization", bReadOnly);
 			end
 		</script>

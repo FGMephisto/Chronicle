@@ -12,19 +12,24 @@ function onInit()
 			Desktop.addDataModuleSet(k, v2);
 		end
 	end
-	
-	if not CampaignRegistry or not CampaignRegistry.setup then	
-		local sTitle = Interface.getString("record_label_version_title");
-		local sPrompt = Interface.getString("record_label_version_prompt");
-		Interface.dialogMessage(onVersionChoice, sPrompt, sTitle, "yesno");	
+
+	-- Ask the GM if they want to use the new D&D 2024 Rules
+	if Session.IsHost then
+		if not CampaignRegistry or not CampaignRegistry.DD2024Rules then	
+			local sTitle = Interface.getString("record_label_version_title");
+			local sPrompt = Interface.getString("record_label_version_prompt");
+			Interface.dialogMessage(onVersionChoice, sPrompt, sTitle, "yesno");	
+		end
 	end
 end
 
 function onVersionChoice(result)
 	if result == "yes" then
 		OptionsManager.setOption("GAVE","2024");
+		CampaignRegistry.DD2024Rules = "2024";
 	else 
 		OptionsManager.setOption("GAVE","2014");
+		CampaignRegistry.DD2024Rules = "2014";
 	end
 end
 

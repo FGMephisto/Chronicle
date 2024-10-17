@@ -1349,7 +1349,7 @@ function applyDamage(rSource, rTarget, rRoll)
 	if nConcentrationDamage > 0 and ActionSave.hasConcentrationEffects(rTarget) then
 		if nWounds < nTotalHP then
 			local tData;
-			if ActorManager.isPC(rSource) and CharManager.hasFeat2024(ActorManager.getCreatureNode(rSource), CharManager.FEAT_MAGE_SLAYER) then
+			if ActorManager.isPC(rSource) and CharManager.hasFeat(ActorManager.getCreatureNode(rSource), CharManager.FEAT_MAGE_SLAYER) then
 				tData = { bDIS = true, sAddText = "[MAGE SLAYER]", };
 			end
 

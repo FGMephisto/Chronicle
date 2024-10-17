@@ -212,7 +212,7 @@ function getAbilityBonus(rActor, sAbility)
 	end
 	
 	local nStatVal = 0;
-	if StringManager.contains(DataCommon.abilities, sAbility) then
+	if StringManager.contains(DataCommon.abilities, sAbility) or DataCommon.ability_stol[sAbility:upper()] then
 		nStatVal = math.floor((nStatScore - 10) / 2);
 	else
 		nStatVal = nStatScore;

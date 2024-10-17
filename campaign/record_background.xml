@@ -168,9 +168,8 @@
 				<script>
 					function onListChanged()
 						for k,v in ipairs(self.getWindows()) do
-							v.option.setValue("Option " .. k);
+							v.option.setValue("Option " .. StringManager.convertNumberToAlpha(k));
 						end
-
 						window.updateEquipmentString();
 					end
 				</script>

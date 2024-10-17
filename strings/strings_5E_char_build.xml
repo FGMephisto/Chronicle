@@ -6,12 +6,15 @@
 -->
 
 <root>
+	<string name="char_error_missinglink">Unable to find %s record. Ensure correct module is loaded.</string>
+
 	<!-- Characters - Build -->
 	<string name="char_background_powergroup">Background (%s)</string>
 	<string name="char_class_powergroup">Class (%s)</string>
 	<string name="char_feat_powergroup">Feats</string>
 	<string name="char_species_powergroup">Species (%s)</string>
 	<string name="char_spell_powergroup">Spells (%s)</string>
+	<string name="char_spell_powergroup_base">Spells</string>
 
 	<string name="char_error_missingrecord">Unable to find record to match link dropped. Check to make sure the correct modules are open.</string>
 	<string name="char_error_addancestry">To add this Species to your character, you must choose exactly one Ancestry.</string>
@@ -20,6 +23,11 @@
 	<string name="char_error_missingsubclass">Unable to find Subclass chosen.</string>
 	<string name="char_error_missingancestry">Unable to find Ancestry chosen.</string>
 	<string name="char_error_missingspeciesfromancestry">Unable to find Species from Ancestry chosen.</string>
+
+	<string name="char_build_title_asiorfeat">Select ASI or Feat</string>
+	<string name="char_build_message_asiorfeat">Choose option for Ability Score Improvement or Feat from list below.</string>
+	<string name="char_build_option_asi">Ability Score Improvement</string>
+	<string name="char_build_option_feat">Feat</string>
 
 	<string name="char_build_title_selectabilityadjtype">Select Ability Option</string>
 	<string name="char_build_message_selectabilityadjtype">Choose option for ability score increases from list below.\r(%s)</string>
@@ -39,19 +47,27 @@
 	<string name="char_build_title_selectexpertises">Select Expertise</string>
 	<string name="char_build_message_selectexpertises">Choose %s Expertise option(s) to increase from the list below.</string>
 	<string name="char_build_title_selectancestry">Select Ancestry</string>
-	<string name="char_build_message_selectancestry">Choose ancestry option from the list below.</string>
+	<string name="char_build_message_selectancestry">Choose Ancestry option from the list below.</string>
 	<string name="char_build_title_selectspecialization">Select Subclass</string>
-	<string name="char_build_message_selectspecialization">Choose subclass option from the list below.</string>
+	<string name="char_build_message_selectspecialization">Choose Subclass option from the list below.</string>
 	<string name="char_build_title_selectfeats">Select Feats</string>
 	<string name="char_build_message_selectfeats">Choose %s Feat(s) from the list below.</string>
 	<string name="char_build_title_selectlanguages">Select Languages</string>
 	<string name="char_build_message_selectlanguages">Choose %s Language(s) from the list below.</string>
 	<string name="char_build_title_selectspells">Select Spells</string>
 	<string name="char_build_message_selectspells">Choose %s Spell(s) from the list below.</string>
+	<string name="char_build_title_selectspellscantrip">Select Cantrips</string>
+	<string name="char_build_message_selectspellscantrip">Choose %s Cantrip(s) from the list below.</string>
+	<string name="char_build_title_selectspellsknown">Select Known Spells</string>
+	<string name="char_build_message_selectspellsknown">Choose %s Known Spell(s) from the list below.</string>
+	<string name="char_build_title_selectspellsprepared">Select Prepared Spells</string>
+	<string name="char_build_message_selectspellsprepared">Choose %s Prepared Spell(s) from the list below.</string>
 	<string name="char_build_title_selectspellability">Select Spellcasting Ability</string>
 	<string name="char_build_message_selectspellability">Choose a Spellcasting Ability from the list below.</string>
 	<string name="char_build_title_selectclassfeaturechoices">Select Class Choice</string>
 	<string name="char_build_message_selectclassfeaturechoices">Choose %s Class Feature Choice(s) from the list below.</string>
+	<string name="char_build_title_selectequipmentpack">Select Equipment Pack</string>
+	<string name="char_build_message_selectequipmentpack">Choose %s Equipment Pack Choice(s) from the list below.</string>
 
 	<string name="char_abilities_message_classadd">One level of Class '%s' added to '%s'.</string>
 	<string name="char_abilities_message_speciesadd">Species '%s' added to '%s'.</string>
@@ -93,11 +109,34 @@
 	<string name="charwizard_label_commit">Commit</string>
 	<string name="charwizard_label_save">Save</string>
 
-	<string name="charwizard_label_speciesselection">Species Selection</string>
-	<string name="charwizard_label_subspeciesselection">Ancestry Selection</string>
+	<string name="charwizard_label_speciesselection">SPECIES</string>
+	<string name="charwizard_label_ancestryselection">ANCESTRY</string>
 	<string name="charwizard_label_changespecies">Change Species</string>
 	<string name="charwizard_label_changeancestry">Change Ancestry</string>
 	<string name="charwizard_label_changebackground">Change Background</string>
+
+	<string name="charwizard_label_speciesselection_alert">Select Species</string>
+	<string name="charwizard_label_ancestryselection_alert">Select Ancestry</string>
+
+	<string name="charwizard_label_decision_skill">Select Skill</string>
+	<string name="charwizard_label_decision_expertise">Select Expertise</string>
+	<string name="charwizard_label_decision_armorprof">Select Armor Training</string>
+	<string name="charwizard_label_decision_weaponprof">Select Weapon Proficiency</string>
+	<string name="charwizard_label_decision_toolprof">Select Tool Proficiency</string>
+	<string name="charwizard_label_decision_language">Select Language</string>
+	<string name="charwizard_label_decision_feat">Select Feat</string>
+	<string name="charwizard_label_decision_spell">Select Spell</string>
+	<string name="charwizard_label_decision_asiorfeat">Select Option</string>
+	<string name="charwizard_label_decision_subclass">Select Subclass</string>
+	<string name="charwizard_label_decision_size">Select Size</string>
+	<string name="charwizard_label_decision_asiclassoption">Select Ability Score Option</string>
+	<string name="charwizard_label_decision_asiclass">Increase Ability Score %+d</string>
+	<string name="charwizard_label_decision_asibackgroundoption">Select Ability Score Option</string>
+	<string name="charwizard_label_decision_asibackground">Increase Ability Score %+d</string>
+	<string name="charwizard_label_decision_asispeciesoption">Select Ability Score Option</string>
+	<string name="charwizard_label_decision_asispecies">Increase Ability Score %+d</string>
+	<string name="charwizard_label_decision_variabletrait">Select Variable Trait</string>
+	<string name="charwizard_label_decision_featuredecision">Select Feature Choice</string>
 
 	<string name="charwizard_label_class_add">Add Class</string>
 	<string name="charwizard_label_class_levelup">Level Up</string>
@@ -105,7 +144,16 @@
 
 	<string name="charwizard_label_equipment_changemethod">Change Method/Reset</string>
 	<string name="charwizard_label_equipment_selectstartkit">Select Starting Kit</string>
-	<string name="charwizard_label_equipment_selectstartwealth">Select Starting Wealth</string>
+	<string name="charwizard_label_equipment_wealth">Currency</string>
+	<string name="charwizard_label_equipment_rolledwealth">Rolled</string>
+	<string name="charwizard_tooltip_equipment_rolledwealth">Rolled Wealth will disable kit selection until rolled wealth reset to zero.</string>
+	<string name="charwizard_label_equipment_rolledwealth_roll">Roll</string>
+	<string name="charwizard_label_equipment_backgroundwealth">Background</string>
+	<string name="charwizard_label_equipment_classwealth">Class</string>
+	<string name="charwizard_label_equipment_customwealth">Custom</string>
+	<string name="charwizard_label_equipment_finalwealth">Total</string>
+	<string name="charwizard_header_equipment_backgroundkit">Background Kit</string>
+	<string name="charwizard_header_equipment_classkit">Class Kit</string>
 
 	<string name="charwizard_label_features">Features</string>
 	<string name="charwizard_label_spells">Spells</string>
@@ -128,6 +176,7 @@
 
 	<string name="charwizard_title_class">CLASS(ES)</string>
 	<string name="charwizard_label_filtersource">Source</string>
+	<string name="charwizard_label_filtercategory">Category</string>
 	<string name="charwizard_label_filtername">Name</string>
 	<string name="charwizard_label_level">Level</string>
 	<string name="charwizard_label_cantrips">Cantrips:</string>
@@ -135,18 +184,16 @@
 	<string name="charwizard_label_knownspells">Known Spells:</string>
 	<string name="charwizard_header_spellsknown">Known</string>
 	<string name="charwizard_header_spells">Spells</string>
+	<string name="charwizard_title_background">BACKGROUND</string>
 	<string name="charwizard_title_abilityscores">ABILITY SCORES</string>
 	<string name="charwizard_label_method">Method</string>
 	<string name="charwizard_label_pointsremaining">Points Remaining</string>
 	<string name="charwizard_label_asi">ASI</string>
-	<string name="charwizard_label_override">Override</string>
-	<string name="charwizard_title_equipment">EQUIPMENT</string>
-	<string name="charwizard_label_startingwealth">Starting Wealth</string>
-	<string name="charwizard_header_currentinventory">Current Inventory</string>
-	<string name="charwizard_header_backgroundkit">Background Kit</string>
-	<string name="charwizard_header_classkit">Class Kit</string>
-	<string name="charwizard_header_additems">Add Items</string>
+	<string name="charwizard_title_equipment">STARTING EQUIPMENT AND CURRENCY</string>
 	<string name="charwizard_label_warnings">WARNINGS</string>
 	<string name="charwizard_title_summary">SUMMARY</string>
 	<string name="charwizard_label_base">Base</string>
+
+	<string name="charwizard_label_languages">Languages</string>
+	<string name="charwizard_message_languages">Your character knows at least three languages: Common plus two languages you roll or choose from the Standard Languages table. Knowledge of a language means your character can communicate in it, read it, and write it.</string>
 </root>

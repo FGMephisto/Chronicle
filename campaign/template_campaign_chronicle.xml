@@ -7,6 +7,45 @@
 -->
 
 <root>
+	<!-- 2024 Version Master Index Entry -->
+	<template name="button_masterindexitem_version">
+		<buttonc_listitem_icon_simple_right>
+			<icon normal="button_toolbar_version_legacy" />
+			<tooltip textres="record_tooltip_legacy" />
+			<script>
+				function onButtonPress()
+					window.link.activate();
+				end
+			</script>
+		</buttonc_listitem_icon_simple_right>
+	</template>
+	<windowclass name="masterindexitem_version" copy="masterindexitem">
+		<script>
+			function onInit()
+				super.onInit();
+
+				local bShow = (DB.getValue(getDatabaseNode(), "version", "") ~= "2024");
+				version.setVisible(bShow);
+			end
+		</script>
+		<sheetdata>
+			<button_masterindexitem_version name="version" insertbefore="access" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="masterindexitem_id_version" copy="masterindexitem_id">
+		<script>
+			function onInit()
+				super.onInit();
+
+				local bShow = (DB.getValue(getDatabaseNode(), "version", "") ~= "2024");
+				version.setVisible(bShow);
+			end
+		</script>
+		<sheetdata>
+			<button_masterindexitem_version name="version" insertbefore="access" />
+		</sheetdata>
+	</windowclass>
+
 	<!-- 2024 Version Section -->
 	<template name="sub_record_version">
 		<sub_content_framed_groupbox_bottom name="sub_version">
@@ -14,18 +53,17 @@
 		</sub_content_framed_groupbox_bottom>
 	</template>
 	<windowclass name="record_version">
-		<margins control="0,0,0,5" />
+		<margins control="0,0,0,2" />
 		<script>
 			function update()
 				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());				
 				version.setReadOnly(bReadOnly);
-				parentcontrol.setVisible(not bReadOnly);
 			end
 		</script>
 		<sheetdata>
 			<button_stringcycler name="version">
 				<anchored width="80">
-					<top offset="5" />
+					<top offset="2" />
 					<left anchor="center" offset="-20" />
 				</anchored>
 				<parameters>
@@ -387,21 +425,5 @@
 			<child><backcolor>1A40301E</backcolor></child>
 			<noscroll />
 		</windowlist>
-	</template>
-	
-	<!-- Added -->
-	<template name="button_toggledetail">
-		<buttoncontrol>
-			<anchored width="20" height="20" />
-			<state icon="button_details" />
-			<state icon="button_details_down" />
-			<script>
-				function onValueChanged()
-					if window.toggleDetail then
-						window.toggleDetail();
-					end
-				end
-			</script>
-		</buttoncontrol>
 	</template>
 </root>

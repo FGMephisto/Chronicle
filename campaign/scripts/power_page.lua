@@ -6,9 +6,6 @@
 local aGroups = {};
 local aCharSlots = {};
 
-local bCheckingUsage = false;
-local bUpdatingGroups = false;
-
 function onInit()
 	self.updatePowerGroups();
 
@@ -88,18 +85,20 @@ function onClose()
 	DB.removeHandler(DB.getPath(node, "powers.*.level"), "onUpdate", onPowerGroupChanged);
 end
 
+function onDrop(x, y, draginfo)
+	if draginfo.isType("shortcut") then
+		local sClass, sRecord = draginfo.getShortcutData();
+		draginfo.setSlot(2);
+		local sGroup = draginfo.getStringData();
+		draginfo.setSlot(1);
+		return CharPowerManager.addPowerDB(getDatabaseNode(), sClass, sRecord, sGroup);
+	end
+end
+
 function onModeChanged()
 	self.rebuildGroups();
 	self.updateUses();
 end
--- TODO (2024) - Remove old display code
--- function onDisplayChanged()
--- 	for _,v in pairs(powers.getWindows()) do
--- 		if v.getClass() ~= "power_group_header" then
--- 			v.onDisplayChanged();
--- 		end
--- 	end
--- end
 function onEditModeChanged()
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() ~= "power_group_header" then
@@ -134,10 +133,11 @@ function onGroupTypeChanged()
 	self.updatePowerGroups();
 end
 function onGroupNameChanged(nodeGroupName)
-	if bUpdatingGroups then
+	local nodeChar = getDatabaseNode();
+	if CharPowerManager.arePowerGroupUpdatesPaused(nodeChar) then
 		return;
 	end
-	bUpdatingGroups = true;
+	CharPowerManager.pausePowerGroupUpdates(nodeChar);
 
 	local nodeParent = DB.getParent(nodeGroupName);
 	local sNode = DB.getPath(nodeParent);
@@ -152,7 +152,7 @@ function onGroupNameChanged(nodeGroupName)
 		end
 	end
 	if not nodeGroup or sGroup == "" then
-		bUpdatingGroups = false;
+		CharPowerManager.resumePowerGroupUpdates(nodeChar);
 		return;
 	end
 
@@ -163,7 +163,7 @@ function onGroupNameChanged(nodeGroupName)
 		end
 	end
 
-	bUpdatingGroups = false;
+	CharPowerManager.resumePowerGroupUpdates(nodeChar);
 	
 	self.updatePowerGroups();
 end
@@ -185,10 +185,11 @@ function addGroupPower(sGroup, nLevel)
 end
 
 function updatePowerGroups()
-	if bUpdatingGroups then
+	local nodeChar = getDatabaseNode();
+	if CharPowerManager.arePowerGroupUpdatesPaused(nodeChar) then
 		return;
 	end
-	bUpdatingGroups = true;
+	CharPowerManager.pausePowerGroupUpdates(nodeChar);
 	
 	self.rebuildGroups();
 
@@ -209,7 +210,7 @@ function updatePowerGroups()
 	end
 	
 	-- For the remaining power groups, that aren't named
-	local sLowerSpellsLabel = Interface.getString("power_label_groupspells"):lower();
+	local sLowerSpellsLabel = Interface.getString("char_spell_powergroup_base"):lower();
 	for k,_ in pairs(aPowerGroups) do
 		if not aGroups[k] then
 			local nodeGroups = DB.createChild(getDatabaseNode(), "powergroup");
@@ -223,16 +224,17 @@ function updatePowerGroups()
 	
 	self.rebuildGroups();
 
-	bUpdatingGroups = false;
+	CharPowerManager.resumePowerGroupUpdates(nodeChar);
 
 	self.updateHeaders();
 	self.updateUses();
 end
 function updateHeaders()
-	if bUpdatingGroups then
+	local nodeChar = getDatabaseNode();
+	if CharPowerManager.arePowerGroupUpdatesPaused(nodeChar) then
 		return;
 	end
-	bUpdatingGroups = true;
+	CharPowerManager.pausePowerGroupUpdates(nodeChar);
 	
 	-- Close all category headings
 	for _,v in pairs(powers.getWindows()) do
@@ -267,7 +269,7 @@ function updateHeaders()
 		end
 	end
 
-	bUpdatingGroups = false;
+	CharPowerManager.resumePowerGroupUpdates(nodeChar);
 
 	powers.applySort();
 end
@@ -417,10 +419,11 @@ function updatePowerWindowUses(nodeChar, w)
 end
 
 function updateUses()
-	if bCheckingUsage then
+	local nodeChar = getDatabaseNode();
+	if CharPowerManager.arePowerUsageUpdatesPaused(nodeChar) then
 		return;
 	end
-	bCheckingUsage = true;
+	CharPowerManager.pausePowerUsageUpdates(nodeChar);
 	
 	-- Prepare for lots of crunching
 	local nodeChar = getDatabaseNode();
@@ -496,59 +499,7 @@ function updateUses()
 	
 	powers.applyFilter();
 	
-	bCheckingUsage = false;
-end
-
-function onDrop(x, y, draginfo)
-	if draginfo.isType("shortcut") then
-		local sClass = draginfo.getShortcutData();
-		if sClass == "reference_spell" or sClass == "power" then
-			local node = draginfo.getDatabaseNode();
-			if node then
-				bUpdatingGroups = true;
-				draginfo.setSlot(2);
-				local sGroup = draginfo.getStringData();
-				draginfo.setSlot(1);
-				if sGroup == "" then
-					sGroup = Interface.getString("power_label_groupspells");
-				end
-				PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode(), sGroup);
-				bUpdatingGroups = false;
-				self.onPowerGroupChanged();
-			else
-				ChatManager.SystemMessage(Interface.getString("module_message_missinglink_wildcard"));
-			end
-			return true;
-		end
-		if sClass == "reference_classfeature" then
-			bUpdatingGroups = true;
-			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
-			bUpdatingGroups = false;
-			self.onPowerGroupChanged();
-			return true;
-		end
-		if sClass == "reference_racialtrait" then
-			bUpdatingGroups = true;
-			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
-			bUpdatingGroups = false;
-			self.onPowerGroupChanged();
-			return true;
-		end
-		if sClass == "reference_feat" then
-			bUpdatingGroups = true;
-			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
-			bUpdatingGroups = false;
-			self.onPowerGroupChanged();
-			return true;
-		end
-		if sClass == "ref_ability" then
-			bUpdatingGroups = true;
-			PowerManager.addPower(sClass, draginfo.getDatabaseNode(), getDatabaseNode());
-			bUpdatingGroups = false;
-			self.onPowerGroupChanged();
-			return true;
-		end
-	end
+	CharPowerManager.resumePowerUsageUpdates(nodeChar);
 end
 
 --------------------------

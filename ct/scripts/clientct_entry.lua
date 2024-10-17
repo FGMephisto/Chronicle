@@ -46,25 +46,16 @@ function updateHealthDisplay()
 		sOption = OptionsManager.getOption("SHNPC");
 	end
 	
-	if sOption == "detailed" then
-		hptotal.setVisible(true);
-		hptemp.setVisible(true);
-		wounds.setVisible(true);
+	local bShowDetail = (sOption == "detailed");
+	local bShowStatus = (sOption == "status");
 
-		status.setVisible(false);
-	elseif sOption == "status" then
-		hptotal.setVisible(false);
-		hptemp.setVisible(false);
-		wounds.setVisible(false);
+	hptotal.setVisible(bShowDetail);
+	hptemp.setVisible(bShowDetail);
+	wounds.setVisible(bShowDetail);
+	status.setVisible(bShowStatus);
 
-		status.setVisible(true);
-	else
-		hptotal.setVisible(false);
-		hptemp.setVisible(false);
-		wounds.setVisible(false);
-
-		status.setVisible(false);
-	end
+	local bShowHealthBase = not OptionsManager.isOption("SHPC", "off") or not OptionsManager.isOption("SHNPC", "off");
+	healthbase.setVisible(bShowHealthBase);
 
 	if sub_active and sub_active.subwindow then
 		sub_active.subwindow.updateHealthDisplay(sOption);

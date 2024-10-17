@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+	Please see the license.html file included with this distribution for
+	attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charwizard_sub_background">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<header_content_framed_metalplate_with_icon_top name="background_select_header">
+				<icon>char_background</icon>
+				<static textres="charwizard_title_background" />
+			</header_content_framed_metalplate_with_icon_top>
+			
+			<button_text name="button_changebackground">
+				<anchored position="insidetopright" offset="25,10" width="120" height="15" />
+				<state textres="charwizard_label_changebackground" />
+				<invisible />
+				<script>
+					function onButtonPress()
+						CharWizardBackgroundManager.resetBackground(window);
+					end
+				</script>
+			</button_text>
+
+			<sub_content name="sub_backgroundselection">
+				<class>sub_charwizard_background_backgroundselection</class>
+			</sub_content>
+			<list_content name="background_decisions_list">
+				<class>list_entry_charwizard_backgroundfeatures</class>
+				<invisible />
+			</list_content>
+			<scrollbar_content_base>
+				<anchored to="background_decisions_list" />
+				<target>background_decisions_list</target>
+			</scrollbar_content_base>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="sub_charwizard_background_backgroundselection">
+		<script file="charwizard/scripts/background_sub_backgroundselections.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<filter_label_content_top name="label_source">
+				<static textres="charwizard_label_filtersource" />
+			</filter_label_content_top>
+			<filter_comboboxc_content_top name="filter_source">
+				<listdirection>down</listdirection>
+				<listmaxsize>8</listmaxsize>
+			</filter_comboboxc_content_top>
+			<filter_label_content_top name="label_name">
+				<static textres="charwizard_label_filtername" />
+			</filter_label_content_top>
+			<filter_stringc_content_top name="filter_name" />
+			<spacer_content_top name="spacer">
+				<anchored height="5" />
+			</spacer_content_top>
+
+			<sub_content_paging name="sub_paging" />
+
+			<list_content name="list">
+				<class>list_entry_charwizard_backgroundselection</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard_empty_list" />
+			</list_content>
+			<scrollbar_content_list />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_charwizard_backgroundselection" copy="list_entry_charwizard_item_selection" />
+
+	<windowclass name="list_entry_charwizard_backgroundfeatures" copy="list_entry_charwizard_item">
+		<sheetdata>
+			<hlinkc name="shortcut">
+				<class>reference_backgroundfeature</class>
+			</hlinkc>
+			<list_content_noscroll_top name="list_decisions">
+				<class>list_entry_charwizard_backgroundfeature_decisions</class>
+			</list_content_noscroll_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_charwizard_backgroundfeature_decisions" copy="list_entry_charwizard_item_decision" />
+</root>

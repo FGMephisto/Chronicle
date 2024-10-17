@@ -208,7 +208,7 @@
 	</windowclass>
 
 	<!-- Legacy embedded class specializations -->
-	<windowclass name="reference_classability" copy="record_window_text" />
+	<windowclass name="reference_classability" copy="reference_class_specialization" />
 	<windowclass name="reference_classability_header" copy="record_header">
 		<name_emptyres>library_recordtype_empty_class_specialization</name_emptyres>
 	</windowclass>

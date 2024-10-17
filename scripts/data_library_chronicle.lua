@@ -7,7 +7,7 @@
 -- Adjusted
 function getVersionValue(node)
 	-- return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "2014";
-	return "20244"
+	return "2024"
 end
 
 function getItemIsIdentified(vRecord, vDefault)
@@ -69,7 +69,7 @@ function getSpellSourceValue(vNode)
 	if not vNode then
 		return {};
 	end
-	return StringManager.split(DB.getValue(vNode, "source", ""), ",", true);
+	return StringManager.split(tostring(DB.getValue(vNode, "source", "")), ",", true);
 end
 
 function getSpellViewGroup(v)
@@ -104,6 +104,7 @@ aRecordOverrides = {
 	},
 	["npc"] = { 
 		aDataMap = { "npc", "reference.npcdata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		aGMListButtons = { "button_npc_byletter", "button_npc_bytype" },
 		aGMEditButtons = { "button_add_npc_import" },
 		aCustomFilters = {
@@ -115,6 +116,7 @@ aRecordOverrides = {
 	["item"] = { 
 		fIsIdentifiable = isItemIdentifiable,
 		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" }, 
+		-- sListDisplayClass = "masterindexitem_id_version",
 		aRecordDisplayClasses = { "item", "reference_magicitem", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
 		aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
 		--aGMEditButtons = { "button_add_item_import_text" },
@@ -130,6 +132,7 @@ aRecordOverrides = {
 		},
 	},
 	["vehicle"] = {
+		-- sListDisplayClass = "masterindexitem_version",
 		aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Type"] = { sField = "type" },
@@ -139,6 +142,7 @@ aRecordOverrides = {
 	-- New record types
 	["itemtemplate"] = { 
 		aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		aGMListButtons = { "button_forge_item"  };
 		tOptions = {
 			bExport = true,
@@ -151,6 +155,7 @@ aRecordOverrides = {
 	},
 	["background"] = {
 		aDataMap = { "background", "reference.backgrounddata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_background", 
 		tOptions = {
 			bExport = true,
@@ -164,6 +169,7 @@ aRecordOverrides = {
 	},
 	["class"] = {
 		aDataMap = { "class", "reference.classdata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_class", 
 		aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
 		aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
@@ -179,6 +185,7 @@ aRecordOverrides = {
 	},
 	["class_specialization"] = {
 		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_class_specialization", 
 		tOptions = {
 			bExport = true,
@@ -200,6 +207,7 @@ aRecordOverrides = {
 	},
 	["feat"] = {
 		aDataMap = { "feat", "reference.featdata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_feat", 
 		tOptions = {
 			bExport = true,
@@ -214,6 +222,7 @@ aRecordOverrides = {
 	},
 	["race"] = {
 		aDataMap = { "race", "reference.racedata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_race", 
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_species_import_text" },
@@ -230,6 +239,7 @@ aRecordOverrides = {
 	},
 	["race_subrace"] = {
 		aDataMap = { "race_subrace", "reference.race_subracedata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_subrace", 
 		tOptions = {
 			bExport = true,
@@ -242,6 +252,7 @@ aRecordOverrides = {
 	},
 	["skill"] = {
 		aDataMap = { "skill", "reference.skilldata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_skill", 
 		tOptions = {
 			bExport = true,
@@ -255,6 +266,7 @@ aRecordOverrides = {
 	},
 	["spell"] = {
 		aDataMap = { "spell", "reference.spelldata" }, 
+		-- sListDisplayClass = "masterindexitem_version",
 		aRecordDisplayClasses = { "power", "reference_spell" },
 		tOptions = {
 			bExport = true,

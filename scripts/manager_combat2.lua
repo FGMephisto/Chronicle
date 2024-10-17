@@ -39,8 +39,6 @@ function onTurnStart(nodeEntry)
 	DB.setValue(nodeEntry, "reaction", "number", 0);
 	
 	-- Check for exhaustion levels for pre-2024 rules
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
 	if nodeEntry then
 		local sClass, sRecord = DB.getValue(nodeEntry, "link");
 		if sClass == "charsheet" and sRecord then
@@ -49,10 +47,10 @@ function onTurnStart(nodeEntry)
 			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
 
 			-- Get exhaustion modifiers
-			local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(nodeEntry, {"EXHAUSTION"}, true);
+			local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(nodeEntry, { "EXHAUSTION" }, true);
 			local bShowMsg = true;
 
-			if bIs2024 then
+			if OptionsManager.isOption("GAVE", "2024") then
 				if nExhaustMod > 5 then 
 					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1 }, bShowMsg);
 				elseif nExhaustMod > 0 then 
@@ -378,7 +376,7 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 	sDisplay = StringManager.capitalize(sDisplay);
 
 	-- Remove recharge in title, and move to details
-	local sRecharge = sDisplay:match("recharge (%d)");
+	local sRecharge = sDisplay:match("[Rr]echarge (%d)");
 	if sRecharge then
 		sDisplay = sDisplay:gsub("%s?%([Rr]echarge %d[-–]*%d?%)", "");
 		table.insert(tDisplayOptions, "[R:" .. sRecharge .. "]");
@@ -455,8 +453,8 @@ function parseAttackLine(sLine)
 		rPower = {};
 		rPower.name = PowerManager.cleanNPCPowerName(sName);
 		rPower.aAbilities = {};
-
 		nIndex = nIntroEnd;
+
 		local nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nIntroEnd);
 		while nAbilityStart do
 			if sAbility == "M" or sAbility == "R" then
@@ -632,7 +630,7 @@ function resetHealth(nodeCT, bLong)
 	end
 end
 function reduceExhaustion(nodeCT)
-	local nExhaustMod = EffectManager5E.getEffectsBonus(ActorManager.resolveActor(nodeCT), {"EXHAUSTION"}, true);
+	local nExhaustMod = EffectManager5E.getEffectsBonus(ActorManager.resolveActor(nodeCT), { "EXHAUSTION" }, true);
 	if nExhaustMod > 0 then
 		nExhaustMod = nExhaustMod - 1;
 		EffectManager5E.removeEffectByType(nodeCT, "EXHAUSTION");

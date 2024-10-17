@@ -12,7 +12,7 @@
 				if draginfo.isType("shortcut") then
 					local sClass = draginfo.getShortcutData();
 					if sClass == "reference_skill" then
-						skills.addSkillReference(draginfo.getDatabaseNode());
+						content.subwindow.list.addSkillReference(draginfo.getDatabaseNode());
 					end
 					return true;
 				end
@@ -30,9 +30,9 @@
 				<edittarget>content</edittarget>
 			</button_iedit>
 
-			<sub_content name="content">
+			<sub_content_scroll name="content">
 				<class>charsheet_skills_contents</class>
-			</sub_content>
+			</sub_content_scroll>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -46,7 +46,7 @@
 				<anchored to="contentanchor" height="20">
 					<top relation="relative" offset="8" postoffset="8" />
 					<left offset="15" />
-					<right />
+					<right offset="-10" />
 				</anchored>
 				<icons>char_abilities_purple</icons>
 				<static textres="char_label_skills" />
@@ -63,6 +63,10 @@
 			</button_iadd>
 
 			<list_content_labeled_alternating_top name="list">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
 				<datasource>.skilllist</datasource>
 				<class>char_skill_item</class>
 				<sortby><control>name</control></sortby>

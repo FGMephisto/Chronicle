@@ -57,7 +57,7 @@ function onDrop(x, y, draginfo)
 			self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		elseif sClass == "reference_backgroundfeature" then
 			self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
-		elseif sClass == "reference_classfeature" then
+		elseif sClass == "reference_classfeature" or sClass == "reference_classfeaturechoice" then
 			self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		elseif sClass == "reference_feat" then
 			self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));

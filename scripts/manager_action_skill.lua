@@ -8,20 +8,20 @@ function onInit()
 	ActionsManager.registerResultHandler("skill", onRoll);
 end
 
-function getNPCRoll(rActor, sSkill, nSkill)
-	local rRoll = {
-		sType = "skill",
-		aDice = DiceRollManager.getActorDice({ "d20" }, rActor),
-		sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill),
-		nMod = nSkill,
-	};
+--
+--	ROLL BUILD/MOD/RESOLVE
+--
+
+function getRoll(rActor, nodeSkill)
+	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
+	ActionSkill.setupRollBuildFromNodePC(rRoll, rActor, nodeSkill);
+	ActionsManager2.finalizeD20RollBuild(rRoll);
 	return rRoll;
 end
-function performNPCRoll(draginfo, rActor, sSkill, nSkill)
-	local rRoll = getNPCRoll(rActor, sSkill, nSkill);
+function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
+	local rRoll = ActionSkill.getRoll(rActor, nodeSkill, nTargetDC, bSecretRoll);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
-
 function performPartySheetRoll(draginfo, rActor, sSkill)
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
 	if sNodeType ~= "pc" then
@@ -31,12 +31,12 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 	local rRoll = nil;
 	for _,v in ipairs(DB.getChildList(nodeActor, "skilllist")) do
 		if DB.getValue(v, "name", "") == sSkill then
-			rRoll = getRoll(rActor, v);
+			rRoll = ActionSkill.getRoll(rActor, v);
 			break;
 		end
 	end
 	if not rRoll then
-		rRoll = getUnlistedRoll(rActor, sSkill);
+		rRoll = ActionSkill.getUnlistedRoll(rActor, sSkill);
 	end
 	
 	local nTargetDC = DB.getValue("partysheet.skilldc", 0);
@@ -51,310 +51,96 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
+function getUnlistedRoll(rActor, sSkill)
+	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
+	ActionSkill.setupRollBuildFromNamePC(rRoll, rActor, sSkill);
+	ActionsManager2.finalizeD20RollBuild(rRoll);
+	return rRoll;
+end
 
-function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
-	local rRoll = getRoll(rActor, nodeSkill, nTargetDC, bSecretRoll);
-	
+function getNPCRoll(rActor, sSkill, nSkill)
+	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
+	ActionSkill.setupRollBuildFromNameNPC(rRoll, rActor, sSkill, nSkill);
+	ActionsManager2.finalizeD20RollBuild(rRoll);
+	return rRoll;
+end
+function performNPCRoll(draginfo, rActor, sSkill, nSkill)
+	local rRoll = ActionSkill.getNPCRoll(rActor, sSkill, nSkill);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function getRoll(rActor, nodeSkill)
-	local tOutput = {};
-	
-	local rRoll = {};
-	rRoll.sType = "skill";
-	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
-	
+function modRoll(rSource, rTarget, rRoll)
+	ActionCheck.modRoll(rSource, rTarget, rRoll);
+end
+
+function onRoll(rSource, rTarget, rRoll)
+	ActionCheck.onRoll(rSource, rTarget, rRoll);
+end
+
+--
+--	ROLL BUILDING HELPERS
+--
+
+function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	local sSkill = DB.getValue(nodeSkill, "name", "");
 	local sAbility = DB.getValue(nodeSkill, "stat", "");
 	
-	local nMod, bADV, bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
-	rRoll.nMod = nMod;
+	local sAddText;
+	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
 	rRoll.nMod = rRoll.nMod + DB.getValue(nodeSkill, "misc", 0);
 
-	table.insert(tOutput, "[SKILL]");
-	table.insert(tOutput, StringManager.capitalizeAll(sSkill));
+	table.insert(rRoll.tNotifications, "[SKILL]");
+	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
 	if not DataCommon.skilldata[sSkill] and sAbility ~= "" then
-		table.insert(tOutput, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility]));
+		table.insert(rRoll.tNotifications, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility]));
 	end
 
 	local nodeChar = DB.getChild(nodeSkill, "...");
 	local nProf = DB.getValue(nodeSkill, "prof", 0);
 	if nProf == 1 then
 		rRoll.nMod = rRoll.nMod + DB.getValue(nodeChar, "profbonus", 2);
-		table.insert(tOutput, "[PROF]");
+		table.insert(rRoll.tNotifications, "[PROF]");
 	elseif nProf == 2 then
 		rRoll.nMod = rRoll.nMod + (2 * DB.getValue(nodeChar, "profbonus", 2));
-		table.insert(tOutput, "[PROF x2]");
+		table.insert(rRoll.tNotifications, "[PROF x2]");
 	elseif nProf == 3 then
 		rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
-		table.insert(tOutput, "[PROF x1/2]");
+		table.insert(rRoll.tNotifications, "[PROF x1/2]");
 	else
 		if ActorManager.isPC(rActor) then
 			local nodeActor = ActorManager.getCreatureNode(rActor);
 			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_JACK_OF_ALL_TRADES) then
 				rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
-				table.insert(tOutput, "[PROF x1/2]");
-				table.insert(tOutput, string.format("[%s]", Interface.getString("roll_msg_feature_jackofalltrades")));
+				table.insert(rRoll.tNotifications, "[PROF x1/2]");
+				table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_jackofalltrades")));
 			end
 		end
 	end
 
 	if (sAddText or "") ~= "" then
-		table.insert(tOutput, sAddText);
+		table.insert(rRoll.tNotifications, sAddText);
 	end
-
-	if bADV then
-		table.insert(tOutput, "[ADV]");
-	end
-	if bDIS then
-		table.insert(tOutput, "[DIS]");
-	end
-
-	rRoll.sDesc = table.concat(tOutput, " ");
-
-	return rRoll;
 end
-
-function getUnlistedRoll(rActor, sSkill)
-	local rRoll = {};
-	rRoll.sType = "skill";
-	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
-	rRoll.nMod = 0;
-	
-	local nMod = 0;
-	local bADV = false;
-	local bDIS = false;
-	local sAddText = "";
-	
-	local sAbility = nil;
+function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
+	local sAbility;
+	local sAddText;
 	if DataCommon.skilldata[sSkill] then
 		sAbility = DataCommon.skilldata[sSkill].stat;
 	end
 	if sAbility then
-		nMod, bADV, bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility, sSkill);
+		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility, sSkill);
 	end
 	
+	table.insert(rRoll.tNotifications, "[SKILL]");
+	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
+	if (sAddText or "") ~= "" then
+		table.insert(rRoll.tNotifications, sAddText);
+	end
+	if rRoll.nMod and (rRoll.nMod ~= 0) then
+		table.insert(rRoll.tNotifications, string.format(" [%+d]", nMod));
+	end
+end
+function setupRollBuildFromNameNPC(rRoll, rActor, sSkill, nSkill)
 	rRoll.sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill);
-	if sAddText and sAddText ~= "" then
-		rRoll.sDesc = rRoll.sDesc .. " " .. sAddText;
-	end
-	if nMod and nMod ~= 0 then
-		rRoll.sDesc = rRoll.sDesc .. string.format(" [%+d]", nMod);
-		rRoll.nMod = rRoll.nMod + nMod;
-	end
-	if bADV then
-		rRoll.sDesc = rRoll.sDesc .. " [ADV]";
-	end
-	if bDIS then
-		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
-	end
-
-	return rRoll;
-end
-
-function modRoll(rSource, rTarget, rRoll)
-	local aAddDesc = {};
-	local aAddDice = {};
-	local nAddMod = 0;
-	
-	local bADV = false;
-	local bDIS = false;
-	if rRoll.sDesc:match(" %[ADV%]") then
-		bADV = true;
-		rRoll.sDesc = rRoll.sDesc:gsub(" %[ADV%]", "");
-	end
-	if rRoll.sDesc:match(" %[DIS%]") then
-		bDIS = true;
-		rRoll.sDesc = rRoll.sDesc:gsub(" %[DIS%]", "");
-	end
-
-	if rSource then
-		local bEffects = false;
-
-		-- Get ability used
-		local sActionStat = nil;
-		local sAbility = string.match(rRoll.sDesc, "%[CHECK%] (%w+)");
-		local sSkill = StringManager.trim(string.match(rRoll.sDesc, "%[SKILL%] ([^[]+)"));
-		if not sAbility and sSkill then
-			sAbility = string.match(rRoll.sDesc, "%[MOD:(%w+)%]");
-			if sAbility then
-				sAbility = DataCommon.ability_stol[sAbility];
-			else
-				local sSkillLower = sSkill:lower();
-				for k, v in pairs(DataCommon.skilldata) do
-					if k:lower() == sSkillLower then
-						sAbility = v.stat;
-					end
-				end
-			end
-		end
-		if sAbility then
-			sAbility = string.lower(sAbility);
-		end
-
-		-- Build filters
-		local aCheckFilter = {};
-		if sAbility then
-			table.insert(aCheckFilter, sAbility);
-		end
-		local aSkillFilter = {};
-		if sSkill then
-			table.insert(aSkillFilter, sSkill:lower());
-			table.insert(aSkillFilter, sAbility);
-		end
-
-		-- Get roll effect modifiers
-		local nEffectCount;
-		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"CHECK"}, false, aCheckFilter);
-		if (nEffectCount > 0) then
-			bEffects = true;
-		end
-		local aSkillAddDice, nSkillAddMod, nSkillEffectCount = EffectManager5E.getEffectsBonus(rSource, {"SKILL"}, false, aSkillFilter);
-		if (nSkillEffectCount > 0) then
-			bEffects = true;
-			for _,v in ipairs(aSkillAddDice) do
-				table.insert(aAddDice, v);
-			end
-			nAddMod = nAddMod + nSkillAddMod;
-		end
-		
-		-- Get condition modifiers
-		if EffectManager5E.hasEffectCondition(rSource, "ADVSKILL") then
-			bADV = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVSKILL", aSkillFilter)) > 0 then
-			bADV = true;
-			bEffects = true;
-		elseif EffectManager5E.hasEffectCondition(rSource, "ADVCHK") then
-			bADV = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVCHK", aCheckFilter)) > 0 then
-			bADV = true;
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "DISSKILL") then
-			bDIS = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "DISSKILL", aSkillFilter)) > 0 then
-			bDIS = true;
-			bEffects = true;
-		elseif EffectManager5E.hasEffectCondition(rSource, "DISCHK") then
-			bDIS = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "DISCHK", aCheckFilter)) > 0 then
-			bDIS = true;
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
-			bDIS = true;
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
-			bDIS = true;
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
-			bDIS = true;
-			bEffects = true;
-		end
-		if StringManager.contains({ "strength", "dexterity", "constitution" }, sAbility) then
-			if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
-				bEffects = true;
-				bDIS = true;
-			end
-		end
-
-		-- Get ability modifiers
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, sAbility);
-		if nBonusEffects > 0 then
-			bEffects = true;
-			nAddMod = nAddMod + nBonusStat;
-		end
-		
-		-- Get exhaustion modifiers
-		local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
-		if nExhaustCount > 0 then
-			bEffects = true;
-			nAddMod = nAddMod - (2 * nExhaustMod);
-		end
-		
-		-- Check Reliable state
-		local bReliable = false;
-		if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
-			bEffects = true;
-			bReliable = true;
-		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLESKILL") then
-			bEffects = true;
-			bReliable = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLESKILL", aSkillFilter)) > 0 then
-			bEffects = true;
-			bReliable = true;
-		elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
-			bEffects = true;
-			bReliable = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLECHK", aCheckFilter)) > 0 then
-			bEffects = true;
-			bReliable = true;
-		elseif ActorManager.isPC(rSource) and rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then
-			local nodeActor = ActorManager.getCreatureNode(rSource);
-			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_RELIABLE_TALENT) then
-				bReliable = true;
-			else
-				local tSilverTongueSkills = {
-					Interface.getString("skill_value_deception"),
-					Interface.getString("skill_value_persuasion"),
-				};
-				if StringManager.contains(tSilverTongueSkills, sSkill) and CharManager.hasFeature(nodeActor, CharManager.FEATURE_SILVER_TONGUE) then
-					bReliable = true;
-				end
-			end
-		end
-		if bReliable then
-			table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
-		end
-
-		-- If effects happened, then add note
-		if bEffects then
-			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
-			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
-		end
-	end
-	
-	if #aAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
-	end
-	ActionsManager2.encodeDesktopMods(rRoll);
-	for _,vDie in ipairs(aAddDice) do
-		if vDie:sub(1,1) == "-" then
-			table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
-		else
-			table.insert(rRoll.aDice, "p" .. vDie:sub(2));
-		end
-	end
-	rRoll.nMod = rRoll.nMod + nAddMod;
-	
-	ActionsManager2.encodeAdvantage(rRoll, bADV, bDIS);
-end
-
-function onRoll(rSource, rTarget, rRoll)
-	ActionsManager2.handleLuckTrait(rSource, rRoll);
-	ActionsManager2.decodeAdvantage(rRoll);
-	ActionsManager2.handleReliable(rSource, rRoll);
-	
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-
-	if rRoll.nTarget then
-		local nTotal = ActionsManager.total(rRoll);
-		local nTargetDC = tonumber(rRoll.nTarget) or 0;
-		
-		rMessage.text = rMessage.text .. " [vs. DC " .. nTargetDC .. "]";
-		if nTotal >= nTargetDC then
-			rMessage.text = rMessage.text .. " [SUCCESS]";
-		else
-			rMessage.text = rMessage.text .. " [FAILURE]";
-		end
-	end
-	
-	Comm.deliverChatMessage(rMessage);
+	rRoll.nMod = nSkill;
 end

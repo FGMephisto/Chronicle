@@ -85,7 +85,7 @@ function constructDefaultSkills()
 				-- Add the item windows instance to the key
 				matches = { w };
 
-				-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
+				-- Re-run the dicecontrol onInit to populate Ability and Skill values to the control required
 				w.diceframe.onInit()
 			end
 		end

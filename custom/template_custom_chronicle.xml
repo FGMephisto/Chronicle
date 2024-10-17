@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+-->
+
+<root>
+	<!-- Added -->
+	<!-- Combobox Wpngrade -->
+	<template name="combobox_wpngrade">
+		<combobox>
+			<anchored width="90" height="20" />
+			<frame><name>fielddark</name></frame>
+			<default textres="default_wpn_grade" />
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<unsorted />
+			<script>
+				function onInit()
+					super.onInit()
+					self.addItems(DataCommon.wpngradedata)
+				end
+			</script>
+		</combobox>
+	</template>
+
+	<!-- Added -->
+	<!-- Combobox Wpnskill - Standard -->
+	<template name="combobox_wpnskill">
+		<combobox>
+			<anchored width="90" height="20" />
+			<frame><name>fielddark</name></frame>
+			<center />
+			<default textres="default_wpn_skill" />
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<unsorted />
+			<script>
+				function onInit()
+					super.onInit()
+					self.addItems(DataCommon.wpnskilldata)
+				end
+			</script>
+		</combobox>
+	</template>
+
+	<!-- Added -->
+	<!-- Combobox Wpndmgability - Standard -->
+	<template name="combobox_wpndmgability">
+		<combobox>
+			<anchored width="120" height="20" />
+			<frame><name>fielddark</name></frame>
+			<center />
+			<default textres="default_wpn_dmg_ability" />
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<unsorted />
+			<script>
+				function onInit()
+					super.onInit()
+					self.addItems(DataCommon.wpndmgabilitydata)
+				end
+			</script>
+		</combobox>
+	</template>
+
+	<!-- Added -->
+	<!-- Combobox Wpnskill - Used in column sheets (e.g. items) -->
+	<template name="combobox_wpnskill_column">
+		<combobox_content_columnh>
+			<frame><name>fielddark</name></frame>
+			<center merge="delete" />
+			<script>
+				function onInit()
+					super.onInit()
+					self.addItems(DataCommon.wpnskilldata)
+				end
+			</script>
+		</combobox_content_columnh>
+	</template>
+
+	<!-- Added -->
+	<!-- Combobox Wpndmgability - Used in column sheets (e.g. items) -->
+	<template name="combobox_content_column_wpndmgability">
+		<combobox_content_columnh>
+			<frame><name>fielddark</name></frame>
+			<center merge="delete" />
+			<script>
+				function onInit()
+					super.onInit()
+					self.addItems(DataCommon.wpndmgabilitydata)
+				end
+			</script>
+		</combobox_content_columnh>
+	</template>
+</root>

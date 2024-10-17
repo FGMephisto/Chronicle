@@ -31,19 +31,28 @@
 		</cycler_ability>
 	</template>
 	
+	<template name="button_iadd_recordtype">
+		<button_iadd_base>
+			<script>
+				function onButtonPress()
+					RecordManager.openRecordIndex(recordtype[1])
+				end
+			</script>
+		</button_iadd_base>
+	</template>
 	<template name="number_charlevel">
 		<number_static>
 			<script>
 				function onInit()
-					update();
+					self.update();
 					local node = window.getDatabaseNode();
-					DB.addHandler(DB.getPath(node, "classes.*.level"), "onUpdate", update);
-					DB.addHandler(DB.getPath(node, "classes"), "onChildDeleted", update);
+					DB.addHandler(DB.getPath(node, "classes.*.level"), "onUpdate", self.update);
+					DB.addHandler(DB.getPath(node, "classes"), "onChildDeleted", self.update);
 				end
 				function onClose()
 					local node = window.getDatabaseNode();
-					DB.removeHandler(DB.getPath(node, "classes.*.level"), "onUpdate", update);
-					DB.removeHandler(DB.getPath(node, "classes"), "onChildDeleted", update);
+					DB.removeHandler(DB.getPath(node, "classes.*.level"), "onUpdate", self.update);
+					DB.removeHandler(DB.getPath(node, "classes"), "onChildDeleted", self.update);
 				end
 				function update()
 					local nLevel = 0;
@@ -126,7 +135,7 @@
 
 					local node = window.getDatabaseNode();
 					if DB.getValue(node, "abilities." .. target[1] .. ".saveprof", 0) == 1 then
-						nValue = nValue + DB.getValue(node, "profbonus", 0);
+						nValue = nValue + DB.getValue(node, "profbonus", 2);
 					end
 					
 					setValue(nValue);
@@ -214,11 +223,11 @@
 					
 					local nProf = DB.getValue(nodeSkill, "prof", 0);
 					if nProf == 1 then
-						nValue = nValue + DB.getValue(nodeChar, "profbonus", 0);
+						nValue = nValue + DB.getValue(nodeChar, "profbonus", 2);
 					elseif nProf == 2 then
-						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 0));
+						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 2));
 					elseif nProf == 3 then
-						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
+						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
 					end
 					
 					setValue(nValue);
@@ -279,6 +288,38 @@
 			<source><name>abilities.awareness.score</name><op>+</op></source>
 			<source><name>defenses.ac.bonus</name><op>+</op></source>
 			<source><name>defenses.ac.misc</name><op>+</op></source>
+			<!-- <script> -->
+				<!-- function onInit() -->
+					<!-- super.onInit(); -->
+					<!-- DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities"), "onChildUpdate", onSourceUpdate); -->
+				<!-- end -->
+				
+				<!-- function onClose() -->
+					<!-- DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities"), "onChildUpdate", onSourceUpdate); -->
+				<!-- end -->
+				
+				<!-- function onSourceUpdate() -->
+					<!-- local rActor = ActorManager.resolveActor(window.getDatabaseNode()); -->
+					
+					<!-- local nDexBonus = ActorManager5E.getAbilityBonus(rActor, "dexterity"); -->
+					<!-- local sDexBonus = self.getSourceValue("defenses.ac.dexbonus"); -->
+					<!-- if sDexBonus == "max2" then -->
+						<!-- nDexBonus = math.min(nDexBonus, 2); -->
+					<!-- elseif sDexBonus == "max3" then -->
+						<!-- nDexBonus = math.min(nDexBonus, 3); -->
+					<!-- elseif sDexBonus == "no" then -->
+						<!-- nDexBonus = 0; -->
+					<!-- end -->
+					
+					<!-- local nStatBonus2 = 0; -->
+					<!-- local sStat2 = self.getSourceValue("defenses.ac.stat2"); -->
+					<!-- if sStat2 ~= "" then -->
+						<!-- nStatBonus2 = ActorManager5E.getAbilityBonus(rActor, sStat2); -->
+					<!-- end -->
+
+					<!-- setValue(10 + calculateSources() + nDexBonus + nStatBonus2); -->
+				<!-- end -->
+			<!-- </script> -->
 		</number_chartotal>
 	</template>
 	
@@ -389,10 +430,14 @@
 					end
 
 					-- Set Base Speed
-					DB.setValue(nodeActor, "speed.base", "number", nBaseSpeed)
+					if DB.getValue(nodeActor, "speed.base") ~= nBaseSpeed then
+						DB.setValue(nodeActor, "speed.base", "number", nBaseSpeed)
+					end
 
 					-- Set Run Bonus
-					DB.setValue(nodeActor, "speed.bonus", "number", nRunBonus)
+					if DB.getValue(nodeActor, "speed.bonus") ~= nRunBonus then
+						DB.setValue(nodeActor, "speed.bonus", "number", nBaseSpeed)
+					end
 
 					-- Set calculated value
 					setValue(calculateSources())
@@ -431,8 +476,8 @@
 			<anchored width="30" />
 			<parameters>
 				<defaultlabelres mergerule="replace">dash</defaultlabelres>
-				<labelsres>str|dex|con|int|wis|cha</labelsres>
-				<values>strength|dexterity|constitution|intelligence|wisdom|charisma</values>
+				<labelsres>AGI|ANI|ATH|AWA|CUN|DEC|END|FIG|HEA|LAN|KNO|MAR|PER|STA|STE|SUR|THI|WAR|WIL</labelsres>
+				<values>agility|animalhandling|athletics|awareness|cunning|deception|endurance|fighting|healing|language|knowledge|marksmanship|persuasion|status|stealth|survival|thievery|warfare|will</values>
 			</parameters>
 		</stringcycler_listitem_right>
 	</template>
@@ -523,6 +568,7 @@
 		</buttongroup_counter>
 	</template>
 
+	<!-- Custom -->
 	<!-- Added - Button Degrees of Sucess -->
 	<template name="button_dos">
 		<buttonfield>
@@ -553,17 +599,6 @@
 		</buttonfield>
 	</template>
 
-	<!-- Added -->
-	<template name="list_charweapon">
-		<windowlist>
-			<datasource>.weaponlist</datasource>
-			<sortby><control>name</control></sortby>
-			<allowcreate />
-			<allowdelete />
-			<script file="campaign/scripts/char_weaponlist_chronicle.lua" />
-		</windowlist>
-	</template>
-	
 	<!-- Added - Ability score combined with filter for skills -->
 	<template name="number_charabilityscore_filter">
 		<number_abilityscore>
@@ -571,7 +606,9 @@
 			<rollable />
 			<script>
 				function onClickDown()
-					window.parentcontrol.window.contents.subwindow.filter_ability.setValue(target[1])
+					filterValue = DataCommon.ability_ltos[target[1]]
+Debug.chat("target[1]", target[1])
+					window.parentcontrol.window.parentcontrol.subwindow.filter.setValue(target[1])
 				end
 			</script>
 		</number_abilityscore>
@@ -633,20 +670,6 @@
 			<modifierfield>defenses.armor.temporary</modifierfield>
 			<source><name>defenses.armor.rating</name><op>+</op></source>
 			<source><name>defenses.armor.misc</name><op>+</op></source>
-		</number_chartotal>
-	</template>
-	
-	<!-- Added -->
-	<template name="number_chartotalic">
-		<number_chartotal>
-			<description textres="intriguedef" />
-			<font>reference-b-large</font>
-			<modifiersize>mini</modifiersize>
-			<modifierfield>defenses.ic.temporary</modifierfield>
-			<source><name>abilities.awareness.score</name><op>+</op></source>
-			<source><name>abilities.cunning.score</name><op>+</op></source>
-			<source><name>abilities.status.score</name><op>+</op></source>
-			<source><name>defenses.ic.misc</name><op>+</op></source>
 		</number_chartotal>
 	</template>
 	

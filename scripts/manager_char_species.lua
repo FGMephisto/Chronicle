@@ -30,17 +30,17 @@ function helperResolveAncestryOnSpeciesDrop(rAdd)
 		-- Automatically select only ancestry
 		rAdd.sAncestryPath = tOptions[1].linkrecord;
 		CharSpeciesManager.helperAddSpecies(rAdd);
-	else
-		local tData = {
-			title = Interface.getString("char_build_title_selectancestry"),
-			msg = Interface.getString("char_build_message_selectancestry"),
-			options = tOptions,
-			callback = CharSpeciesManager.callbackResolveAncestryOnSpeciesDrop,
-			custom = rAdd,
-		};
-		local wSelect = Interface.openWindow("select_dialog", "");
-		wSelect.requestSelectionByData(tData);
+		return;
 	end
+
+	local tDialogData = {
+		title = Interface.getString("char_build_title_selectancestry"),
+		msg = Interface.getString("char_build_message_selectancestry"),
+		options = tOptions,
+		callback = CharSpeciesManager.callbackResolveAncestryOnSpeciesDrop,
+		custom = rAdd,
+	};
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function callbackResolveAncestryOnSpeciesDrop(tSelection, rAdd, tSelectionLinks)
 	if not tSelectionLinks or (#tSelectionLinks ~= 1) then
@@ -180,6 +180,8 @@ function helperAddSpeciesMain(rAdd)
 	-- Set name and link
 	DB.setValue(rAdd.nodeChar, "race", "string", rAdd.sSourceName);
 	DB.setValue(rAdd.nodeChar, "racelink", "windowreference", "reference_race", DB.getPath(rAdd.nodeSource));
+	DB.setValue(rAdd.nodeChar, "racename", "string", sSourceName);
+	DB.setValue(rAdd.nodeChar, "raceversion", "string", DB.getValue(rAdd.nodeSource, "version", ""));
 	DB.setValue(rAdd.nodeChar, "subracelink", "windowreference", "", "");
 
 	CharSpeciesManager.helperAddSpeciesMainStats(rAdd);
@@ -195,8 +197,9 @@ function helperAddSpeciesMainStats(rAdd)
 	end
 
 	if rAdd.bSource2024 then
-		CharBuildDropManager.handleSizeField(rAdd);
-		CharBuildDropManager.handleSpeedField(rAdd);
+		CharBuildDropManager.handleSizeField2024(rAdd);
+		CharBuildDropManager.handleSpeedField2024(rAdd);
+		CharBuildDropManager.handleSpeciesLanguage2024(rAdd);
 	end
 end
 function helperAddAncestry(rAdd)
@@ -221,6 +224,8 @@ function helperAddAncestry(rAdd)
 		DB.setValue(rAdd.nodeChar, "race", "string", string.format("%s (%s)", rAdd.sSourceName, sAncestryName));
 	end
 	DB.setValue(rAdd.nodeChar, "subracelink", "windowreference", "reference_subrace", rAdd.sAncestryPath);
+	DB.setValue(rAdd.nodeChar, "subracename", "string", sAncestryName);
+	DB.setValue(rAdd.nodeChar, "subraceversion", "string", DB.getValue(nodeAncestry, "version", ""));
 
 	-- Add species traits
 	for _,v in ipairs(DB.getChildList(nodeAncestry, "traits")) do
@@ -243,162 +248,38 @@ function getTraitPowerGroup(rAdd)
 end
 
 function helperAddSpeciesTraitMain(rAdd)
-	if not rAdd then
-		return;
-	end
-	if rAdd.bWizard then
-		if rAdd.bSource2024 then
-			CharSpeciesManager.helperAddSpeciesTraitMainWizard2024(rAdd);
-		else
-			CharSpeciesManager.helperAddSpeciesTraitMainWizard2014(rAdd);
+	CharBuildDropManager.addFeature(rAdd);
+end
+function checkSpeciesTraitSkipAdd(rAdd)
+	if rAdd.bSource2024 then
+		if CharWizardData.tBuildOptionsNoAdd2024[rAdd.sSourceType] then
+			return true;
 		end
 	else
-		if rAdd.bSource2024 then
-			CharSpeciesManager.helperAddSpeciesTraitMainDrop2024(rAdd);
-		else
-			CharSpeciesManager.helperAddSpeciesTraitMainDrop2014(rAdd);
+		if CharWizardData.tBuildOptionsNoAdd2014[rAdd.sSourceType] then
+			return true;
 		end
-	end
-end
-function helperAddSpeciesTraitMainWizard2024(rAdd)
-	-- Skip certain entries
-	if CharWizardData.tBuildOptionsNoParse2024[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.tBuildOptionsNoAdd2024[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.tBuildOptionsSpecialSpeed2024[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.tBuildOptionsLanguages2024[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.tBuildOptionsProficiency2024[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.tBuildOptionsSkill2024[rAdd.sSourceType] then
-		return;
-	end
-
-	CharSpeciesManager.helperAddSpeciesTraitStandard(rAdd);
-
-	CharBuildDropManager.checkSpeciesTraitActions(rAdd);
-end
-function helperAddSpeciesTraitMainWizard2014(rAdd)
-	-- Skip certain entries
-	if CharWizardData.aRaceTraitNoParse[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.aRaceTraitNoAdd[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.aRaceSpecialSpeed[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.aRaceLanguages[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.aRaceProficiency[rAdd.sSourceType] then
-		return;
-	end
-	if CharWizardData.aRaceSkill[rAdd.sSourceType] then
-		return;
-	end
-
-	CharSpeciesManager.helperAddSpeciesTraitStandard(rAdd);
-
-	CharBuildDropManager.checkSpeciesTraitActions(rAdd);
-end
-function helperAddSpeciesTraitMainDrop2024(rAdd)
-	if rAdd.sSourceType == "darkvision" or rAdd.sSourceType == "enhanceddarkvision" then
-		CharSpeciesManager.helperAddSpeciesTraitDarkvisionDrop(rAdd);
-		return;
-		
-	elseif rAdd.sSourceType == "enhancedspeed" then
-		CharSpeciesManager.helperAddSpeciesTraitEnhancedSpeedDrop(rAdd);
-		return;
-
-	elseif rAdd.sSourceType == "versatile" then
-		CharSpeciesManager.helperAddSpeciesTraitVersatileDrop2024(rAdd);
-		return;
-
-	else
-		CharSpeciesManager.helperAddSpeciesTraitStandard(rAdd);
-
-		if CharWizardData.tBuildOptionsNoParse2024[rAdd.sSourceType] then
-			return;
-		end
-
-		CharBuildDropManager.checkFeatureDescription(rAdd);
-		CharBuildDropManager.checkSpeciesTraitActions(rAdd);
-
-		if rAdd.sSourceType == "dwarventoughness" then
-			CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar, true);
-		end
-	end
-end
-function helperAddSpeciesTraitMainDrop2014(rAdd)
-	if rAdd.sSourceType == "abilityscoreincrease" then
-		CharSpeciesManager.helperAddSpeciesTraitAbilityIncreaseDrop2014(rAdd);
-		return;
-
-	elseif rAdd.sSourceType == "age" then
-		return;
-
-	elseif rAdd.sSourceType == "alignment" then
-		return;
-
-	elseif rAdd.sSourceType == "size" then
-		CharSpeciesManager.helperAddSpeciesTraitSizeDrop2014(rAdd);
-		return;
-
-	elseif rAdd.sSourceType == "speed" then
-		CharSpeciesManager.helperAddSpeciesTraitSpeedDrop2014(rAdd);
-		return;
-
-	elseif rAdd.sSourceType == "fleetoffoot" then
-		CharSpeciesManager.helperAddSpeciesTraitEnhancedSpeedDrop(rAdd);
-		return;
-
-	elseif rAdd.sSourceType == "darkvision" or rAdd.sSourceType == "superiordarkvision" then
-		CharSpeciesManager.helperAddSpeciesTraitDarkvisionDrop(rAdd);
-		return;
-		
-	elseif rAdd.sSourceType == "languages" then
-		CharSpeciesManager.helperAddSpeciesTraitLanguagesDrop2014(rAdd);
-		return;
-		
-	elseif rAdd.sSourceType == "extralanguage" then
-		CharBuildDropManager.pickLanguage(rAdd.nodeChar, nil, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
-		return;
-	
-	elseif rAdd.sSourceType == "subrace" then
-		return;
-		
-	else
-		CharSpeciesManager.helperAddSpeciesTraitStandard(rAdd);
-
-		if CharWizardData.aRaceTraitNoParse[rAdd.sSourceType] then
-			return;
-		end
-
-		CharBuildDropManager.checkFeatureDescription(rAdd);
-		CharBuildDropManager.checkSpeciesTraitActions(rAdd);
-
-		if rAdd.sSourceType == "dwarventoughness" then
-			CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar, true);
-		elseif rAdd.sSourceType == "catsclaws" then
-			if CharBuildDropManager.helperBuildGetText(rAdd) then
-				CharSpeciesManager.applyLegacyCatsClawsClimb(rAdd.nodeChar, DB.getText(rAdd.nodeSource, "text", ""));
+		if rAdd.bWizard then
+			if CharWizardData.aRaceTraitNoAdd[rAdd.sSourceType] then
+				return true;
 			end
-		elseif CharArmorManager.isNaturalArmorTrait(rAdd.sSourceName) then
-			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
+			if CharWizardData.aRaceSpecialSpeed[rAdd.sSourceType] then
+				return true;
+			end
+			if CharWizardData.aRaceLanguages[rAdd.sSourceType] then
+				return true;
+			end
+			if CharWizardData.aRaceProficiency[rAdd.sSourceType] then
+				return true;
+			end
+			if CharWizardData.aRaceSkill[rAdd.sSourceType] then
+				return true;
+			end
 		end
 	end
+	return false;
 end
-
-function helperAddSpeciesTraitStandard(rAdd)
+function addSpeciesTraitStandard(rAdd)
 	local nodeTraitList = DB.createChild(rAdd.nodeChar, "traitlist");
 	if not nodeTraitList then
 		return nil;
@@ -412,6 +293,60 @@ function helperAddSpeciesTraitStandard(rAdd)
 
 	ChatManager.SystemMessageResource("char_abilities_message_traitadd", rAdd.sSourceName, rAdd.sCharName);
 	return nodeNewTrait;
+end
+function checkSpeciesTraitSpecialHandling(rAdd)
+	if not rAdd then
+		return true;
+	end
+
+	if rAdd.bSource2024 then
+		return CharSpeciesManager.helperCheckSpeciesTraitSpecialHandling2024(rAdd);
+	else
+		return CharSpeciesManager.helperCheckSpeciesTraitSpecialHandling2014(rAdd);
+	end
+end
+function helperCheckSpeciesTraitSpecialHandling2024(rAdd)
+	if rAdd.sSourceType == "darkvision" or rAdd.sSourceType == "enhanceddarkvision" then
+		CharSpeciesManager.helperAddSpeciesTraitDarkvisionDrop(rAdd);
+	elseif rAdd.sSourceType == "enhancedspeed" then
+		CharSpeciesManager.helperAddSpeciesTraitEnhancedSpeedDrop(rAdd);
+	elseif rAdd.sSourceType == "versatile" then
+		CharSpeciesManager.helperAddSpeciesTraitVersatileDrop2024(rAdd);
+	elseif rAdd.sSourceType == "dwarventoughness" then
+		CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar, true);
+	else
+		return false;
+	end
+	return true;
+end
+function helperCheckSpeciesTraitSpecialHandling2014(rAdd)
+	if rAdd.sSourceType == "abilityscoreincrease" then
+		CharSpeciesManager.helperAddSpeciesTraitAbilityIncreaseDrop2014(rAdd);
+	elseif rAdd.sSourceType == "size" then
+		CharSpeciesManager.helperAddSpeciesTraitSizeDrop2014(rAdd);
+	elseif rAdd.sSourceType == "speed" then
+		CharSpeciesManager.helperAddSpeciesTraitSpeedDrop2014(rAdd);
+	elseif rAdd.sSourceType == "fleetoffoot" then
+		CharSpeciesManager.helperAddSpeciesTraitEnhancedSpeedDrop(rAdd);
+	elseif rAdd.sSourceType == "darkvision" or rAdd.sSourceType == "superiordarkvision" then
+		CharSpeciesManager.helperAddSpeciesTraitDarkvisionDrop(rAdd);
+	elseif rAdd.sSourceType == "languages" then
+		CharSpeciesManager.helperAddSpeciesTraitLanguagesDrop2014(rAdd);
+	elseif rAdd.sSourceType == "extralanguage" then
+		CharBuildDropManager.pickLanguage(rAdd.nodeChar, nil, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
+	elseif rAdd.sSourceType == "catsclaws" then
+		CharSpeciesManager.helperAddSpeciesTraitCatsClaws2014(rAdd);
+	elseif rAdd.sSourceType == "stonecunning" then
+		-- Note: Bypass due to false positive in skill proficiency detection
+	elseif rAdd.sSourceType == "dwarventoughness" then
+		CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar, true);
+	else
+		if CharArmorManager.isNaturalArmorTrait(rAdd.sSourceName) then
+			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
+		end
+		return false;
+	end
+	return true;
 end
 
 function helperAddSpeciesTraitDarkvisionDrop(rAdd)
@@ -427,13 +362,6 @@ function helperAddSpeciesTraitEnhancedSpeedDrop(rAdd)
 	local sSpeed = rAdd.sSourceText:match("increases to (%d+) feet");
 	CharManager.setSpeed(rAdd.nodeChar, sSpeed)
 end
-function helperAddSpeciesTraitVersatileDrop2024(rAdd)
-	CharSpeciesManager.helperAddSpeciesTraitStandard(rAdd);
-
-	local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Origin", true);
-	CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
-end
-
 function helperAddSpeciesTraitAbilityIncreaseDrop2014(rAdd)
 	if not CharBuildDropManager.helperBuildGetText(rAdd) then
 		return;
@@ -543,7 +471,7 @@ function helperAddSpeciesTraitSpeedDrop2014(rAdd)
 
 	local nSpeed, tSpecial = CharSpeciesManager.helperParseSpeciesSpeed2014(rAdd.sSourceText);
 
-	CharManager.setSpeed(nSpeed);
+	CharManager.setSpeed(rAdd.nodeChar, nSpeed);
 	for k,v in pairs(tSpecial) do
 		CharManager.addSpecialMove(rAdd.nodeChar, k, v);
 	end
@@ -618,6 +546,21 @@ function helperAddSpeciesTraitLanguagesDrop2014(rAdd)
 		CharManager.addLanguage(rAdd.nodeChar, s);
 	end
 end
+function helperAddSpeciesTraitCatsClaws2014(rAdd)
+	if not CharBuildDropManager.helperBuildGetText(rAdd) then
+		return;
+	end
+
+	local sClimbSpeed = rAdd.sSourceText:match("you have a climbing speed of (%d+) feet");
+	if not sClimbSpeed then
+		return;
+	end
+	CharManager.addSpecialMove(rAdd.nodeChar, "Climb", sClimbSpeed);
+end
+function helperAddSpeciesTraitVersatileDrop2024(rAdd)
+	local tOptions = RecordManager.getRecordOptionsByStringI("feat", "category", "Origin", true);
+	CharBuildDropManager.pickFeat(rAdd.nodeChar, tOptions, 1, { bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, });
+end
 
 function applyDwarvenToughness(nodeChar, bInitialAdd)
 	-- Add extra hit points
@@ -631,11 +574,4 @@ function applyDwarvenToughness(nodeChar, bInitialAdd)
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
 	
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddtrait", StringManager.capitalizeAll(CharManager.TRAIT_DWARVEN_TOUGHNESS), DB.getValue(nodeChar, "name", ""), nAddHP);
-end
-function applyLegacyCatsClawsClimb(nodeChar, sText)
-	local sClimbSpeed = sText:match("you have a climbing speed of (%d+) feet");
-	if not sClimbSpeed then
-		return;
-	end
-	CharManager.addSpecialMove(rAdd.nodeChar, "Climb", sClimbSpeed);
 end

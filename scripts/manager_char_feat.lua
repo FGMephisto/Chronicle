@@ -19,99 +19,19 @@ function getFeatSpellGroup(rAdd)
 end
 
 function helperAddFeatMain(rAdd)
-	if not rAdd then
-		return;
-	end
-
-	local nodeFeat = CharManager.getFeatRecord(rAdd.nodeChar, rAdd.sSourceName);
-	if nodeFeat then
-		if DB.getValue(nodeFeat, "repeatable", 0) == 0 then
-			return;
+	CharBuildDropManager.addFeature(rAdd);
+end
+function checkFeatSkipAdd(rAdd)
+	-- Skip if feat already exists, and is not repeatable
+	if DB.getValue(rAdd.nodeSource, "repeatable", 0) ~= 1 then
+		if CharManager.hasFeat(rAdd.nodeChar, rAdd.sSourceName) then
+			return true;
 		end
 	end
 
-	if rAdd.bSource2024 then
-		CharFeatManager.helperAddFeatMain2024(rAdd);
-	else
-		CharFeatManager.helperAddFeatMain2014(rAdd);
-	end
+	return false;
 end
-function helperAddFeatMain2024(rAdd)
-	local nodeNewFeat = CharFeatManager.helperAddFeatStandard(rAdd);
-
-	-- Special handling
-	if not rAdd.bWizard then
-		if rAdd.sSourceType == "abilityscoreimprovement" then
-			CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
-		elseif StringManager.contains({ "magicinitiatecleric", "magicinitiatedruid", "magicinitiatewizard" }, rAdd.sSourceType) then
-			CharFeatManager.helperAddFeatMagicInitiateDrop2024(rAdd);
-		elseif rAdd.sSourceType == "skilled" then
-			CharFeatManager.helperAddFeatSkilledDrop2024(rAdd);
-		elseif rAdd.sSourceType == "feytouched" then
-			CharFeatManager.helperAddFeatFeyTouchedDrop2024(rAdd);
-		elseif rAdd.sSourceType == "keenmind" then
-			CharFeatManager.helperAddFeatKeenMindDrop2024(rAdd);
-		elseif rAdd.sSourceType == "observant" then
-			CharFeatManager.helperAddFeatObservantDrop2024(rAdd);
-		elseif rAdd.sSourceType == "resilient" then
-			CharFeatManager.helperAddFeatResilientDrop2024(rAdd);
-		elseif rAdd.sSourceType == "ritualcaster" then
-			CharFeatManager.helperAddFeatRitualCasterDrop2024(rAdd);
-		elseif rAdd.sSourceType == "shadowtouched" then
-			CharFeatManager.helperAddFeatShadowTouchedDrop2024(rAdd);
-		elseif rAdd.sSourceType == "skillexpert" then
-			CharFeatManager.helperAddFeatSkillExpertDrop2024(rAdd);
-		elseif rAdd.sSourceType == "telekinetic" then
-			CharFeatManager.helperAddFeatTelekineticDrop2024(rAdd);
-		elseif rAdd.sSourceType == "telepathic" then
-			CharFeatManager.helperAddFeatTelepathicDrop2024(rAdd);
-		elseif rAdd.sSourceType == "boonofskill" then
-			CharFeatManager.helperAddFeatBoonOfSkillDrop2024(rAdd);
-		
-		else
-			CharBuildDropManager.checkFeatureDescription(rAdd);
-			CharFeatManager.helperCheckAbilityAdjustments2024(rAdd);
-			CharFeatManager.helperCheckMisc2024(rAdd);
-		end
-	end
-
-	if rAdd.sSourceType == "tough" then
-		CharFeatManager.applyTough(rAdd.nodeChar, true);
-	elseif StringManager.contains({ "mediumarmormaster", "defense", }, rAdd.sSourceType) then
-		CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
-	end
-
-	CharBuildDropManager.checkFeatActions(rAdd);
-	return nodeNewFeat;
-end
-function helperAddFeatMain2014(rAdd)
-	local nodeNewFeat = CharFeatManager.helperAddFeatStandard(rAdd);
-
-	-- Special handling
-	if rAdd.sSourceType == "tough" then
-		CharFeatManager.applyTough(rAdd.nodeChar, true);
-	elseif rAdd.sSourceType == "resilient" then
-		CharFeatManager.helperAddFeatResilientDrop2024(rAdd);
-	
-	else
-		CharBuildDropManager.checkFeatureDescription(rAdd);
-		CharFeatManager.helperCheckAbilityAdjustments2014(rAdd);
-		CharFeatManager.helperCheckMisc2014(rAdd);
-		CharBuildDropManager.checkFeatActions(rAdd);
-		
-		if rAdd.sSourceType == "dragonhide" then
-			if CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_UNARMORED_DEFENSE) then
-				DB.setValue(rAdd.nodeChar, "defenses.ac.stat2", "string", "");
-			end
-			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
-		elseif rAdd.sSourceType == "mediumarmormaster" then
-			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
-		end
-	end
-	
-	return nodeNewFeat;
-end
-function helperAddFeatStandard(rAdd)
+function addFeatStandard(rAdd)
 	local nodeFeatList = DB.createChild(rAdd.nodeChar, "featlist");
 	if not nodeFeatList then
 		return nil;
@@ -121,10 +41,88 @@ function helperAddFeatStandard(rAdd)
 	if not nodeNewFeat then
 		return nil;
 	end
-
 	DB.setValue(nodeNewFeat, "locked", "number", 1);
+
 	ChatManager.SystemMessageResource("char_abilities_message_featadd", rAdd.sSourceName, rAdd.sCharName);
 	return nodeNewFeat;
+end
+function checkFeatSpecialHandling(rAdd)
+	if not rAdd then
+		return true;
+	end
+
+	if rAdd.bSource2024 then
+		return CharFeatManager.helperCheckFeatSpecialHandling2024(rAdd);
+	else
+		return CharFeatManager.helperCheckFeatSpecialHandling2014(rAdd);
+	end
+end
+function helperCheckFeatSpecialHandling2024(rAdd)
+	if rAdd.bWizard then
+		return true;
+	end
+
+	if rAdd.sSourceType == "abilityscoreimprovement" then
+		CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
+	elseif StringManager.contains({ "magicinitiatecleric", "magicinitiatedruid", "magicinitiatewizard" }, rAdd.sSourceType) then
+		CharFeatManager.helperAddFeatMagicInitiateDrop2024(rAdd);
+	elseif rAdd.sSourceType == "skilled" then
+		CharFeatManager.helperAddFeatSkilledDrop2024(rAdd);
+	elseif rAdd.sSourceType == "feytouched" then
+		CharFeatManager.helperAddFeatFeyTouchedDrop2024(rAdd);
+	elseif rAdd.sSourceType == "keenmind" then
+		CharFeatManager.helperAddFeatKeenMindDrop2024(rAdd);
+	elseif rAdd.sSourceType == "observant" then
+		CharFeatManager.helperAddFeatObservantDrop2024(rAdd);
+	elseif rAdd.sSourceType == "resilient" then
+		CharFeatManager.helperAddFeatResilientDrop2024(rAdd);
+	elseif rAdd.sSourceType == "ritualcaster" then
+		CharFeatManager.helperAddFeatRitualCasterDrop2024(rAdd);
+	elseif rAdd.sSourceType == "shadowtouched" then
+		CharFeatManager.helperAddFeatShadowTouchedDrop2024(rAdd);
+	elseif rAdd.sSourceType == "skillexpert" then
+		CharFeatManager.helperAddFeatSkillExpertDrop2024(rAdd);
+	elseif rAdd.sSourceType == "telekinetic" then
+		CharFeatManager.helperAddFeatTelekineticDrop2024(rAdd);
+	elseif rAdd.sSourceType == "telepathic" then
+		CharFeatManager.helperAddFeatTelepathicDrop2024(rAdd);
+	elseif rAdd.sSourceType == "boonofskill" then
+		CharFeatManager.helperAddFeatBoonOfSkillDrop2024(rAdd);
+	elseif rAdd.sSourceType == "tough" then
+		CharFeatManager.applyTough(rAdd.nodeChar, true);
+	else
+		CharFeatManager.helperCheckAbilityAdjustments2024(rAdd);
+		CharFeatManager.helperCheckMisc2024(rAdd);
+		if StringManager.contains({ "mediumarmormaster", "defense", }, rAdd.sSourceType) then
+			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
+		end
+		return false;
+	end
+	return true;
+end
+function helperCheckFeatSpecialHandling2014(rAdd)
+	if rAdd.bWizard then
+		return true;
+	end
+
+	if rAdd.sSourceType == "resilient" then
+		CharFeatManager.helperAddFeatResilientDrop2024(rAdd);
+	elseif rAdd.sSourceType == "tough" then
+		CharFeatManager.applyTough(rAdd.nodeChar, true);
+	elseif rAdd.sSourceType == "dragonhide" then
+		if CharManager.hasFeature(rAdd.nodeChar, CharManager.FEATURE_UNARMORED_DEFENSE) then
+			DB.setValue(rAdd.nodeChar, "defenses.ac.stat2", "string", "");
+		end
+		CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
+	else
+		CharFeatManager.helperCheckAbilityAdjustments2014(rAdd);
+		CharFeatManager.helperCheckMisc2014(rAdd);
+		if StringManager.contains({ "mediumarmormaster", }, rAdd.sSourceType) then
+			CharArmorManager.calcItemArmorClass(rAdd.nodeChar);
+		end
+		return false;
+	end
+	return true;
 end
 
 function helperCheckAbilityAdjustments2024(rAdd)
@@ -249,14 +247,26 @@ function helperOnMagicInitiateFeatSelect(rAdd)
 		{ sField = "version", sValue = "2024", },
 		{ sField = "level", sValue = "0", },
 	};
-	local tData = { sClassName = sClassName, sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, };
+	local tData = {
+		sClassName = sClassName,
+		sGroup = rAdd.sSpellGroup,
+		bWizard = rAdd.bWizard,
+		bSource2024 = rAdd.bSource2024,
+		sPickType = "cantrip",
+	};
 	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 2, tData);
 
 	local tFilters = {
 		{ sField = "version", sValue = "2024", },
 		{ sField = "level", sValue = "1", },
 	};
-	local tData = { sClassName = sClassName, sGroup = rAdd.sSpellGroup, bWizard = rAdd.bWizard, bSource2024 = rAdd.bSource2024, };
+	local tData = {
+		sClassName = sClassName,
+		sGroup = rAdd.sSpellGroup,
+		bWizard = rAdd.bWizard,
+		bSource2024 = rAdd.bSource2024,
+		sPickType = "prepared",
+	};
 	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 1, tData);
 end
 function helperAddFeatSkilledDrop2024(rAdd)
@@ -276,7 +286,7 @@ function helperAddFeatSkilledDrop2024(rAdd)
 		table.insert(tOptions, v);
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks),
 		options = tOptions,
@@ -284,8 +294,7 @@ function helperAddFeatSkilledDrop2024(rAdd)
 		callback = CharFeatManager.helperOnSkilledFeatSelect,
 		custom = { nodeChar = rAdd.nodeChar, tSkillOptions = tSkillOptions, tToolOptions = tToolOptions, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnSkilledFeatSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -323,7 +332,7 @@ function helperOnFeyTouchedFeatSelect(rAdd)
 		{ sField = "level", sValue = "1", },
 		{ sField = "school", tValues = { "Divination", "Enchantment", }, bIgnoreCase = true, },
 	};
-	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 1, { nPrepared = 1, });
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 1, { sPickType = "prepared", });
 end
 function helperAddFeatKeenMindDrop2024(rAdd)
 	CharManager.addAbilityAdjustment(rAdd.nodeChar, "intelligence", 1, 20);
@@ -349,15 +358,14 @@ function helperAddFeatResilientDrop2024(rAdd)
 		return;
 	end
 
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(1, 1),
 		options = tAbilities,
 		callback = CharFeatManager.helperOnResilientFeatSelect2024,
 		custom = { nodeChar = rAdd.nodeChar, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnResilientFeatSelect2024(tSelection, tData)
 	for _,s in ipairs(tSelection) do
@@ -377,7 +385,7 @@ function helperOnRitualCasterFeatSelect(rAdd)
 		{ sField = "version", sValue = "2024", },
 		{ sField = "ritual", sValue = "1", },
 	};
-	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, nPicks);
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, nPicks, { sPickType = "prepared", });
 end
 function helperAddFeatShadowTouchedDrop2024(rAdd)
 	rAdd.bSpellGroupAbilityIncrease = true;
@@ -393,20 +401,19 @@ function helperOnShadowTouchedFeatSelect(rAdd)
 		{ sField = "level", sValue = "1", },
 		{ sField = "school", tValues = { "Illusion", "Necromancy", }, bIgnoreCase = true, },
 	};
-	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 1, { nPrepared = 1, });
+	CharBuildDropManager.pickSpellByFilter(rAdd, tFilters, 1, { sPickType = "prepared", });
 end
 function helperAddFeatSkillExpertDrop2024(rAdd)
 	CharBuildDropManager.pickAbility(rAdd.nodeChar, nil, 1, { nAbilityAdj = 1, nAbilityMax = 20, });
 	
-	local tData = {
+	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(1),
 		options = CharBuildDropManager.getSkillProficiencyOptions(rAdd.nodeChar),
 		callback = CharFeatManager.helperOnSkillExpertFeatSelect,
 		custom = { nodeChar = rAdd.nodeChar, },
 	};
-	local wSelect = Interface.openWindow("select_dialog", "");
-	wSelect.requestSelectionByData(tData);
+	DialogManager.requestSelectionDialog(tDialogData);
 end
 function helperOnSkillExpertFeatSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do

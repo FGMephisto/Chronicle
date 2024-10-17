@@ -19,86 +19,62 @@ function onTabletopInit()
 end
 
 function onNewBackground(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewClass(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewSubclass(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewFeat(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewItem(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewItemTemplate(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewNPC(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewSpecies(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewAncestry(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewSkill(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewSpell(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end
 function onNewVehicle(nodeRecord)
-	local sOptionGAVE = OptionsManager.getOption("GAVE");
-	local bIs2024 = (sOptionGAVE == "2024");
-	if bIs2024 then
+	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
 end

@@ -11,9 +11,9 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
-			<sub_content name="content">
+			<sub_content_scroll name="content">
 				<class>charsheet_notes_contents</class>
-			</sub_content>
+			</sub_content_scroll>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -30,32 +30,62 @@
 			<header_content_framed_metalplate name="personalitytraits_header">
 				<static textres="char_label_notes_traits" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="personalitytraits" />
+			<stringu_content_noframe_noscroll_top name="personalitytraits">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 
 			<header_content_framed_metalplate name="ideals_header">
 				<static textres="char_label_notes_ideals" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="ideals" />
+			<stringu_content_noframe_noscroll_top name="ideals">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 
 			<header_content_framed_metalplate name="bonds_header">
 				<static textres="char_label_notes_bonds" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="bonds" />
+			<stringu_content_noframe_noscroll_top name="bonds">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 
 			<header_content_framed_metalplate name="flaws_header">
 				<static textres="char_label_notes_flaws" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="flaws" />
+			<stringu_content_noframe_noscroll_top name="flaws">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 
 			<header_content_framed_metalplate name="appearance_header">
 				<static textres="char_label_appearance" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="appearance" />
+			<stringu_content_noframe_noscroll_top name="appearance">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 
 			<header_content_framed_metalplate name="notes_header">
 				<static textres="char_label_notes" />
 			</header_content_framed_metalplate>
-			<stringu_content_noframe_noscroll_top name="notes" />
+			<stringu_content_noframe_noscroll_top name="notes">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="charsheet_notes_details">
@@ -67,7 +97,7 @@
 				<anchored height="20" />
 			</area_content_top>
 			<stringu name="gender">
-				<anchored to="details" position="insidetopleft" offset="0,0" width="70" height="20" />
+				<anchored to="details" position="insidetopleft" offset="10,0" width="70" height="20" />
 			</stringu>
 			<stringu name="age">
 				<anchored to="gender" position="righthigh" offset="5,0" width="70" height="20" />
@@ -108,7 +138,7 @@
 				<anchored height="20" />
 			</area_content_top>
 			<stringu name="alignment">
-				<anchored to="details2" position="insidetopleft" offset="0,0" height="20">
+				<anchored to="details2" position="insidetopleft" offset="10,0" height="20">
 					<right anchor="center" offset="-5" />
 				</anchored>
 			</stringu>
@@ -117,7 +147,7 @@
 				<static textres="char_label_alignment" />
 			</label_charfieldtop>
 			<stringu name="deity">
-				<anchored to="details2" position="insidetopright" offset="0,0" height="20">
+				<anchored to="details2" position="insidetopright" offset="10,0" height="20">
 					<left anchor="center" offset="5" />
 				</anchored>
 			</stringu>

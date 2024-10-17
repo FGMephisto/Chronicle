@@ -60,6 +60,7 @@
 	<string name="library_recordtype_empty_class_specialization">&#171; New Subclass &#187;</string>
 	<string name="class_button_specialization">Subclasses</string>
 
+	<string name="record_tooltip_legacy">Legacy Record</string>
 	<string name="record_label_version">Version</string>
 	<string name="record_label_2024">2024</string>
 	<string name="record_label_2014">Legacy</string>
@@ -68,14 +69,15 @@
 	<string name="record_label_prerequisite">Prerequisite</string>
 
 	<!-- Rolls -->
-	<string name="roll_msg_trait_luck">LUCK TRAIT REROLL</string>
+	<string name="roll_msg_trait_luck">TRAIT: LUCK</string>
 	<string name="roll_msg_feature_eldritchinvocationeldritchmind">ELDRITCH MIND</string>
 	<string name="roll_msg_feature_jackofalltrades">JACK OF ALL TRADES</string>
 	<string name="roll_msg_feature_reliable">RELIABLE</string>
 	<string name="roll_msg_feature_improved_critical">IMPROVED CRITICAL</string>
 	<string name="roll_msg_feature_superior_critical">SUPERIOR CRITICAL</string>
-	<string name="roll_msg_feature_warcaster">WAR CASTER</string>
-	<string name="roll_msg_feat_healer">HEALER FEAT REROLL</string>
+	<string name="roll_msg_feature_warcaster">FEAT: WAR CASTER</string>
+	<string name="roll_msg_feat_healer">FEAT: HEALER</string>
+	<string name="roll_msg_feat_elvenaccuracy">FEAT: ELVEN ACCURACY</string>
 	<string name="roll_msg_feat_archery">STYLE: ARCHERY +2</string>
 	<string name="roll_msg_feat_dueling">STYLE: DUELING +2</string>
 	<string name="roll_msg_feat_greatweaponfighting">STYLE: GREAT WEAPON</string>
@@ -100,10 +102,11 @@
 	<string name="option_label_HRHV">PC: Healing variants</string>
 	<string name="option_label_HRIS">PC: Inspiration slots</string>
 
-	<string name="option_label_GAVE">Game: Base Record Version</string>
+	<string name="option_label_GAVE">Game: Rules Version</string>
 
 	<!-- Languages -->
 	<string name="language_value_common">Common</string>
+	<string name="language_value_common_sign">Common Sign Language</string>
 	<string name="language_value_dwarvish">Dwarvish</string>
 	<string name="language_value_elvish">Elvish</string>
 	<string name="language_value_giant">Giant</string>
@@ -204,6 +207,7 @@
 
 	<string name="import_mode_2022">2022 - Monsters of the Multiverse</string>
 	<string name="import_mode_2024">2024 - D&amp;D Core Rules</string>
+	<string name="import_mode_dndb_2024">2024 - D&amp;D Beyond</string>
 
 	<string name="ft_empty_import_item_listdata">Paste item list data here.\r\rFormatting is NOT preserved.</string>
 	<string name="ft_empty_import_item_description">Paste the item text here.\r\rFormatting is NOT preserved.</string>
@@ -218,6 +222,9 @@
 	<string name="char_tooltip_prof_half">Half Prof. Bonus</string>
 
 	<!-- Characters - Main -->
+	<string name="char_message_inspiration_gained">Gained Inspiration</string>
+	<string name="char_message_inspiration_used">Used Inspiration</string>
+		
 	<string name="char_label_inspiration">INSP</string>
 	<string name="char_tooltip_inspiration">Inspiration</string>
 	<string name="char_label_classlevel">CLASS &amp; LEVEL</string>
@@ -796,7 +803,7 @@
 	<string name="forge_item_message_missing">Error, please add items before attempting to forge!</string>
 	
 	<!-- Library - Master Index -->
-	<string name="class_button_specialization">Specializations</string>
+	<string name="class_button_specialization">Subclasses</string>
 	<string name="class_button_spell_view">Spell Lists</string>
 	<string name="class_button_spell_list">Definitions</string>
 

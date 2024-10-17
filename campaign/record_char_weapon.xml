@@ -29,7 +29,7 @@
 			</buttonc_listitem_right>
 
 			<stringc_listitem_right_static name="damageview">
-				<anchored width="90" />
+				<anchored width="90" height="-1" />
 				<frame name="fieldlight" offset="10,10,10,10" />
 				<multilinespacing>20</multilinespacing>
 				<cursor hover="hand" />
@@ -84,6 +84,7 @@
 
 			<button_prof name="prof">
 				<anchored to="attackview" position="rightlow" offset="-7,-10" width="12" height="12" />
+				<default>1</default>
 				<script>
 					function onValueChanged()
 						window.onAttackChanged();

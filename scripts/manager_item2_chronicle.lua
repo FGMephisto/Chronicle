@@ -16,7 +16,7 @@ function onInit()
 
 	-- Replacing CoreRPG function with new function
 	-- ToDo Check if it can be removed
-	-- ItemManager.getItemSourceType = getItemSourceTypeChronicle
+	ItemManager.getItemSourceType = getItemSourceTypeChronicle
 end
 
 function isPack(nodeItem)

@@ -163,7 +163,6 @@ function getPCPowerActionOutputOrder(nodeAction)
 	
 	return nOutputOrder;
 end
-
 function getPCPowerAction(nodeAction, sSubRoll)
 	if not nodeAction then
 		return;
@@ -304,7 +303,6 @@ function getPCPowerCastActionText(nodeAction)
 	
 	return sAttack, sSave;
 end
-
 function getPCPowerDamageActionText(nodeAction)
 	local aOutput = {};
 	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
@@ -323,7 +321,6 @@ function getPCPowerDamageActionText(nodeAction)
 	end
 	return table.concat(aOutput, " + ");
 end
-
 function getPCPowerHealActionText(nodeAction)
 	local sHeal = "";
 	
@@ -642,7 +639,6 @@ function performAction(draginfo, rActor, rAction, nodePower)
 	end
 	return true;
 end
-
 
 -------------------------
 -- POWER PARSING
@@ -2313,7 +2309,7 @@ function parsePCPower(nodePower)
 			end
 		end
 		if not bFoundGroup then
-			bMagic = (sGroup == Interface.getString("power_label_groupspells"));
+			bMagic = (sGroup == Interface.getString("char_spell_powergroup_base"));
 		end
 		
 		-- Parse the description

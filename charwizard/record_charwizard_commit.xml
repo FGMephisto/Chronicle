@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+	Please see the license.html file included with this distribution for
+	attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charwizard_sub_commit">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				update();
+			end
+			function update()
+				CharWizardManager.clearSummary();
+				CharWizardManager.populateSummary();
+				CharWizardManager.checkCompletion();
+			end
+		</script>
+		<sheetdata>
+			<frame_char name="overviewframe">
+				<anchored height="45">
+					<left offset="15" />
+					<top offset="10" />
+					<right offset="-15" />
+				</anchored>
+			</frame_char>
+			<stringc_labeled name="name">
+				<anchored to="overviewframe" position="insidetopleft" offset="15,10" height="20">
+					<right offset="-15" />
+				</anchored>
+				<labelres>char_label_name</labelres>
+				<script>
+					function onInit()
+						super.onInit();
+						if CharWizardManager.isLevelUpData() then
+							window.overviewframe.setVisible(false);
+							setVisible(false);
+						end
+					end
+					local _bUpdating = false
+					function onValueChanged()
+						if _bUpdating then
+							return false
+						end
+						_bUpdating = true
+						CharWizardManager.setName(getValue());
+						_bUpdating = false
+					end
+				</script>
+			</stringc_labeled>
+
+			<label_charframetop name="warnings_label">
+				<anchored height="20">
+					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+					<right offset="-15" />
+				</anchored>
+				<icons>button_alert</icons>
+				<static textres="charwizard_label_warnings" />
+			</label_charframetop>
+
+			<windowlist name="warnings">
+				<anchored>
+					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+					<right offset="-15" />
+				</anchored>
+				<child></child>
+				<readonly />
+				<noscroll />
+				<class>charwizard_commit_warnings</class>
+				<script>
+					function onInit()
+						updateVisibility();
+					end
+					function onListChanged()
+						updateVisibility();
+					end
+					function updateVisibility()
+						self.setVisible(not isEmpty());
+						window.warnings_label.setVisible(not isEmpty());
+					end
+				</script>
+			</windowlist>
+
+			<button_text name="button_commit">
+				<anchored>
+					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
+					<left anchor="center" offset="-45" />
+					<right anchor="center" offset="45" />
+				</anchored>
+				<state textres="charwizard_label_save" />
+				<script>
+					function onButtonPress()
+						CharWizardManager.onCommit();
+					end
+				</script>
+			</button_text>
+
+			<label_charframetop name="summary_label">
+				<anchored height="20">
+					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+					<right offset="-15" />
+				</anchored>
+				<icons>char_notes</icons>
+				<static textres="charwizard_title_summary" />
+			</label_charframetop>
+
+			<subwindow name="sub_commit_summary">
+				<anchored>
+					<left offset="15" />
+					<top parent="overviewframe" anchor="bottom" relation="relative" offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<class>charwizard_commit_summary</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_commit_warnings">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left />
+			<stringc_listitem_left_noframe_static name="warning_label">
+				<anchored width="90" />
+				<font>reference-h</font>
+				<default>WARNING</default>
+			</stringc_listitem_left_noframe_static>
+
+			<anchor_listitem_right />
+			<stringc_listitem_center_noframe_static name="warning">
+				<font name="sheetlabel" />
+			</stringc_listitem_center_noframe_static>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_commit_summary">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<basicnumberc name="constitution_total">
+				<anchored width="40" height="30">
+					<top offset="10" />
+					<left anchor="center" offset="-55" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="constitution_total" />
+				<static textres="CON" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="constitution_modifier">
+				<anchored to="constitution_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<basicnumberc name="dexterity_total">
+				<anchored width="40" height="30">
+					<top parent="constitution_total" anchor="top" />
+					<right parent="constitution_total" anchor="left" relation="relative" offset="-20" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="dexterity_total" />
+				<static textres="DEX" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="dexterity_modifier">
+				<anchored to="dexterity_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<basicnumberc name="strength_total">
+				<anchored width="40" height="30">
+					<top parent="constitution_total" anchor="top" />
+					<right parent="constitution_total" anchor="left" relation="relative" offset="-20" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="strength_total" />
+				<static textres="STR" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="strength_modifier">
+				<anchored to="strength_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<basicnumberc name="intelligence_total">
+				<anchored width="40" height="30">
+					<top parent="constitution_total" anchor="top" />
+					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="intelligence_total" />
+				<static textres="INT" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="intelligence_modifier">
+				<anchored to="intelligence_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<basicnumberc name="wisdom_total">
+				<anchored width="40" height="30">
+					<top parent="constitution_total" anchor="top" />
+					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="wisdom_total" />
+				<static textres="WIS" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="wisdom_modifier">
+				<anchored to="wisdom_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<basicnumberc name="charisma_total">
+				<anchored width="40" height="30">
+					<top parent="constitution_total" anchor="top" />
+					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
+				</anchored>
+				<default>10</default>
+				<modifiersize>mini</modifiersize>
+				<nodrag />
+				<readonly />
+			</basicnumberc>
+			<label_abilityscore>
+				<anchored to="charisma_total" />
+				<static textres="CHA" />
+			</label_abilityscore>
+			<string_npc_abilitymodtext name="charisma_modifier">
+				<anchored to="charisma_total" />
+				<default>0</default>
+			</string_npc_abilitymodtext>
+
+			<label name="summary_speciestitle">
+				<anchored>
+					<top parent="constitution_total" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right anchor="center" offset="-100" />
+				</anchored>
+				<static textres="char_label_race" />
+			</label>
+			<stringcu name="summary_species">
+				<anchored to="summary_speciestitle" position="insidetop" offset="0,15" height="20" />
+				<readonly />
+			</stringcu>
+
+			<label name="summary_backgroundtitle">
+				<anchored height="20">
+					<top parent="summary_speciestitle" />
+					<left anchor="center" offset="-90" />
+					<right anchor="center" offset="90" />
+				</anchored>
+				<static textres="char_label_background" />
+			</label>
+			<stringcu name="summary_background">
+				<anchored to="summary_backgroundtitle" position="insidetop" offset="0,15" height="20" />
+				<readonly />
+			</stringcu>
+
+			<stringcu name="summary_class">
+				<anchored height="20">
+					<top parent="summary_speciestitle" anchor="top" offset="15" />
+					<left parent="summary_backgroundtitle" anchor="right" offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<readonly />
+			</stringcu>
+			<label name="summary_classtitle">
+				<anchored to="summary_class" position="above" offset="-5" height="20" />
+				<static textres="char_label_class" />
+			</label>
+
+			<label name="summary_sensestitle">
+				<anchored>
+					<top parent="constitution_total" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+					<right anchor="center" offset="-100" />
+				</anchored>
+				<static textres="char_label_senses" />
+			</label>
+			<stringcu name="summary_senses">
+				<anchored to="summary_sensestitle" position="insidetop" offset="0,15" height="20" />
+				<readonly />
+			</stringcu>
+
+			<label name="summary_speedtitle">
+				<anchored height="20">
+					<top parent="summary_sensestitle" />
+					<left anchor="center" offset="-90" />
+					<right anchor="center" offset="90" />
+				</anchored>
+				<static textres="char_label_speed" />
+			</label>
+			<stringcu name="summary_speed">
+				<anchored to="summary_speedtitle" position="insidetop" offset="0,15" height="20" />
+				<readonly />
+			</stringcu>
+
+			<label name="summary_speedspecialtitle">
+				<anchored height="20">
+					<top parent="summary_sensestitle" />
+					<left parent="summary_speedtitle" anchor="right" offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_speedspecial" />
+			</label>
+			<stringcu name="summary_speedspecial">
+				<anchored to="summary_speedspecialtitle" position="insidetop" offset="0,15" height="20" />
+				<readonly />
+			</stringcu>
+
+			<label name="summary_languagetitle">
+				<anchored height="20">
+					<top parent="constitution_total" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+				</anchored>
+				<static textres="char_abilities_label_languages" />
+			</label>
+			<windowlist name="summary_languages">
+				<anchored>
+					<top parent="summary_languagetitle" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right anchor="center" offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<columns width="140" fillwidth="true"/>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+
+			<label name="summary_skillstitle">
+				<anchored height="20">
+					<top parent="summary_languagetitle" />
+					<left anchor="center" offset="5" />
+				</anchored>
+				<static textres="library_recordtype_label_skill" />
+			</label>
+			<windowlist name="summary_skills">
+				<anchored>
+					<top parent="summary_skillstitle" anchor="bottom" relation="relative" offset="10" />
+					<left anchor="center" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<columns width="140" fillwidth="true"/>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+
+			<label name="summary_traitstitle">
+				<anchored height="20">
+					<top parent="summary_languagetitle" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+				</anchored>
+				<static textres="char_abilities_label_traits" />
+			</label>
+			<windowlist name="summary_traits">
+				<anchored>
+					<top parent="summary_languagetitle" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+					<right anchor="center" offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+
+			<label name="summary_featurestitle">
+				<anchored height="20">
+					<top parent="summary_skills" anchor="bottom" relation="relative" offset="20" />
+					<left anchor="center" offset="5" />
+				</anchored>
+				<static textres="char_abilities_label_features" />
+			</label>
+			<windowlist name="summary_features">
+				<anchored>
+					<top parent="summary_featurestitle" anchor="bottom" offset="20" />
+					<left anchor="center" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<columns width="140" fillwidth="true"/>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+
+			<label name="summary_proficienciestitle">
+				<anchored height="20">
+					<top parent="summary_traits" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+				</anchored>
+				<static textres="char_abilities_label_proficiencies" />
+			</label>
+			<windowlist name="summary_proficiencies">
+				<anchored>
+					<top parent="summary_proficienciestitle" anchor="bottom" relation="relative" offset="20" />
+					<left offset="15" />
+					<right anchor="center" offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<columns width="140" fillwidth="true"/>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+
+			<label name="summary_featstitle">
+				<anchored height="20">
+					<top parent="summary_features" anchor="bottom" relation="relative" offset="20" />
+					<left anchor="center" offset="5" />
+				</anchored>
+				<static textres="char_abilities_label_feats" />
+			</label>
+			<windowlist name="summary_feats">
+				<anchored>
+					<top parent="summary_featstitle" anchor="bottom" offset="20" />
+					<left anchor="center" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<class>charwizard_summary_item</class>
+				<columns width="140" fillwidth="true"/>
+				<sortby><control>name</control></sortby>
+			</windowlist>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_summary_item">
+		<margins control="0,0,0,0" />
+		<sheetdata>
+			<genericcontrol name="rightanchor">
+				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
+			</genericcontrol>
+
+			<stringcontrol name="name">
+				<anchored position="insidetopleft">
+					<top />
+					<left parent="" offset="5" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<readonly />
+			</stringcontrol>
+		</sheetdata>
+	</windowclass>
+</root>

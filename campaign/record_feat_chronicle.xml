@@ -7,108 +7,115 @@
 -->
 
 <root>
-	<!-- -->
-	<!-- Reference Feat -->
-	<!-- -->
-	<windowclass name="reference_feat">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<sharable />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>ref_feat_header</class>
-			</sub_record_header>
-
-			<frame_record_content />
-			
-			<subwindow_record name="main">
-				<class>ref_feat_main</class>
-				<activate />
-			</subwindow_record>
-
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
-	</windowclass>
-
-	<!-- -->
-	<!-- Reference Feat Header -->
-	<!-- -->
-	<windowclass name="ref_feat_header">
-		<margins control="0,0,0,2" />
-		<script file="common/scripts/record_header.lua" />
-		<sheetdata>
-			<link_record_header name="link" />
-
-			<anchor_record_header_right />
-			<icon_record_locked />
-			<button_record_locked />
-
-			<string_record_name name="name" />
-			<label_recordtype name="recordtype_label" />
-		</sheetdata>
-	</windowclass>
-
-	<!-- -->
-	<!-- Custom Reference Feat Main -->
-	<!-- -->
-	<windowclass name="ref_feat_main">
-		<margins control="0,0,0,2" />
+	<windowclass name="reference_feat" copy="record_window">
 		<script>
-			function onInit()
-				update()
-			end
-
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode())
-
-				type.setReadOnly(bReadOnly)
-				subtype.setReadOnly(bReadOnly)
-				requirements.setReadOnly(bReadOnly)
-				text.setReadOnly(bReadOnly)
+			function onStateChanged()
+				super.onStateChanged();
+				-- sub_version.subwindow.update();
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="type_label">
-				<static textres="ref_feat_type_label" />
-			</label_column>
-			<string_columnh name="type" />
-
-			<label_column name="subtype_label">
-				<static textres="ref_feat_subtype_label" />
-			</label_column>
-			<string_columnh name="subtype" />
-
-			<label_column name="requirements_label">
-				<static textres="ref_feat_requirements_label" />
-			</label_column>
-			<string_columnh name="requirements" />
-
-			<line_column name="divider1" />
-
-			<ft_columnh  name="text">
-			<anchored >
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<bottom anchor="bottom" offeset="20" />
-				<left />
-				<right offset="-15" />
-			</anchored>			
-			</ft_columnh>
-			<scrollbar>
-				<anchored to="text" />
-				<target>text</target>
-			</scrollbar>
+			<!-- <sub_record_version name="sub_version" insertbefore="content" /> -->
 		</sheetdata>
 	</windowclass>
+	<windowclass name="reference_feat_header" copy="record_header" />
+
+	<windowclass name="reference_feat_main">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = true;
+				if bIs2024 then
+					sub_content.setValue("reference_feat_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_feat_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_feat_main_2024">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/feat_main_chronicle.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>reference_feat_main_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+			
+			<line_content_top name="divider" />
+
+			<ft_content_columnh_full name="text" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- Adjusted -->
+	<windowclass name="reference_feat_main_summary_fields">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="category_label">
+				<static textres="feat_label_category" />
+			</label_content_column>
+			<string_content_columnh name="category">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<!-- <label_content_column name="level_label"> -->
+				<!-- <static textres="level" /> -->
+			<!-- </label_content_column> -->
+			<!-- <number_content_columnh name="level"> -->
+				<!-- <delaykeyupdate /> -->
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- WindowManager.callOuterWindowFunction(window, "onSummaryChanged"); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </number_content_columnh> -->
+
+			<label_content_column name="prerequisite_label">
+				<static textres="record_label_prerequisite" />
+			</label_content_column>
+			<string_content_columnh name="prerequisite">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<!-- <label_content_column name="repeatable_label"> -->
+				<!-- <static textres="feat_label_repeatable" /> -->
+			<!-- </label_content_column> -->
+			<!-- <button_checkbox_content_columnh name="repeatable"> -->
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- WindowManager.callOuterWindowFunction(window, "onSummaryChanged"); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </button_checkbox_content_columnh> -->
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_feat_main_2014" copy="record_content_text" />
 </root>

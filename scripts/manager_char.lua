@@ -6,9 +6,11 @@
 CLASS_ARTIFICER = "artificer";
 CLASS_BARBARIAN = "barbarian";
 CLASS_BARD = "bard";
+CLASS_FIGHTER = "fighter";
 CLASS_MONK = "monk";
 CLASS_PALADIN = "paladin";
 CLASS_RANGER = "ranger";
+CLASS_ROGUE = "rogue";
 CLASS_SORCERER = "sorcerer";
 CLASS_WIZARD = "wizard";
 
@@ -34,9 +36,7 @@ FEATURE_EVOCATION_SAVANT = "evocation savant";
 FEATURE_ILLUSION_SAVANT = "illusion savant";
 FEATURE_IMPROVED_CRITICAL = "improved critical";
 FEATURE_JACK_OF_ALL_TRADES = "jack of all trades";
-FEATURE_PACT_MAGIC = "pact magic";
 FEATURE_RELIABLE_TALENT = "reliable talent";
-FEATURE_SPELLCASTING = "spellcasting";
 FEATURE_SILVER_TONGUE = "silver tongue";
 FEATURE_SUPERIOR_CRITICAL = "superior critical";
 FEATURE_UNARMORED_DEFENSE = "unarmored defense";
@@ -47,9 +47,10 @@ FEAT_DEFENSE = "defense"; -- 2024
 FEAT_DRAGON_HIDE = "dragon hide"; -- 2014
 FEAT_DUELING = "dueling"; -- 2024
 FEAT_DURABLE = "durable"; -- 2014
+FEAT_ELVEN_ACCURACY = "elven accuracy"; -- 2014
 FEAT_GREAT_WEAPON_FIGHTING = "great weapon fighting"; -- 2024
 FEAT_HEALER = "healer"; -- 2024
-FEAT_MAGE_SLAYER = "mage slayer"; -- 2024
+FEAT_MAGE_SLAYER = "mage slayer"; -- 2024 / 2014
 FEAT_MEDIUM_ARMOR_MASTER = "medium armor master"; -- 2024 / 2014
 FEAT_TOUGH = "tough"; -- 2024 / 2014
 FEAT_THROWN_WEAPON_FIGHTING = "thrown weapon fighting"; -- 2024
@@ -228,6 +229,122 @@ function resetHealth(nodeChar, bLong)
 	end
 end
 
+function messageInspiration(nodeChar, nAdj)
+	if not nodeChar or ((nAdj or 0) == 0) then
+		return;
+	end
+
+	local msg = {
+		sender = DB.getValue(nodeChar, "name", ""),
+		icon = "charlist_inspiration",
+		font = "systemfont",
+		text = Interface.getString((nAdj > 0) and "char_message_inspiration_gained" or "char_message_inspiration_used"),
+	};
+	Comm.deliverChatMessage(msg);
+end
+
+--
+-- LINK HANDLING
+--
+
+function onClassLinkPressed(nodeCharClass)
+	local _, sRecord = DB.getValue(nodeCharClass, "shortcut", "", "");
+	if CharManager.helperOpenLinkRecord("class", sRecord) then
+		return true;
+	end
+	local sName = DB.getValue(nodeCharClass, "name", "");
+	local bIs2024 = (DB.getValue(nodeCharClass, "version", "") == "2024");
+	if CharManager.helperOpenAltLinkRecord("class", sName, bIs2024) then
+		return true;
+	end
+	CharManager.helperOpenLinkRecordFail("class");
+	return false;	
+end
+function onSubclassLinkPressed(nodeCharClass)
+	local _, sRecord = DB.getValue(nodeCharClass, "specializationlink", "", "");
+	if CharManager.helperOpenLinkRecord("class_specialization", sRecord) then
+		return true;
+	end
+	local sName = DB.getValue(nodeCharClass, "specialization", "");
+	local bIs2024 = (DB.getValue(nodeCharClass, "specializationversion", "") == "2024");
+	if CharManager.helperOpenAltLinkRecord("class_specialization", sName, bIs2024) then
+		return true;
+	end
+	CharManager.helperOpenLinkRecordFail("class_specialization");
+	return false;	
+end
+function onBackgroundLinkPressed(nodeChar)
+	local _, sRecord = DB.getValue(nodeChar, "backgroundlink", "", "");
+	if CharManager.helperOpenLinkRecord("background", sRecord) then
+		return true;
+	end
+	local sName = DB.getValue(nodeChar, "background", "");
+	local bIs2024 = (DB.getValue(nodeChar, "backgroundversion", "") == "2024");
+	if CharManager.helperOpenAltLinkRecord("background", sName, bIs2024) then
+		return true;
+	end
+	CharManager.helperOpenLinkRecordFail("background");
+	return false;	
+end
+function onSpeciesLinkPressed(nodeChar)
+	local _, sRecord = DB.getValue(nodeChar, "racelink", "", "");
+	if CharManager.helperOpenLinkRecord("race", sRecord) then
+		return true;
+	end
+	local sName = DB.getValue(nodeChar, "racename", "");
+	local bIs2024 = (DB.getValue(nodeChar, "raceversion", "") == "2024");
+	if CharManager.helperOpenAltLinkRecord("race", sName, bIs2024) then
+		return true;
+	end
+	CharManager.helperOpenLinkRecordFail("race");
+	return false;
+end
+function onAncestryLinkPressed(nodeChar)
+	local _, sRecord = DB.getValue(nodeChar, "subracelink", "", "");
+	if CharManager.helperOpenLinkRecord("race_subrace", sRecord) then
+		return true;
+	end
+	local sName = DB.getValue(nodeChar, "subracename", "");
+	local bIs2024 = (DB.getValue(nodeChar, "subraceversion", "") == "2024");
+	if CharManager.helperOpenAltLinkRecord("race_subrace", sName, bIs2024) then
+		return true;
+	end
+	CharManager.helperOpenLinkRecordFail("race_subrace");
+	return false;
+end
+function helperOpenLinkRecord(sRecordType, sRecord)
+	if ((sRecord or "") == "") or ((sRecordType or "") == "") then
+		return false;
+	end
+	local nodeRecord = DB.findNode(sRecord);
+	if nodeRecord then
+		local sDisplayClass = RecordDataManager.getRecordTypeDisplayClass(sRecordType, nodeRecord);
+		Interface.openWindow(sDisplayClass, nodeRecord);
+		return true;
+	end
+	return false;
+end
+function helperOpenAltLinkRecord(sRecordType, sName, bIs2024)
+	if ((sName or "") == "") or ((sRecordType or "") == "") then
+		return false;
+	end
+	local tFilters = {
+		{ sField = "name", sValue = sName, bIgnoreCase = true, },
+		{ sField = "version", sValue = (bIs2024 and "2024" or ""), },
+	};
+	local nodeRecord = RecordManager.findRecordByFilter(sRecordType, tFilters);
+	if nodeRecord then
+		local sDisplayClass = RecordDataManager.getRecordTypeDisplayClass(sRecordType, nodeRecord);
+		Interface.openWindow(sDisplayClass, nodeRecord);
+		return true;
+	end
+	return false;
+end
+function helperOpenLinkRecordFail(sRecordType)
+	local sDisplay = LibraryData.getSingleDisplayText(sRecordType);
+	ChatManager.SystemMessage(string.format(Interface.getString("char_error_missinglink"), sDisplay));
+end
+
 --
 -- CHARACTER CHECKS
 --
@@ -305,6 +422,49 @@ function getLevel(nodeChar)
 		end
 	end
 	return nTotal;
+end
+function getNextLevelXP(nodeChar)
+	local nCharLevel = CharManager.getLevel(nodeChar);
+	if nCharLevel < 2 then
+		return 300;
+	elseif nCharLevel == 2 then
+		return 900;
+	elseif nCharLevel == 3 then
+		return 2700;
+	elseif nCharLevel == 4 then
+		return 6500;
+	elseif nCharLevel == 5 then
+		return 14000;
+	elseif nCharLevel == 6 then
+		return 23000;
+	elseif nCharLevel == 7 then
+		return 34000;
+	elseif nCharLevel == 8 then
+		return 48000;
+	elseif nCharLevel == 9 then
+		return 64000;
+	elseif nCharLevel == 10 then
+		return 85000;
+	elseif nCharLevel == 11 then
+		return 100000;
+	elseif nCharLevel == 12 then
+		return 120000;
+	elseif nCharLevel == 13 then
+		return 140000;
+	elseif nCharLevel == 14 then
+		return 165000;
+	elseif nCharLevel == 15 then
+		return 195000;
+	elseif nCharLevel == 16 then
+		return 225000;
+	elseif nCharLevel == 17 then
+		return 265000;
+	elseif nCharLevel == 18 then
+		return 305000;
+	elseif nCharLevel == 19 then
+		return 355000;
+	end
+	return 0;
 end
 function getClassLevel(nodeChar, s)
 	local nodeCharClass = CharManager.getClassRecord(nodeChar, s, true);
@@ -387,12 +547,30 @@ end
 function getSpellcastingData(nodeChar)
 	local tCharClassMagicData = {};
 	for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-		local sClassName = DB.getValue(vClass, "name", "");
-		local nClassLevel = DB.getValue(vClass, "level", 0);
-		local bPactMagic = (DB.getValue(vClass, "casterpactmagic", 0) > 0);
-		local nSpellSlotMult = DB.getValue(vClass, "casterlevelinvmult", 0);
-		if nSpellSlotMult > 0 then
-			table.insert(tCharClassMagicData, { sName = sClassName, nLevel = nClassLevel, bPactMagic = bPactMagic, nSpellSlotMult = nSpellSlotMult });
+		local nCasterLevelMult = DB.getValue(vClass, "casterlevelinvmult", 0);
+		if nCasterLevelMult ~= 0 then
+			local tClassMagicData = {
+				sClassName = DB.getValue(vClass, "name", ""),
+				nClassLevel = DB.getValue(vClass, "level", 0),
+				nCasterLevelMult = nCasterLevelMult,
+				bPactMagic = (DB.getValue(vClass, "casterpactmagic", 0) > 0),
+				nCantrips = DB.getValue(vClass, "cantrips", 0),
+				nKnown = DB.getValue(vClass, "spellsknown", 0),
+				nPrepared = DB.getValue(vClass, "spellsprepared", 0),
+				sAbility = DB.getValue(vClass, "spellability", ""),
+			};
+			if tClassMagicData.nCasterLevelMult > 0 then
+				tClassMagicData.nSpellCastLevel = math.ceil(tClassMagicData.nClassLevel * (1 / tClassMagicData.nCasterLevelMult));
+				if tClassMagicData.nCasterLevelMult > 1 then
+					tClassMagicData.nMulticlassSpellCastLevel = math.floor(tClassMagicData.nClassLevel * (1 / tClassMagicData.nCasterLevelMult));
+				else
+					tClassMagicData.nMulticlassSpellCastLevel = tClassMagicData.nSpellCastLevel;
+				end
+			elseif tClassMagicData.nCasterLevelMult < 0 then
+				tClassMagicData.nSpellCastLevel = math.ceil(tClassMagicData.nClassLevel  * (1 / -tClassMagicData.nCasterLevelMult));
+				tClassMagicData.nMulticlassSpellCastLevel = tClassMagicData.nSpellCastLevel;
+			end
+			table.insert(tCharClassMagicData, tClassMagicData);
 		end
 	end
 	return tCharClassMagicData;
@@ -565,6 +743,13 @@ function getTraitRecord(nodeChar, s)
 		end
 	end
 	return nil;
+end
+
+function refreshNextLevelXP(nodeChar)
+	if not nodeChar then
+		return;
+	end
+	DB.setValue(nodeChar, "expneeded", "number", CharManager.getNextLevelXP(nodeChar))
 end
 
 --
@@ -820,22 +1005,24 @@ function addPowerGroup(nodeChar, tData)
 	elseif tData.bChooseSpellAbility then
 		CharBuildDropManager.chooseSpellGroupAbility(nodePowerGroup);
 	end
-	if tData.nPrepared then
-		DB.setValue(nodePowerGroup, "prepared", "number", tData.nPrepared);
-	end
 
 	return nodePowerGroup;
 end
 function addSpell(nodeChar, tData)
-	if not nodeChar or not tData or ((tData.sName or "") == "") then
+	if not nodeChar or not tData or (((tData.sName or "") == "") and ((tData.sRecord or "") == "")) then
 		return nil;
 	end
 
-	local tFilters = {
-		{ sField = "name", sValue = tData.sName, bIgnoreCase = true, },
-		{ sField = "version", sValue = (tData.bSource2024 and "2024" or ""), },
-	};
-	local nodeSpell = RecordManager.findRecordByFilter("spell", tFilters)
+	local nodeSpell;
+	if (tData.sRecord or "" ~= "") then
+		nodeSpell = DB.findNode(tData.sRecord);
+	else
+		local tFilters = {
+			{ sField = "name", sValue = tData.sName, bIgnoreCase = true, },
+			{ sField = "version", sValue = (tData.bSource2024 and "2024" or ""), },
+		};
+		nodeSpell = RecordManager.findRecordByFilter("spell", tFilters)
+	end
 	if not nodeSpell then
 		return nil;
 	end

@@ -24,22 +24,22 @@
 							return;
 						end
 
-						local sTypeLower = StringManager.simplify(DB.getValue(nodeRecord, "type", ""));
-						local bArcaneFocus = (sTypeLower == "rod") or (sTypeLower == "staff") or (sTypeLower == "wand");
+						local sTypeKey = StringManager.simplify(DB.getValue(nodeRecord, "type", ""));
+						local bArcaneFocus = StringManager.contains({ "rod", "staff", "wand", }, sTypeKey);
 						if bArcaneFocus then
 							setValue("item_main_arcanefocus", nodeRecord);
 							subwindow.update(bReadOnly, bID);
 							return;
 						end
 	
-						local bVehicleComponent = (sTypeLower == "vehicle component");
+						local bVehicleComponent = (sTypeKey == "vehiclecomponent");
 						if bVehicleComponent then
 							setValue("item_main_vehicle", nodeRecord);
 							subwindow.update(bReadOnly, bID);
 							return;
 						end
 
-						local bLegacyVehicle = (sTypeLower == "waterborne vehicles") or (sTypeLower == "mounts and other animals");
+						local bLegacyVehicle = StringManager.contains({ "waterbornevehicles", "mountsandotheranimals", }, sTypeKey);
 						if bLegacyVehicle then
 							setValue("item_main_vehicle_legacy", nodeRecord);
 							subwindow.update(bReadOnly, bID);
@@ -94,7 +94,7 @@
 	<!-- Item details -->
 	<windowclass name="item_main">
 		<margins control="0,0,0,2" />
-		<script file="campaign/scripts/item_main.lua" />
+		<script file="campaign/scripts/item_main_chronicle.lua" />
 		<sheetdata>
 			<anchor_content_top />
 
@@ -177,11 +177,11 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function update(bReadOnly, bID)
-				local tFields = { "bonus", "damage", "properties" };
+				local tFields = { "weapon_speciality", "weapon_training", "weapon_dmg_ability", "weapon_dmg_bonus", "weapon_dmg_string", "weapon_qualities" };
 				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
 
-				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
-				WindowManager.callSafeControlUpdate(self, "mastery", bReadOnly, not bID or not bIs2024);
+				-- local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
+				-- WindowManager.callSafeControlUpdate(self, "mastery", bReadOnly, not bID or not bIs2024);
 
 				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
@@ -225,7 +225,7 @@
 			<label_content_column name="weapon_dmg_ability_label">
 				<static textres="item_label_dmg_ability" />
 			</label_content_column>
-			<combobox_wpndmgability_column name="weapon_dmg_ability" />
+			<combobox_content_column_wpndmgability name="weapon_dmg_ability" />
 
 			<label_content_column name="weapon_dmg_bonus_label">
 				<static textres="item_label_dmg_bonus" />
@@ -249,14 +249,6 @@
 			</string_content_columnh>
 
 			<line_content_top name="divider" />
-			
-			
-			
-			
-			
-			
-			
-			
 		</sheetdata>
 	</windowclass>
 	
@@ -265,11 +257,11 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function update(bReadOnly, bID)
-				local tFields = { "bonus", "ac", "dexbonus", "strength", "stealth", };
+				local tFields = { "armor_rating", "armor_penalty", "properties" };
 				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
 
-				local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
-				WindowManager.callSafeControlUpdate(self, "properties", bReadOnly, not bID or bIs2024);
+				-- local bIs2024 = (DB.getValue(getDatabaseNode(), "version", "") == "2024");
+				-- WindowManager.callSafeControlUpdate(self, "properties", bReadOnly, not bID or bIs2024);
 
 				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
@@ -407,6 +399,10 @@
 					<defaultlabelres>item_vehicle_component_cover_none</defaultlabelres>
 				</parameters>
 			</button_stringcycler>
+
+			<sub_content_top name="sub_actions">
+				<class>item_main_vehicle_actions</class>
+			</sub_content_top>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="item_main_vehicle_actions">
@@ -526,14 +522,14 @@
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
-			<label_content_column name="speed_label">
+			<label_column name="speed_label">
 				<static textres="item_label_speed" />
-			</label_content_column>
+			</label_column>
 			<string_columnh name="speed" />
 			
-			<label_content_column name="carryingcapacity_label">
+			<label_column name="carryingcapacity_label">
 				<static textres="item_label_carryingcapacity" />
-			</label_content_column>
+			</label_column>
 			<string_columnh name="carryingcapacity" />
 		</sheetdata>
 	</windowclass>

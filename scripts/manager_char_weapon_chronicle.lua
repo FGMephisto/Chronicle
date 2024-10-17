@@ -33,8 +33,8 @@ end
 --
 --	Weapon inventory management
 --
--- Add weapon data to Weapon Action List if a weapon is dropped to the Inventory List
--- Adjusted
+
+-- Adjusted - Adds weapon data to Weapon Action List if a weapon is dropped to the Inventory List
 function addToWeaponDB(nodeItem)
 	-- Parameter validation
 	if not ItemManager.isWeapon(nodeItem) then
@@ -216,7 +216,7 @@ function onItemIDChanged(nodeItemID)
 	local nodeChar = DB.getChild(nodeItemID, "....");
 	
 	local sPath = DB.getPath(nodeItem);
- 	for _,vWeapon in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
+	for _,vWeapon in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
 		local _,sRecord = DB.getValue(vWeapon, "shortcut", "", "");
 		if sRecord == sPath then
 			CharWeaponManager.checkWeaponIDChange(vWeapon);
@@ -224,8 +224,7 @@ function onItemIDChanged(nodeItemID)
 	end
 end
 
--- Change weapon name in Weapon DB if the items "identified" value changes
--- Adjusted
+-- Adjusted - Change weapon name in Weapon DB if the items "identified" value changes
 function checkWeaponIDChange(nodeWeapon)
 	local _,sRecord = DB.getValue(nodeWeapon, "shortcut", "", "");
 	if sRecord == "" then
@@ -307,10 +306,8 @@ end
 
 -- Adjusted
 function checkProperty(v, sTargetProperty)
-	-- Debug.chat("FN: checkProperty in manager_char_weapon")
 	local sProperties;
 	local sVarType = type(v);
-
 	if sVarType == "databasenode" then
 		sProperties = DB.getValue(v, "wpn_qualities", "");
 	elseif sVarType == "string" then
@@ -337,7 +334,6 @@ end
 function getProperty(v, sTargetPattern)
 	local sProperties;
 	local sVarType = type(v);
-
 	if sVarType == "databasenode" then
 		sProperties = DB.getValue(v, "wpn_qualities", "");
 	elseif sVarType == "string" then
@@ -382,7 +378,7 @@ function getAttackAbility(nodeChar, nodeWeapon)
 	-- end
 
 	-- Melee or Thrown
-	-- local bFinesse = checkProperty(nodeWeapon, WEAPON_PROP_FINESSE);
+	-- local bFinesse = CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_FINESSE);
 	-- if bFinesse then
 		-- local nSTR = ActorManager5E.getAbilityBonus(nodeChar, "strength");
 		-- local nDEX = ActorManager5E.getAbilityBonus(nodeChar, "dexterity");
@@ -396,14 +392,14 @@ end
 
 -- Adjusted
 function getAttackBonus(nodeChar, nodeWeapon)
-	-- local sAbility = getAttackAbility(nodeChar, nodeWeapon);
+	-- local sAbility = CharWeaponManager.getAttackAbility(nodeChar, nodeWeapon);
 	
 	-- local nMod = DB.getValue(nodeWeapon, "attackbonus", 0);
 	-- nMod = nMod + ActorManager5E.getAbilityBonus(nodeChar, sAbility);
 	-- if DB.getValue(nodeWeapon, "prof", 0) == 1 then
 		-- nMod = nMod + DB.getValue(nodeChar, "profbonus", 0);
 	-- end
-	
+
 	-- return nMod, sAbility;
 end
 
@@ -493,8 +489,6 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	return sAbility;
 end
 
---
--- Damage functions
 -- Adjusted
 function getDamageClauses(nodeChar, nodeWeapon)
 	local rActor = ActorManager.resolveActor(nodeChar);
@@ -545,8 +539,6 @@ function getDamageClauses(nodeChar, nodeWeapon)
 end
 
 function buildDamageAction(nodeChar, nodeWeapon)
-	-- Debug.chat("FN: buildDamageAction in manager_char_weapon")
-	-- Build basic damage action record
 	local rAction = {
 		bWeapon = true,
 		label = DB.getValue(nodeWeapon, "name", ""),

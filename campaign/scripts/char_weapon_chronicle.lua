@@ -57,11 +57,10 @@ end
 -- Adjusted
 --
 function onDataChanged()
-	-- Debug.chat("FN: onDataChanged in char_weapon")
 	-- Update Attack Attribute and show/hide ammo UI
 	local nodeWeapon = getDatabaseNode()
 	local nWeaponType = DB.getValue(nodeWeapon, "wpn_type", 0)
-	local sStat = DB.getValue(nodeWeapon, "atk_stat")
+	local sStat = DB.getValue(nodeWeapon, "atk_stat"):lower()
 
 	if nWeaponType == 0 then
 		if sStat ~= "fighting" then

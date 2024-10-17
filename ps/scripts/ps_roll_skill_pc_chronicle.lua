@@ -11,7 +11,6 @@ function action(draginfo)
 
 	-- Get the selected skill from the button control
 	local sSkill = window.pcskillselected.getValue()
-Debug.chat("sSkill", sSkill)
 
 	-- Handle empty fields
 	if sSkill == nil then

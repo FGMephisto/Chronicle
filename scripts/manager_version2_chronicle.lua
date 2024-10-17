@@ -5,7 +5,7 @@
 --
 
 local rsname = "Chronicle";
-local rsmajorversion = 8;
+local rsmajorversion = 10;
 
 function onInit()
 	if Session.IsHost then
@@ -60,7 +60,8 @@ function updateCampaign()
 		return;
 	end
 	
-	if major > 0 and major < rsmajorversion then
+	-- if major > 0 and major < rsmajorversion then
+	if true then
 		ChatManager.SystemMessage("Migrating campaign database to latest data version.");
 		DB.backup();
 		
@@ -70,7 +71,6 @@ function updateCampaign()
 			end
 		end
 
-		-- Check for campaign major version
 		if major < 6 then
 			for _, nodeChar in pairs (DB.getChildren("charsheet")) do
 				VersionManager2.migrateChar6(nodeChar)
@@ -85,7 +85,6 @@ function updateCampaign()
 			end
 		end
 
-		-- Check for campaign major version
 		if major < 7 then
 			for _, nodeChar in pairs (DB.getChildren("charsheet")) do
 				VersionManager2.migrateChar7(nodeChar)
@@ -100,7 +99,6 @@ function updateCampaign()
 			end
 		end
 
-		-- Check for campaign major version
 		if major < 8 then
 			for _, nodeNPC in pairs (DB.getChildren("npc")) do
 				VersionManager2.migrateNPC8(nodeNPC)
@@ -111,10 +109,9 @@ function updateCampaign()
 			end
 		end
 
-		-- Check for campaign major version
-		if major < 9 then
-			for _, nodeChar in pairs (DB.getChildren("charsheet")) do
-				VersionManager2.migrateChar8(nodeChar)
+		if major < 10 then
+			for _, nodeFeat in pairs (DB.getChildren("feat")) do
+				VersionManager2.migrateFeat10(nodeFeat)
 			end
 		end
 	end
@@ -147,10 +144,8 @@ function updateModule(sModule, nVersion)
 end
 
 function migrateChar5(nodeChar)
-	-- Delete data node as we will rebuild it
 	DB.deleteChild(nodeChar, "abilities");
 
-	-- Create "Abilities" & "SkillList" nodes if missing
 	local EntryMap = {}
 	local nodeAbilities = DB.createChild(nodeChar, "abilities")
 	local nodeSkillList = DB.createChild(nodeChar, "skilllist")
@@ -213,16 +208,13 @@ function migrateChar5(nodeChar)
 end
 
 function migrateChar6(nodeChar)
-	-- Get nodes for migration
 	for _, nodeWeapon in pairs (DB.getChildren(nodeChar, "weaponlist")) do
-		-- Migrate values from old to new DB entries
 		DB.setValue(nodeWeapon, "wpn_handling", "number", DB.getValue(nodeWeapon, "handling", 0))
 		DB.setValue(nodeWeapon, "wpn_qualities", "string", DB.getValue(nodeWeapon, "qualities", ""))
 		DB.setValue(nodeWeapon, "wpn_type", "number", DB.getValue(nodeWeapon, "type", 0))
 		DB.setValue(nodeWeapon, "wpn_grade", "string", DB.getValue(nodeWeapon, "weapon_grade", "Common"))
 		DB.setValue(nodeWeapon, "wpn_training", "number", DB.getValue(nodeWeapon, "weapon_training", 0))
 
-		-- Delete non-required DB entries
 		DB.deleteChild(nodeWeapon, "atkskill")
 		DB.deleteChild(nodeWeapon, "atkstat")
 		DB.deleteChild(nodeWeapon, "dmgbonus")
@@ -233,7 +225,6 @@ function migrateChar6(nodeChar)
 		DB.deleteChild(nodeWeapon, "training")
 		DB.deleteChild(nodeWeapon, "wpngrade")
 
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeWeapon, "handling")
 		DB.deleteChild(nodeWeapon, "qualities")
 		DB.deleteChild(nodeWeapon, "type")
@@ -243,32 +234,25 @@ function migrateChar6(nodeChar)
 end
 
 function migrateChar7(nodeChar)
-	-- Get nodes for migration
 	for _, nodeSkills in pairs (DB.getChildren(nodeChar, "skilllist")) do
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeWeapon, "wpn_name")
 	end
 end
 
 function migrateChar8(nodeChar)
-	-- Get nodes for migration
 	for _, nodeSkills in pairs (DB.getChildren(nodeChar, "skilllist")) do
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeSkills, "statshort")
 		DB.deleteChild(nodeSkills, "total")		
 	end
 end
 
 function migrateNPC6(nodeNPC)
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeNPC, "actions")) do
-		-- Migrate values from old to new DB entries
 		DB.setValue(nodeAction, "atk_bonus", "number", DB.getValue(nodeAction, "atk_modifier", 0))
 		DB.setValue(nodeAction, "wpn_handling", "number", DB.getValue(nodeAction, "atk_handling", 0))
 		DB.setValue(nodeAction, "wpn_qualities", "string", DB.getValue(nodeAction, "desc", ""))
 		DB.setValue(nodeAction, "wpn_type", "number", DB.getValue(nodeAction, "atk_type", 0))
 
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeAction, "atk_handling")
 		DB.deleteChild(nodeAction, "atk_modifier")
 		DB.deleteChild(nodeAction, "atk_type")
@@ -278,40 +262,31 @@ function migrateNPC6(nodeNPC)
 end
 
 function migrateNPC7(nodeNPC)
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeNPC, "actions")) do
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeAction, "wpn_name")
 	end
 end
 
 function migrateNPC8(nodeNPC)
-	-- Create target node
 	nodeNPC.createChild("weaponlist")
 
 	-- Get new path to weaponlist
 	nodeWeapon = DB.getPath(nodeNPC, "weaponlist")
 
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeNPC, "actions")) do
-		-- Copy actions nodes to weaponlist nodes
 		DB.copyNode(nodeAction , nodeWeapon)
 	end
 	
-	-- Delete old actions node
 	DB.deleteNode(DB.getPath(nodeNPC, "actions"))
 end
 
 function migrateCT6(nodeCT)
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
-		-- Migrate values from old to new DB entries
 		DB.setValue(nodeAction, "atk_bonus", "number", DB.getValue(nodeAction, "atk_modifier", 0))
 		DB.setValue(nodeAction, "wpn_handling", "number", DB.getValue(nodeAction, "atk_handling", 0))
 		DB.setValue(nodeAction, "wpn_qualities", "string", DB.getValue(nodeAction, "desc", ""))
 		DB.setValue(nodeAction, "wpn_type", "number", DB.getValue(nodeAction, "atk_type", 0))
 
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeAction, "atk_handling")
 		DB.deleteChild(nodeAction, "atk_modifier")
 		DB.deleteChild(nodeAction, "atk_type")
@@ -321,26 +296,38 @@ function migrateCT6(nodeCT)
 end
 
 function migrateCT7(nodeCT)
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
-		-- Delete old migrated DB entries
 		DB.deleteChild(nodeAction, "wpn_name")
 	end
 end
 
 function migrateCT8(nodeCT)
-	-- Create target node
 	nodeCT.createChild("weaponlist")
 
 	-- Get new path to weaponlist
 	nodeWeapon = DB.getPath(nodeCT, "weaponlist")
 
-	-- Get nodes for migration
 	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
-		-- Copy actions nodes to weaponlist nodes
 		DB.copyNode(nodeAction , nodeWeapon)
 	end
 	
-	-- Delete old actions node
 	DB.deleteNode(DB.getPath(nodeCT, "actions"))
+end
+
+function migrateFeat10(nodeFeat)
+	sType = DB.getValue(nodeFeat, "type", "")
+	sSubType = DB.getValue(nodeFeat, "subtype", "")
+
+	if sSubType ~= "" then
+		sType = sType .. " (" .. sSubType .. ")"
+	end
+	
+	DB.setValue(nodeFeat, "category", "string", sType)
+	DB.setValue(nodeFeat, "prerequisite", "string", DB.getValue(nodeFeat, "requirements", ""))
+
+	-- Delete old migrated DB entries
+	DB.deleteChild(nodeFeat, "type")
+	DB.deleteChild(nodeFeat, "subtype")
+	DB.deleteChild(nodeFeat, "requirements")
+	DB.deleteChild(nodeFeat, "textshort")
 end
