@@ -11,6 +11,10 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_background_instructions</class>
+			</sub_content_top>
+
 			<header_content_framed_metalplate_with_icon_top name="background_select_header">
 				<icon>char_background</icon>
 				<static textres="charwizard_title_background" />
@@ -27,17 +31,20 @@
 				</script>
 			</button_text>
 
-			<sub_content name="sub_backgroundselection">
+			<sub_content_top name="sub_backgroundselection">
 				<class>sub_charwizard_background_backgroundselection</class>
-			</sub_content>
-			<list_content name="background_decisions_list">
+			</sub_content_top>
+			<list_content_top name="list_features">
 				<class>list_entry_charwizard_backgroundfeatures</class>
 				<invisible />
-			</list_content>
-			<scrollbar_content_base>
-				<anchored to="background_decisions_list" />
-				<target>background_decisions_list</target>
-			</scrollbar_content_base>
+			</list_content_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charwizard_background_instructions" copy="charwizard_instructions">
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_background" />
+			</stringc_content_noframe_noscroll_static_top>
 		</sheetdata>
 	</windowclass>
 
@@ -45,7 +52,6 @@
 		<script file="charwizard/scripts/background_sub_backgroundselections.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			<anchor_content_bottom />
 
 			<filter_label_content_top name="label_source">
 				<static textres="charwizard_label_filtersource" />
@@ -62,14 +68,13 @@
 				<anchored height="5" />
 			</spacer_content_top>
 
-			<sub_content_paging name="sub_paging" />
-
-			<list_content name="list">
+			<list_content_top name="list">
 				<class>list_entry_charwizard_backgroundselection</class>
 				<sortby><control>name</control></sortby>
 				<empty textres="charwizard_empty_list" />
-			</list_content>
-			<scrollbar_content_list />
+			</list_content_top>
+
+			<sub_content_paging_top name="sub_paging" />
 		</sheetdata>
 	</windowclass>
 	<windowclass name="list_entry_charwizard_backgroundselection" copy="list_entry_charwizard_item_selection" />
@@ -85,4 +90,56 @@
 		</sheetdata>
 	</windowclass>
 	<windowclass name="list_entry_charwizard_backgroundfeature_decisions" copy="list_entry_charwizard_item_decision" />
+
+	<windowclass name="decision_sub_backgroundfeat_choice">
+		<script file="charwizard/scripts/decision_sub_feat_choice.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<filter_label_content_top name="label_source">
+				<anchored width="70" />
+				<static textres="charwizard_label_filtersource" />
+			</filter_label_content_top>
+			<filter_comboboxc_content_top name="filter_source">
+				<anchored to="contentanchor" height="20">
+					<left offset="115" />
+				</anchored>
+				<listdirection>down</listdirection>
+				<listmaxsize>8</listmaxsize>
+			</filter_comboboxc_content_top>
+			<filter_label_content_top name="label_category">
+				<anchored width="70" />
+				<static textres="charwizard_label_filtercategory" />
+			</filter_label_content_top>
+			<filter_comboboxc_content_top name="filter_category">
+				<anchored to="contentanchor" height="20">
+					<left offset="115" />
+				</anchored>
+				<listdirection>down</listdirection>
+				<listmaxsize>8</listmaxsize>
+			</filter_comboboxc_content_top>
+			<filter_label_content_top name="label_name">
+				<anchored width="70" />
+				<static textres="charwizard_label_filtername" />
+			</filter_label_content_top>
+			<filter_stringc_content_top name="filter_name">
+				<anchored to="contentanchor" height="20">
+					<left offset="115" />
+				</anchored>
+			</filter_stringc_content_top>
+			<spacer_content_top name="spacer">
+				<anchored height="5" />
+			</spacer_content_top>
+
+			<sub_content_paging name="sub_paging" />
+
+			<list_content_noscroll_top name="list">
+				<class>list_entry_decision_backgroundfeat</class>
+				<sortby><control>name</control></sortby>
+				<empty textres="charwizard_empty_list" />
+			</list_content_noscroll_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_decision_backgroundfeat" copy="list_entry_charwizard_item_selection" />
 </root>

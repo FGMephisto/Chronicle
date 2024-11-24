@@ -4,6 +4,10 @@
 --
 
 function onInit()
+	if super and super.onInit then
+		super.onInit();
+	end
+	
 	if Session.IsHost then
 		registerMenuItem(Interface.getString("menu_rest"), "lockvisibilityon", 7);
 		registerMenuItem(Interface.getString("menu_restshort"), "pointer_cone", 7, 8);

@@ -44,9 +44,7 @@ currencies = {
 };
 currencyDefault = "Silver";
 
---
 -- Adjusted
---
 function onInit()	
 	CharEncumbranceManager.addStandardCalc("Chronicle");
 	CombatListManager.registerStandardInitSupport();
@@ -58,10 +56,20 @@ function onInit()
 	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
 
+	-- LocationManager.registerLocationType({ 
+		-- sKey = StringManager.simplify(Interface.getString("location_type_bastion")), 
+		-- sSub = "location_main_bastion", 
+	-- });
+	-- LocationManager.registerLocationType({ 
+		-- sKey = StringManager.simplify(Interface.getString("location_type_bastionfacility")), 
+		-- sSub = "location_main_bastionfacility", 
+	-- });
+
 	-- Languages
 	languages = {
 		-- Standard languages
 		[Interface.getString("language_value_common")] = "",
+		-- [Interface.getString("language_value_common_sign")] = "",
 		-- [Interface.getString("language_value_dwarvish")] = "Dwarven",
 		-- [Interface.getString("language_value_elvish")] = "Elven",
 		-- [Interface.getString("language_value_giant")] = "Dwarven",
@@ -85,7 +93,7 @@ function onInit()
 		-- [Interface.getString("language_value_aarakocra")] = "",
 		-- [Interface.getString("language_value_druidic")] = "",
 		-- [Interface.getString("language_value_thievescant")] = "",
-	}
+	};
 	languagefonts = {
 		[Interface.getString("language_value_celestial")] = "Celestial",
 		[Interface.getString("language_value_draconic")] = "Draconic",
@@ -93,7 +101,18 @@ function onInit()
 		[Interface.getString("language_value_elvish")] = "Elven",
 		[Interface.getString("language_value_infernal")] = "Infernal",
 		[Interface.getString("language_value_primordial")] = "Primordial",
-	}
+	};
+	languagestandard = {
+		Interface.getString("language_value_common_sign"),
+		-- Interface.getString("language_value_draconic"),
+		-- Interface.getString("language_value_dwarvish"),
+		-- Interface.getString("language_value_elvish"),
+		-- Interface.getString("language_value_giant"),
+		-- Interface.getString("language_value_gnomish"),
+		-- Interface.getString("language_value_goblin"),
+		-- Interface.getString("language_value_halfling"),
+		-- Interface.getString("language_value_orc"),
+	};
 end
 
 -- Adjusted

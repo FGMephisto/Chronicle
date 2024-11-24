@@ -21,9 +21,6 @@ end
 function getAllSubclasses()
 	return _tSubclasses;
 end
-function setAllSubclasses(tSubclasses)
-	_tSubclasses = tSubclasses;
-end
 function getAllModules()
 	return _tModules;
 end
@@ -56,25 +53,16 @@ function addListRecord(vNode)
 	rRecord.sDisplayName = DB.getValue(vNode, "name", "");
 	rRecord.sDisplayNameLower = rRecord.sDisplayName:lower();
 	
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
 	local tSubclasses = self.getAllSubclasses();
-	if not tSubclasses[rRecord.sDisplayNameLower] then
-		tSubclasses[rRecord.sDisplayNameLower] = {};
-	end
-
+	tSubclasses[rRecord.sDisplayNameLower] = tSubclasses[rRecord.sDisplayNameLower] or {};
 	table.insert(tSubclasses[rRecord.sDisplayNameLower], rRecord);
-	self.setAllSubclasses(tSubclasses);
+
 	self.getAllModules()[rRecord.sModule] = true;
 end
 

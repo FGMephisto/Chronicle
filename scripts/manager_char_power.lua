@@ -24,8 +24,15 @@ function addPowerDB(nodeChar, sClass, sRecord, sGroup)
 	end
 
 	CharPowerManager.pausePowerGroupUpdates(nodeChar);
-	PowerManager.addPower(sClass, DB.findNode(sRecord), nodeChar, sGroup);
+	local nodeNewPower = PowerManager.addPower(sClass, DB.findNode(sRecord), nodeChar, sGroup);
 	CharPowerManager.resumePowerGroupUpdates(nodeChar);
+
+	if sGroup and nodeNewPower then
+		local nodePowerGroup = CharManager.getPowerGroupRecord(nodeChar, sGroup);
+		if nodePowerGroup and (DB.getValue(nodePowerGroup, "castertype", "") == "memorization") then
+			DB.setValue(nodeNewPower, "prepared", "number", 1);
+		end
+	end
 
 	local wChar = Interface.findWindow("charsheet", nodeChar);
 	if wChar then

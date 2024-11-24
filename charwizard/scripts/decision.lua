@@ -102,12 +102,17 @@ function updateOptions(tSelectedSimplifiedKeyMap)
 	end
 end
 
+function clearDecision()
+	decision_choice.setListValue("");
+	self.checkOutstandingDecisions();
+end
+
 function onResetButtonPressed()
 	local sClass = getClass();
 	if sClass == "list_entry_charwizard_feature_decisions" then
 		CharWizardClassManager.resetClassDecision(self);
 	elseif sClass == "list_entry_charwizard_backgroundfeature_decisions" then
-		-- CharWizardBackgroundManager.resetBackgroundDecision(self);
+		CharWizardBackgroundManager.resetBackgroundDecisionFeat(self);
 	elseif sClass == "list_entry_charwizard_trait_decisions" then
 		CharWizardSpeciesManager.resetSpeciesDecisionFeat(self);
 	end
@@ -121,9 +126,7 @@ function checkOutstandingDecisions()
 			break;
 		end
 	end
-	if not bOutstandingDecisions then
-		windowlist.window.toggleDetailsVisible();
-	end
+	windowlist.window.setDetailsVisible(bOutstandingDecisions);
 end
 function hasOutstandingDecision()
 	return (decision_choice.getValue() == "") and (choice.getValue() == "");

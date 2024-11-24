@@ -95,11 +95,14 @@ function findSubclassByName(nodeClass, sSubclass)
 	return nil;
 end
 
+function getClassPowerGroupByName(sClassName)
+	return Interface.getString("char_spell_powergroup"):format(sClassName or "");
+end
 function getClassName(rAdd)
 	return DB.getValue(rAdd.nodeSource, "name", "");
 end
 function getClassSpellGroup(rAdd)
-	return Interface.getString("char_spell_powergroup"):format(CharClassManager.getClassName(rAdd));
+	return CharClassManager.getClassPowerGroupByName(CharClassManager.getClassName(rAdd));
 end
 
 function helperAddClassMain(rAdd)
@@ -1000,7 +1003,7 @@ end
 function helperCheckClassFeatureSpecialHandling2014(rAdd)
 	if not rAdd.bWizard then
 		if rAdd.sSourceType == "abilityscoreimprovement" then
-			CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
+			CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, { bSource2024 = rAdd.bSource2024, });
 			return true;
 		end
 	end
@@ -1080,10 +1083,10 @@ function helperAddClassFeatureUnarmoredDefense(rAdd)
 	local sAbility = rAdd.sSourceText:match("base Armor Class equals 10 plus your Dexterity and (%w+) modifiers");
 	if not sAbility then
 		-- 2014
-		sAbility = rAdd.sSourceText:match("your Armor Class equals 10 + your Dexterity modifier + your (%w+) modifier");
+		sAbility = rAdd.sSourceText:match("your Armor Class equals 10 %+ your Dexterity modifier %+ your (%w+) modifier");
 		if not sAbility then
 			-- 2014
-			sAbility = rAdd.sSourceText:match("your AC equals 10 + your Dexterity modifier + your (%w+) modifier");
+			sAbility = rAdd.sSourceText:match("your AC equals 10 %+ your Dexterity modifier %+ your (%w+) modifier");
 		end
 	end
 	if not sAbility then
@@ -1151,7 +1154,7 @@ function helperAddClassFeatureDeftExplorer(rAdd)
 end
 function helperAddClassFeatureIronMind(rAdd)
 	if CharManager.hasSaveProficiency(rAdd.nodeChar, "wisdom") then
-		CharBuildDropManager.pickSaveProficiency(rAdd.nodeChar, { "intelligence", "charisma" });
+		CharBuildDropManager.pickSaveProficiency(rAdd.nodeChar, { "intelligence", "charisma", });
 	else
 		CharManager.addSaveProficiency(rAdd.nodeChar, "wisdom");
 	end

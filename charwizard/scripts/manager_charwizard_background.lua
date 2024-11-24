@@ -38,13 +38,7 @@ function setBackgroundRecord(v)
 	if bIs2024 then
 		CharWizardBackgroundManager.handleBackgroundEquipmentKit2024();
 	else
-		local sEquipment = DB.getValue(nodeRecord, "equipment", "");
-		local nGold = CharWizardBackgroundManager.parseBackgroundGold2014(sEquipment);
-		CharWizardBackgroundManager.setBackgroundStartingGold(nGold);
-
-		local tInnate, tChoices = CharWizardBackgroundManager.parseBackgroundEquipmentKitItems2014(sEquipment);
-		CharWizardBackgroundManager.setBackgroundStartingKitItems(tInnate);
-		CharWizardBackgroundManager.setBackgroundStartingKitOptions(tChoices);
+		CharWizardBackgroundManager.handleBackgroundEquipmentKit2014();
 	end
 
 	CharWizardEquipmentManager.onEquipmentPageUpdate();
@@ -79,6 +73,17 @@ function handleBackgroundEquipmentKit2024()
 	end
 
 	CharWizardBackgroundManager.setBackgroundStartingKitOptions(tOptions);
+end
+function handleBackgroundEquipmentKit2014()
+	local tBackground = CharWizardManager.getBackgroundData();
+	local sEquipment = DB.getValue(DB.findNode(tBackground.background), "equipment", "");
+
+	local nGold = CharWizardBackgroundManager.parseBackgroundGold2014(sEquipment);
+	CharWizardBackgroundManager.setBackgroundStartingGold(nGold);
+
+	local tInnate, tChoices = CharWizardBackgroundManager.parseBackgroundEquipmentKitItems2014(sEquipment);
+	CharWizardBackgroundManager.setBackgroundStartingKitItems(tInnate);
+	CharWizardBackgroundManager.setBackgroundStartingKitOptions(tChoices);
 end
 function parseBackgroundGold2014(s)
 	local tSplitEquipment = StringManager.split(s, ",");
@@ -158,7 +163,6 @@ function parseBackgroundEquipmentKitItems2014(s)
 				{ sField = "version", sValue = "", },
 			};
 			local nodeItem = RecordManager.findRecordByFilter("item", tItemFilters);
-			--local nodeItem = RecordManager.findRecordByStringI("item", "name", v);
 			if nodeItem then
 				table.insert(tItems, { item = nodeItem, count = 1 });
 			end
@@ -289,6 +293,10 @@ function setBackgroundFeat(s)
 	local tBackground = CharWizardManager.getBackgroundData();
 	tBackground.feat = s;
 end
+function setBackgroundFeatPath(sPath)
+	local tBackground = CharWizardManager.getBackgroundData();
+	tBackground.featpath = sPath;
+end
 function addBackgroundAbilityIncreases(sAbility, nMod)
 	if ((sAbility or "") == "") then
 		return;
@@ -386,7 +394,7 @@ function processBackground(w)
 	local wBackground = CharWizardManager.getWizardBackgroundWindow();
 	wBackground.sub_backgroundselection.setVisible(false);
 	wBackground.button_changebackground.setVisible(true);
-	wBackground.background_decisions_list.setVisible(true);
+	wBackground.list_features.setVisible(true);
 	wBackground.background_select_header.setValue(DB.getValue(DB.findNode(sRecord), "name", ""):upper());
 
 	CharWizardBackgroundManager.updateBackgroundFeatures();
@@ -400,13 +408,14 @@ function resetBackground(w)
 	local wBackground = CharWizardManager.getWizardBackgroundWindow();
 	wBackground.sub_backgroundselection.setVisible(true);
 	wBackground.button_changebackground.setVisible(false);
-	wBackground.background_decisions_list.setVisible(false);
-	wBackground.background_decisions_list.closeAll();
+	wBackground.list_features.setVisible(false);
+	wBackground.list_features.closeAll();
 	wBackground.background_select_header.setValue();
 
 	CharWizardEquipmentManager.onBackgroundClear();
 
 	CharWizardAbilitiesManager.updateAbilities();
+	CharWizardDecisionManager.refreshOverallDecisions();
 	CharWizardManager.updateAlerts();
 end
 
@@ -423,7 +432,6 @@ function updateBackgroundFeatures(w)
 	CharWizardBackgroundManager.handleBackgroundLanguages(nodeBackground, bIs2024);
 	CharWizardBackgroundManager.handleBackgroundFeat(nodeBackground, bIs2024);
 	CharWizardBackgroundManager.handleBackgroundFeatures(nodeBackground, bIs2024);
-
 end
 function handleBackgroundAbilities(nodeBackground, bIs2024)
 	if not nodeBackground or not bIs2024 then
@@ -439,10 +447,10 @@ function handleBackgroundAbilities(nodeBackground, bIs2024)
 		return;
 	end
 
-	local w2 = wBackground.background_decisions_list.createWindow();
+	local w2 = wBackground.list_features.createWindow();
 	w2.feature.setValue("Abilities");
 	w2.feature_desc.setValue(s);
-	CharWizardManager.createDecision(w2, { sDecisionType = "asibackgroundoption", });
+	CharWizardDecisionManager.createDecision(w2, { sDecisionType = "asibackgroundoption", });
 end
 function handleBackgroundSkills(nodeBackground, bIs2024)
 	if not nodeBackground then
@@ -457,7 +465,7 @@ function handleBackgroundSkills(nodeBackground, bIs2024)
 	if s == "" then
 		return;
 	end
-	local w2 = wBackground.background_decisions_list.createWindow();
+	local w2 = wBackground.list_features.createWindow();
 	w2.feature.setValue("Skill");
 	w2.feature_desc.setValue(s);
 
@@ -470,8 +478,11 @@ function handleBackgroundSkills(nodeBackground, bIs2024)
 			CharWizardBackgroundManager.addBackgroundSkillChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w2, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w2, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("skill");
+	CharWizardDecisionManager.refreshExpertiseDecision();
 end
 function handleBackgroundTools(nodeBackground, bIs2024)
 	if not nodeBackground then
@@ -487,7 +498,7 @@ function handleBackgroundTools(nodeBackground, bIs2024)
 		return;
 	end
 
-	local w2 = wBackground.background_decisions_list.createWindow();
+	local w2 = wBackground.list_features.createWindow();
 	w2.feature.setValue("Proficiency");
 	w2.feature_desc.setValue(s);
 
@@ -500,8 +511,10 @@ function handleBackgroundTools(nodeBackground, bIs2024)
 			CharWizardBackgroundManager.addBackgroundToolChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w2, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w2, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("toolprof");
 end
 function handleBackgroundLanguages(nodeBackground, bIs2024)
 	if not nodeBackground or bIs2024 then
@@ -517,7 +530,7 @@ function handleBackgroundLanguages(nodeBackground, bIs2024)
 		return;
 	end
 
-	local w2 = wBackground.background_decisions_list.createWindow();
+	local w2 = wBackground.list_features.createWindow();
 	w2.feature.setValue("Languages");
 	w2.feature_desc.setValue(s);
 
@@ -530,8 +543,10 @@ function handleBackgroundLanguages(nodeBackground, bIs2024)
 			CharWizardBackgroundManager.addBackgroundLanguageChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w2, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w2, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("language");
 end
 function handleBackgroundFeat(nodeBackground, bIs2024)
 	if not nodeBackground then
@@ -544,7 +559,7 @@ function handleBackgroundFeat(nodeBackground, bIs2024)
 
 	local s = DB.getValue(nodeBackground, "feat", "");
 	if s ~= "" then
-		local w2 = wBackground.background_decisions_list.createWindow();
+		local w2 = wBackground.list_features.createWindow();
 		w2.feature.setValue("Feat");
 		w2.feature_desc.setValue(s);
 		CharWizardBackgroundManager.setBackgroundFeat(s);
@@ -552,10 +567,10 @@ function handleBackgroundFeat(nodeBackground, bIs2024)
 	end
 
 	if bIs2024 then
-		local w2 = wBackground.background_decisions_list.createWindow();
+		local w2 = wBackground.list_features.createWindow();
 		w2.feature.setValue("Feat");
-		w2.feature_desc.setValue(s);
-		CharWizardManager.createDecisions(w2, { sDecisionType = "feat", nPicks = 1, tOptions = CharBuildManager.getFeatNamesByCategory("Origin"), });
+		w2.feature_desc.setVisible(false);
+		CharWizardDecisionManager.createDecision(w2, { sDecisionType = "feat", sDecisionClass = "decision_sub_backgroundfeat_choice", });
 	end
 end
 function handleBackgroundFeatures(nodeBackground, bIs2024)
@@ -568,7 +583,7 @@ function handleBackgroundFeatures(nodeBackground, bIs2024)
 	end
 
 	for _,nodeFeature in pairs(DB.getChildren(nodeBackground, "features")) do
-		local w2 = wBackground.background_decisions_list.createWindow();
+		local w2 = wBackground.list_features.createWindow();
 		w2.feature.setValue(DB.getValue(nodeFeature, "name", ""));
 		w2.shortcut.setValue("reference_backgroundfeature", DB.getPath(nodeFeature));
 		w2.feature_desc.setValue(DB.getValue(nodeFeature, "text", ""));
@@ -597,8 +612,6 @@ function processBackgroundDecision(w)
 		CharWizardBackgroundManager.processBackgroundDecisionLanguage(w);
 	elseif sDecisionType == "toolprof" then
 		CharWizardBackgroundManager.processBackgroundDecisionTool(w);
-	elseif sDecisionType == "feat" then
-		CharWizardBackgroundManager.processBackgroundDecisionFeat(w);
 	end
 
 	_bUpdatingDecision = false;
@@ -607,7 +620,6 @@ function processBackgroundDecision(w)
 end
 function processBackgroundDecisionASIOption(wDecision)
 	local wFeature = wDecision.windowlist.window;
-	local sDecisionChoice = wDecision.decision_choice.getValue():lower();
 	CharWizardBackgroundManager.clearBackgroundAbilityIncreases();
 	
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
@@ -622,34 +634,35 @@ function processBackgroundDecisionASIOption(wDecision)
 		tAbilities = CharBuildManager.parseAbilitiesFromString(DB.getValue(nodeBackground, "abilities", ""));
 	end
 
+	local sDecisionChoice = wDecision.decision_choice.getValue():lower();
 	if sDecisionChoice:match("option 1") then
 		if #tAbilities > 1 then
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, tOptions = tAbilities, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = tAbilities, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, tOptions = tAbilities, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = tAbilities, });
 		elseif #tAbilities == 1 then
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, tOptions = { tAbilities[1] }, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, tOptions = { tAbilities[1] }, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
 		else
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 2, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
 		end
 	else
 		if #tAbilities > 3 then
-			CharWizardManager.createDecisions(wFeature, { sDecisionType = "asibackground", nAdj = 1, nPicks = 3, tOptions = tAbilities, });
+			CharWizardDecisionManager.createDecisions(wFeature, { sDecisionType = "asibackground", nAdj = 1, nPicks = 3, tOptions = tAbilities, });
 		elseif #tAbilities == 3 then
 			CharWizardBackgroundManager.addBackgroundAbilityIncreases(tAbilities[1], 1);
 			CharWizardBackgroundManager.addBackgroundAbilityIncreases(tAbilities[2], 1);
 			CharWizardBackgroundManager.addBackgroundAbilityIncreases(tAbilities[3], 1);
 		elseif #tAbilities == 2 then
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[1] }, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[2] }, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[1] }, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[2] }, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
 		elseif #tAbilities == 1 then
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[1] }, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
-			CharWizardManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, tOptions = { tAbilities[1] }, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
+			CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asibackground", nAdj = 1, });
 		else
-			CharWizardManager.createDecisions(wFeature, { sDecisionType = "asibackground", nAdj = 1, nPicks = 3, });
+			CharWizardDecisionManager.createDecisions(wFeature, { sDecisionType = "asibackground", nAdj = 1, nPicks = 3, });
 		end
 	end
 
@@ -658,7 +671,7 @@ end
 function processBackgroundDecisionASI(wDecision)
 	CharWizardBackgroundManager.clearBackgroundAbilityIncreases();
 
-	local tAbilityMap = CharWizardManager.processAbilityDecision(wDecision);
+	local tAbilityMap = CharWizardDecisionManager.processAbilityDecision(wDecision, true);
 	for sAbility,nMod in pairs(tAbilityMap) do
 		CharWizardBackgroundManager.addBackgroundAbilityIncreases(sAbility, nMod);
 	end
@@ -668,15 +681,17 @@ end
 function processBackgroundDecisionSkill(wDecision)
 	CharWizardBackgroundManager.clearBackgroundSkillChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processSkillDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardBackgroundManager.addBackgroundSkillChoice(s);
 	end
+
+	CharWizardDecisionManager.refreshExpertiseDecision();
 end
 function processBackgroundDecisionLanguage(wDecision)
 	CharWizardBackgroundManager.clearBackgroundLanguageChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processLanguageDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardBackgroundManager.addBackgroundLanguageChoice(s);
 	end
@@ -684,18 +699,36 @@ end
 function processBackgroundDecisionTool(wDecision)
 	CharWizardBackgroundManager.clearBackgroundToolChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processToolProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardBackgroundManager.addBackgroundToolChoice(s);
 	end
 end
-function processBackgroundDecisionFeat(wDecision)
-	CharWizardBackgroundManager.setBackgroundFeat();
 
-	local sFeat = wDecision.name.getValue();
-	CharWizardBackgroundManager.setBackgroundFeat(sFeat);
+function onAddFeatBackgroundButton(wFeat)
+	local sFeat = wFeat.name.getValue();
+	local sFeatClass, sFeatPath = wFeat.shortcut.getValue();
 
-	wDecision.windowlist.window.parentcontrol.window.choice.setValue(sFeat);
-	wDecision.windowlist.window.parentcontrol.window.button_modify.setVisible(true);
-	wDecision.windowlist.window.parentcontrol.setVisible(false);
+	CharWizardBackgroundManager.setBackgroundFeatPath(sFeatPath);
+
+	local wDecision = wFeat.windowlist.window.parentcontrol.window;
+	wDecision.choice.setValue(sFeat);
+	wDecision.choice.setVisible(true);
+	wDecision.choicelink.setValue(sFeatClass, sFeatPath);
+	wDecision.button_modify.setVisible(true);
+	wDecision.sub_decision_choice.setVisible(false);
+	wDecision.checkOutstandingDecisions();
+
+	CharWizardManager.updateAlerts();
+end
+function resetBackgroundDecisionFeat(wDecision)
+	CharWizardBackgroundManager.setBackgroundFeatPath();
+
+	wDecision.choice.setValue();
+	wDecision.choicelink.setValue();
+	wDecision.button_modify.setVisible(false);
+	wDecision.sub_decision_choice.setVisible(true);
+	WindowManager.callInnerWindowFunction(wDecision, "buildFeats");
+
+	CharWizardManager.updateAlerts();
 end

@@ -131,7 +131,7 @@ function onClassKitUpdate()
 	end
 
 	local tClassOptions = CharWizardClassManager.getStartingKitOptions();
-	if wEquipmentKit.classkit_items.isEmpty() and CharWizardClassManager.hasClasses() then
+	if wEquipmentKit.classkit_items.isEmpty() and CharWizardManager.hasClasses() then
 		CharWizardEquipmentManager.helperUpdateClassKitItems(wEquipmentKit);
 	end
 	if (wEquipmentKit.list_classkit.getWindowCount() == 0) and (#tClassOptions > 0) then
@@ -197,7 +197,12 @@ function onClassKitClear()
 end
 
 function processKitSelection(w)
-	local bIs2024 = CharWizardClassManager.isStartingClass2024();
+	local bIs2024;
+	if w.windowlist.window.windowlist.getName() == "list_backgroundkit" then
+		bIs2024 = CharWizardBackgroundManager.isBackground2024();
+	else
+		bIs2024 = CharWizardClassManager.isStartingClass2024();
+	end
 	if bIs2024 then
 		CharWizardEquipmentManager.processKitSelection2024(w);
 	else
@@ -372,19 +377,19 @@ function onRolledWealthUpdate()
 		return;
 	end
 
-	local bIs2024 = CharWizardClassManager.isStartingClass2024();
+	local bShow = CharWizardManager.hasClasses() and not CharWizardClassManager.isStartingClass2024();
 
-	wEquipmentWealth.rolledwealth_label.setVisible(not bIs2024);
-	wEquipmentWealth.rolledwealth.setVisible(not bIs2024);
-	wEquipmentWealth.button_rolledwealth.setVisible(not bIs2024);
-	wEquipmentWealth.string_rolledwealth.setVisible(not bIs2024);
-	wEquipmentWealth.button_rolledwealth_clear.setVisible(not bIs2024);
+	wEquipmentWealth.rolledwealth_label.setVisible(bShow);
+	wEquipmentWealth.rolledwealth.setVisible(bShow);
+	wEquipmentWealth.button_rolledwealth.setVisible(bShow);
+	wEquipmentWealth.string_rolledwealth.setVisible(bShow);
+	wEquipmentWealth.button_rolledwealth_clear.setVisible(bShow);
 
-	if bIs2024 then
+	if not bShow then
 		wEquipmentWealth.string_rolledwealth.setValue();
 		wEquipmentWealth.rolledwealth.setValue(0);
 	else
-		if wEquipmentWealth.string_rolledwealth.isEmpty() and CharWizardClassManager.hasClasses() then
+		if wEquipmentWealth.string_rolledwealth.isEmpty() and CharWizardManager.hasClasses() then
 			local sRoll = CharWizardClassManager.getStartingWealthRoll();
 			if (sRoll or "") ~= "" then
 				wEquipmentWealth.string_rolledwealth.setValue(sRoll);
@@ -419,12 +424,12 @@ function onBackgroundWealthUpdate()
 		return;
 	end
 
-	local bHasRolledWealth = (CharWizardManager.getStartingGold() ~= 0);
+	local bShow = (CharWizardManager.getStartingGold() == 0) and CharWizardManager.hasBackground();
 
-	wEquipmentWealth.backgroundwealth_label.setVisible(not bHasRolledWealth);
-	wEquipmentWealth.backgroundgold.setVisible(not bHasRolledWealth);
+	wEquipmentWealth.backgroundwealth_label.setVisible(bShow);
+	wEquipmentWealth.backgroundgold.setVisible(bShow);
 
-	if bHasRolledWealth or ((CharWizardBackgroundManager.getBackgroundRecord() or "") == "") then
+	if not bShow then
 		wEquipmentWealth.backgroundgold.setValue(0);
 	elseif wEquipmentWealth.backgroundgold.getValue() == 0 then
 		wEquipmentWealth.backgroundgold.setValue(CharWizardBackgroundManager.getBackgroundStartingGold());
@@ -447,12 +452,12 @@ function onClassWealthUpdate()
 		return;
 	end
 
-	local bHasRolledWealth = (CharWizardManager.getStartingGold() ~= 0);
+	local bShow = (CharWizardManager.getStartingGold() == 0) and CharWizardManager.hasClasses();
 
-	wEquipmentWealth.classwealth_label.setVisible(not bHasRolledWealth);
-	wEquipmentWealth.classgold.setVisible(not bHasRolledWealth);
+	wEquipmentWealth.classwealth_label.setVisible(bShow);
+	wEquipmentWealth.classgold.setVisible(bShow);
 	
-	if bHasRolledWealth or not CharWizardClassManager.hasClasses() then
+	if not bShow then
 		wEquipmentWealth.classgold.setValue(0);
 	elseif wEquipmentWealth.classgold.getValue() == 0 then
 		wEquipmentWealth.classgold.setValue(CharWizardClassManager.getStartingGold());

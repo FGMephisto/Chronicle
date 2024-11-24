@@ -792,8 +792,8 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	return aTotalDice, nTotalMod, nEffectCount;
 end
 
-function hasEffectCondition(rActor, sEffect)
-	return hasEffect(rActor, sEffect, nil, false, true);
+function hasEffectCondition(rActor, sEffect, rTarget)
+	return hasEffect(rActor, sEffect, rTarget, false, true);
 end
 
 function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)

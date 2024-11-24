@@ -11,13 +11,6 @@ function onInit()
 	local sFeatureName = WindowManager.getOuterControlValue(self, "feature") or "";
 
 	local sKey = StringManager.simplify(sFeatureName);
-	if CharWizardSpeciesManager.isSpecies2024() then
-		if sKey == "versatile" then
-			filter_category.setValue("Origin");
-			label_category.setVisible(false);
-			filter_category.setComboBoxVisible(false);
-		end
-	end
 	if CharWizardClassManager.isClass2024(sClassName) then
 		if sKey == "epicboon" then
 			filter_category.setValue("Epic Boon");
@@ -29,6 +22,20 @@ function onInit()
 			filter_category.setComboBoxVisible(false);
 		end
 	end
+	if CharWizardBackgroundManager.isBackground2024() then
+		if sKey == "feat" then
+			filter_category.setValue("Origin");
+			label_category.setVisible(false);
+			filter_category.setComboBoxVisible(false);
+		end
+	end
+	if CharWizardSpeciesManager.isSpecies2024() then
+		if sKey == "versatile" then
+			filter_category.setValue("Origin");
+			label_category.setVisible(false);
+			filter_category.setComboBoxVisible(false);
+		end
+	end
 end
 
 local _tFeats = {};
@@ -36,9 +43,6 @@ local _tModules = {};
 local _tCategories = {};
 function getAllFeats()
 	return _tFeats;
-end
-function setAllFeats(tFeats)
-	_tFeats = tFeats;
 end
 function getAllModules()
 	return _tModules;
@@ -74,26 +78,17 @@ function addListRecord(vNode)
 	end
 
 	rRecord.sCategory = DB.getValue(vNode, "category", "");
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
 
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
 	local tFeats = self.getAllFeats();
-	if not tFeats[rRecord.sDisplayNameLower] then
-		tFeats[rRecord.sDisplayNameLower] = {};
-	end
-
+	tFeats[rRecord.sDisplayNameLower] = tFeats[rRecord.sDisplayNameLower] or {};
 	table.insert(tFeats[rRecord.sDisplayNameLower], rRecord);
-	self.setAllFeats(tFeats);
+
 	self.getAllModules()[rRecord.sModule] = true;
 	self.getAllCategories()[rRecord.sCategory] = true;
 end
@@ -106,12 +101,15 @@ function addDisplayListItem(k, tFeat)
 		return;
 	end
 
-	local tSelectedFeats = CharWizardManager.collectFeats();
+	local tBaseFeats, tChoiceFeats = CharWizardManager.collectFeats();
 	local bSelected = false;
-	for _,v in ipairs(tSelectedFeats) do
+	for _,v in ipairs(tBaseFeats) do
 		if v.name == sFeat then
-			return
+			return;
 		end
+	end
+	if StringManager.contains(tChoiceFeats, DB.getPath(tFeat[1].vNode)) then
+		return;
 	end
 
 	local wFeat = list.createWindow();

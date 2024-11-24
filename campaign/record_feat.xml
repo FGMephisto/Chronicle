@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_feat" copy="record_window">
+		<script>
+			function onStateChanged()
+				super.onStateChanged();
+				sub_version.subwindow.update();
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" insertbefore="content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_feat_header" copy="record_header" />
+
+	<windowclass name="reference_feat_main">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_feat_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_feat_main_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_feat_main_2024">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/feat_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>reference_feat_main_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+			
+			<line_content_top name="divider" />
+
+			<ft_content_columnh_full name="text" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_feat_main_summary_fields">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="category_label">
+				<static textres="feat_label_category" />
+			</label_content_column>
+			<string_content_columnh name="category">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<label_content_column name="level_label">
+				<static textres="level" />
+			</label_content_column>
+			<number_content_columnh name="level">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</number_content_columnh>
+
+			<label_content_column name="prerequisite_label">
+				<static textres="record_label_prerequisite" />
+			</label_content_column>
+			<string_content_columnh name="prerequisite">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<label_content_column name="repeatable_label">
+				<static textres="feat_label_repeatable" />
+			</label_content_column>
+			<button_checkbox_content_columnh name="repeatable">
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</button_checkbox_content_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_feat_main_2014" copy="record_content_text" />
+</root>

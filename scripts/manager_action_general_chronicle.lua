@@ -18,6 +18,10 @@ function modRoll(rSource, rTarget, rRoll)
 
 	-- Get Desktop modifications
 	ActionsManager2.encodeDesktopMods(rRoll);
+	
+	-- if #(rRoll.aDice) == 1 and rRoll.aDice[1].type == "d20" then
+		-- ActionsManager2.encodeAdvantage(rRoll);
+	-- end
 
 	-- Set maximum Bonus and Penalty Dice
 	rRoll = ActionResult.capDice(rRoll);

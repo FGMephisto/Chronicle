@@ -20,16 +20,27 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_equipment_instructions</class>
+			</sub_content_top>
+
 			<sub_content_top name="sub_equipment_startingwealth">
-				<class>sub_charwizard_equipment_startingwealth</class>
+				<class>charwizard_equipment_startingwealth</class>
 			</sub_content_top>
 			<sub_content_top name="sub_equipment_startingkit">
-				<class>sub_charwizard_equipment_startingkit</class>
+				<class>charwizard_equipment_startingkit</class>
 			</sub_content_top>
 		</sheetdata>
 	</windowclass>
+	<windowclass name="charwizard_equipment_instructions" copy="charwizard_instructions">
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_equipment" />
+			</stringc_content_noframe_noscroll_static_top>
+		</sheetdata>
+	</windowclass>
 
-	<windowclass name="sub_charwizard_equipment_startingwealth">
+	<windowclass name="charwizard_equipment_startingwealth">
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />
@@ -201,7 +212,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="sub_charwizard_equipment_startingkit">
+	<windowclass name="charwizard_equipment_startingkit">
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />
@@ -289,7 +300,7 @@
 
 			<list_content_noscroll_top name="list">
 				<class>list_entry_charwizard_kitchoice</class>
-				<columns width="170" fillwidth="true"/>
+				<columns width="170" fillwidth="true" />
 			</list_content_noscroll_top>
 
 			<sub_content_paging_top name="sub_paging" />

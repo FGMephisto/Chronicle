@@ -63,7 +63,7 @@ function helperCheckFeatSpecialHandling2024(rAdd)
 	end
 
 	if rAdd.sSourceType == "abilityscoreimprovement" then
-		CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, rAdd.bSource2024);
+		CharBuildDropManager.pickAbilityAdjust(rAdd.nodeChar, { bSource2024 = rAdd.bSource2024, });
 	elseif StringManager.contains({ "magicinitiatecleric", "magicinitiatedruid", "magicinitiatewizard" }, rAdd.sSourceType) then
 		CharFeatManager.helperAddFeatMagicInitiateDrop2024(rAdd);
 	elseif rAdd.sSourceType == "skilled" then
@@ -406,10 +406,11 @@ end
 function helperAddFeatSkillExpertDrop2024(rAdd)
 	CharBuildDropManager.pickAbility(rAdd.nodeChar, nil, 1, { nAbilityAdj = 1, nAbilityMax = 20, });
 	
+	local tOptions = CharBuildDropManager.getSkillProficiencyOptions(rAdd.nodeChar);
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(1),
-		options = CharBuildDropManager.getSkillProficiencyOptions(rAdd.nodeChar),
+		options = tOptions,
 		callback = CharFeatManager.helperOnSkillExpertFeatSelect,
 		custom = { nodeChar = rAdd.nodeChar, },
 	};

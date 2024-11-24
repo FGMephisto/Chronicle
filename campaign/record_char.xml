@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet">
+		<frame>charsheet</frame>
+		<placement>
+			<size width="525" height="600" />
+		</placement>
+		<sizelimits>
+			<minimum width="450" height="570" />
+			<dynamic />
+		</sizelimits>
+		<softclose />
+		<minimize>minimized_char</minimize>
+		<tooltip field="name" />
+		<export>character</export>
+		<windowmenu>
+			<showlink />
+		</windowmenu>
+		<helplinkres>help_record_charsheet</helplinkres>
+		<script file="campaign/scripts/char.lua" />
+		<sheetdata>
+			<windowmenubar_charsheet name="menubar" />
+
+			<anchor_content_charsheet_tabbed_top name="contentanchor" />
+			<anchor_content_charsheet_bottom name="bottomanchor" />
+
+			<sub_content_top name="overview">
+				<class>charsheet_overview</class>
+			</sub_content_top>
+
+			<sub_content_hidden name="main">
+				<class>charsheet_main</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="skills">
+				<class>charsheet_skills</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="abilities">
+				<class>charsheet_abilities</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="inventory">
+				<class>charsheet_inventory</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="notes">
+				<class>charsheet_notes</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="logs">
+				<class>charsheet_logs</class>
+			</sub_content_hidden>
+			<sub_content_hidden name="actions">
+				<class>charsheet_actions</class>
+			</sub_content_hidden>
+
+			<tabs_charsheet name="tabs">
+				<tab>
+					<tabres>tab_main</tabres>
+					<subwindow>main</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_skills</tabres>
+					<subwindow>skills</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_abilities</tabres>
+					<subwindow>abilities</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_inventory</tabres>
+					<subwindow>inventory</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_notes</tabres>
+					<subwindow>notes</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_log</tabres>
+					<subwindow>logs</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_actions</tabres>
+					<subwindow>actions</subwindow>
+				</tab>
+			</tabs_charsheet>
+
+			<resize_charsheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_overview">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/char_overview.lua" />
+		<sheetdata>
+			<genericcontrol name="leftanchor">
+				<anchored position="insidetopleft" offset="0,5" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
+			<genericcontrol name="rightanchor">
+				<anchored position="insidetopright" offset="0,5" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
+
+			<picture_charsheet name="portrait" />
+
+			<label_charframetop name="inspirationtitle">
+				<anchored to="rightanchor" width="30" height="20">
+					<top offset="2" />
+					<right relation="relative" offset="-10" postoffset="-10" />
+				</anchored>
+				<static textres="char_label_inspiration" />
+				<tooltip textres="char_tooltip_inspiration" />
+			</label_charframetop>
+			<buttongroup_counter name="inspiration">
+				<anchored to="inspirationtitle">
+					<top anchor="bottom" offset="5" />
+					<left anchor="center" offset="-5" />
+				</anchored>
+				<tooltip textres="char_tooltip_inspiration" />
+				<sourcefields><current>inspiration</current></sourcefields>
+				<values><maximum>3</maximum></values>
+				<script>
+					function adjustCounter(nAdj)
+						super.adjustCounter(nAdj);
+						CharManager.messageInspiration(window.getDatabaseNode(), nAdj);
+					end
+				</script>
+			</buttongroup_counter>
+
+			<label_charframetop name="nametitle">
+				<anchored to="rightanchor" height="20">
+					<top offset="2" />
+					<left parent="leftanchor" relation="relative" offset="15" />
+					<right relation="relative" offset="-15" />
+				</anchored>
+				<static textres="char_label_name" />
+			</label_charframetop>
+			<stringu name="name">
+				<anchored to="nametitle" position="below" offset="0,5" height="20" />
+			</stringu>
+		</sheetdata>
+	</windowclass>
+</root>

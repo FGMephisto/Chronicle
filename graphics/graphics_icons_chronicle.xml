@@ -7,34 +7,10 @@
 -->
 
 <root>
-	<!-- Common -->
-	<icon name="expand" file="graphics/icons/expand.png" />
-	<icon name="expand_down" file="graphics/icons/expand_down.png" />
-
 	<!-- Character list -->
 	<icon name="charlist_inspiration" file="graphics/icons/charlist_inspiration.png" />
 
 	<!-- Character Sheet -->
-	<icon name="char_name" file="graphics/icons/char_left_frame.png" />	
-	<icon name="char_race" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_background" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_class" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_stats" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_init" file="graphics/icons/char_left_frame.png" />		
-	<icon name="char_attacks" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_powers" file="graphics/icons/char_left_frame.png" />	
-	<icon name="char_senses" file="graphics/icons/char_left_frame.png" />		
-	<icon name="char_abilities" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_abilities_red" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_abilities_blue" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_abilities_orange" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_abilities_purple" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_abilities_green" file="graphics/icons/char_left_frame.png" />
-	<icon name="char_inventory" file="graphics/icons/char_left_frame.png" />		
-	<icon name="char_treasure" file="graphics/icons/char_left_frame.png" />		
-	<icon name="char_notes" file="graphics/icons/char_left_frame.png" />		
-
-	<icon name="char_armorcheck" file="graphics/icons/char_armorcheck.png" />
 	<icon name="char_attuned" file="graphics/icons/char_attuned.png" />
 
 	<!-- Item Forge -->

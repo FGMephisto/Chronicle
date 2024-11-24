@@ -6,7 +6,7 @@
 
 -- Adjusted
 function getVersionValue(node)
-	-- return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "2014";
+	-- return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "Legacy";
 	return "2024"
 end
 
@@ -279,6 +279,7 @@ aRecordOverrides = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			-- ["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
 			-- ["Level"] = { sField = "level", sType = "number" },
+			["School"] = { sField = "school" },
 			["Ritual"] = { sField = "ritual", sType = "boolean" },
 		},
 	},

@@ -39,8 +39,7 @@
 	<windowclass name="charsheet_logs_contents">
 		<margins control="0,0,0,2" />
 		<sheetdata>
-			<anchor_content_top>
-			</anchor_content_top>
+			<anchor_content_top />
 
 			<header_content_framed_metalplate name="details_header" />
 			<area_content_top name="details">

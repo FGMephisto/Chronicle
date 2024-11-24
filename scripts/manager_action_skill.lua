@@ -106,15 +106,10 @@ function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	elseif nProf == 3 then
 		rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
 		table.insert(rRoll.tNotifications, "[PROF x1/2]");
-	else
-		if ActorManager.isPC(rActor) then
-			local nodeActor = ActorManager.getCreatureNode(rActor);
-			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_JACK_OF_ALL_TRADES) then
-				rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
-				table.insert(rRoll.tNotifications, "[PROF x1/2]");
-				table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_jackofalltrades")));
-			end
-		end
+	elseif ActorManager5E.hasRollFeature(rActor, CharManager.FEATURE_JACK_OF_ALL_TRADES) then
+		rRoll.nMod = rRoll.nMod + math.floor(DB.getValue(nodeChar, "profbonus", 2) / 2);
+		table.insert(rRoll.tNotifications, "[PROF x1/2]");
+		table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_jackofalltrades")));
 	end
 
 	if (sAddText or "") ~= "" then
@@ -122,13 +117,12 @@ function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	end
 end
 function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
-	local sAbility;
 	local sAddText;
 	if DataCommon.skilldata[sSkill] then
-		sAbility = DataCommon.skilldata[sSkill].stat;
+		rRoll.sAbility = DataCommon.skilldata[sSkill].stat;
 	end
-	if sAbility then
-		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility, sSkill);
+	if rRoll.sAbility then
+		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, rRoll.sAbility, sSkill);
 	end
 	
 	table.insert(rRoll.tNotifications, "[SKILL]");
@@ -136,11 +130,12 @@ function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
 	end
-	if rRoll.nMod and (rRoll.nMod ~= 0) then
+	if rRoll.nMod and ((rRoll.nMod or 0) ~= 0) then
 		table.insert(rRoll.tNotifications, string.format(" [%+d]", nMod));
 	end
 end
 function setupRollBuildFromNameNPC(rRoll, rActor, sSkill, nSkill)
-	rRoll.sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill);
+	table.insert(rRoll.tNotifications, "[SKILL]");
+	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
 	rRoll.nMod = nSkill;
 end

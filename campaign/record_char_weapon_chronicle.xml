@@ -338,7 +338,7 @@
 				<script>
 					function onInit()
 						super.onInit()
-						addItems(DataCommon.wpnskilldata)
+						addItems(DataCommon.weaponskilldata)
 					end
 				</script>
 			</combobox>

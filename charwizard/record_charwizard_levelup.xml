@@ -12,7 +12,7 @@
 			<nosave />
 		</placement>
 		<sizelimits>
-			<minimum width="630" height="600" />
+			<minimum width="720" height="600" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_char</minimize>

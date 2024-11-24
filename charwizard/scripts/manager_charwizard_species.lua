@@ -11,6 +11,13 @@ function getSpeciesRecord()
 	local tSpecies = CharWizardManager.getSpeciesData();
 	return tSpecies.species;
 end
+function getSpeciesNode()
+	local sRecord = CharWizardSpeciesManager.getSpeciesRecord();
+	if (sRecord or "") == "" then
+		return nil;
+	end
+	return DB.findNode(sRecord);
+end
 function setSpeciesRecord(sRecord)
 	local tSpecies = CharWizardManager.getSpeciesData();
 	tSpecies.species = sRecord;
@@ -32,6 +39,13 @@ end
 function isSpecies2024()
 	local tSpecies = CharWizardManager.getSpeciesData();
 	return tSpecies.bIs2024;
+end
+function getSpeciesName()
+	local tSpecies = CharWizardManager.getSpeciesData();
+	if (tSpecies.species or "") == "" then
+		return "";
+	end
+	return DB.getValue(DB.findNode(tSpecies.species), "name", "");
 end
 function getSpeciesDisplayName()
 	local tSpecies = CharWizardManager.getSpeciesData();
@@ -115,7 +129,7 @@ function clearSpeciesAbilityIncreases()
 end
 function setSpeciesBaseSkills(tSkills)
 	local tSpecies = CharWizardManager.getSpeciesData();
-	tSpecies.skill = {};
+	tSpecies.skill = tSpecies.skill or {};
 	for _,v in pairs(tSkills) do
 		table.insert(tSpecies.skill, v);
 	end
@@ -137,7 +151,7 @@ function clearSpeciesSkillChoice()
 end
 function setSpeciesBaseLanguages(tLanguages)
 	local tSpecies = CharWizardManager.getSpeciesData();
-	tSpecies.language = {};
+	tSpecies.language = tSpecies.language or {};
 	for _,v in pairs(tLanguages) do
 		table.insert(tSpecies.language, v);
 	end
@@ -224,41 +238,53 @@ function clearSpeciesToolProficiencyChoice()
 	tSpecies.toolprofchoice = {};
 end
 
-function addSpeciesFeatChoice(s)
+function addSpeciesBaseFeat(s)
 	if (s or "") == "" then
 		return;
 	end
-
 	local tSpecies = CharWizardManager.getSpeciesData();
-	if not tSpecies.feats then
-		tSpecies.feats = {};
-	end
-
+	tSpecies.feats = tSpecies.feats or {};
 	table.insert(tSpecies.feats, s);
 end
-function clearSpeciesFeatChoice(s)
+function addSpeciesChoiceFeatPath(sPath)
+	if (sPath or "") == "" then
+		return;
+	end
 	local tSpecies = CharWizardManager.getSpeciesData();
-	local tFeats = {};
-	for k,v in pairs(tSpecies.feats) do
-		if v.name == s then
-			tFeats[k] = nil;
+	tSpecies.featpaths = tSpecies.featpaths or {};
+	table.insert(tSpecies.featpaths, sPath);
+end
+function removeSpeciesChoiceFeatPath(sPath)
+	if (sPath or "") == "" then
+		return;
+	end
+	local tSpecies = CharWizardManager.getSpeciesData();
+	for k,v in ipairs(tSpecies.featpaths or {}) do
+		if v == sPath then
+			table.remove(tSpecies.featpaths, k);
+			return;
 		end
+	end
+end
+
+function setSpeciesSpellAbility(sAbility)
+	if not sAbility then
+		tSpecies.spellability = nil;
+		return;
+	end
+	sAbility = sAbility:lower();
+	local tSpecies = CharWizardManager.getSpeciesData();
+	if StringManager.contains(DataCommon.abilities, sAbility) then
+		tSpecies.spellability = sAbility;
+	else
+		tSpecies.spellability = nil;
 	end
 end
 function setSpeciesBaseSpells(tSpells)
-	local nodeSpecies = CharWizardSpeciesManager.getSpeciesRecord();
-	local bSource2024 = (DB.getValue(nodeSpecies, "version", "") == "2024");
 	local tSpecies = CharWizardManager.getSpeciesData();
-	tSpecies.spell = {};
-	for _,v in pairs(tSpells) do
-		local tSpellFilters = {
-			{ sField = "name", sValue = v, bIgnoreCase = true, },
-			{ sField = "version", sValue = bSource2024, },
-		};
-		local nodeSpell = RecordManager.findRecordByFilter("spell", tSpellFilters);
-		if nodeSpell then
-			table.insert(tSpecies.spell, DB.getPath(nodeSpell));
-		end
+	tSpecies.spell = tSpecies.spell or {};
+	for _,s in pairs(tSpells) do
+		table.insert(tSpecies.spell, s);
 	end
 end
 function addSpeciesSpellChoice(s)
@@ -291,13 +317,13 @@ function processSpecies(w)
 	local wSpecies = CharWizardManager.getWizardSpeciesWindow();
 	wSpecies.sub_speciesselection.setVisible(false);
 	wSpecies.button_changespecies.setVisible(true);
-	wSpecies.species_decisions_list.setVisible(true);
+	wSpecies.list_features.setVisible(true);
 	wSpecies.ancestry_selection_list.setVisible(true);
 	wSpecies.ancestry_selection_header.setVisible(true);
 	wSpecies.species_select_header.setValue(sSpecies:upper());
 
-	CharWizardSpeciesManager.updateSpeciesFields(wSpecies.species_decisions_list);
-	CharWizardSpeciesManager.updateSpeciesTraits(wSpecies.species_decisions_list);
+	CharWizardSpeciesManager.updateSpeciesFields(wSpecies.list_features);
+	CharWizardSpeciesManager.updateSpeciesTraits(wSpecies.list_features);
 	CharWizardSpeciesManager.setupAncestries(wSpecies.ancestry_selection_list);
 	CharWizardManager.updateAlerts();
 end
@@ -307,8 +333,8 @@ function resetSpecies(w)
 	local wSpecies = CharWizardManager.getWizardSpeciesWindow();
 	wSpecies.sub_speciesselection.setVisible(true);
 	wSpecies.button_changespecies.setVisible(false);
-	wSpecies.species_decisions_list.setVisible(false);
-	wSpecies.species_decisions_list.closeAll();
+	wSpecies.list_features.setVisible(false);
+	wSpecies.list_features.closeAll();
 	wSpecies.ancestry_selection_list.setVisible(false);
 	wSpecies.ancestry_selection_list.closeAll();
 	wSpecies.ancestry_selection_header.setVisible(false);
@@ -316,6 +342,7 @@ function resetSpecies(w)
 	wSpecies.species_select_header.setValue(Interface.getString("charwizard_label_speciesselection"));
 
 	CharWizardAbilitiesManager.updateAbilities();
+	CharWizardDecisionManager.refreshOverallDecisions();
 	CharWizardManager.updateAlerts();
 end
 
@@ -336,20 +363,12 @@ function collectAncestries()
 			tFinalAncestries[v.text] = {};
 		end
 
-		v.sModule = "Campaign";
-		v.sModuleName = "Campaign";
-
-		local tModule = Module.getModuleInfo(DB.getModule(DB.findNode(v.linkrecord)));
-		if tModule then
-			if StringManager.contains(CharWizardData.module_order_2014, tModule.name) then 
-				v.sModule = tModule.displayname .. " (Legacy)";
-			else
-				v.sModule = tModule.displayname;
-			end
-
-			v.sModuleName = tModule.name;
-
+		v.sModuleName = DB.getModule(vNode);
+		v.sModule = ModuleManager.getModuleDisplayName(v.sModuleName);
+		if StringManager.contains(CharWizardData.module_order_2014, v.sModuleName) then 
+			v.sModule = v.sModule .. " (Legacy)";
 		end
+
 		table.insert(tFinalAncestries[v.text], v);
 	end
 
@@ -418,7 +437,7 @@ function processAncestry(w)
 	wSpecies.ancestry_selection_header.setVisible(false);
 	wSpecies.button_changeancestry.setVisible(true);
 
-	CharWizardSpeciesManager.updateSpeciesTraits(wSpecies.species_decisions_list, true);
+	CharWizardSpeciesManager.updateSpeciesTraits(wSpecies.list_features, true);
 end
 function resetAncestry(w)
 	CharWizardSpeciesManager.clearAncestryTraits(w);
@@ -430,7 +449,7 @@ function resetAncestry(w)
 	wSpecies.ancestry_selection_list.setVisible(true);
 	wSpecies.species_select_header.setValue(CharWizardSpeciesManager.getSpeciesDisplayName());
 
-	for _,v in pairs(w.species_decisions_list.getWindows()) do
+	for _,v in pairs(w.list_features.getWindows()) do
 		for _,v2 in pairs(v.list_decisions.getWindows()) do
 			if v2.decisiontype.getValue() ~= "asispeciesoption" then
 				CharWizardSpeciesManager.processSpeciesDecision(v2);
@@ -439,6 +458,7 @@ function resetAncestry(w)
 	end
 
 	CharWizardAbilitiesManager.updateAbilities();
+	CharWizardDecisionManager.refreshOverallDecisions();
 	CharWizardManager.updateAlerts();
 end
 
@@ -466,7 +486,7 @@ function handleSpeciesSizeField2024(w)
 		w2.feature.setValue(Interface.getString("race_label_size"));
 		w2.feature_desc.setValue(sSize);
 
-		local w3 = CharWizardManager.createDecision(w2, { sDecisionType = "size", });
+		local w3 = CharWizardDecisionManager.createDecision(w2, { sDecisionType = "size", });
 		for _,v in pairs(tOptions) do
 			w3.decision_choice.add(v);
 		end
@@ -497,8 +517,10 @@ function handleSpeciesLanguage2024(w)
 			CharWizardSpeciesManager.addSpeciesLanguageChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w2, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w2, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("language");
 end
 
 --
@@ -515,7 +537,7 @@ function clearAncestryTraits(w)
 	end
 
 	local wSpecies = CharWizardManager.getWizardSpeciesWindow();
-	for _,v in ipairs(wSpecies.species_decisions_list.getWindows()) do
+	for _,v in ipairs(wSpecies.list_features.getWindows()) do
 		local _,sRecord = v.shortcut.getValue();
 		if tTraits[sRecord] then
 			v.close();
@@ -533,94 +555,97 @@ function updateSpeciesTraits(w, bAncestry)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
 	local bAbilityScore = false;
 	for kTrait,vTrait in pairs(tSpeciesTraits) do
-		local sText = DB.getValue(DB.findNode(vTrait.speciestrait), "text", "");
+		local sParseText = StringManager.trim(DB.getText(DB.findNode(vTrait.speciestrait), "text", ""));
 
 		local w2 = w.createWindow();
 		w2.feature.setValue(kTrait);
 		w2.shortcut.setValue("reference_racialtrait", vTrait.speciestrait);
-		w2.feature_desc.setValue(sText);
+		w2.feature_desc.setValue(DB.getValue(DB.findNode(vTrait.speciestrait), "text", ""));
 
 		local sTraitType = StringManager.simplify(kTrait):gsub(StringManager.simplify(Interface.getString("library_recordtype_single_race_subrace")) .. "$", "");
 		if bIs2024 then
 			if sTraitType == "darkvision" then
-				local sDarkVision = sText:match("(%d+)");
+				local sDarkVision = sParseText:match("(%d+)");
 				if sDarkVision then
 					CharWizardSpeciesManager.setSpeciesDarkvision(tonumber(sDarkVision) or 60);
 				end
 			elseif sTraitType == "enhanceddarkvision" then
-				local sDarkVision = sText:match("(%d+)");
+				local sDarkVision = sParseText:match("(%d+)");
 				if sDarkVision then
 					CharWizardSpeciesManager.setSpeciesDarkvision(tonumber(sDarkVision) or 120);
 				end
 			else
 				if CharWizardData.tBuildOptionsSpecialSpeed2024[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sText, true);
+					CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sParseText, true);
 				end
 				if CharWizardData.tBuildOptionsSkill2024[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSkills(w2, kTrait, sText);
+					CharWizardSpeciesManager.handleSpeciesSkills(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.tBuildOptionsProficiency2024[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesProficiencies(w2, kTrait, sText);
+					CharWizardSpeciesManager.handleSpeciesProficiencies(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.tBuildOptionsSpells2024[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSpells(w2, sText, vTrait);
+					CharWizardSpeciesManager.handleSpeciesSpells(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.tBuildOptionsFeats2024[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesFeat(w2, sText, kTrait);
+					CharWizardSpeciesManager.handleSpeciesFeat(w2, sTraitType, sParseText);
 				end
 			end
 		else
 			if sTraitType:match("abilityscoreincrease") then
-				CharWizardSpeciesManager.handleAbilityScoreInc(w2, sText);
+				CharWizardSpeciesManager.handleAbilityScoreInc(w2, sParseText);
 				bAbilityScore = true;
 			elseif sTraitType:match("size") then
-				CharWizardSpeciesManager.handleSpeciesSizeTrait(w2, sText);
+				CharWizardSpeciesManager.handleSpeciesSizeTrait(w2, sParseText);
 			elseif sTraitType:match("speed") then
-				CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sText, false);
+				CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sParseText, false);
 			elseif sTraitType == "variabletrait" then
-				CharWizardManager.createDecision(w2, { sDecisionType = "variabletrait", });
+				CharWizardDecisionManager.createDecision(w2, { sDecisionType = "variabletrait", });
 			elseif sTraitType == "darkvision" then
-				local sDarkVision = sText:match("(%d+)");
+				local sDarkVision = sParseText:match("(%d+)");
 				if sDarkVision then
 					CharWizardSpeciesManager.setSpeciesDarkvision(tonumber(sDarkVision) or 60);
 				end
 			elseif sTraitType == "superiordarkvision" then
-				local sDarkVision = sText:match("(%d+)");
+				local sDarkVision = sParseText:match("(%d+)");
 				if sDarkVision then
 					CharWizardSpeciesManager.setSpeciesDarkvision(tonumber(sDarkVision) or 120);
 				end
 			elseif sTraitType == "feat" then
-				CharWizardSpeciesManager.handleSpeciesFeat(w2, sText, kTrait);
+				CharWizardSpeciesManager.handleSpeciesFeat(w2, sTraitType, sParseText);
 			else
 				if CharWizardData.aRaceSpecialSpeed[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sText, true);
+					CharWizardSpeciesManager.handleSpeciesSpeedTrait(w2, sParseText, true);
 				end
 				if CharWizardData.aRaceSkill[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSkills(w2, kTrait, sText);
+					CharWizardSpeciesManager.handleSpeciesSkills(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.aRaceProficiency[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesProficiencies(w2, kTrait, sText);
+					CharWizardSpeciesManager.handleSpeciesProficiencies(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.aRaceLanguages[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesLanguages(w2, kTrait, sText);
+					CharWizardSpeciesManager.handleSpeciesLanguages(w2, sTraitType, sParseText);
 				end
 				if CharWizardData.aRaceSpells[sTraitType] then
-					CharWizardSpeciesManager.handleSpeciesSpells(w2, sText, vTrait);
+					CharWizardSpeciesManager.handleSpeciesSpells(w2, sTraitType, sParseText);
 				end
 			end
 		end
 	end
 
 	if not bIs2024 and not bAbilityScore and not bAncestry then
-		local w2 = w.createWindow();
-		w2.feature.setValue("Ability Score Increase");
-		w2.shortcut.setValue();
-		w2.feature_desc.setValue();
-
-		CharWizardManager.createDecision(w2, { sDecisionType = "asispeciesoption", });
+		CharWizardSpeciesManager.handleMissingSpeciesASI(w);
 	end
 
 	CharWizardManager.updateAlerts();
+end
+function handleMissingSpeciesASI(w)
+	local w2 = w.createWindow();
+	w2.feature.setValue("Ability Score Increase");
+	w2.shortcut.setValue();
+	w2.feature_desc.setValue();
+
+	CharWizardDecisionManager.createDecision(w2, { sDecisionType = "asispeciesoption", });
 end
 function collectSpeciesTraits(tSpeciesTraits)
 	local sRecord = CharWizardSpeciesManager.getSpeciesRecord();
@@ -641,39 +666,48 @@ function collectAncestryTraits(tSpeciesTraits)
 	end
 	for _,v in pairs(DB.getChildren(DB.findNode(sRecord), "traits")) do
 		local sTrait = DB.getValue(v, "name", "");
-		sTrait = sTrait .. " (" .. Interface.getString("library_recordtype_single_race_subrace") .. ")";
+		sTrait = string.format("%s (%s)", sTrait, Interface.getString("library_recordtype_single_race_subrace"));
 		tSpeciesTraits[sTrait] = { speciestrait = DB.getPath(v), };
 	end
 end
 
 function handleAbilityScoreInc(w, s)
-	local tSpeciesIncreases, bTasha = CharWizardSpeciesManager.parseSpeciesAbilityScoreInc(s:lower());
-	local tFinalChoices = {};
-	local tFinalDefaults = {};
-	local bInnateIncrease = false;
-
-	if bTasha then
-		CharWizardManager.createDecision(w, { sDecisionType = "asispeciesoption", });
-		w.feature_desc.setValue(s);
-		return
-	end
-
-	for k,v in pairs(tSpeciesIncreases) do
-		local aAbilities = v.aAbilities or {};
-		if #aAbilities == 0 then
-			for _,v in pairs(DataCommon.abilities) do
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		CharWizardManager.createDecisions(w, { sDecisionType = "asispecies", nAdj = v.nAbilityAdj or 1, tOptions = aAbilities, nPicks = v.nPicks });
-	end
-
 	w.feature_desc.setValue(s);
+
+	if s:lower():match("alternatively") then
+		CharWizardSpeciesManager.helperSpeciesAbilityScoreGeneric2014(w);
+	else
+		CharWizardSpeciesManager.helperSpeciesAbilityScoreSpecific2014(w, s);
+	end
 end
+-- Handle generic ability score option choices (+2/+1 or +1 x3)
+function helperSpeciesAbilityScoreGeneric2014(w)
+	CharWizardDecisionManager.createDecision(w, { sDecisionType = "asispeciesoption", });
+end
+-- Due to Tasha's rules, set up decisions for every ability increase
+function helperSpeciesAbilityScoreSpecific2014(w, s)
+	local tBase, tAbilitySelect = CharSpeciesManager.helperParseSpeciesAbilityIncrease2014(s);
+
+	CharWizardSpeciesManager.clearSpeciesAbilityIncreases();
+
+	local tBaseWindows = {};
+	for sAbility, nAbilityAdj in pairs(tBase) do
+		tBaseWindows[sAbility] = CharWizardDecisionManager.createDecision(w, { sDecisionType = "asispecies", nAdj = nAbilityAdj });
+	end
+	for _,v in pairs(tAbilitySelect) do
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "asispecies", nAdj = v.nAbilityAdj or 1, nPicks = v.nPicks });
+	end
+	for sAbility, wDecision in pairs(tBaseWindows) do
+		wDecision.decision_choice.setListValue(StringManager.capitalize(sAbility));
+	end
+
+	CharWizardAbilitiesManager.updateAbilities();
+end
+
 function handleSpeciesSizeTrait(w, s)
-	local tChoices, sSize = CharWizardSpeciesManager.parseSpeciesSizeTrait(s:lower());
+	local tChoices, sSize = CharWizardSpeciesManager.parseSpeciesSizeTrait(s);
 	if next(tChoices) then
-		local w2 = CharWizardManager.createDecision(w, { sDecisionType = "size", });
+		local w2 = CharWizardDecisionManager.createDecision(w, { sDecisionType = "size", });
 		for _,v in pairs(tChoices) do
 			w2.decision_choice.add(StringManager.capitalize(v));
 		end
@@ -690,9 +724,9 @@ function handleSpeciesSpeedTrait(w, s, bSpecialTrait)
 	end
 end
 
-function handleSpeciesSkills(w, sFeatureName, s)
+function handleSpeciesSkills(w, sTrait, s)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
-	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitSkills(sFeatureName, s, bIs2024);
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitSkills(sTrait, s, bIs2024);
 
 	CharWizardSpeciesManager.setSpeciesBaseSkills(tBase);
 
@@ -701,17 +735,20 @@ function handleSpeciesSkills(w, sFeatureName, s)
 			CharWizardSpeciesManager.addSpeciesSkillChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("skill");
+	CharWizardDecisionManager.refreshExpertiseDecision();
 end
-function handleSpeciesProficiencies(w, sFeatureName, s)
-	CharWizardSpeciesManager.handleSpeciesArmorProficiencies(w, sFeatureName, s);
-	CharWizardSpeciesManager.handleSpeciesWeaponProficiencies(w, sFeatureName, s);
-	CharWizardSpeciesManager.handleSpeciesToolProficiencies(w, sFeatureName, s);
+function handleSpeciesProficiencies(w, sTrait, s)
+	CharWizardSpeciesManager.handleSpeciesArmorProficiencies(w, sTrait, s);
+	CharWizardSpeciesManager.handleSpeciesWeaponProficiencies(w, sTrait, s);
+	CharWizardSpeciesManager.handleSpeciesToolProficiencies(w, sTrait, s);
 end
-function handleSpeciesArmorProficiencies(w, sFeatureName, s)
+function handleSpeciesArmorProficiencies(w, sTrait, s)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
-	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitArmorProf(sFeatureName, s, bIs2024)
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitArmorProf(sTrait, s, bIs2024)
 
 	CharWizardSpeciesManager.setSpeciesBaseArmorProficiencies(tBase);
 
@@ -720,12 +757,14 @@ function handleSpeciesArmorProficiencies(w, sFeatureName, s)
 			CharWizardSpeciesManager.addSpeciesArmorProficiencyChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("armorprof");
 end
-function handleSpeciesWeaponProficiencies(w, sFeatureName, s)
+function handleSpeciesWeaponProficiencies(w, sTrait, s)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
-	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitWeaponProf(sFeatureName, s, bIs2024)
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitWeaponProf(sTrait, s, bIs2024)
 
 	CharWizardSpeciesManager.setSpeciesBaseWeaponProficiencies(tBase);
 
@@ -734,12 +773,14 @@ function handleSpeciesWeaponProficiencies(w, sFeatureName, s)
 			CharWizardSpeciesManager.addSpeciesWeaponProficiencyChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("weaponprof");
 end
-function handleSpeciesToolProficiencies(w, sFeatureName, s)
+function handleSpeciesToolProficiencies(w, sTrait, s)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
-	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitToolProf(sFeatureName, s, bIs2024)
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitToolProf(sTrait, s, bIs2024)
 
 	CharWizardSpeciesManager.setSpeciesBaseToolProficiencies(tBase);
 
@@ -748,12 +789,14 @@ function handleSpeciesToolProficiencies(w, sFeatureName, s)
 			CharWizardSpeciesManager.addSpeciesToolProficiencyChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("toolprof");
 end
-function handleSpeciesLanguages(w, sFeatureName, s)
+function handleSpeciesLanguages(w, sTrait, s)
 	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
-	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitLanguages(sFeatureName, s, bIs2024)
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitLanguages(sTrait, s, bIs2024)
 
 	CharWizardSpeciesManager.setSpeciesBaseLanguages(tBase);
 
@@ -762,31 +805,38 @@ function handleSpeciesLanguages(w, sFeatureName, s)
 			CharWizardSpeciesManager.addSpeciesLanguageChoice(v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("language");
 end
+function handleSpeciesSpells(w, sTrait, s)
+	local bIs2024 = CharWizardSpeciesManager.isSpecies2024();
+	local tBase, tOptions, nPicks = CharBuildManager.getSpeciesTraitSpells(sTrait, s, bIs2024);
 
-function handleSpeciesSpells(w, s, aSources)
-	local tSpells, tChoiceSpells, nChoices, bChoice = CharWizardSpeciesManager.parseSpeciesSpells(w, s, aSources);
+	CharWizardSpeciesManager.setSpeciesBaseSpells(tBase);
 
-	CharWizardSpeciesManager.setSpeciesBaseSpells(tSpells);
-
-	if next(tChoiceSpells) then
-		local w2 = CharWizardManager.createDecision(w, { sDecisionType = "spell", });
-		for _,v in pairs(tChoiceSpells) do
-			w2.decision_choice.add(StringManager.capitalize(v));
-			w.alert.setVisible(true);
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
+			CharWizardSpeciesManager.addSpeciesSpellChoice(v);
 		end
+	else
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "spell", nPicks = nPicks, tOptions = tOptions, });
+	end
+
+	local sAbility = s:match("(%a+) is your spellcasting ability");
+	if sAbility then
+		CharWizardSpeciesManager.setSpeciesSpellAbility(sAbility);
 	end
 end
-function handleSpeciesFeat(w, s, sTrait, bIs2024)
-	local bChoice, tFeats, tChoiceFeats, nChoices = CharWizardSpeciesManager.parseSpeciesFeats(s:lower());
+function handleSpeciesFeat(w, sFeat, s, bIs2024)
+	local bChoice, tFeats, tChoiceFeats, nChoices = CharWizardSpeciesManager.parseSpeciesFeats(s);
 	for _,v in ipairs(tFeats) do
-		CharWizardSpeciesManager.addSpeciesFeatChoice(v.name);
+		CharWizardSpeciesManager.addSpeciesBaseFeat(v.name);
 	end
 
 	if bChoice then
-		CharWizardManager.createDecision(w, { sDecisionType = "feat", sDecisionClass = "decision_sub_speciesfeat_choice", });
+		CharWizardDecisionManager.createDecision(w, { sDecisionType = "feat", sDecisionClass = "decision_sub_speciesfeat_choice", });
 		w.alert.setVisible(true);
 	end
 end
@@ -805,131 +855,39 @@ function parseSpeciesSizeTrait(s)
 		table.insert(tChoices, "medium");
 	else
 		sSize = sSizeText:match("your size is (%w+)");
-
 		if not sSize then
 			sSize = sSizeText:match("you are (%w+)");
 		end
-
 		if not sSize then
 			sSize = "Medium";
 		end
 	end
 
-	return tChoices,sSize
+	return tChoices, sSize;
 end
-function parseSpeciesAbilityScoreInc(sAdjust)
-	if sAdjust:match("alternatively") then
-		return {}, true;
+function parseSpeciesFeats(s)
+	if not s then
+		return false, {}, {}, 0;
 	end
-	if sAdjust:match("your ability scores each increase") then
-		local aAbilities = {};
-		for _,v in pairs(DataCommon.abilities) do
-			CharWizardSpeciesManager.addSpeciesAbilityIncreases(v, 1);
-		end
-		return {}
+	s = s:lower();
+
+	local sFeatText = s:match("you gain one feat of your choice");
+	if not sFeatText then
+		sFeatText = s:match("you gain an [%w%s]+ of your choice");
+	end
+	if not sFeatText then
+		return false, {}, {}, 0;
 	end
 
-	local aIncreases = {};
-	local n1, n2;
-	local a1, a2, sIncrease = sAdjust:match("your (%w+) and (%w+) scores increase by (%d+)");
-	if not a1 then
-		a1, a2, sIncrease = sAdjust:match("your (%w+) and (%w+) scores both increase by (%d+)");
-	end
-	if a1 then
-		local nIncrease = tonumber(sIncrease) or 0;
-		aIncreases[a1] = nIncrease;
-		aIncreases[a2] = nIncrease;
-	else
-		for a1, sIncrease in sAdjust:gmatch("your (%w+) score increases by (%d+)") do
-			local nIncrease = tonumber(sIncrease) or 0;
-			aIncreases[a1] = nIncrease;
-		end
-		for a1, sDecrease in sAdjust:gmatch("your (%w+) score is reduced by (%d+)") do
-			local nDecrease = tonumber(sDecrease) or 0;
-			aIncreases[a1] = nDecrease * -1;
-		end
-	end
-	
-	local aAbilities = {};
-	for k,v in pairs(aIncreases) do
-		CharWizardSpeciesManager.addSpeciesAbilityIncreases(k, v);
-	end
-	
-	local tAbilitySelect = {};
-	sIncrease = sAdjust:match("two different ability scores of your choice increase by (%d+)")
-	if sIncrease then
-		local nAbilityAdj = tonumber(sIncrease) or 1;
-		table.insert(tAbilitySelect, { nPicks = 2, nAbilityAdj = nAbilityAdj });
-	end
-	sIncrease = sAdjust:match("one ability score of your choice increases by (%d+)");
-	if sIncrease then
-		local nAbilityAdj = tonumber(sIncrease) or 1;
-		table.insert(tAbilitySelect, { nAbilityAdj = nAbilityAdj });
-	end
-	sIncrease = sAdjust:match("one other ability score of your choice increases by (%d+)");
-	if sIncrease then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if not aIncreases[v] then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		if #aAbilities > 0 then
-			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nAbilityAdj = nAbilityAdj, bOther = true });
-		end
-	end
-	sIncrease = sAdjust:match("two other ability scores of your choice increase by (%d+)");
-	if sIncrease then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if not aIncreases[v] then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		if #aAbilities > 0 then
-			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nPicks = 2, nAbilityAdj = nAbilityAdj, bOther = true });
-		end
-	end
-	a1, a2, sIncrease = sAdjust:match("either your (%w+) or your (%w+) increases by (%d+)");
-	if a1 then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if (v == a1) or (v == a2) then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		if #aAbilities > 0 then
-			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nAbilityAdj = nAbilityAdj });
-		end
-	end
-	if #tAbilitySelect > 0 then
-		return tAbilitySelect;
-	end
-
-	return {}
-end
-function parseSpeciesFeats(sText)
+	local bChoice = false;
 	local tSpeciesFeats = {};
 	local tChoiceFeats = {};
 	local nChoices = 1;
-	local bChoice = false;
+
 	local tAvailableFeats = CharBuildManager.getFeatNames(false);
 	local aSortAvailableFeats = {};
-	local sFeatText = sText:match("you gain one feat of your choice");
-
 	for k,v in pairs(tAvailableFeats) do
 		aSortAvailableFeats[v] = "";
-	end
-
-	if not sFeatText then
-		sFeatText = sText:match("you gain an [%w%s]+ of your choice");
-	end
-
-	if not sFeatText then
-		return bChoice, tSpeciesFeats, nil, nChoices;
 	end
 
 	if sFeatText:match("choice") or sFeatText:match("choose") then
@@ -945,14 +903,12 @@ function parseSpeciesFeats(sText)
 				sChoiceFeats = sChoiceFeats:gsub("or ", "");
 
 				local aWords = StringManager.split(sChoiceFeats, ",")
-				for _,t in pairs(aWords) do
-					t = StringManager.trim(t);
-					local sFeatLower = t:lower();
-
+				for _,sWord in pairs(aWords) do
+					local sFeatLower = StringManager.trim(sWord):lower();
 					if aSortAvailableFeats[sFeatLower] then
-						table.insert(tChoiceFeats, t);
+						table.insert(tChoiceFeats, sWord);
 					end
-					if t == "two" then
+					if sWord == "two" then
 						nChoices = 2;
 					end
 				end
@@ -979,79 +935,25 @@ function parseSpeciesFeats(sText)
 
 	if not bChoice then
 		return bChoice, tSpeciesFeats, nil, nChoices;
-	else
-		local aFinalFeats = {};
-
-		for k,v in pairs(tAvailableFeats) do
-			table.insert(aFinalFeats, v:lower());
-		end
-
-		if #tChoiceFeats > 0 then
-			local aFinalChoiceFeats = {};
-
-			for _,v in pairs(tChoiceFeats) do
-				v = StringManager.trim(v);
-
-				if StringManager.contains(aFinalFeats, v:lower()) then
-					table.insert(aFinalChoiceFeats, v:lower());
-				end
-			end
-
-			return bChoice, tSpeciesFeats, aFinalChoiceFeats, nChoices;
-		else
-
-			return bChoice, tSpeciesFeats, aFinalFeats, nChoices;
-		end
-	end
-end
-function parseSpeciesSpells(w, s, aSources)
-	local tSpells = {};
-
-	for _,vSource in ipairs(aSources) do
-		table.insert(tSpells, CharManager.helperParseAbilitySpells(DB.findNode(vSource)));
 	end
 
-	local tChoiceSpells = {};
-	local bChoice = false;
-
-	local sText = s:lower();
-	local nChoices = 0;
-	local sChoices, sSpellList = sText:match("you know (.-) cantrip of your choice from the (.-) spell list")
-
-	if (sChoices or "") ~= "" then
-		nChoices = CharBuildManager.convertSingleNumberTextToNumber(sChoices);
-		bChoice = true;
+	local aFinalFeats = {};
+	for _,v in pairs(tAvailableFeats) do
+		table.insert(aFinalFeats, v);
 	end
 
-	if nChoices > 0 then
-		local tMappings = LibraryData.getMappings("spell");
-		for _,sMapping in ipairs(tMappings) do
-			for _,vGlobalItem in pairs(DB.getChildrenGlobal(sMapping)) do
-				local sSpell = StringManager.trim(DB.getValue(vGlobalItem, "name", ""));
-				local nSpellLevel = DB.getValue(vGlobalItem, "level", 0);
-				local sSpellSource = StringManager.trim(DB.getValue(vGlobalItem, "source", ""))
-				local aSpellSources = StringManager.split(sSpellSource:lower(), ",");
-
-				for _,vSource in pairs(aSpellSources) do
-					vSource = StringManager.trim(vSource);
-
-					if sSpellList then
-						if vSource:lower():match(sSpellList:lower()) then
-							if nSpellLevel == 0 then
-								table.insert(tChoiceSpells, sSpell)
-							end
-						end
-					else
-						if nSpellLevel == 0 then
-							table.insert(tChoiceSpells, sSpell)
-						end
-					end
-				end
+	if #tChoiceFeats > 0 then
+		local aFinalChoiceFeats = {};
+		for _,v in pairs(tChoiceFeats) do
+			v = StringManager.trim(v);
+			if StringManager.contains(aFinalFeats, v) then
+				table.insert(aFinalChoiceFeats, v);
 			end
 		end
-	end
 
-	return tSpells, tChoiceSpells, nChoices, bChoice
+		return bChoice, tSpeciesFeats, aFinalChoiceFeats, nChoices;
+	end
+	return bChoice, tSpeciesFeats, aFinalFeats, nChoices;
 end
 
 --
@@ -1096,7 +998,6 @@ function processSpeciesDecision(w)
 end
 function processSpeciesDecisionASIOption(wDecision)
 	local wFeature = wDecision.windowlist.window;
-	local sDecisionChoice = wDecision.decision_choice.getValue():lower();
 	CharWizardSpeciesManager.clearSpeciesAbilityIncreases();
 
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
@@ -1105,27 +1006,17 @@ function processSpeciesDecisionASIOption(wDecision)
 		end
 	end
 
-	local tSpeciesTraits = {};
-	CharWizardSpeciesManager.collectSpeciesTraits(tSpeciesTraits);
-
 	local tAbilities = {};
-	local sFeature = wFeature.feature.getValue();
-	if tSpeciesTraits[sFeature] then
-		local sText = DB.getValue(DB.findNode(tSpeciesTraits[sFeature].speciestrait), "text", "");
-		tAbilities = CharWizardSpeciesManager.parseSpeciesAbilityScoreInc(sText:lower());
+	for _,v in pairs(DataCommon.abilities) do
+		table.insert(tAbilities, StringManager.capitalize(v));
 	end
-	
-	local aAbilities = {};
-	if #aAbilities == 0 then
-		for _,v in pairs(DataCommon.abilities) do
-			table.insert(aAbilities, StringManager.capitalize(v));
-		end
-	end
+
+	local sDecisionChoice = wDecision.decision_choice.getValue():lower();
 	if sDecisionChoice:match("option 1") then
-		CharWizardManager.createDecision(wFeature, { sDecisionType = "asispecies", nAdj = 2, tOptions = aAbilities });
-		CharWizardManager.createDecision(wFeature, { sDecisionType = "asispecies", nAdj = 1, tOptions = aAbilities });
+		CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asispecies", nAdj = 2, tOptions = tAbilities });
+		CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "asispecies", nAdj = 1, tOptions = tAbilities });
 	else
-		CharWizardManager.createDecisions(wFeature, { sDecisionType = "asispecies", nAdj = 1, nPicks = 3, tOptions = aAbilities });
+		CharWizardDecisionManager.createDecisions(wFeature, { sDecisionType = "asispecies", nAdj = 1, nPicks = 3, tOptions = tAbilities });
 	end
 
 	CharWizardAbilitiesManager.updateAbilities();
@@ -1133,7 +1024,7 @@ end
 function processSpeciesDecisionASI(wDecision)
 	CharWizardSpeciesManager.clearSpeciesAbilityIncreases();
 
-	local tAbilityMap = CharWizardManager.processAbilityDecision(wDecision);
+	local tAbilityMap = CharWizardDecisionManager.processAbilityDecision(wDecision, true);
 	for sAbility,nMod in pairs(tAbilityMap) do
 		CharWizardSpeciesManager.addSpeciesAbilityIncreases(sAbility, nMod);
 	end
@@ -1143,15 +1034,17 @@ end
 function processSpeciesDecisionSkill(wDecision)
 	CharWizardSpeciesManager.clearSpeciesSkillChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processSkillDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardSpeciesManager.addSpeciesSkillChoice(s);
 	end
+
+	CharWizardDecisionManager.refreshExpertiseDecision();
 end
 function processSpeciesDecisionArmorProficiency(wDecision)
 	CharWizardSpeciesManager.clearSpeciesArmorProficiencyChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processArmorProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardSpeciesManager.addSpeciesArmorProficiencyChoice(s);
 	end
@@ -1159,7 +1052,7 @@ end
 function processSpeciesDecisionWeaponProficiency(wDecision)
 	CharWizardSpeciesManager.clearSpeciesWeaponProficiencyChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processWeaponProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardSpeciesManager.addSpeciesWeaponProficiencyChoice(s);
 	end
@@ -1167,7 +1060,7 @@ end
 function processSpeciesDecisionToolProficiency(wDecision)
 	CharWizardSpeciesManager.clearSpeciesToolProficiencyChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processToolProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardSpeciesManager.addSpeciesToolProficiencyChoice(s);
 	end
@@ -1175,7 +1068,7 @@ end
 function processSpeciesDecisionLanguage(wDecision)
 	CharWizardSpeciesManager.clearSpeciesLanguageChoice();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processLanguageDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardSpeciesManager.addSpeciesLanguageChoice(s);
 	end
@@ -1191,37 +1084,45 @@ function processSpeciesDecisionVariableTrait(wDecision)
 			end
 		end
 	else
-		CharWizardManager.createDecision(wDecision, { sDecisionType = "skill", tOptions = CharBuildManager.getSkillNames() });
+		CharWizardDecisionManager.createDecision(wDecision, { sDecisionType = "skill", tOptions = CharBuildManager.getSkillNames() });
+	end
+
+	CharWizardDecisionManager.refreshOverallDecision("skill");
+end
+function processSpeciesDecisionSpell(wDecision, sDecision)
+	CharWizardSpeciesManager.clearSpeciesSpellChoice();
+
+	local tMap = CharWizardDecisionManager.processSpellDecision(wDecision);
+	for _,s in pairs(tMap) do
+		CharWizardSpeciesManager.addSpeciesSpellChoice(s);
 	end
 end
-function processSpeciesDecisionFeat(wFeat)
-	local sFeat = wFeat.name.getValue();
-	CharWizardSpeciesManager.addSpeciesFeatChoice(sFeat);
 
-	local wDecision = wFeat.windowlist.window.parentcontrol.window;
+function processSpeciesDecisionFeat(wSelection)
+	local sFeat = wSelection.name.getValue();
+	local sFeatClass, sFeatPath = wSelection.shortcut.getValue();
+
+	CharWizardSpeciesManager.addSpeciesChoiceFeatPath(sFeatPath);
+
+	local wDecision = wSelection.windowlist.window.parentcontrol.window;
 	wDecision.choice.setValue(sFeat);
+	wDecision.choicelink.setValue(sFeatClass, sFeatPath);
 	wDecision.button_modify.setVisible(true);
 	wDecision.sub_decision_choice.setVisible(false);
 	wDecision.checkOutstandingDecisions();
 
 	CharWizardManager.updateAlerts();
 end
-function processSpeciesDecisionSpell(wDecision, sDecision)
-	CharWizardSpeciesManager.clearSpeciesSpellChoice();
+function resetSpeciesDecisionFeat(wDecision)
+	local _,sFeatPath = wDecision.choicelink.getValue();
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
-	for _,s in pairs(tMap) do
-		CharWizardSpeciesManager.addSpeciesSpellChoice(s);
-	end
-end
+	CharWizardSpeciesManager.removeSpeciesChoiceFeatPath(sFeatPath);
 
-function resetSpeciesDecisionFeat(w)
-	CharWizardSpeciesManager.clearSpeciesFeatChoice(sFeat);
-
-	w.choice.setValue();
-	w.button_modify.setVisible(false);
-	w.sub_decision_choice.setVisible(true);
-	WindowManager.callInnerWindowFunction(w, "buildFeats");
+	wDecision.choice.setValue();
+	wDecision.choicelink.setValue();
+	wDecision.button_modify.setVisible(false);
+	wDecision.sub_decision_choice.setVisible(true);
+	WindowManager.callInnerWindowFunction(wDecision, "buildFeats");
 
 	CharWizardManager.updateAlerts();
 end

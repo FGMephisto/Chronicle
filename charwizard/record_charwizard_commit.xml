@@ -10,7 +10,7 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				update();
+				self.update();
 			end
 			function update()
 				CharWizardManager.clearSummary();
@@ -19,75 +19,82 @@
 			end
 		</script>
 		<sheetdata>
-			<frame_char name="overviewframe">
-				<anchored height="45">
-					<left offset="15" />
-					<top offset="10" />
-					<right offset="-15" />
-				</anchored>
-			</frame_char>
-			<stringc_labeled name="name">
-				<anchored to="overviewframe" position="insidetopleft" offset="15,10" height="20">
-					<right offset="-15" />
-				</anchored>
-				<labelres>char_label_name</labelres>
-				<script>
-					function onInit()
-						super.onInit();
-						if CharWizardManager.isLevelUpData() then
-							window.overviewframe.setVisible(false);
-							setVisible(false);
-						end
-					end
-					local _bUpdating = false
-					function onValueChanged()
-						if _bUpdating then
-							return false
-						end
-						_bUpdating = true
-						CharWizardManager.setName(getValue());
-						_bUpdating = false
-					end
-				</script>
-			</stringc_labeled>
+			<anchor_content_top />
 
-			<label_charframetop name="warnings_label">
-				<anchored height="20">
-					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>button_alert</icons>
-				<static textres="charwizard_label_warnings" />
-			</label_charframetop>
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_commit_instructions</class>
+			</sub_content_top>
 
-			<windowlist name="warnings">
-				<anchored>
-					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<child></child>
-				<readonly />
-				<noscroll />
+			<sub_content_top name="sub_warnings">
 				<class>charwizard_commit_warnings</class>
-				<script>
-					function onInit()
-						updateVisibility();
-					end
-					function onListChanged()
-						updateVisibility();
-					end
-					function updateVisibility()
-						self.setVisible(not isEmpty());
-						window.warnings_label.setVisible(not isEmpty());
-					end
-				</script>
-			</windowlist>
+			</sub_content_top>
+			<sub_content_top name="sub_save">
+				<class>charwizard_commit_save</class>
+			</sub_content_top>
+			<sub_content_top name="sub_summary">
+				<class>charwizard_commit_summary</class>
+			</sub_content_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charwizard_commit_instructions" copy="charwizard_instructions">
+		<script>
+			function onInit()
+				super.onInit();
+				if UtilityManager.getTopWindow(self).getClass() == "charwizard_levelup" then
+					text.setValue(Interface.getString("charwizard_message_instructions_commit_levelup"));
+				end
+			end
+		</script>
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_commit" />
+			</stringc_content_noframe_noscroll_static_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_commit_warnings">
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<icon>button_alert</icon>
+				<static textres="charwizard_label_warnings" />
+			</header_content_framed_metalplate_with_icon_top>
+			<list_content_noscroll_top name="list">
+				<class>charwizard_commit_warning_entry</class>
+			</list_content_noscroll_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charwizard_commit_warning_entry">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<stringc_listitem_left_noframe_static name="warning_label">
+				<anchored width="90" />
+				<font>reference-h</font>
+				<default>WARNING</default>
+			</stringc_listitem_left_noframe_static>
+
+			<stringc_listitem_center_noframe_static name="warning">
+				<font name="sheetlabel" />
+			</stringc_listitem_center_noframe_static>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_commit_save">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate name="header">
+				<static textres="charwizard_title_save" />
+			</header_content_framed_metalplate>
 
 			<button_text name="button_commit">
 				<anchored>
-					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="5" />
 					<left anchor="center" offset="-45" />
 					<right anchor="center" offset="45" />
 				</anchored>
@@ -98,48 +105,51 @@
 					end
 				</script>
 			</button_text>
-
-			<label_charframetop name="summary_label">
-				<anchored height="20">
-					<top parent="overviewframe" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_notes</icons>
-				<static textres="charwizard_title_summary" />
-			</label_charframetop>
-
-			<subwindow name="sub_commit_summary">
-				<anchored>
-					<left offset="15" />
-					<top parent="overviewframe" anchor="bottom" relation="relative" offset="10" />
-					<right offset="-10" />
-				</anchored>
-				<class>charwizard_commit_summary</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-		</sheetdata>
-	</windowclass>
-
-	<windowclass name="charwizard_commit_warnings">
-		<margins control="0,0,0,2" />
-		<sheetdata>
-			<anchor_listitem_left />
-			<stringc_listitem_left_noframe_static name="warning_label">
-				<anchored width="90" />
-				<font>reference-h</font>
-				<default>WARNING</default>
-			</stringc_listitem_left_noframe_static>
-
-			<anchor_listitem_right />
-			<stringc_listitem_center_noframe_static name="warning">
-				<font name="sheetlabel" />
-			</stringc_listitem_center_noframe_static>
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="charwizard_commit_summary">
+		<script>
+			function onInit()
+				if UtilityManager.getTopWindow(self).getClass() == "charwizard_levelup" then
+					name_label.setVisible(false);
+					name.setVisible(false);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate_with_icon_top name="summary_label">
+				<icon>char_notes</icon>
+				<static textres="charwizard_title_summary" />
+			</header_content_framed_metalplate_with_icon_top>
+
+			<label_content_column name="name_label">
+				<anchored>
+					<left offset="15" />
+				</anchored>
+				<static textres="char_label_name" />
+			</label_content_column>
+			<stringc_content_column name="name">
+				<anchored>
+					<right offset="-15" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						CharWizardManager.setName(getValue());
+					end
+				</script>
+			</stringc_content_column>
+
+			<spacer_content_top name="spacer" />
+
+			<sub_content_top name="contents">
+				<class>charwizard_commit_summary_contents</class>
+			</sub_content_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charwizard_commit_summary_contents">
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<basicnumberc name="constitution_total">
@@ -350,7 +360,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true"/>
+				<columns width="140" fillwidth="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -369,7 +379,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true"/>
+				<columns width="140" fillwidth="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -406,7 +416,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true"/>
+				<columns width="140" fillwidth="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -425,7 +435,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true"/>
+				<columns width="140" fillwidth="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -444,27 +454,17 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true"/>
+				<columns width="140" fillwidth="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="charwizard_summary_item">
-		<margins control="0,0,0,0" />
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
-			</genericcontrol>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
 
-			<stringcontrol name="name">
-				<anchored position="insidetopleft">
-					<top />
-					<left parent="" offset="5" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
-				</anchored>
-				<readonly />
-			</stringcontrol>
+			<stringc_listitem_center_noframe_static name="name" />
 		</sheetdata>
 	</windowclass>
 </root>

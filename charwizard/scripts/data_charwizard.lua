@@ -81,6 +81,7 @@ aRaceProficiency = {
 	["martialprodigy"] = true,
 	["seaelftraining"] = true,
 	["makersgift"] = true,
+	["reveler"] = true,
 };
 aRaceSpecialSpeed = {
 	["fleetoffoot"] = true,

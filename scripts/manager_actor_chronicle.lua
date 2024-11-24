@@ -15,7 +15,7 @@ end
 
 --
 --	HEALTH
---
+-- 
 
 STATUS_DYING = "Defeated";
 
@@ -30,7 +30,7 @@ end
 --		that all bars and statuses are synchronized in combat tracker
 --		(Cross-link network updates between PC and CT fields can occur in either order, 
 --		depending on where the scripts or end user updates.)
--- NOTE 2: We can not use default effect checking in this function;
+-- NOTE 2: We can not use default effect checking in this function; 
 -- 		as it will cause endless loop with conditionals that check health
 --
 
@@ -136,22 +136,6 @@ function getAbilityEffectsBonus(rActor, sAbility)
 	return nAbilityMod, nAbilityEffects;
 end
 
-function getClassLevel(nodeActor, sValue)
-	local sClassName = DataCommon.class_valuetoname[sValue];
-	if not sClassName then
-		return 0;
-	end
-	sClassName = sClassName:lower();
-	
-	for _, vNode in ipairs(DB.getChildList(nodeActor, "classes")) do
-		if DB.getValue(vNode, "name", ""):lower() == sClassName then
-			return DB.getValue(vNode, "level", 0);
-		end
-	end
-	
-	return 0;
-end
-
 -- Adjusted
 function getAbilityScore(rActor, sAbility)
 	if not sAbility then
@@ -171,6 +155,21 @@ function getAbilityScore(rActor, sAbility)
 	nStatScore = DB.getValue(nodeActor, "abilities." .. sAbility .. ".score", 0);
 
 	return nStatScore;
+end
+function getClassLevel(nodeActor, sValue)
+	local sClassName = DataCommon.class_valuetoname[sValue];
+	if not sClassName then
+		return 0;
+	end
+	sClassName = sClassName:lower();
+	
+	for _, vNode in ipairs(DB.getChildList(nodeActor, "classes")) do
+		if DB.getValue(vNode, "name", ""):lower() == sClassName then
+			return DB.getValue(vNode, "level", 0);
+		end
+	end
+	
+	return 0;
 end
 
 -- Adjusted
@@ -193,7 +192,7 @@ function getAbilityBonus(rActor, sAbility)
 	end
 	
 	local nStatVal = 0;
-	if StringManager.contains(DataCommon.abilities, sAbility) then
+	if StringManager.contains(DataCommon.abilities, sAbility) or DataCommon.ability_stol[sAbility:upper()] then
 		nStatVal = math.floor((nStatScore - 10) / 2);
 	else
 		nStatVal = nStatScore;
@@ -205,6 +204,145 @@ function getAbilityBonus(rActor, sAbility)
 	
 	-- return nStatVal;
 	return 0;
+end
+
+--
+--	TRAITS
+--
+
+function getListRecordByName(nodeActor, sList, s)
+	if not nodeActor or ((sList or "") == "") or ((s or "") == "") then
+		return nil;
+	end
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeActor, sList)) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			return v;
+		end
+	end
+	return nil;
+end
+function getListRecordByName2024(nodeActor, sList, s)
+	if not nodeActor or ((sList or "") == "") or ((s or "") == "") then
+		return nil;
+	end
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeActor, sList)) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if DB.getValue(v, "version", "") == "2024" then
+				return v;
+			end
+		end
+	end
+	return nil;
+end
+function getListRecordByName2014(nodeActor, sList, s)
+	if not nodeActor or ((sList or "") == "") or ((s or "") == "") then
+		return nil;
+	end
+	local sLower = StringManager.simplify(s);
+	for _,v in ipairs(DB.getChildList(nodeActor, sList)) do
+		if StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
+			if DB.getValue(v, "version", "") ~= "2024" then
+				return v;
+			end
+		end
+	end
+	return nil;
+end
+
+function hasRollTrait(rActor, s)
+	return EffectManager5E.hasEffectCondition(rActor, s) or ActorManager5E.hasTrait(rActor, s);
+end
+function hasRollFeature(rActor, s)
+	return EffectManager5E.hasEffectCondition(rActor, s) or ActorManager5E.hasFeature(rActor, s);
+end
+function hasRollFeat(rActor, s)
+	return EffectManager5E.hasEffectCondition(rActor, s) or ActorManager5E.hasFeat(rActor, s);
+end
+function hasRollFeat2024(rActor, s)
+	return EffectManager5E.hasEffectCondition(rActor, s) or ActorManager5E.hasFeat2024(rActor, s);
+end
+function hasRollFeat2014(rActor, s)
+	return EffectManager5E.hasEffectCondition(rActor, s) or ActorManager5E.hasFeat2014(rActor, s);
+end
+
+function hasTrait(rActor, s)
+	if ActorManager.isPC(rActor) then
+		return ActorManager5E.hasPCTrait(ActorManager.getCreatureNode(rActor), s);
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		return ActorManager5E.hasNPCTrait(ActorManager.getCreatureNode(rActor), s);
+	end
+	return false;
+end
+function hasFeature(rActor, s)
+	if ActorManager.isPC(rActor) then
+		return ActorManager5E.hasPCFeature(ActorManager.getCreatureNode(rActor), s);
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		return ActorManager5E.hasNPCFeature(ActorManager.getCreatureNode(rActor), s);
+	end
+	return false;
+end
+function hasFeat(rActor, s)
+	if ActorManager.isPC(rActor) then
+		return ActorManager5E.hasPCFeat(ActorManager.getCreatureNode(rActor), s);
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		return ActorManager5E.hasNPCFeat(ActorManager.getCreatureNode(rActor), s);
+	end
+	return false;
+end
+function hasFeat2024(rActor, s)
+	if ActorManager.isPC(rActor) then
+		return ActorManager5E.hasPCFeat2024(ActorManager.getCreatureNode(rActor), s);
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		return ActorManager5E.hasNPCFeat2024(ActorManager.getCreatureNode(rActor), s);
+	end
+	return false;
+end
+function hasFeat2014(rActor, s)
+	if ActorManager.isPC(rActor) then
+		return ActorManager5E.hasPCFeat2014(ActorManager.getCreatureNode(rActor), s);
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		return ActorManager5E.hasNPCFeat2014(ActorManager.getCreatureNode(rActor), s);
+	end
+	return false;
+end
+
+function hasPCTrait(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "traitlist", s) ~= nil);
+end
+function hasNPCTrait(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "traits", s) ~= nil);
+end
+function hasPCFeature(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "featurelist", s) ~= nil);
+end
+function hasNPCFeature(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "traits", s) ~= nil) or (ActorManager5E.getListRecordByName(nodeActor, "actions", s) ~= nil);
+end
+function hasPCFeat(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "featlist", s) ~= nil);
+end
+function hasNPCFeat(nodeActor, s)
+	return (ActorManager5E.getListRecordByName(nodeActor, "traits", s) ~= nil) or (ActorManager5E.getListRecordByName(nodeActor, "actions", s) ~= nil);
+end
+function hasPCFeat2024(nodeActor, s)
+	return (ActorManager5E.getListRecordByName2024(nodeActor, "featlist", s) ~= nil);
+end
+function hasNPCFeat2024(nodeActor, s)
+	if DB.getValue(nodeActor, "version", "") ~= "2024" then
+		return false;
+	end
+	return (ActorManager5E.getListRecordByName(nodeActor, "traits", s) ~= nil) or (ActorManager5E.getListRecordByName(nodeActor, "actions", s) ~= nil);
+end
+function hasPCFeat2014(nodeActor, s)
+	return (ActorManager5E.getListRecordByName2014(nodeActor, "featlist", s) ~= nil);
+end
+function hasNPCFeat2014(nodeActor, s)
+	if DB.getValue(nodeActor, "version", "") == "2024" then
+		return false;
+	end
+	return (ActorManager5E.getListRecordByName(nodeActor, "traits", s) ~= nil) or (ActorManager5E.getListRecordByName(nodeActor, "actions", s) ~= nil);
 end
 
 --

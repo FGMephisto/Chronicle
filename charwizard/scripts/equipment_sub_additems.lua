@@ -15,9 +15,6 @@ local _tRecords = {};
 function getAllRecords()
 	return _tRecords;
 end
-function setAllRecords(tItems)
-	_tRecords = tItems;
-end
 function clearRecords()
 	_tRecords = {};
 	list.closeAll();
@@ -64,12 +61,8 @@ function addListRecord(vNode)
 	end
 
 	local tItems = self.getAllRecords();
-	if not tItems[rRecord.sDisplayNameLower] then
-		tItems[rRecord.sDisplayNameLower] = {};
-	end
-
+	tItems[rRecord.sDisplayNameLower] = tItems[rRecord.sDisplayNameLower] or {};
 	table.insert(tItems[rRecord.sDisplayNameLower], rRecord);
-	self.setAllRecords(tItems);
 end
 function addDisplayListItem(v)
 	local wItem = list.createWindow();

@@ -266,16 +266,15 @@ function applyReliableEffectsToRollMod(rRoll, rSource, rTarget)
 		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLESKILL", rRoll.tSkillFilter)) > 0 then
 			rRoll.bEffects = true;
 			rRoll.bReliable = true;
-		elseif ActorManager.isPC(rSource) and rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then
-			local nodeActor = ActorManager.getCreatureNode(rSource);
-			if CharManager.hasFeature(nodeActor, CharManager.FEATURE_RELIABLE_TALENT) then
+		elseif rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then
+			if ActorManager5E.hasRollFeature(rSource, CharManager.FEATURE_RELIABLE_TALENT) then
 				rRoll.bReliable = true;
 			else
 				local tSilverTongueSkills = {
 					StringManager.simplify(Interface.getString("skill_value_deception")),
 					StringManager.simplify(Interface.getString("skill_value_persuasion")),
 				};
-				if StringManager.contains(tSilverTongueSkills, rRoll.sSkill) and CharManager.hasFeature(nodeActor, CharManager.FEATURE_SILVER_TONGUE) then
+				if StringManager.contains(tSilverTongueSkills, rRoll.sSkill) and ActorManager5E.hasRollFeature(nodeActor, CharManager.FEATURE_SILVER_TONGUE) then
 					rRoll.bReliable = true;
 				end
 			end

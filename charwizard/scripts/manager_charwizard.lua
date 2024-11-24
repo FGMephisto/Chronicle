@@ -9,6 +9,7 @@
 
 function registerWindow(w)
 	CharWizardManager.resetData();
+	CharWizardManager.setInstructionsVisibility(true);
 	w.sub_step_buttons.subwindow.button_class.onButtonPress();
 end
 function onTabButtonPressed(w, sTabTarget)
@@ -48,11 +49,17 @@ function getWizardClassWindow()
 	if not wTop then
 		return nil;
 	end
+	if not wTop.sub_class then
+		return nil;
+	end
 	return wTop.sub_class.subwindow;
 end
 function getWizardBackgroundWindow()
 	local wTop = CharWizardManager.getWizardWindow();
 	if not wTop then
+		return nil;
+	end
+	if not wTop.sub_background then
 		return nil;
 	end
 	return wTop.sub_background.subwindow;
@@ -87,78 +94,67 @@ function getWizardEquipmentWindow()
 	end
 	return wTop.sub_equipment.subwindow;
 end
+function getWizardCommitWindow()
+	local wTop = CharWizardManager.getWizardWindow();
+	if not wTop then
+		return nil;
+	end
+	if not wTop.sub_commit then
+		return nil;
+	end
+	return wTop.sub_commit.subwindow;
+end
+
+function getCommitSummaryContentWindow()
+	local wCommit = CharWizardManager.getWizardCommitWindow();
+	if not wCommit then
+		return nil;
+	end
+	local wCommitSummary = wCommit.sub_summary and wCommit.sub_summary.subwindow;
+	if not wCommitSummary then
+		return nil;
+	end
+	return wCommitSummary.contents and wCommitSummary.contents.subwindow;
+end
+function getCommitWarningsWindow()
+	local wCommit = CharWizardManager.getWizardCommitWindow();
+	if not wCommit then
+		return nil;
+	end
+	return wCommit.sub_warnings and wCommit.sub_warnings.subwindow;
+end
 
 function createDecisions(w, tData)
-	local nPicks = tData and tData.nPicks or 1;
-	for i = 1, nPicks do
-		CharWizardManager.createDecision(w, tData);
-	end
+	CharWizardDecisionManager.createDecisions(w, tData);
 end
 function createDecision(w, tData)
-	local wDecision = w.list_decisions.createWindow();
-	wDecision.setData(tData);
-	w.alert.setVisible();
-	w.setDetailsVisible(true);
-	return wDecision;
+	return CharWizardDecisionManager.createDecision(w, tData);
 end
 
-function processStandardDecision(wDecision)
-	local sDecisionType = wDecision.decisiontype.getValue();
-
-	local tMap = {};
-	local sDecisionKey = StringManager.simplify(wDecision.decision_choice.getValue());
-	if sDecisionKey ~= "" then
-		tMap[sDecisionKey] = wDecision.decision_choice.getValue();
-	end
-	for _,w in pairs(wDecision.windowlist.getWindows()) do
-		if (w ~= wDecision) and (w.decisiontype.getValue() == sDecisionType) then
-			local sDecisionKey = StringManager.simplify(w.decision_choice.getValue());
-			if sDecisionKey ~= "" then
-				if tMap[sDecisionKey] then
-					w.decision_choice.setListValue("");
-				else
-					tMap[sDecisionKey] = w.decision_choice.getValue();
-				end
-			end
-		end
-	end
-	
-	for _,w in pairs(wDecision.windowlist.getWindows()) do
-		if (w.decisiontype.getValue() == sDecisionType) then
-			w.updateOptions(tMap);
-		end
-	end
-
-	return tMap;
+local _bInstructionsVisible = true;
+function getInstructionsVisibility()
+	return _bInstructionsVisible;
 end
-function processAbilityDecision(wDecision)
-	local sDecisionType = wDecision.decisiontype.getValue();
-
-	local tAbilityMap = {};
-	local sDecisionKey = StringManager.simplify(wDecision.decision_choice.getValue());
-	if sDecisionKey ~= "" then
-		tAbilityMap[sDecisionKey] = wDecision.decision.getValue():match("%d+") or 0;
+function setInstructionsVisibility(bShow)
+	_bInstructionsVisible = bShow;
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardClassWindow());
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardBackgroundWindow());
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardSpeciesWindow());
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardAbilitiesWindow());
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardEquipmentWindow());
+	CharWizardManager.helperRefreshTabInstructionsVisibility(CharWizardManager.getWizardCommitWindow());
+end
+function helperRefreshTabInstructionsVisibility(w)
+	local wInstructions = w and w.sub_instructions and w.sub_instructions.subwindow;
+	CharWizardManager.refreshInstructionsVisibility(wInstructions);
+end
+function refreshInstructionsVisibility(wInstructions)
+	if not wInstructions then
+		return;
 	end
-	for _,w in pairs(wDecision.windowlist.getWindows()) do
-		if (w ~= wDecision) and (w.decisiontype.getValue() == sDecisionType) then
-			local sDecisionKey = StringManager.simplify(w.decision_choice.getValue());
-			if sDecisionKey ~= "" then
-				if tAbilityMap[sDecisionKey] then
-					w.decision_choice.setListValue("");
-				else
-					tAbilityMap[sDecisionKey] = w.decision.getValue():match("%d+") or 0;
-				end
-			end
-		end
-	end
-
-	for _,w in pairs(wDecision.windowlist.getWindows()) do
-		if (w.decisiontype.getValue() == sDecisionType) then
-			w.updateOptions(tAbilityMap);
-		end
-	end
-
-	return tAbilityMap;
+	local bShow = CharWizardManager.getInstructionsVisibility();
+	wInstructions.button_toggle.setValue(bShow and 0 or 1);
+	wInstructions.text.setVisible(bShow);
 end
 
 --
@@ -274,6 +270,10 @@ function clearBackgroundData()
 	end
 end
 
+function hasClasses() 
+	local tClassData = CharWizardManager.getClassData();
+	return next(tClassData) and true or false;
+end
 function getClassData()
 	local tCharData = CharWizardManager.getData();
 	if not tCharData then
@@ -357,8 +357,93 @@ function clearImportData()
 end
 
 --
--- Collection Utilities
+--	COMMIT COLLECTION
 --
+
+function helperCollectDataType(s)
+	local tMap = CharWizardManager.helperCollectDataTypeMap(s);
+
+	local tSorted = {};
+	for k,_ in pairs(tMap) do
+		table.insert(tSorted, k);
+	end
+	table.sort(tSorted);
+	return tSorted;
+end
+function helperCollectDataTypeMap(s)
+	local tBaseMap = CharWizardManager.helperCollectDataTypeBaseMap(s);
+	local tChoiceMap = CharWizardManager.helperCollectDataTypeChoiceMap(s);
+
+	local tFinalMap = {};
+	for k,_ in pairs(tBaseMap) do 
+		tFinalMap[k] = true;
+	end
+	for k,_ in pairs(tChoiceMap) do
+		tFinalMap[k] = true;
+	end
+	return tFinalMap;
+end
+function helperCollectDataTypeBaseMap(s)
+	if (s or "") == "" then
+		return {};
+	end
+
+	local tResults = {};
+
+	local tSpecies = CharWizardManager.getSpeciesData();
+	for _,v in pairs(tSpecies[s] or {}) do
+		tResults[v] = true;
+	end
+	local tClass = CharWizardManager.getClassData();
+	for _,vClass in pairs(tClass) do
+		for _,vFeature in pairs(vClass.features or {}) do
+			for _,vFeatureLevel in pairs(vFeature) do
+				for _,v in pairs(vFeatureLevel[s] or {}) do
+					tResults[v] = true;
+				end
+			end
+		end
+	end
+	local tBackground = CharWizardManager.getBackgroundData();
+	for _,v in pairs(tBackground[s] or {}) do
+		tResults[v] = true;
+	end
+	local tImport = CharWizardManager.getImportData();
+	for _,v in pairs(tImport[s] or {}) do
+		tResults[v] = true;
+	end
+
+	return tResults;
+end
+function helperCollectDataTypeChoiceMap(s)
+	if (s or "") == "" then
+		return {};
+	end
+
+	local tResults = {};
+	local sChoice = s .. "choice";
+
+	local tSpecies = CharWizardManager.getSpeciesData();
+	for _,v in pairs(tSpecies[sChoice] or {}) do
+		tResults[v] = true;
+	end
+	local tClass = CharWizardManager.getClassData();
+	for _,vClass in pairs(tClass) do
+		for _,vFeature in pairs(vClass.features or {}) do
+			for _,vFeatureLevel in pairs(vFeature) do
+				for _,v in pairs(vFeatureLevel[sChoice] or {}) do
+					tResults[v] = true;
+				end
+			end
+		end
+	end
+	local tBackground = CharWizardManager.getBackgroundData();
+	for _,v in pairs(tBackground[sChoice] or {}) do
+		tResults[v] = true;
+	end
+
+	return tResults;
+end
 
 function collectSaveProficiencies()
 	return CharWizardManager.helperCollectDataType("saveprof");
@@ -387,75 +472,33 @@ function collectFeats()
 	local tBackground = CharWizardManager.getBackgroundData();
 
 	local tFeats = {};
+	local tFeatPaths = {};
 
-	for _,vClass in pairs(tClass) do
-		for kFeature,vFeature in pairs(vClass.features or {}) do
-			for kFeatureLevel,vFeatureLevel in pairs(vFeature) do
-				if vFeatureLevel.feat then
-					table.insert(tFeats, { name = vFeatureLevel.feat, bIs2024 = vClass.bIs2024 });
-				end
-			end
-		end
-	end
-	if tSpecies.feats then
-		for _,v in pairs(tSpecies.feats) do
-			table.insert(tFeats, { name = v, bIs2024 = tSpecies.bIs2024 });
-		end
-	end
-	if tBackground.feat then
-		table.insert(tFeats, { name = tBackground.feat, bIs2024 = tBackground.bIs2024 });
-	end
-
-	return tFeats;
-end
-function helperCollectDataType(s)
-	if (s or "") == "" then
-		return {};
-	end
-
-	local tSpecies = CharWizardManager.getSpeciesData();
-	local tClass = CharWizardManager.getClassData();
-	local tBackground = CharWizardManager.getBackgroundData();
-	local tImport = CharWizardManager.getImportData();
-
-	local sChoice = s .. "choice";
-	local tResults = {};
-
-	for _,v in pairs(tSpecies[s] or {}) do
-		tResults[v] = true;
-	end
-	for _,v in pairs(tSpecies[sChoice] or {}) do
-		tResults[v] = true;
-	end
 	for _,vClass in pairs(tClass) do
 		for _,vFeature in pairs(vClass.features or {}) do
 			for _,vFeatureLevel in pairs(vFeature) do
-				for _,v in pairs(vFeatureLevel[s] or {}) do
-					tResults[v] = true;
-				end
-				for _,v in pairs(vFeatureLevel[sChoice] or {}) do
-					tResults[v] = true;
+				if (vFeatureLevel.featpath or "") ~= "" then
+					table.insert(tFeatPaths, vFeatureLevel.featpath);
 				end
 			end
 		end
 	end
-	for _,v in pairs(tBackground[s] or {}) do
-		tResults[v] = true;
+
+	for _,v in pairs(tSpecies.feats or {}) do
+		table.insert(tFeats, { name = v, bIs2024 = tSpecies.bIs2024 });
 	end
-	for _,v in pairs(tBackground[sChoice] or {}) do
-		tResults[v] = true;
-	end
-	for _,v in pairs(tImport[s] or {}) do
-		tResults[v] = true;
+	for _,v in pairs(tSpecies.featpaths or {}) do
+		table.insert(tFeatPaths, v);
 	end
 
-	local tSorted = {};
-	for k,_ in pairs(tResults) do
-		table.insert(tSorted, k);
+	if (tBackground.feat or "") ~= "" then
+		table.insert(tFeats, { name = tBackground.feat, bIs2024 = tBackground.bIs2024 });
 	end
-	table.sort(tSorted);
+	if (tBackground.featpath or "") ~= "" then
+		table.insert(tFeatPaths, tBackground.featpath);
+	end
 
-	return tSorted;
+	return tFeats, tFeatPaths;
 end
 
 function collectSaveProficienciesNew()
@@ -548,68 +591,68 @@ function filterByAvailableSkills(tSkills)
 end
 
 --
--- Summary
+--	SUMMARY
 --
 
 function clearSummary()
-	local wTop = CharWizardManager.getWizardWindow();
-	local wCommit = wTop.sub_commit.subwindow;
-
-	if wCommit.sub_commit_summary.subwindow then
-		local wSummary = wCommit.sub_commit_summary.subwindow;
-		wSummary.strength_total.setValue();
-		wSummary.strength_modifier.setValue();
-		wSummary.dexterity_total.setValue();
-		wSummary.dexterity_modifier.setValue();
-		wSummary.constitution_total.setValue();
-		wSummary.constitution_modifier.setValue();
-		wSummary.intelligence_total.setValue();
-		wSummary.intelligence_modifier.setValue();
-		wSummary.wisdom_total.setValue();
-		wSummary.wisdom_modifier.setValue();
-		wSummary.charisma_total.setValue();
-		wSummary.charisma_modifier.setValue();
-
-		wSummary.summary_species.setValue();
-		wSummary.summary_background.setValue();
-		wSummary.summary_class.setValue();
-		wSummary.summary_senses.setValue();
-		wSummary.summary_speed.setValue();
-		wSummary.summary_speedspecial.setValue();
-
-		wSummary.summary_languages.closeAll();
-		wSummary.summary_skills.closeAll();
-		wSummary.summary_traits.closeAll();
-		wSummary.summary_features.closeAll();
-		wSummary.summary_proficiencies.closeAll();
+	local wContents = CharWizardManager.getCommitSummaryContentWindow();
+	if not wContents then
+		return;
 	end
+
+	wContents.strength_total.setValue();
+	wContents.strength_modifier.setValue();
+	wContents.dexterity_total.setValue();
+	wContents.dexterity_modifier.setValue();
+	wContents.constitution_total.setValue();
+	wContents.constitution_modifier.setValue();
+	wContents.intelligence_total.setValue();
+	wContents.intelligence_modifier.setValue();
+	wContents.wisdom_total.setValue();
+	wContents.wisdom_modifier.setValue();
+	wContents.charisma_total.setValue();
+	wContents.charisma_modifier.setValue();
+
+	wContents.summary_species.setValue();
+	wContents.summary_background.setValue();
+	wContents.summary_class.setValue();
+	wContents.summary_senses.setValue();
+	wContents.summary_speed.setValue();
+	wContents.summary_speedspecial.setValue();
+
+	wContents.summary_languages.closeAll();
+	wContents.summary_skills.closeAll();
+	wContents.summary_traits.closeAll();
+	wContents.summary_features.closeAll();
+	wContents.summary_proficiencies.closeAll();
 end
 function populateSummary()
-	local wTop = CharWizardManager.getWizardWindow();
-	local wCommit = wTop.sub_commit.subwindow;
-	local wSummary = wCommit.sub_commit_summary.subwindow;
+	local wContents = CharWizardManager.getCommitSummaryContentWindow();
+	if not wContents then
+		return;
+	end
 
 	local tSpecies = CharWizardManager.getSpeciesData();
 	local sSpeciesTitle = "";
 	if (tSpecies.species or "") ~= "" then
 		sSpeciesTitle = DB.getValue(DB.findNode(tSpecies.species), "name", "");
 		for _,v in pairs(DB.getChildren(DB.findNode(tSpecies.species), "traits")) do
-			local w = wSummary.summary_traits.createWindow();
+			local w = wContents.summary_traits.createWindow();
 			w.name.setValue(DB.getValue(v, "name", ""));
 		end
 	end
 	if (tSpecies.ancestry or "") ~= "" then
 		sSpeciesTitle = string.format("%s (%s)", sSpeciesTitle, DB.getValue(DB.findNode(tSpecies.ancestry), "name", ""));
 		for _,v in pairs(DB.getChildren(DB.findNode(tSpecies.ancestry), "traits")) do
-			local w = wSummary.summary_traits.createWindow();
+			local w = wContents.summary_traits.createWindow();
 			w.name.setValue(DB.getValue(v, "name", ""));
 		end
 	end
-	wSummary.summary_species.setValue(sSpeciesTitle);
+	wContents.summary_species.setValue(sSpeciesTitle);
 
 	local tBackground = CharWizardManager.getBackgroundData();
 	if (tBackground.background or "") ~= "" then
-		wSummary.summary_background.setValue(DB.getValue(DB.findNode(tBackground.background), "name", ""));
+		wContents.summary_background.setValue(DB.getValue(DB.findNode(tBackground.background), "name", ""));
 	end
 
 	local tASI = CharWizardManager.getAbilityData();
@@ -617,8 +660,8 @@ function populateSummary()
 		local nTotal = tASI[sAbility] and tASI[sAbility].total or 10;
 		local nModifier = tASI[sAbility] and tASI[sAbility].modifier or 0;
 
-		wSummary[sAbility .. "_total"].setValue(nTotal);
-		wSummary[sAbility .. "_modifier"].setValue(string.format("%+d", nModifier));
+		wContents[sAbility .. "_total"].setValue(nTotal);
+		wContents[sAbility .. "_modifier"].setValue(string.format("%+d", nModifier));
 	end
 
 	local tClass = CharWizardManager.getClassData();
@@ -634,51 +677,56 @@ function populateSummary()
 		end
 
 		for k,v2 in pairs(v.features or {}) do
-			local w = wSummary.summary_features.createWindow();
+			local w = wContents.summary_features.createWindow();
 			w.name.setValue(k);
 		end
 	end
-	wSummary.summary_class.setValue(table.concat(tClasses, " / "));
+	wContents.summary_class.setValue(table.concat(tClasses, " / "));
 
 	if tSpecies.darkvision then
-		wSummary.summary_senses.setValue(string.format("Darkvision %d", tSpecies.darkvision));
+		wContents.summary_senses.setValue(string.format("Darkvision %d", tSpecies.darkvision));
 	else
-		wSummary.summary_senses.setValue("");
+		wContents.summary_senses.setValue("");
 	end
-	wSummary.summary_speed.setValue(tSpecies.speed);
-	wSummary.summary_speedspecial.setValue(tSpecies.speedspecial);
+	wContents.summary_speed.setValue(tSpecies.speed);
+	wContents.summary_speedspecial.setValue(tSpecies.speedspecial);
 
 	for k,v in ipairs(CharWizardManager.collectSkills()) do
-		local w = wSummary.summary_skills.createWindow();
+		local w = wContents.summary_skills.createWindow();
 		w.name.setValue(v);
 	end
 
 	for _,v in ipairs(CharWizardManager.collectArmorProficiencies()) do
-		local w = wSummary.summary_proficiencies.createWindow();
+		local w = wContents.summary_proficiencies.createWindow();
 		w.name.setValue(string.format("%s: %s", Interface.getString("char_label_addprof_armor"), v));
 	end
 	for _,v in ipairs(CharWizardManager.collectWeaponProficiencies()) do
-		local w = wSummary.summary_proficiencies.createWindow();
+		local w = wContents.summary_proficiencies.createWindow();
 		w.name.setValue(string.format("%s: %s", Interface.getString("char_label_addprof_weapon"), v));
 	end
 	for _,v in ipairs(CharWizardManager.collectToolProficiencies()) do
-		local w = wSummary.summary_proficiencies.createWindow();
+		local w = wContents.summary_proficiencies.createWindow();
 		w.name.setValue(string.format("%s: %s", Interface.getString("char_label_addprof_tool"), v));
 	end
 
 	for _,v in ipairs(CharWizardManager.collectLanguages()) do
-		local w = wSummary.summary_languages.createWindow();
+		local w = wContents.summary_languages.createWindow();
 		w.name.setValue(StringManager.capitalize(v));
 	end
 
-	for _,v in ipairs(CharWizardManager.collectFeats()) do
-		local w = wSummary.summary_feats.createWindow();
+	local tBaseFeats, tChoiceFeats = CharWizardManager.collectFeats();
+	for _,v in ipairs(tBaseFeats) do
+		local w = wContents.summary_feats.createWindow();
 		w.name.setValue(v.name);
+	end
+	for _,v in ipairs(tChoiceFeats) do
+		local w = wContents.summary_feats.createWindow();
+		w.name.setValue(DB.getValue(DB.getPath(v, "name"), ""));
 	end
 end
 
 --
--- Alerts
+--	ALERTS
 --
 
 local _tWarnings = {};
@@ -686,47 +734,44 @@ function getCommitWarnings()
 	return _tWarnings;
 end
 function checkCompletion()
-	local wTop = CharWizardManager.getWizardWindow();
+	local tSpeciesAlerts, tClassAlerts, tAbilitiesAlerts, tBackgroundAlerts, tEquipmentAlerts = CharWizardManager.updateAlerts();
 
 	_tWarnings = {};
 
-	local bComplete = true;
-	local tSpeciesAlerts, tClassAlerts, tAbilitiesAlerts, tBackgroundAlerts, tEquipmentAlerts = CharWizardManager.updateAlerts();
-	if next(tSpeciesAlerts) or next(tClassAlerts) or next(tAbilitiesAlerts) or next(tBackgroundAlerts) or next(tEquipmentAlerts) then
-		bComplete = false;
+	local wWarnings = CharWizardManager.getCommitWarningsWindow();
+	if not wWarnings then
+		return;
 	end
 
-	if not bComplete and wTop.sub_commit.subwindow then
-		wTop.sub_commit.subwindow.warnings.closeAll();
+	wWarnings.list.closeAll();
 
-		for _,v in ipairs(tSpeciesAlerts) do
-			local w = wTop.sub_commit.subwindow.warnings.createWindow();
-			w.warning.setValue(v);
-			table.insert(_tWarnings, v);
-		end
-		for _,v in ipairs(tClassAlerts) do
-			local w = wTop.sub_commit.subwindow.warnings.createWindow();
-			w.warning.setValue(v);
-			table.insert(_tWarnings, v);
-		end
-		for _,v in ipairs(tAbilitiesAlerts) do
-			local w = wTop.sub_commit.subwindow.warnings.createWindow();
-			w.warning.setValue(v);
-			table.insert(_tWarnings, v);
-		end
-		for _,v in ipairs(tBackgroundAlerts) do
-			local w = wTop.sub_commit.subwindow.warnings.createWindow();
-			w.warning.setValue(v);
-			table.insert(_tWarnings, v);
-		end
-		for _,v in ipairs(tEquipmentAlerts) do
-			local w = wTop.sub_commit.subwindow.warnings.createWindow();
-			w.warning.setValue(v);
-			table.insert(_tWarnings, v);
-		end
+	for _,v in ipairs(tSpeciesAlerts) do
+		local w = wWarnings.list.createWindow();
+		w.warning.setValue(v);
+		table.insert(_tWarnings, v);
+	end
+	for _,v in ipairs(tClassAlerts) do
+		local w = wWarnings.list.createWindow();
+		w.warning.setValue(v);
+		table.insert(_tWarnings, v);
+	end
+	for _,v in ipairs(tAbilitiesAlerts) do
+		local w = wWarnings.list.createWindow();
+		w.warning.setValue(v);
+		table.insert(_tWarnings, v);
+	end
+	for _,v in ipairs(tBackgroundAlerts) do
+		local w = wWarnings.list.createWindow();
+		w.warning.setValue(v);
+		table.insert(_tWarnings, v);
+	end
+	for _,v in ipairs(tEquipmentAlerts) do
+		local w = wWarnings.list.createWindow();
+		w.warning.setValue(v);
+		table.insert(_tWarnings, v);
 	end
 
-	return bComplete;
+	wWarnings.parentcontrol.setVisible(#_tWarnings > 0);
 end
 
 function updateAlerts()
@@ -781,32 +826,29 @@ function updateAlerts()
 end
 
 function updateClassAlerts(w)
-	local wClass = CharWizardManager.getWizardClassWindow();
-	if not wClass then
+	local wClassPage = CharWizardManager.getWizardClassWindow();
+	if not wClassPage then
 		return true, {"Select Class"};
 	end
-	if wClass.class_list.isEmpty() then
+	if wClassPage.class_list.isEmpty() then
 		return true, {"Select Class"};
 	end
 
 	local tAlerts = {};
 	local bTopAlert = false;
 
-	for _,vClass in pairs(wClass.class_list.getWindows()) do
-		for _,v in pairs(vClass.list_class_features.getWindows()) do
+	for _,vClass in pairs(wClassPage.class_list.getWindows()) do
+		for _,v in pairs(vClass.list_features.getWindows()) do
 			local bAlert = false;
 			for _,v2 in pairs(v.list_decisions.getWindows()) do
 				if ((v2.decision_choice.getValue() or "") == "") and 
-					((v2.choice.getValue() or "") == "") then
-
+						((v2.choice.getValue() or "") == "") then
 					bAlert = true;
 					bTopAlert = true;
 					table.insert(tAlerts, "Select " .. v.feature.getValue() .. " Choice");
 				end
-
 				v2.alert.setVisible(bAlert);
 			end
-
 			v.alert.setVisible(bAlert);
 		end
 	end
@@ -818,25 +860,24 @@ function updateBackgroundAlerts(w)
 	if not wBackground then
 		return true, {"Select Background"};
 	end
-	if not wBackground.background_decisions_list or wBackground.background_decisions_list.isEmpty() then
+	if not wBackground.list_features or wBackground.list_features.isEmpty() then
 		return true, {"Select Background"};
 	end
 
 	local tAlerts = {};
 	local bTopAlert = false;
 
-	for _,v in pairs(wBackground.background_decisions_list.getWindows()) do
+	for _,v in pairs(wBackground.list_features.getWindows()) do
 		local bAlert = false;
 		for _,v2 in pairs(v.list_decisions.getWindows()) do
-			if v2.decision_choice.getValue() == "" then
+			if ((v2.decision_choice.getValue() or "") == "") and 
+					((v2.choice.getValue() or "") == "") then
 				bAlert = true;
 				bTopAlert = true;
 				table.insert(tAlerts, v2.decision.getValue());
 			end
-
 			v2.alert.setVisible(bAlert);
 		end
-
 		v.alert.setVisible(bAlert);
 	end
 
@@ -857,7 +898,7 @@ function updateSpeciesAlerts(w)
 	if not wSpecies then
 		return true, { Interface.getString("charwizard_label_speciesselection_alert") };
 	end
-	if not wSpecies.species_decisions_list or wSpecies.species_decisions_list.isEmpty() then
+	if not wSpecies.list_features or wSpecies.list_features.isEmpty() then
 		return true, { Interface.getString("charwizard_label_speciesselection_alert") };
 	end
 	if wSpecies.ancestry_selection_list.isVisible() then
@@ -867,21 +908,14 @@ function updateSpeciesAlerts(w)
 	local tAlerts = {};
 	local bTopAlert = false;
 
-	for _,v in pairs(wSpecies.species_decisions_list.getWindows()) do
+	for _,v in pairs(wSpecies.list_features.getWindows()) do
 		local bAlert = false;
 		for _,v2 in pairs(v.list_decisions.getWindows()) do
-			if v2.decisiontype.getValue() == "feat" then
-				if v2.choice.getValue() == "" then
-					bAlert = true;
-					bTopAlert = true;
-					table.insert(tAlerts, v2.decision.getValue());
-				end
-			else
-				if v2.decision_choice.getValue() == "" then
-					bAlert = true;
-					bTopAlert = true;
-					table.insert(tAlerts, v2.decision.getValue());
-				end
+			if ((v2.decision_choice.getValue() or "") == "") and 
+					((v2.choice.getValue() or "") == "") then
+				bAlert = true;
+				bTopAlert = true;
+				table.insert(tAlerts, v2.decision.getValue());
 			end
 			v2.alert.setVisible(bAlert);
 		end
@@ -960,7 +994,7 @@ function updateEquipmentAlerts(w)
 end
 
 --
--- Import
+--	IMPORT
 --
 
 function checkImport(nodeChar)
@@ -1054,10 +1088,11 @@ function importCharacter(nodeChar)
 		if DB.getValue(vSkills, "prof", 0) > 0 then
 			local sSkill = StringManager.trim(DB.getValue(vSkills, "name", ""));
 			local nProf = DB.getValue(vSkills, "prof", 0);
-			if nProf == 1 then
+			if nProf >= 1 then
 				table.insert(tImport.skill, sSkill);
-			elseif nProf == 2 then
-				table.insert(tImport.expertise, sSkill);
+				if nProf == 2 then
+					table.insert(tImport.expertise, sSkill);
+				end
 			end
 		end
 	end
@@ -1065,7 +1100,7 @@ function importCharacter(nodeChar)
 	tImport.armorprof = {};
 	tImport.weaponprof = {};
 	tImport.toolprof = {};
-	local sArmorPrefix = string.format("^S%s:", Interface.getString("char_label_addprof_armor"));
+	local sArmorPrefix = string.format("^%s:", Interface.getString("char_label_addprof_armor"));
 	local sWeaponPrefix = string.format("^%s:", Interface.getString("char_label_addprof_weapon"));
 	local sToolPrefix = string.format("^%s:", Interface.getString("char_label_addprof_tool"));
 	for _,vProfs in ipairs(DB.getChildList(nodeChar, "proficiencylist")) do
@@ -1098,11 +1133,11 @@ function importCharacter(nodeChar)
 		local tClass = CharWizardManager.helperImportGetClassRecord(nodeCharClass);
 		if tClass then
 			tClassData[DB.getValue(nodeCharClass, "name", "")] = tClass;
-			CharWizardClassManager.addClass(tClass.record, true);
+			CharWizardClassManager.addClass(tClass.record);
 		end
 	end
 
-	CharWizardAbilitiesManager.updateAbilities()
+	CharWizardAbilitiesManager.updateAbilities();
 end
 function helperImportGetClassRecord(nodeCharClass)
 	if not nodeCharClass then
@@ -1171,7 +1206,7 @@ function helperImportGetClassRecord(nodeCharClass)
 end
 
 --
--- Commit
+--	COMMIT
 --
 
 function onCommit()
@@ -1300,12 +1335,16 @@ function addCommitBackground(nodeChar)
 		CharBackgroundManager.addBackground(nodeChar, tBackground.background, tBackground);
 	end
 end
+-- NOTE: Disable bWizard for now; since feat details aren't handled in the wizard
 function addCommitFeats(nodeChar)
-	local tFeats = CharWizardManager.collectFeats();
-	for _,v in ipairs(tFeats) do
-		-- NOTE: Disable bWizard for now; since feat details aren't handled in the wizard
+	local tBaseFeats, tChoiceFeats = CharWizardManager.collectFeats();
+	for _,v in ipairs(tBaseFeats) do
 		local tData = { bSource2024 = v.bIs2024, };-- { bWizard = true, bSource2024 = v.bIs2024, };
 		CharManager.addFeat(nodeChar, v.name, tData);
+	end
+	for _,v in ipairs(tChoiceFeats) do
+		local tData = {};-- { bWizard = true, };
+		CharFeatManager.addFeat(nodeChar, v, tData);
 	end
 end
 function addCommitClasses(nodeChar)
@@ -1445,42 +1484,44 @@ function addCommitLanguages(nodeChar)
 end
 function addCommitInnateSpells(nodeChar)
 	local tSpecies = CharWizardManager.getSpeciesData();
+	if (#(tSpecies.spell or {}) > 0) or (#(tSpecies.spellchoice or {}) > 0) then
+		local bIsSpecies2024 = CharWizardSpeciesManager.isSpecies2024();
+		local sSpeciesSpellGroup = CharSpeciesManager.getSpeciesPowerGroupByName(CharWizardSpeciesManager.getSpeciesName());
+		CharManager.addPowerGroup(nodeChar, { sName = sSpeciesSpellGroup, sCasterType = "memorization", sAbility = tSpecies.spellability, })
 
-	if tSpecies.spell then
-		for _,v in pairs(tSpecies.spell) do
-			local nodeSpecies = CharWizardSpeciesManager.getSpeciesRecord();
-			local bSource2024 = (DB.getValue(nodeSpecies, "version", "") == "2024");
-			local sSpecies = DB.getValue(nodeSpecies, "name", "");
-			local sSpell = v.spell;
-			local tSpellFilters = {
-				{ sField = "name", sValue = sSpell, bIgnoreCase = true, },
-				{ sField = "version", sValue = (bSource2024 and "2024" or ""), },
+		for _,sSpell in ipairs(tSpecies.spell or {}) do
+			local tSpell = {
+				sName = sSpell,
+				sGroup = sSpeciesSpellGroup,
+				bSource2024 = bIsSpecies2024,
+				nPrepared = 1,
 			};
-			local nodeSpell = RecordManager.findRecordByFilter("spell", tSpellFilters);
-			local sSpellGroup = Interface.getString("char_spell_powergroup"):format(sSpecies);
-			local nodePowerGroups = DB.createChild(nodeChar, "powergroup");
-
-			nodeNewGroup = nodePowerGroups.createChild();
-			DB.setValue(nodeNewGroup, "castertype", "string", "memorization");
-			-- Could only find High Elf with a Cantrip choice assume intelligence
-			DB.setValue(nodeNewGroup, "stat", "string", "intelligence");
-			DB.setValue(nodeNewGroup, "name", "string", sSpellGroup);
-
-			PowerManager.addPower("reference_spell", nodeSpell, nodeChar, sSpellGroup);
-
-			local sCharName = DB.getValue(nodeChar, "name", "");
-			ChatManager.SystemMessageResource("char_abilities_message_spelladd", sSpell, sCharName);
+			CharManager.addSpell(nodeChar, tSpell);
+		end
+		for _,sSpell in ipairs(tSpecies.spellchoice or {}) do
+			local tSpell = {
+				sName = sSpell,
+				sGroup = sSpeciesSpellGroup,
+				bSource2024 = bIsSpecies2024,
+				nPrepared = 1,
+			};
+			CharManager.addSpell(nodeChar, tSpell);
 		end
 	end
 end
 function addCommitSpells(nodeChar)
-	for k,vClass in pairs(CharWizardManager.getClassData()) do
-		if vClass.spell then
-			for _,vSelectedSpell in pairs(vClass.spell) do
-				local sSpellName = DB.getValue(DB.findNode(vSelectedSpell), "name", "");
-				local sRecord = vSelectedSpell;
-				local sGroup = Interface.getString("char_spell_powergroup"):format(k);
-				PowerManager.addPower("reference_spell", sRecord, nodeChar, sGroup);
+	for sClassName, tClassDataByName in pairs(CharWizardManager.getClassData()) do
+		if #(tClassDataByName.spell or {}) > 0 then
+			local bIsClass2024 = CharWizardClassManager.isClass2024(sClassName);
+			local sClassSpellGroup = CharClassManager.getClassPowerGroupByName(sClassName);
+			for _,vSelectedSpell in pairs(tClassDataByName.spell) do
+				local tSpell = {
+					sRecord = vSelectedSpell,
+					sGroup = sClassSpellGroup,
+					bSource2024 = bIsClass2024,
+					nPrepared = 1,
+				};
+				CharManager.addSpell(nodeChar, tSpell);
 			end
 		end
 	end

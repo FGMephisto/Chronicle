@@ -1309,7 +1309,7 @@ function parseHeals(sPowerName, aWords)
 end
 
 function parseSaves(sPowerName, aWords, bPC, bMagic)
-	local saves = {};
+	local tSaves = {};
 	
 	for i = 1, #aWords do
 		if StringManager.isWord(aWords[i], "magically") then
@@ -1318,94 +1318,16 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 		elseif StringManager.isWord(aWords[i], "throw") and
 				StringManager.isWord(aWords[i - 1], "saving") and
 				StringManager.isWord(aWords[i - 2], DataCommon.abilities) then
-			local bValid = false;
-			local nStart = i - 2;
-			local nEnd = i;
-			local nDC = nil;
-
-			if StringManager.isWord(aWords[nEnd + 1], ":") then
-				nEnd = nEnd + 1;
+			if PowerManager.helperParseSaveStandard(sPowerName, aWords, bPC, bMagic, i - 2, i, tSaves) then
+				-- Only pick up first save for PC powers
+				if bPC then
+					break;
+				end
 			end
-
-			-- 2024
-			if StringManager.isWord(aWords[nEnd + 1], "dc") and StringManager.isNumberString(aWords[nEnd + 2]) then
-				bValid = true;
-				nDC = tonumber(aWords[nEnd + 2]) or 0;
-				nEnd = nEnd + 2;
-
-			-- 2014
-			elseif StringManager.isWord(aWords[nStart - 1], { "a", "an" }) then
-				nStart = nStart - 1;
-				if StringManager.isWord(aWords[nStart - 1], "fails") then
-					bValid = true;
-					nStart = nStart - 1;
-				elseif StringManager.isWord(aWords[nStart - 1], "make") then
-					if StringManager.isWord(aWords[nStart - 2], {"must", "to"}) then
-						bValid = true;
-						nStart = nStart - 1;
-					elseif StringManager.isWord(aWords[nStart - 2], "it") and
-							StringManager.isWord(aWords[nStart - 3], "of") and
-							StringManager.isWord(aWords[nStart - 4], "feet") then
-						bValid = true;
-						nStart = nStart - 1;
-					end
-				elseif StringManager.isWord(aWords[nStart - 1], "on") and
-						StringManager.isWord(aWords[nStart - 2], "succeed") and
-						StringManager.isWord(aWords[nStart - 3], "must") then
-					bValid = true;
-					nStart = nStart - 3;
-				elseif StringManager.isWord(aWords[nStart - 1], "makes") then
-					if StringManager.isWord(aWords[nStart - 2], { "area", "cone", "cylinder", "emanation", "it", "line", "point", "points", "space", "range", "spell", "sphere", "then", "there", "touch", }) then
-						bValid = true;
-						nStart = nStart - 1;
-					elseif StringManager.isWord(aWords[nStart - 2], "target") and
-							StringManager.isWord(aWords[nStart - 3], { "the", "each", }) then
-						bValid = true;
-						nStart = nStart - 1;
-					elseif StringManager.isWord(aWords[nStart - 2], "you") and
-							StringManager.isWord(aWords[nStart - 3], "from") then
-						bValid = true;
-						nStart = nStart - 1;
-					end
-				end
-				
-			-- 2014
-			elseif StringManager.isNumberString(aWords[i - 3]) and 
-					StringManager.isWord(aWords[i - 4], "dc") then
-				bValid = true;
-				nStart = i - 4;
-				nDC = tonumber(aWords[i - 3]) or 0;
-			end
-			
-			if bValid then
-				if StringManager.isWord(aWords[nEnd + 1], "against") and 
-						StringManager.isWord(aWords[nEnd + 2], "this") and
-						StringManager.isWord(aWords[nEnd + 3], "magic") then
-					nEnd = nEnd + 3;
-					bMagic = true;
-				end
-				
-				local rSave = {
-					startindex = nStart,
-					endindex = nEnd,
-					label = sPowerName,
-					save = aWords[i - 2];
-					savemod = nDC,
-				};
-
-				if not rSave.savemod then
-					-- Handle special saving throws in traits (Antimagic Susceptibility)
-					if StringManager.isWord(aWords[i + 1], "against") and StringManager.isWord(aWords[i + 2], "the") and
-							StringManager.isWord(aWords[i + 3], "caster's") and StringManager.isWord(aWords[i + 4], "spell") and
-							StringManager.isWord(aWords[i + 5], "save") and StringManager.isWord(aWords[i + 6], "DC") then
-						rSave.savemod = 0;
-					else
-						rSave.savebase = "group";
-					end
-				end
-
-				table.insert(saves, rSave);
-				
+		-- ToV
+		elseif StringManager.isWord(aWords[i], "save") and
+				(aWords[i - 1] and DataCommon.ability_stol[aWords[i - 1]:upper()]) then
+			if PowerManager.helperParseSaveStandard(sPowerName, aWords, bPC, bMagic, i - 1, i, tSaves) then
 				-- Only pick up first save for PC powers
 				if bPC then
 					break;
@@ -1436,7 +1358,7 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 			rSave.savestat = aWords[i+5];
 			rSave.saveprof = 1;
 		
-			table.insert(saves, rSave);
+			table.insert(tSaves, rSave);
 			
 			-- Only pick up first save for PC powers
 			if bPC then
@@ -1445,14 +1367,14 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 		end
 	end
 	
-	for i = 1,#saves do
+	for i = 1,#tSaves do
 		if bMagic then
-			saves[i].magic = true;
+			tSaves[i].magic = true;
 		end
-		local nHalfCheckStart = saves[i].startindex;
+		local nHalfCheckStart = tSaves[i].startindex;
 		local nHalfCheckEnd = #aWords;
-		if i < #saves then
-			nHalfCheckEnd = saves[i+1].startindex - 1;
+		if i < #tSaves then
+			nHalfCheckEnd = tSaves[i+1].startindex - 1;
 		end
 		for j = nHalfCheckStart,nHalfCheckEnd do
 			if StringManager.isWord(aWords[j], "half") then
@@ -1460,12 +1382,12 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 				if StringManager.isWord(aWords[j+1], "damage") and 
 						StringManager.isWord(aWords[j-1], ":") and
 						StringManager.isWord(aWords[j-2], "success") then
-					saves[i].onmissdamage = "half";
+					tSaves[i].onmissdamage = "half";
 				-- 2014
 				elseif StringManager.isWord(aWords[j+1], "as") and
 						StringManager.isWord(aWords[j+2], "much") and
 						StringManager.isWord(aWords[j+3], "damage") then
-					saves[i].onmissdamage = "half";
+					tSaves[i].onmissdamage = "half";
 				else
 					local k = j;
 					if StringManager.isWord(aWords[k-1], "only") then
@@ -1475,9 +1397,9 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 							StringManager.isWord(aWords[k-2], {"creature", "target"}) then
 						-- Exception: Air Elemental - Whirlwind
 						if sPowerName:match("^Whirlwind") then
-							saves[1].onmissdamage = "half";
+							tSaves[1].onmissdamage = "half";
 						else
-							saves[i].onmissdamage = "half";
+							tSaves[i].onmissdamage = "half";
 						end
 					end
 				end
@@ -1486,7 +1408,103 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 		end
 	end
 	
-	return saves;
+	return tSaves;
+end
+function helperParseSaveStandard(sPowerName, aWords, bPC, bMagic, nStart, nEnd, tSaves)
+	local bValid = false;
+	local nDC = nil;
+	local nOriginalEnd = nEnd;
+
+	local sAbility = aWords[nStart];
+	if sAbility and DataCommon.ability_stol[sAbility:upper()] then
+		sAbility = DataCommon.ability_stol[sAbility:upper()];
+	end
+
+	if StringManager.isWord(aWords[nEnd + 1], ":") then
+		nEnd = nEnd + 1;
+	end
+
+	-- 2024
+	if StringManager.isWord(aWords[nEnd + 1], "dc") and StringManager.isNumberString(aWords[nEnd + 2]) then
+		bValid = true;
+		nDC = tonumber(aWords[nEnd + 2]) or 0;
+		nEnd = nEnd + 2;
+
+	-- 2014
+	elseif StringManager.isWord(aWords[nStart - 1], { "a", "an" }) then
+		nStart = nStart - 1;
+		if StringManager.isWord(aWords[nStart - 1], "fails") then
+			bValid = true;
+			nStart = nStart - 1;
+		elseif StringManager.isWord(aWords[nStart - 1], "make") then
+			if StringManager.isWord(aWords[nStart - 2], {"must", "to"}) then
+				bValid = true;
+				nStart = nStart - 1;
+			elseif StringManager.isWord(aWords[nStart - 2], "it") and
+					StringManager.isWord(aWords[nStart - 3], "of") and
+					StringManager.isWord(aWords[nStart - 4], "feet") then
+				bValid = true;
+				nStart = nStart - 1;
+			end
+		elseif StringManager.isWord(aWords[nStart - 1], "on") and
+				StringManager.isWord(aWords[nStart - 2], "succeed") and
+				StringManager.isWord(aWords[nStart - 3], "must") then
+			bValid = true;
+			nStart = nStart - 3;
+		elseif StringManager.isWord(aWords[nStart - 1], "makes") then
+			if StringManager.isWord(aWords[nStart - 2], { "area", "cone", "cylinder", "emanation", "it", "line", "point", "points", "space", "range", "spell", "sphere", "then", "there", "touch", }) then
+				bValid = true;
+				nStart = nStart - 1;
+			elseif StringManager.isWord(aWords[nStart - 2], "target") and
+					StringManager.isWord(aWords[nStart - 3], { "the", "each", }) then
+				bValid = true;
+				nStart = nStart - 1;
+			elseif StringManager.isWord(aWords[nStart - 2], "you") and
+					StringManager.isWord(aWords[nStart - 3], "from") then
+				bValid = true;
+				nStart = nStart - 1;
+			end
+		end
+		
+	-- 2014
+	elseif StringManager.isNumberString(aWords[nStart - 1]) and 
+			StringManager.isWord(aWords[nStart - 2], "dc") then
+		bValid = true;
+		nDC = tonumber(aWords[nStart - 1]) or 0;
+		nStart = nStart - 2;
+	end
+	
+	if bValid then
+		if StringManager.isWord(aWords[nEnd + 1], "against") and 
+				StringManager.isWord(aWords[nEnd + 2], "this") and
+				StringManager.isWord(aWords[nEnd + 3], "magic") then
+			nEnd = nEnd + 3;
+			bMagic = true;
+		end
+		
+		local rSave = {
+			startindex = nStart,
+			endindex = nEnd,
+			label = sPowerName,
+			save = sAbility,
+			savemod = nDC,
+		};
+
+		if not rSave.savemod then
+			-- Handle special saving throws in traits (Antimagic Susceptibility)
+			if StringManager.isWord(aWords[nOriginalEnd + 1], "against") and StringManager.isWord(aWords[nOriginalEnd + 2], "the") and
+					StringManager.isWord(aWords[nOriginalEnd + 3], "caster's") and StringManager.isWord(aWords[nOriginalEnd + 4], "spell") and
+					StringManager.isWord(aWords[nOriginalEnd + 5], "save") and StringManager.isWord(aWords[nOriginalEnd + 6], "DC") then
+				rSave.savemod = 0;
+			else
+				rSave.savebase = "group";
+			end
+		end
+
+		table.insert(tSaves, rSave);
+		return true;
+	end
+	return false;
 end
 
 function parseEffectsAdd(aWords, i, rEffect, effects)
@@ -2088,6 +2106,7 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 		sDesc = sPowerDesc,
 		bMagic = bMagic,
 		tVariables = PowerManager.getNPCPowerVariables(nodePower),
+		nodePower = nodePower,
 	};
 	for k,v in pairs(tData.tVariables or {}) do
 		sPowerDesc = sPowerDesc:gsub("%[" .. k .. "%]", v);
@@ -2318,10 +2337,12 @@ function parsePCPower(nodePower)
 			sDesc = sPowerDesc,
 			bMagic = bMagic,
 			bPC = true,
+			nodePower = nodePower,
 		};
 		local aActions = PowerManager.parsePower(tData);
 		
 		-- Handle effect duration based on spell
+		local bEffectFound = false;
 		local bConcEffectFound = false;
 		for _,v in ipairs(aActions) do
 			if v.type == "effect" then
@@ -2330,6 +2351,7 @@ function parsePCPower(nodePower)
 						bConcEffectFound = true;
 						v.sName = v.sName .. "; (C)";
 					end
+					bEffectFound = true;
 					v.nDuration = nDuration;
 					v.sUnits = sDurationUnits;
 				end
@@ -2341,7 +2363,7 @@ function parsePCPower(nodePower)
 				table.insert(aActions, 1, { type = "effect", sName = sPowerName .. "; (C)", sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
 			end
 		else
-			if nDuration > 0 then
+			if not bEffectFound and (nDuration > 0) then
 				table.insert(aActions, 1, { type = "effect", sName = sPowerName, sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
 			end
 		end

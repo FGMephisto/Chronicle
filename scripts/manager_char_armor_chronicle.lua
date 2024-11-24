@@ -23,7 +23,7 @@ function addToArmorDB(nodeItem)
 		bArmorAllowed = false;
 		
 		for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
-			local sClassName = StringManager.trim(DB.getValue(v, "name", "")):lower();
+			local sClassName = StringManager.simplify(DB.getValue(v, "name", ""));
 			if (sClassName == CharManager.CLASS_BARBARIAN) then
 				break;
 			elseif (sClassName == CharManager.CLASS_MONK) then
@@ -67,7 +67,7 @@ function removeFromArmorDB(nodeItem)
 end
 
 function hasNaturalArmor(nodeChar)
-	return CharManager.hasFeat(nodeChar, CharManager.FEAT_DRAGON_HIDE) or
+	return CharManager.hasFeat2014(nodeChar, CharManager.FEAT_DRAGON_HIDE) or
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_NATURAL_ARMOR) or 
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_ARMORED_CASING) or 
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_CHAMELEON_CARAPACE);
@@ -84,9 +84,7 @@ function isNaturalArmorTrait(s)
 	return StringManager.contains(tTraits, s:lower());
 end
 
---
 -- Adjusted
---
 function calcItemArmorClass(nodeChar)
 	local nAR = 0;
 	local nAP = 0;

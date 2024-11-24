@@ -540,10 +540,28 @@
 	<string name="item_grouped_label_stealth">Stealth</string>
 	<string name="item_grouped_tooltip_stealth">Stealth Adjustment</string>
 	<string name="item_grouped_label_damage">Damage</string>
+	<string name="item_grouped_label_mastery">Mastery</string>
 	<string name="item_grouped_label_properties">Properties</string>
 	<string name="item_grouped_label_speed">Speed</string>
 	<string name="item_grouped_label_carryingcapacity">Carry</string>
 	<string name="item_grouped_tooltip_carryingcapacity">Carrying Capacity</string>
+
+	<!-- Locations -->
+	<string name="location_type_bastion">Bastion</string>
+	<string name="location_type_bastionfacility">Bastion Facility</string>
+
+	<string name="location_header_bastionfacilities">FACILITIES</string>
+	<string name="location_header_bastionfacility_name_simple">Simple Facility</string>
+	<string name="location_header_bastionfacility_name_special">Special Facility</string>
+	<string name="location_header_bastionfacility_space_cramped">Cramped</string>
+	<string name="location_header_bastionfacility_space_roomy">Roomy</string>
+	<string name="location_header_bastionfacility_space_vast">Vast</string>
+
+	<string name="location_label_level">Level</string>
+	<string name="location_label_prerequisite">Prerequisite</string>
+	<string name="location_label_space">Space</string>
+	<string name="location_label_hirelings">Hirelings</string>
+	<string name="location_label_order">Order</string>
 
 	<!-- NPCs -->
 	<string name="npc_label_summon">Summon?</string>
@@ -557,20 +575,15 @@
 	<string name="npc_label_summon_hp">Summon HP</string>
 	<string name="npc_label_summon_hp_mod">for each spell level above</string>
 
-	<string name="npc_label_type">Type</string>
 	<string name="npc_label_init">Initiative</string>
 	<string name="npc_label_damagethreshold">Dmg Thresh</string>
 	<string name="npc_tooltip_damagethreshold">Damage Threshold</string>
-	<string name="npc_label_speed">Speed</string>
-	<string name="npc_label_senses">Senses</string>
 	<string name="npc_label_abilities">Abilities</string>
 	<string name="npc_label_abilitymod">MOD</string>
 	<string name="npc_label_abilitysave">SAVE</string>
-	<string name="npc_label_skills">Skills</string>
 	<string name="npc_label_challenge">Challenge</string>
 	<string name="npc_label_profbonus">Proficiency Bonus</string>
 	<string name="npc_label_alignment">Alignment</string>
-	<string name="npc_label_languages">Languages</string>
 	<string name="npc_label_savingthrows">Saving Throws</string>
 	<string name="npc_label_vulnerabilities">Vulnerabilities</string>
 	<string name="npc_label_resistances">Resistances</string>
@@ -771,10 +784,10 @@
 	<string name="power_label_healtypetemp">TEMP</string>
 
 	<!-- Item Forge -->
-	<string name="forge_item_window_title">Magic Item Forge</string>
-	<string name="forge_item_label_items">Equipment</string>
-	<string name="forge_item_label_templates">Magic Item Templates</string>
-	<string name="forge_item_label_activateforge">Forge Magic Item</string>
+	<string name="forge_item_window_title">Item Forge</string>
+	<string name="forge_item_label_items">Base Item</string>
+	<string name="forge_item_label_templates">Item Templates</string>
+	<string name="forge_item_label_activateforge">Forge New Item(s)</string>
 	<string name="forge_item_label_clearforge">Clear Forge</string>
 	<string name="forge_ok">OK</string>
 	<string name="forge_error">Error</string>
@@ -796,11 +809,11 @@
 	<string name="forge_magicitem_wondrousitem">Magic Wondrous Item</string>
 	<string name="forge_magicspell">Magic Spell</string>
 	
-	<string name="forge_item_empty_items">Drag and drop library or campaign equipment to this window. The template(s) in the Magic Item Templates window will be applied to each piece of equipment in this window when the Forge Magic Item button is clicked.</string>
-	<string name="forge_item_empty_templates">Drag and drop library magic item templates to this window. The magic item template(s) in this window will be applied to each equipment entry in the Equipment window when the Forge Magic Item button is clicked.</string>
-	<string name="forge_item_message_success">New magic item forged.</string>
+	<string name="forge_item_empty_items">Drag and drop  a base item or a list of items here. The template(s) in the Item Templates window will be applied to each piece of equipment in this window when the Forge New Item(s) button is clicked.</string>
+	<string name="forge_item_empty_templates">Drag and drop Item Templates or a Spell to this window. The Item Template(s) or Spells in this window will be applied to each base item in the Base Item window when the Forge New Item(s) button is clicked.</string>
+	<string name="forge_item_message_success">New item forged.</string>
 	<string name="forge_item_message_incompatible">Error, please remove incompatible items.</string>
-	<string name="forge_item_message_missing">Error, please add items before attempting to forge!</string>
+	<string name="forge_item_message_missing">Error, please add a base item and a template before attempting to forge!</string>
 	
 	<!-- Library - Master Index -->
 	<string name="class_button_specialization">Subclasses</string>

@@ -995,6 +995,26 @@
 	<!-- Character - Abilities -->
 	<string name="char_abilities_label_feats">QUALITIES</string>
 	
+	<string name="abilities_value_agility">Agility</string>
+	<string name="abilities_value_animalhandling">Animal Handling</string>
+	<string name="abilities_value_athletics">Athletics</string>
+	<string name="abilities_value_awareness">Awareness</string>
+	<string name="abilities_value_cunning">Cunning</string>
+	<string name="abilities_value_deception">Deception</string>
+	<string name="abilities_value_endurance">Endurance</string>
+	<string name="abilities_value_fighting">Fighting</string>
+	<string name="abilities_value_healing">Healing</string>
+	<string name="abilities_value_language">Language</string>
+	<string name="abilities_value_knowledge">Knowledge</string>
+	<string name="abilities_value_marksmanship">Marksmanship</string>
+	<string name="abilities_value_persuasion">Persuasion</string>
+	<string name="abilities_value_status">Status</string>
+	<string name="abilities_value_stealth">Stealth</string>
+	<string name="abilities_value_survival">Survival</string>
+	<string name="abilities_value_thievery">Thievery</string>
+	<string name="abilities_value_warfare">Warfare</string>
+	<string name="abilities_value_will">Will</string>
+	
 	<!-- Character - Inventory -->
 	<string name="char_label_totalweight">LOAD</string>
 	<string name="char_label_totalbulk">BULK</string>

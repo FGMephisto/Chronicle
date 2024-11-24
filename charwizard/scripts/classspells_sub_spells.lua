@@ -35,9 +35,6 @@ end
 function getAllSpells()
 	return _tSpells;
 end
-function setAllSpells(tSpells)
-	_tSpells = tSpells;
-end
 function getAllModules()
 	return _tModules;
 end
@@ -98,25 +95,16 @@ function addListRecord(vNode)
 	rRecord.aSource = LibraryData5E.getSpellSourceValue(vNode);
 	rRecord.nSpellLevel = DB.getValue(vNode, "level", 0);
 
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
 	local tSpells = self.getAllSpells();
-	if not tSpells[rRecord.sDisplayNameLower] then
-		tSpells[rRecord.sDisplayNameLower] = {};
-	end
-
+	tSpells[rRecord.sDisplayNameLower] = tSpells[rRecord.sDisplayNameLower] or {};
 	table.insert(tSpells[rRecord.sDisplayNameLower], rRecord);
-	self.setAllSpells(tSpells);
+
 	self.getAllModules()[rRecord.sModule] = true;
 end
 

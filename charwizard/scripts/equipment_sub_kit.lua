@@ -15,9 +15,6 @@ local _tChoiceItems = {};
 function getAllRecords()
 	return _tChoiceItems;
 end
-function setAllRecords(tChoiceItems)
-	_tChoiceItems = tChoiceItems;
-end
 function clearRecords()
 	_tChoiceItems = {};
 end
@@ -67,12 +64,8 @@ function setData(tData, sType)
 		rRecord.nCount = vItem.count;
 
 		local tItems = self.getAllRecords();
-		if not tItems[rRecord.sDisplayNameLower] then
-			tItems[rRecord.sDisplayNameLower] = {};
-		end
-
+		tItems[rRecord.sDisplayNameLower] = tItems[rRecord.sDisplayNameLower] or {};
 		table.insert(tItems[rRecord.sDisplayNameLower], rRecord);
-		self.setAllRecords(tItems);
 	end
 
 	self.setKitType(sType);
@@ -110,11 +103,7 @@ function setData2024(tData, sType)
 		rRecord.tOption = vOption;
 
 		local tOptions = self.getAllRecords();
-		if not tOptions[k] then
-			tOptions[k] = {};
-		end
 		tOptions[k] = rRecord;
-		self.setAllRecords(tOptions);
 	end
 
 	ListManager.refreshDisplayList(self, true);

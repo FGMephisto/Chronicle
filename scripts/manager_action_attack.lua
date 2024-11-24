@@ -298,6 +298,13 @@ function setupRollBuild(rRoll, rActor, rAction)
 	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(rAction.label));
 	
 	-- Add crit range
+	if ((rAction.nCritRange or 20) > 18) and ActorManager5E.hasRollFeature(rActor, CharManager.FEATURE_SUPERIOR_CRITICAL) then
+		rAction.nCritRange = 18;
+		table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_superior_critical")));
+	elseif ((rAction.nCritRange or 20) > 19) and ActorManager5E.hasRollFeature(rActor, CharManager.FEATURE_IMPROVED_CRITICAL) then
+		rAction.nCritRange = 19;
+		table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_improved_critical")));
+	end
 	if rAction.nCritRange then
 		table.insert(rRoll.tNotifications, string.format("[CRIT %d]", rAction.nCritRange));
 	end
@@ -320,10 +327,6 @@ function setupRollBuild(rRoll, rActor, rAction)
 				end
 			end
 		end
-	end
-	
-	if #(rAction.tAddText or {}) > 0 then
-		table.insert(rRoll.tNotifications, table.concat(rAction.tAddText, " "));
 	end
 end
 

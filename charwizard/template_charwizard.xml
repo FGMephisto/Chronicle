@@ -72,7 +72,7 @@
 	</template>
 	<template name="comboboxc_charwizard_source">
 		<comboboxc name="module">
-			<anchored to="rightanchor" width="300" height="20">
+			<anchored to="rightanchor" width="320" height="20">
 				<top />
 				<right relation="relative" offset="-10" postoffset="-10" />
 			</anchored>
@@ -292,7 +292,7 @@
 			<invisible />
 			<script>
 				function onButtonPress()
-					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName(), 1);
+					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName():gsub("_.*", ""), 1);
 				end
 			</script>
 		</buttoncontrol>
@@ -304,7 +304,31 @@
 			<invisible />
 			<script>
 				function onButtonPress()
-					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName(), -1);
+					CharWizardAbilitiesManager.handleAbilityPointBuy(window, getName():gsub("_.*", ""), -1);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<template name="button_charwizard_ability_genleft">
+		<buttoncontrol>
+			<anchored position="lefthigh" offset="-2,10" width="20" height="20" />
+			<icon normal="arrow_sm_left" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					CharWizardAbilitiesManager.handleAbilitySwapLeft(getName():gsub("_.*", ""));
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<template name="button_charwizard_ability_genright">
+		<buttoncontrol>
+			<anchored position="righthigh" offset="-2,10" width="20" height="20" />
+			<icon normal="arrow_sm_right" />
+			<invisible />
+			<script>
+				function onButtonPress()
+					CharWizardAbilitiesManager.handleAbilitySwapRight(getName():gsub("_.*", ""));
 				end
 			</script>
 		</buttoncontrol>
@@ -454,6 +478,7 @@
 			<label_listitem_right name="choice">
 				<anchored width="150" />
 			</label_listitem_right>
+			<hlink name="choicelink" />
 
 			<label_listitem_center name="decision">
 				<anchored>
@@ -473,8 +498,6 @@
 		<frame>groupbox</frame>
 		<script file="charwizard/scripts/selection.lua" />
 		<sheetdata>
-			<hlinkc name="shortcut" />
-
 			<anchor_listitem_left name="leftanchor">
 				<anchored offset="10,10" />
 			</anchor_listitem_left>
@@ -489,6 +512,7 @@
 					end
 				</script>
 			</button_charwizard_iadd>
+			<link_listitem_left name="shortcut" />
 
 			<comboboxc_charwizard_source name="module">
 				<script>

@@ -15,7 +15,10 @@
 	<!-- Added -->
 	<template name="dicecontrol">
 		<genericcontrol>
-			<anchored width="60" height="35" />
+			<anchored to="rightanchor" width="40" height="20" >
+				<top />
+				<right relation="relative" offset="-5" postoffset="-5" />
+			</anchored>
 			<frame name="fielddark" />
 			<rolltype>skill</rolltype>
 			<stat></stat>

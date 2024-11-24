@@ -120,7 +120,7 @@ function onRecovery(rSource, rTarget, rRoll)
 		rMessage.diemodifier = rMessage.diemodifier - nTotal;
 		nTotal = 0;
 	end
-	if ActorManager.isPC(rSource) and CharManager.hasFeat2014(ActorManager.getCreatureNode(rSource), CharManager.FEAT_DURABLE) then
+	if ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_DURABLE) then
 		local nDurableMin = math.max(ActorManager5E.getAbilityBonus(rSource, "constitution"), 1) * 2;
 		if nTotal < nDurableMin then
 			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - nTotal);

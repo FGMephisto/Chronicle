@@ -10,10 +10,6 @@
 function getClassDataByName(sClassName)
 	return CharWizardManager.getClassData()[sClassName or ""];
 end
-function hasClasses()
-	local tClassData = CharWizardManager.getClassData();
-	return next(tClassData) and true or false;
-end
 function isClass2024(sClassName)
 	local tClassDataByName = CharWizardClassManager.getClassDataByName(sClassName);
 	if not tClassDataByName then
@@ -398,19 +394,19 @@ function clearClassFeatureLanguageChoice(tFeatureData)
 	end
 	tFeature.languagechoice = {};
 end
-function clearClassFeatureFeat(tFeatureData)
+function clearClassFeatureFeatPath(tFeatureData)
 	local tFeature = CharWizardClassManager.getClassFeatureData(tFeatureData);
 	if not tFeature then
 		return;
 	end
-	tFeature.feat = nil;
+	tFeature.featpath = nil;
 end
-function setClassFeatureFeat(tFeatureData, s)
+function setClassFeatureFeatPath(tFeatureData, sPath)
 	local tFeature = CharWizardClassManager.getClassFeatureData(tFeatureData);
 	if not tFeature then
 		return;
 	end
-	tFeature.feat = s;
+	tFeature.featpath = sPath;
 end
 function clearClassFeatureChoiceSelections(tFeatureData)
 	local tFeature = CharWizardClassManager.getClassFeatureData(tFeatureData);
@@ -567,13 +563,15 @@ function onDeleteClassButton(wClass)
 end
 function onAddSubclassButton(wSubclass)
 	local sClassName = WindowManager.getOuterControlValue(wSubclass, "class");
-	local _,sSubclassRecord = wSubclass.shortcut.getValue();
+	local sSubclassClass, sSubclassRecord = wSubclass.shortcut.getValue();
+
 	CharWizardClassManager.setSubclass(sClassName, sSubclassRecord);
 	CharWizardClassManager.updateClass(sClassName, true);
 
 	local wDecision = wSubclass.windowlist.window.parentcontrol.window;
 	wDecision.choice.setValue(CharWizardClassManager.getSubclassName(sClassName));
 	wDecision.choice.setVisible(true);
+	wDecision.choice.setValue(sSubclassClass, sSubclassRecord);
 	wDecision.button_modify.setVisible(true);
 	wDecision.sub_decision_choice.setVisible(false);
 	wDecision.checkOutstandingDecisions();
@@ -583,13 +581,15 @@ end
 function onAddFeatClassButton(wFeat)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wFeat);
 	local sFeat = wFeat.name.getValue();
+	local sFeatClass, sFeatPath = wFeat.shortcut.getValue();
 
-	CharWizardClassManager.setClassFeatureFeat(tFeatureData, sFeat)
+	CharWizardClassManager.setClassFeatureFeatPath(tFeatureData, sFeatPath)
 	CharWizardClassManager.updateClass(tFeatureData.sClassName);
 
 	local wDecision = wFeat.windowlist.window.parentcontrol.window;
 	wDecision.choice.setValue(sFeat);
 	wDecision.choice.setVisible(true);
+	wDecision.choicelink.setValue(sFeatClass, sFeatPath);
 	wDecision.button_modify.setVisible(true);
 	wDecision.sub_decision_choice.setVisible(false);
 	wDecision.checkOutstandingDecisions();
@@ -607,7 +607,7 @@ function onLevelUpClassButton(wClass)
 	wClass.cancellevelup_button.setVisible(true);
 	wClass.button_features.setVisible(true);
 	wClass.button_features.setValue(1);
-	wClass.list_class_features.setVisible(true);
+	wClass.list_features.setVisible(true);
 
 	CharWizardClassManager.updateClass(sClassName);
 
@@ -675,7 +675,7 @@ function addClass(sClassRecord)
 
 		wClass.button_features.setVisible(true);
 		wClass.button_features.setValue(1);
-		wClass.list_class_features.setVisible(true);
+		wClass.list_features.setVisible(true);
 	end
 
 	wClassPage.sub_classselection.setVisible(false);
@@ -708,7 +708,7 @@ function addClassImport(wClass, sClassName, sClassRecord)
 	CharWizardClassManager.updateClassLevels();
 end
 function addClassStd(wClass, sClassName, sClassRecord)
-	local bMultiClass = CharWizardClassManager.hasClasses();
+	local bMultiClass = CharWizardManager.hasClasses();
 	local tClassData = CharWizardManager.getClassData();
 	local nodeClass = DB.findNode(sClassRecord);
 	local tClassDataByName = {
@@ -762,7 +762,7 @@ function deleteClass(wClass, bLevelUp)
 				end
 			end
 		end
-		if not CharWizardClassManager.hasClasses() then
+		if not CharWizardManager.hasClasses() then
 			local wClassPage = CharWizardManager.getWizardClassWindow();
 			wClassPage.sub_classselection.setVisible(true);
 			wClassPage.button_addclass.setVisible(false);
@@ -809,7 +809,7 @@ function clearClassFeatures(sClassName)
 
 	local nClassLevel = tClassDataByName.level;
 	local tRemoveWin = {};
-	for _,wFeature in pairs(wClass.list_class_features.getWindows()) do
+	for _,wFeature in pairs(wClass.list_features.getWindows()) do
 		local nFeatureLevel = wFeature.level.getValue();
 		local _,sFeatureRecord = wFeature.shortcut.getValue();
 
@@ -852,7 +852,7 @@ function clearSubclassFeatures(sClassName)
 			local sFeatureName = DB.getValue(nodeFeature, "name", "");
 			tRemoveFeatures[sFeatureName] = true;
 		end
-		for _,wFeature in pairs(wClass.list_class_features.getWindows()) do
+		for _,wFeature in pairs(wClass.list_features.getWindows()) do
 			if tRemoveFeatures[wFeature.feature.getValue()] then
 				tClassDataByName.features[wFeature.feature.getValue()] = nil;
 				table.insert(tRemoveWin, wFeature);
@@ -885,7 +885,7 @@ function updateClassLevels()
 	end
 end
 function updateClassFeatures(wClass)
-	for _,wFeature in ipairs(wClass.list_class_features.getWindows()) do
+	for _,wFeature in ipairs(wClass.list_features.getWindows()) do
 		local sFeatureType = StringManager.simplify(wFeature.feature.getValue()):gsub("level%d+", "");
 		if StringManager.contains({ "skill", "language", "proficiency", "feat", "expertise", "asiclass", "featurechoice" }, sFeatureType) then
 			for _,wDecision in ipairs(wFeature.list_decisions.getWindows()) do
@@ -936,7 +936,7 @@ function populateClassProficiencies(wClass, nodeClass, bMultiClass)
 		tProficiencies = DB.getChildren(nodeClass, "proficiencies");
 	end
 
-	local wClassProf = wClass.list_class_features.createWindow();
+	local wClassProf = wClass.list_features.createWindow();
 	wClassProf.feature.setValue(tFeatureData.sName);
 	wClassProf.level.setValue(tFeatureData.nLevel);
 
@@ -1008,8 +1008,10 @@ function helperAddClassSkillProf(w, nodeProf, tFeatureData, tOutput)
 			CharWizardClassManager.addClassFeatureSkillChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("skill");
 end
 function helperAddClassArmorProf(w, nodeProf, tFeatureData, tOutput)
 	local sText = StringManager.trim(DB.getText(nodeProf, "text", ""));
@@ -1028,8 +1030,10 @@ function helperAddClassArmorProf(w, nodeProf, tFeatureData, tOutput)
 			CharWizardClassManager.addClassFeatureArmorProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("armorprof");
 end
 function helperAddClassWeaponProf(w, nodeProf, tFeatureData, tOutput)
 	local sText = StringManager.trim(DB.getText(nodeProf, "text", ""));
@@ -1048,8 +1052,10 @@ function helperAddClassWeaponProf(w, nodeProf, tFeatureData, tOutput)
 			CharWizardClassManager.addClassFeatureWeaponProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("weaponprof");
 end
 function helperAddClassToolProf(w, nodeProf, tFeatureData, tOutput)
 	local sText = StringManager.trim(DB.getText(nodeProf, "text", ""));
@@ -1068,8 +1074,10 @@ function helperAddClassToolProf(w, nodeProf, tFeatureData, tOutput)
 			CharWizardClassManager.addClassFeatureToolProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("toolprof");
 end
 
 function populateClassFeatures(sClassName, bNewSubclassAdd)
@@ -1160,25 +1168,22 @@ function addClassFeature(sClassName, nodeFeature, bSubclass)
 
 	CharWizardClassManager.addClassFeatureData(tFeatureData);
 
-	local wClassFeature = wClass.list_class_features.createWindow();
+	local wClassFeature = wClass.list_features.createWindow();
 	wClassFeature.feature.setValue(tFeatureData.sName);
 	wClassFeature.level.setValue(tFeatureData.nLevel);
 	wClassFeature.feature_desc.setValue(DB.getValue(nodeFeature, "text", ""));
 	wClassFeature.shortcut.setValue("reference_classfeature", DB.getPath(nodeFeature));
 
 	if tFeatureData.sType:match("subclass$") or (DB.getValue(nodeFeature, "specializationchoice", 0) > 0) then
-		local w2 = CharWizardManager.createDecision(wClassFeature, { sDecisionType = "subclass", sDecisionClass = "decision_sub_subclass_choice", });
+		local w2 = CharWizardDecisionManager.createDecision(wClassFeature, { sDecisionType = "subclass", sDecisionClass = "decision_sub_subclass_choice", });
 		w2.sub_decision_choice.subwindow.setClassName(tFeatureData.sClassName);
 	elseif tFeatureData.sType == "abilityscoreimprovement" then
-		CharWizardManager.createDecision(wClassFeature, { sDecisionType = "asiorfeat", });
+		CharWizardDecisionManager.createDecision(wClassFeature, { sDecisionType = "asiorfeat", });
 	elseif tFeatureData.sType == "expertise" then
-		for i = 1, 2 do
-			local w2 = CharWizardManager.createDecision(wClassFeature, { sDecisionType = "expertise", });
-			CharWizardClassManager.updateFeatureExpertiseChoices(tFeatureData.sClassName, w2);
-			wClassFeature.alert.setVisible(true);
-		end
+		CharWizardDecisionManager.createDecisions(wClassFeature, { sDecisionType = "expertise", nPicks = 2, });
+		CharWizardDecisionManager.refreshExpertiseDecision();
 	elseif tFeatureData.bIs2024 and CharWizardData.tBuildOptionsFeats2024[tFeatureData.sType] then
-		CharWizardManager.createDecision(wClassFeature, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
+		CharWizardDecisionManager.createDecision(wClassFeature, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
 	else
 		local bSkipTextParsing = CharWizardClassManager.handleFeatureChoices(wClassFeature, tFeatureData);
 
@@ -1213,7 +1218,7 @@ function handleFeatureChoices(wClassFeature, tFeatureData)
 			end
 			local nPicks = tAction.choicenum or 1;
 			for i = 1, nPicks do
-				CharWizardManager.createDecision(wClassFeature, { sDecisionType = "featurechoice", tOptions = tOptions });
+				CharWizardDecisionManager.createDecision(wClassFeature, { sDecisionType = "featurechoice", tOptions = tOptions });
 			end
 		end
 
@@ -1271,7 +1276,7 @@ function helperCheckFeatureChoiceMatch(sClassName, sChoiceType, bFinalize, nodeC
 end
 function updateFeatureExpertiseChoices(sClassName, w)
 	local tProfs = CharWizardManager.collectSkills();
-	if sClassName:lower() == "rogue" then
+	if not CharWizardClassManager.isClass2024(sClassName) and (sClassName:lower() == "rogue") then
 		table.insert(tProfs, "Thieves' Tools");
 	end
 
@@ -1292,8 +1297,10 @@ function handleFeatureSkills(w, tFeatureData, sFeatureText)
 			CharWizardClassManager.addClassFeatureSkillChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "skill", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("skill");
 end
 function handleFeatureArmorProf(w, tFeatureData, sFeatureText)
 	local tBase, tOptions, nPicks = CharBuildManager.getClassFeatureArmorProf(tFeatureData.sName, sFeatureText, tFeatureData.bIs2024)
@@ -1305,8 +1312,10 @@ function handleFeatureArmorProf(w, tFeatureData, sFeatureText)
 			CharWizardClassManager.addClassFeatureArmorProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "armorprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("armorprof");
 end
 function handleFeatureWeaponProf(w, tFeatureData, sFeatureText)
 	local tBase, tOptions, nPicks = CharBuildManager.getClassFeatureWeaponProf(tFeatureData.sName, sFeatureText, tFeatureData.bIs2024)
@@ -1318,8 +1327,10 @@ function handleFeatureWeaponProf(w, tFeatureData, sFeatureText)
 			CharWizardClassManager.addClassFeatureWeaponProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "weaponprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("weaponprof");
 end
 function handleFeatureToolProf(w, tFeatureData, sFeatureText)
 	local tBase, tOptions, nPicks = CharBuildManager.getClassFeatureToolProf(tFeatureData.sName, sFeatureText, tFeatureData.bIs2024)
@@ -1331,8 +1342,10 @@ function handleFeatureToolProf(w, tFeatureData, sFeatureText)
 			CharWizardClassManager.addClassFeatureToolProfChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "toolprof", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("toolprof");
 end
 function handleFeatureLanguages(w, tFeatureData, sFeatureText)
 	local tBase, tOptions, nPicks = CharBuildManager.getClassFeatureLanguages(tFeatureData.sName, sFeatureText, tFeatureData.bIs2024)
@@ -1344,8 +1357,10 @@ function handleFeatureLanguages(w, tFeatureData, sFeatureText)
 			CharWizardClassManager.addClassFeatureLanguageChoice(tFeatureData, v);
 		end
 	else
-		CharWizardManager.createDecisions(w, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
+		CharWizardDecisionManager.createDecisions(w, { sDecisionType = "language", nPicks = nPicks, tOptions = tOptions, });
 	end
+
+	CharWizardDecisionManager.refreshOverallDecision("language");
 end
 
 --
@@ -1384,7 +1399,7 @@ function helperGetCharWizardClassMagicData(tClassData)
 	for _,nodeFeature in pairs(DB.getChildren(nodeClass, "features")) do
 		if DB.getValue(nodeFeature, "level", 0) <= tData.nClassLevel then
 			local sFeatureSubclass = DB.getValue(nodeFeature, "specialization", "");
-			local bAdd = ((sFeatureSubclass == "") or (sFeatureSubclass:lower() == tData.sSubclass:lower()));
+			local bAdd = ((sFeatureSubclass == "") or (StringManager.simplify(sFeatureSubclass) == StringManager.simplify(tData.sSubclass)));
 			if bAdd then
 				local sFeatureName = DB.getValue(nodeFeature, "name", "");
 				local sSourceNameLower = StringManager.simplify(sFeatureName);
@@ -1472,17 +1487,8 @@ function resetClassDecision(wDecision)
 		CharWizardClassManager.setSubclass(sClassName, nil);
 		CharWizardClassManager.updateClass(sClassName, false);
 	elseif sDecisionType == "feat" then
-		local sFeat = wDecision.choice.getValue();
-		for _,v in pairs(CharWizardManager.getClassData()) do
-			for _,vFeature in pairs(v.features or {}) do
-				if vFeature.feat then
-					if sFeat:lower() == vFeature.feat:lower() then
-						vFeature.feat = nil;
-						break;
-					end
-				end
-			end
-		end
+		local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
+		CharWizardClassManager.clearClassFeatureFeatPath(tFeatureData);
 	end
 
 	wDecision.choice.setValue();
@@ -1490,6 +1496,7 @@ function resetClassDecision(wDecision)
 	wDecision.sub_decision_choice.setVisible(true);
 
 	CharWizardAbilitiesManager.updateAbilities();
+	CharWizardDecisionManager.refreshOverallDecisions();
 	CharWizardManager.updateAlerts();
 end
 
@@ -1521,10 +1528,9 @@ function handleClassDecision(wDecision)
 end
 function handleASIOrFeatDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
-	local sOption = wDecision.decision_choice.getValue():lower();
 
 	CharWizardClassManager.clearClassFeatureAbilityIncreases(tFeatureData);
-	CharWizardClassManager.setClassFeatureFeat(tFeatureData, nil);
+	CharWizardClassManager.clearClassFeatureFeatPath(tFeatureData);
 
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
 		if w.decisiontype.getValue() == "asiclass" or w.decisiontype.getValue() == "asiclassoption" or w.decisiontype.getValue() == "feat" then
@@ -1532,17 +1538,17 @@ function handleASIOrFeatDecision(wDecision)
 		end
 	end
 
+	local sOption = wDecision.decision_choice.getValue():lower();
 	if sOption == "ability score increase" then
-		CharWizardManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclassoption", });
+		CharWizardDecisionManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclassoption", });
 	elseif sOption == "feat" then
-		CharWizardManager.createDecision(wDecision.windowlist.window, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
+		CharWizardDecisionManager.createDecision(wDecision.windowlist.window, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
 	end
 
 	CharWizardAbilitiesManager.updateAbilities();
 end
 function handleClassASIOptionDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
-	local sOption = wDecision.decision_choice.getValue():lower();
 
 	CharWizardClassManager.clearClassFeatureAbilityIncreases(tFeatureData);
 
@@ -1552,11 +1558,12 @@ function handleClassASIOptionDecision(wDecision)
 		end
 	end
 
+	local sOption = wDecision.decision_choice.getValue():lower();
 	if sOption:match("option 1") then
-		CharWizardManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclass", nAdj = 2 });
+		CharWizardDecisionManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclass", nAdj = 2 });
 	else
 		for i = 1, 2 do
-			CharWizardManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclass", nAdj = 1 });
+			CharWizardDecisionManager.createDecision(wDecision.windowlist.window, { sDecisionType = "asiclass", nAdj = 1 });
 		end
 	end
 
@@ -1566,9 +1573,9 @@ function handleClassASIDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
 
 	CharWizardClassManager.clearClassFeatureAbilityIncreases(tFeatureData);
-	CharWizardClassManager.setClassFeatureFeat(tFeatureData, nil);
+	CharWizardClassManager.clearClassFeatureFeatPath(tFeatureData);
 
-	local tAbilityIncreases = CharWizardManager.processAbilityDecision(wDecision);
+	local tAbilityIncreases = CharWizardDecisionManager.processFeatureAbilityDecision(wDecision);
 	for sAbility,nMod in pairs(tAbilityIncreases) do
 		CharWizardClassManager.addClassFeatureAbilityIncreases(tFeatureData, sAbility, nMod);
 	end
@@ -1578,9 +1585,10 @@ end
 function handleClassFeatDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
 	local sFeat = wDecision.choice.getValue();
+	local sFeatClass, sFeatPath = wDecision.choicelink.getValue();
 
 	CharWizardClassManager.clearClassFeatureAbilityIncreases(tFeatureData);
-	CharWizardClassManager.setClassFeatureFeat(tFeatureData, sFeat);
+	CharWizardClassManager.setClassFeatureFeatPath(tFeatureData, sFeatPath);
 
 	wDecision.button_modify.setVisible(sFeat ~= "");
 	wDecision.sub_decision_choice.setVisible(sFeat == "");
@@ -1598,21 +1606,21 @@ function handleClassSkillDecision(wDecision)
 
 	CharWizardClassManager.clearClassFeatureSkillChoice(tFeatureData);
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processSkillDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardClassManager.addClassFeatureSkillChoice(tFeatureData, s);
 	end
+
+	CharWizardDecisionManager.refreshExpertiseDecision();
 end
 function handleClassExpertiseDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
 
 	CharWizardClassManager.clearClassFeatureExpertiseChoice(tFeatureData);
 
-	for _,w in pairs(wDecision.windowlist.getWindows()) do
-		if w.decisiontype.getValue() == "expertise" then
-			CharWizardClassManager.updateFeatureExpertiseChoices(tFeatureData.sClassName, w);
-			CharWizardClassManager.addClassFeatureExpertiseChoice(tFeatureData, w.decision_choice.getValue());
-		end
+	local tMap = CharWizardDecisionManager.processExpertiseDecision(wDecision);
+	for _,s in pairs(tMap) do
+		CharWizardClassManager.addClassFeatureExpertiseChoice(tFeatureData, s);
 	end
 end
 function handleClassArmorProfDecision(wDecision)
@@ -1620,7 +1628,7 @@ function handleClassArmorProfDecision(wDecision)
 
 	CharWizardClassManager.clearClassFeatureArmorProfChoice(tFeatureData);
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processArmorProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardClassManager.addClassFeatureArmorProfChoice(tFeatureData, s);
 	end
@@ -1630,7 +1638,7 @@ function handleClassWeaponProfDecision(wDecision)
 
 	CharWizardClassManager.clearClassFeatureWeaponProfChoice(tFeatureData);
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processWeaponProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardClassManager.addClassFeatureWeaponProfChoice(tFeatureData, s);
 	end
@@ -1640,7 +1648,7 @@ function handleClassToolProfDecision(wDecision)
 
 	CharWizardClassManager.clearClassFeatureToolProfChoice(tFeatureData);
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processToolProfDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardClassManager.addClassFeatureToolProfChoice(tFeatureData, s);
 	end
@@ -1650,7 +1658,7 @@ function handleClassLanguageDecision(wDecision)
 
 	CharWizardClassManager.clearClassFeatureLanguageChoice(tFeatureData);
 
-	local tMap = CharWizardManager.processStandardDecision(wDecision);
+	local tMap = CharWizardDecisionManager.processLanguageDecision(wDecision);
 	for _,s in pairs(tMap) do
 		CharWizardClassManager.addClassFeatureLanguageChoice(tFeatureData, s);
 	end
@@ -1659,7 +1667,7 @@ function handleClassFeatureChoiceDecision(wDecision)
 	local tFeatureData = CharWizardClassManager.buildFeatureDataFromDecision(wDecision);
 
 	CharWizardClassManager.clearClassFeatureChoiceSelections(tFeatureData);
-	CharWizardClassManager.clearClassFeatureFeat(tFeatureData);
+	CharWizardClassManager.clearClassFeatureFeatPath(tFeatureData);
 
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
 		if w.decisiontype.getValue() == "feat" then
@@ -1673,7 +1681,7 @@ function handleClassFeatureChoiceDecision(wDecision)
 			local sDecision = w.decision_choice.getValue();
 			CharWizardClassManager.addClassFeatureChoiceSelection(tFeatureData, sDecision);
 			if sDecision == "Fighting Style" then
-				CharWizardManager.createDecision(wFeature, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
+				CharWizardDecisionManager.createDecision(wFeature, { sDecisionType = "feat", sDecisionClass = "decision_sub_classfeat_choice", });
 			end
 		end
 	end

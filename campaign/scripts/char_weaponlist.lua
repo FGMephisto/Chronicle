@@ -38,7 +38,7 @@ function onDrop(x, y, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass, sRecord = draginfo.getShortcutData();
 		local nodeSource = draginfo.getDatabaseNode();
-		if LibraryData.isRecordDisplayClass("item", sClass) and ItemManager.isWeapon(nodeSource) then
+		if RecordDataManager.isRecordTypeDisplayClass("item", sClass) and ItemManager.isWeapon(nodeSource) then
 			return ItemManager.handleAnyDrop(window.getDatabaseNode(), draginfo);
 		end
 	end

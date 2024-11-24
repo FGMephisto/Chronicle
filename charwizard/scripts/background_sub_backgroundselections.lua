@@ -13,9 +13,6 @@ local _tModules = {};
 function getAllBackgrounds()
 	return _tBackgrounds;
 end
-function setAllBackgrounds(tBackgrounds)
-	_tBackgrounds = tBackgrounds;
-end
 function getAllModules()
 	return _tModules;
 end
@@ -43,25 +40,16 @@ function addListRecord(vNode)
 	rRecord.sDisplayName = DB.getValue(vNode, "name", "");
 	rRecord.sDisplayNameLower = rRecord.sDisplayName:lower();
 
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
 	local tBackgrounds = self.getAllBackgrounds();
-	if not tBackgrounds[rRecord.sDisplayNameLower] then
-		tBackgrounds[rRecord.sDisplayNameLower] = {};
-	end
-
+	tBackgrounds[rRecord.sDisplayNameLower] = tBackgrounds[rRecord.sDisplayNameLower] or {};
 	table.insert(tBackgrounds[rRecord.sDisplayNameLower], rRecord);
-	self.setAllBackgrounds(tBackgrounds);
+
 	self.getAllModules()[rRecord.sModule] = true;
 end
 function addDisplayListItem(k, tBackground)

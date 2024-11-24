@@ -25,8 +25,8 @@ function onInit()
 
 	-- Initialize sub-controls variables
 	local sControlName = ""
-	local nIconOffset = 5
-	local nIconHeight = math.floor(nHeight - (nIconOffset * 2))
+	local nIconOffset = 0
+	local nIconHeight = nHeight
 	local nIconWidth = nIconHeight
 	
 	if (sName or "") ~= "" then

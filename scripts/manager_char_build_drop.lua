@@ -353,8 +353,14 @@ function checkFeatureSpecialHandling(rAdd)
 end
 
 function checkFeatureDescription(rAdd)
-	if not rAdd or rAdd.bWizard then
-		return false;
+	if not rAdd then
+		return;
+	end
+	if rAdd.bWizard then
+		if CharBuildDropManager.helperBuildGetText(rAdd) then
+			CharBuildDropManager.helperCheckFeatureSpells(rAdd);
+		end
+		return;
 	end
 	if not CharBuildDropManager.helperBuildGetText(rAdd) then
 		return;
@@ -476,27 +482,47 @@ function helperCheckFeatureSpells(rAdd)
 		return;
 	end
 
-	if #tBase > 0 then
-		local nPrepared = 1;
-		if rAdd.sSourceClass == "reference_backgroundfeature" then
-			rAdd.sSpellGroup = CharBackgroundManager.getFeatureSpellGroup(rAdd);
-			CharManager.addPowerGroup(rAdd.nodeChar, { sName = rAdd.sSpellGroup, bChooseSpellAbility = true });
-		elseif rAdd.sSourceClass == "reference_racialtrait" then
-			rAdd.sSpellGroup = CharSpeciesManager.getTraitSpellGroup(rAdd);
-			CharManager.addPowerGroup(rAdd.nodeChar, { sName = rAdd.sSpellGroup, bChooseSpellAbility = true });
-		elseif rAdd.sSourceClass == "reference_classfeature" then
-			rAdd.sSpellGroup = CharClassManager.getFeatureSpellGroup(rAdd);
-			nPrepared = nil;
-		else
-			rAdd.sSpellGroup = Interface.getString("char_spell_powergroup"):format(rAdd.sSourceName);
-		end
-
-		local tSpell = { sGroup = rAdd.sSpellGroup, bSource2024 = rAdd.bSource2024, nPrepared = nPrepared, };
-		for _,sSpell in ipairs(tBase) do
-			tSpell.sName = sSpell;
-			CharManager.addSpell(rAdd.nodeChar, tSpell);
-		end
+	if (#tBase <= 0) and (#tOptions <= 0) then
+		return;
 	end
+
+	local nPrepared = 1;
+	if rAdd.sSourceClass == "reference_backgroundfeature" then
+		rAdd.sSpellGroup = CharBackgroundManager.getFeatureSpellGroup(rAdd);
+		CharBuildDropManager.helperCheckFeatureSpellsAddPowerGroup(rAdd.nodeChar, rAdd.sSourceText, rAdd.sSpellGroup);
+	elseif rAdd.sSourceClass == "reference_racialtrait" then
+		rAdd.sSpellGroup = CharSpeciesManager.getTraitSpellGroup(rAdd);
+		CharBuildDropManager.helperCheckFeatureSpellsAddPowerGroup(rAdd.nodeChar, rAdd.sSourceText, rAdd.sSpellGroup);
+	elseif rAdd.sSourceClass == "reference_classfeature" then
+		rAdd.sSpellGroup = CharClassManager.getFeatureSpellGroup(rAdd);
+		nPrepared = nil;
+	else
+		rAdd.sSpellGroup = Interface.getString("char_spell_powergroup"):format(rAdd.sSourceName);
+	end
+
+	local tSpell = { sGroup = rAdd.sSpellGroup, bSource2024 = rAdd.bSource2024, nPrepared = nPrepared, };
+	for _,sSpell in ipairs(tBase) do
+		tSpell.sName = sSpell;
+		CharManager.addSpell(rAdd.nodeChar, tSpell);
+	end
+
+	local tPickData = {
+		sGroup = rAdd.sSpellGroup,
+		bWizard = rAdd.bWizard,
+		bSource2024 = rAdd.bSource2024,
+		nPrepared = nPrepared,
+	};
+	CharBuildDropManager.pickSpell(rAdd.nodeChar, tOptions, nPicks, tPickData);
+end
+function helperCheckFeatureSpellsAddPowerGroup(nodeChar, s, sSpellGroup)
+	local tPowerGroupData = { sName = sSpellGroup, };
+	local sAbility = s:match("(%a+) is your spellcasting ability");
+	if sAbility then
+		tPowerGroupData.sAbility = sAbility:lower();
+	else
+		tPowerGroupData.bChooseSpellAbility = true;
+	end
+	CharManager.addPowerGroup(nodeChar, tPowerGroupData);
 end
 
 function checkFeatureActions(rAdd)
@@ -1118,64 +1144,78 @@ function getAbilityOptions(nodeChar, nAbilityMax)
 	return tAbilities;
 end
 
-function pickAbilities2014(nodeChar, tAbilitySelect)
+-- Due to Tasha's rules, set up decisions for every ability increase
+function pickAbilities2014(nodeChar, tBase, tAbilitySelect)
+	local tFinalAbilitySelect = {};
+	for sAbility, nAbilityAdj in pairs(tBase) do
+		local t = {
+			tAbilities = CharBuildDropManager.getDefaultAbilityOptions2014(sAbility),
+			nAbilityAdj = nAbilityAdj,
+		};
+		table.insert(tFinalAbilitySelect, t);
+	end
+	for _,v in ipairs(tAbilitySelect) do
+		v.tAbilities = CharBuildDropManager.getDefaultAbilityOptions2014(),
+		table.insert(tFinalAbilitySelect, v);
+	end
+	if #tFinalAbilitySelect > 0 then
+		CharBuildDropManager.helperPickAbilities2014(nodeChar, tFinalAbilitySelect);
+	end
+end
+function helperPickAbilities2014(nodeChar, tAbilitySelect, bFront)
 	if #tAbilitySelect == 0 then
 		return;
 	end
 
-	if not tAbilitySelect[1].aAbilities or (#(tAbilitySelect[1].aAbilities) == 0) then 
-		tAbilitySelect[1].aAbilities = CharBuildDropManager.getDefaultAbilityOptions2014(); 
-	end
 	local nPicks = tAbilitySelect[1].nPicks or 1;
 	local nAbilityAdj = tAbilitySelect[1].nAbilityAdj or 1;
 
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectabilityincrease"),
 		msg = Interface.getString("char_build_message_selectabilityincrease"):format(nPicks, nAbilityAdj),
-		options = tAbilitySelect[1].aAbilities,
+		options = tAbilitySelect[1].tAbilities,
 		min = nPicks,
 		callback = CharBuildDropManager.onAbilitiesSelect2014,
 		custom = { nodeChar = nodeChar, tAbilitySelect = tAbilitySelect, },
 	};
-	DialogManager.requestSelectionDialog(tDialogData);
+	DialogManager.requestSelectionDialog(tDialogData, bFront);
 end
-function onAbilitiesSelect2014(aSelection, rAbilitySelectMeta)
-	local rAbilitySelect = rAbilitySelectMeta.tAbilitySelect[1];
-	for _,sAbility in ipairs(aSelection) do
-		CharManager.addAbilityAdjustment(rAbilitySelectMeta.nodeChar, sAbility, rAbilitySelect.nAbilityAdj or 1, rAbilitySelect.nAbilityMax);
+function onAbilitiesSelect2014(tSelection, tData)
+	local rAbilitySelect = tData.tAbilitySelect[1];
+	for _,sAbility in ipairs(tSelection) do
+		CharManager.addAbilityAdjustment(tData.nodeChar, sAbility, rAbilitySelect.nAbilityAdj or 1, rAbilitySelect.nAbilityMax);
 		
 		if rAbilitySelect.bSaveProfAdd then
 			local sAbilityLower = StringManager.simplify(sAbility);
 			if StringManager.contains(DataCommon.abilities, sAbilityLower) then
-				DB.setValue(rAbilitySelectMeta.nodeChar, "abilities." .. sAbilityLower .. ".saveprof", "number", 1);
-				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sAbility, DB.getValue(rAbilitySelectMeta.nodeChar, "name", ""));
+				DB.setValue(tData.nodeChar, "abilities." .. sAbilityLower .. ".saveprof", "number", 1);
+				ChatManager.SystemMessageResource("char_abilities_message_saveadd", sAbility, DB.getValue(tData.nodeChar, "name", ""));
 			end
 		end
 	end
 
-	table.remove(rAbilitySelectMeta.tAbilitySelect, 1);
-	if #(rAbilitySelectMeta.tAbilitySelect) > 0 then
-		for _,vSelect in ipairs(rAbilitySelectMeta.tAbilitySelect) do
-			if vSelect.bOther then
-				if not vSelect.aAbilities or (#vSelect.aAbilities == 0) then 
-					vSelect.aAbilities = CharBuildDropManager.getDefaultAbilityOptions2014(); 
+	table.remove(tData.tAbilitySelect, 1);
+	if #(tData.tAbilitySelect) > 0 then
+		for _,vSelect in ipairs(tData.tAbilitySelect) do
+			local tNewAbilities = {};
+			for _,vAbility in ipairs(vSelect.tAbilities) do
+				if not StringManager.contains(tSelection, vAbility.text) then
+					table.insert(tNewAbilities, vAbility);
 				end
-				local aNewAbilities = {};
-				for _,vAbility in ipairs(vSelect.aAbilities) do
-					if not StringManager.contains(aSelection, vAbility) then
-						table.insert(aNewAbilities, vAbility);
-					end
-				end
-				vSelect.aAbilities = aNewAbilities;
 			end
+			vSelect.tAbilities = tNewAbilities;
 		end
-		CharBuildDropManager.pickAbilities2014(rAbilitySelectMeta.nodeChar, rAbilitySelectMeta.tAbilitySelect);
+		CharBuildDropManager.helperPickAbilities2014(tData.nodeChar, tData.tAbilitySelect, true);
 	end
 end
-function getDefaultAbilityOptions2014()
+function getDefaultAbilityOptions2014(sSelectedAbility)
 	local tOptions = {};
 	for _,sAbility in ipairs(DataCommon.abilities) do
-		table.insert(tOptions, StringManager.capitalize(sAbility));
+		if (sSelectedAbility or "") == sAbility then
+			table.insert(tOptions, { text = StringManager.capitalize(sAbility), selected = true, });
+		else
+			table.insert(tOptions, { text = StringManager.capitalize(sAbility), });
+		end			
 	end
 	return tOptions;
 end
@@ -1199,12 +1239,12 @@ function helperOnASIOrFeatSelect(tSelection, tData)
 		return;
 	end
 	if tSelection[1] == Interface.getString("char_build_option_asi") then
-		CharBuildDropManager.pickAbilityAdjust(tData.nodeChar, tData.bSource2024);
+		CharBuildDropManager.pickAbilityAdjust(tData.nodeChar, { bSource2024 = tData.bSource2024, bFront = true, });
 	else
-		CharBuildDropManager.pickFeat(tData.nodeChar, {}, 1, { bSource2024 = tData.bSource2024, });
+		CharBuildDropManager.pickFeat(tData.nodeChar, {}, 1, { bSource2024 = tData.bSource2024, bFront = true, });
 	end
 end
-function pickAbilityAdjust(nodeChar, bSource2024)
+function pickAbilityAdjust(nodeChar, tData)
 	local tOptions = {
 		Interface.getString("char_build_option_selectabilityadjby2"),
 		Interface.getString("char_build_option_selectabilityadj2by1"),
@@ -1214,9 +1254,12 @@ function pickAbilityAdjust(nodeChar, bSource2024)
 		msg = Interface.getString("char_build_message_selectabilityadjtype"):format("Any"),
 		options = tOptions,
 		callback = CharBuildDropManager.helperOnAbilityAdjTypeSelect,
-		custom = { nodeChar = nodeChar, bSource2024 = bSource2024, },
+		custom = {
+			nodeChar = nodeChar,
+			bSource2024 = tData and tData.bSource2024,
+		},
 	};
-	DialogManager.requestSelectionDialog(tDialogData);
+	DialogManager.requestSelectionDialog(tDialogData, tData and tData.bFront);
 end
 function helperOnAbilityAdjTypeSelect(tSelection, tData)
 	if not tSelection or not tSelection[1] then
@@ -1287,15 +1330,14 @@ function pickSaveProficiency(nodeChar, tOptions, nPicks)
 		return;
 	end
 
-	local tSaveOptions;
 	if #(tOptions or {}) == 0 then
-		tSaveOptions = CharBuildDropManager.getSaveProficiencyOptions(nodeChar);
+		tOptions = CharBuildDropManager.getSaveProficiencyOptions(nodeChar);
 	else
-		tSaveOptions = CharBuildDropManager.helperGetSaveProficiencyOptionsFilter(nodeChar, tOptions);
+		tOptions = CharBuildDropManager.helperGetSaveProficiencyOptionsFilter(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tSaveOptions then
-		for _,v in ipairs(tSaveOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.addSaveProficiency(nodeChar, v.text);
 		end
 		return;
@@ -1304,7 +1346,7 @@ function pickSaveProficiency(nodeChar, tOptions, nPicks)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks or 1),
-		options = tSaveOptions,
+		options = tOptions,
 		min = nPicks or 1,
 		callback = CharBuildDropManager.onSaveSelect,
 		custom = { nodeChar = nodeChar },
@@ -1321,39 +1363,42 @@ function getSaveProficiencyOptions(nodeChar)
 		return {};
 	end
 
-	local tAbilities = {};
+	local tOptions = {};
 	for k,_ in pairs(DataCommon.abilities) do
-		table.insert(tAbilities, k);
+		table.insert(tOptions, { text = StringManager.capitalize(k), });
 	end
-	table.sort(tAbilities);
-
-	return CharBuildDropManager.helperGetSaveProficiencyOptionsFilter(nodeChar, tAbilities);
+	return CharBuildDropManager.helperGetSaveProficiencyOptionsFilter(nodeChar, tOptions);
 end
-function helperGetSaveProficiencyOptionsFilter(nodeChar, tAbilities)
-	local tSaveOptions = {};
-	for _,s in ipairs(tAbilities) do
-		if not CharManager.hasSaveProficiency(nodeChar, s) then
-			table.insert(tSaveOptions, { text = StringManager.capitalize(s) });
+function helperGetSaveProficiencyOptionsFilter(nodeChar, tOptions)
+	local tFinalOptions = {};
+	for _,v in ipairs(tOptions) do
+		if type(v) == "string" then
+			if not CharManager.hasSaveProficiency(nodeChar, v) then
+				table.insert(tFinalOptions, { text = StringManager.capitalize(v), });
+			end
+		elseif type(v) == "table" then
+			if not CharManager.hasSaveProficiency(nodeChar, v.text) then
+				table.insert(tFinalOptions, v);
+			end
 		end
 	end
-	return tSaveOptions;
+	return tFinalOptions;
 end
 
-function pickSkill(nodeChar, tSkills, nPicks, tData)
+function pickSkill(nodeChar, tOptions, nPicks, tData)
 	nPicks = nPicks or 1;
 	if nPicks <= 0 then
 		return;
 	end
 
-	local tSkillOptions;
-	if #(tSkills or {}) == 0 then
-		tSkillOptions = CharBuildDropManager.getSkillProficiencyOptions(nodeChar);
+	if #(tOptions or {}) == 0 then
+		tOptions = CharBuildDropManager.getSkillProficiencyOptions(nodeChar);
 	else
-		tSkillOptions = CharBuildDropManager.helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tSkills);
+		tOptions = CharBuildDropManager.helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tSkillOptions then
-		for _,v in ipairs(tSkillOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.addSkillProficiency(nodeChar, v.text);
 		end
 		return;
@@ -1362,7 +1407,7 @@ function pickSkill(nodeChar, tSkills, nPicks, tData)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
 		msg = Interface.getString("char_build_message_selectprofs"):format(nPicks or 1),
-		options = tSkillOptions,
+		options = tOptions,
 		min = nPicks or 1,
 		callback = CharBuildDropManager.onSkillSelect,
 		custom = { nodeChar = nodeChar, bAddExpertise = tData and tData.bAddExpertise, },
@@ -1384,52 +1429,61 @@ function getSkillProficiencyOptions(nodeChar)
 		return {};
 	end
 
-	local tSkills = {};
+	local tOptions = {};
 	for k,_ in pairs(DataCommon.skilldata) do
-		table.insert(tSkills, k);
+		table.insert(tOptions, k);
 	end
-	table.sort(tSkills);
-
-	return CharBuildDropManager.helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tSkills);
+	table.sort(tOptions);
+	return CharBuildDropManager.helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tOptions);
 end
-function helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tSkills)
-	local tSkillOptions = {};
-	for _,s in ipairs(tSkills) do
-		if not CharManager.hasSkillProficiency(nodeChar, s) then
-			table.insert(tSkillOptions, s);
+function helperGetSkillProficiencyOptionsFilterAndLink(nodeChar, tOptions)
+	local tFinalOptions = {};
+	for _,v in ipairs(tOptions) do
+		if type(v) == "string" then
+			if not CharManager.hasSkillProficiency(nodeChar, v) then
+				table.insert(tFinalOptions, { text = v, });
+			end
+		elseif type(v) == "table" then
+			if not CharManager.hasSkillProficiency(nodeChar, v.text) then
+				table.insert(tFinalOptions, v);
+			end
 		end
 	end
 
-	CharBuildDropManager.helperGetSkillOptionsLinks(tSkillOptions);
-	return tSkillOptions;
+	CharBuildDropManager.helperGetSkillOptionsLinks(tFinalOptions);
+	return tFinalOptions;
 end
-function helperGetSkillOptionsLinks(tSkillOptions)
-	for k,s in ipairs(tSkillOptions) do
-		local rSkill = { text = s, linkclass = "", linkrecord = "" };
-		local nodeSkill = RecordManager.findRecordByStringI("skill", "name", s);
+function helperGetSkillOptionsLinks(tOptions)
+	for k,v in ipairs(tOptions) do
+		local tSkill;
+		if type(v) == "string" then
+			tSkill = { text = v, linkclass = "", linkrecord = "", };
+		elseif type(v) == "table" then
+			tSkill = v;
+		end
+		local nodeSkill = RecordManager.findRecordByStringI("skill", "name", tSkill.text);
 		if nodeSkill then
-			rSkill.linkclass = "reference_skill";
-			rSkill.linkrecord = DB.getPath(nodeSkill);
+			tSkill.linkclass = "reference_skill";
+			tSkill.linkrecord = DB.getPath(nodeSkill);
 		end
-		tSkillOptions[k] = rSkill;
+		tOptions[k] = tSkill;
 	end
 end
 
-function pickSkillExpertise(nodeChar, tSkills, nPicks)
+function pickSkillExpertise(nodeChar, tOptions, nPicks)
 	nPicks = nPicks or 1;
 	if nPicks <= 0 then
 		return;
 	end
 
-	local tSkillOptions;
-	if #(tSkills or {}) == 0 then
-		tSkillOptions = CharBuildDropManager.getSkillExpertiseOptions(nodeChar);
+	if #(tOptions or {}) == 0 then
+		tOptions = CharBuildDropManager.getSkillExpertiseOptions(nodeChar);
 	else
-		tSkillOptions = CharBuildDropManager.helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tSkills);
+		tOptions = CharBuildDropManager.helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tSkillOptions then
-		for _,v in ipairs(tSkillOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.increaseSkillProficiency(nodeChar, v.text, 2);
 		end
 		return;
@@ -1438,7 +1492,7 @@ function pickSkillExpertise(nodeChar, tSkills, nPicks)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectexpertises"),
 		msg = Interface.getString("char_build_message_selectexpertises"):format(nPicks),
-		options = tSkillOptions,
+		options = tOptions,
 		min = nPicks,
 		callback = CharBuildDropManager.onSkillExpertiseSelect,
 		custom = { nodeChar = nodeChar, },
@@ -1455,42 +1509,47 @@ function getSkillExpertiseOptions(nodeChar)
 		return {};
 	end
 
-	local tSkills = {};
+	local tOptions = {};
 	for k,_ in pairs(DataCommon.skilldata) do
-		table.insert(tSkills, k);
+		table.insert(tOptions, k);
 	end
-	table.sort(tSkills);
-
-	return CharBuildDropManager.helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tSkills);
+	table.sort(tOptions);
+	return CharBuildDropManager.helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tOptions);
 end
-function helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tSkills)
-	local tSkillOptions = {};
-	for _,s in ipairs(tSkills) do
-		local nodeCharSkill = CharManager.getSkillRecord(nodeChar, s);
-		if nodeCharSkill and (DB.getValue(nodeCharSkill, "prof", 0) == 1) then
-			table.insert(tSkillOptions, s);
+function helperGetSkillExpertiseOptionsFilterAndLink(nodeChar, tOptions)
+	local tFinalOptions = {};
+	for _,v in ipairs(tOptions) do
+		if type(v) == "string" then
+			local nodeCharSkill = CharManager.getSkillRecord(nodeChar, v);
+			if nodeCharSkill and (DB.getValue(nodeCharSkill, "prof", 0) == 1) then
+				table.insert(tFinalOptions, { text = v, });
+			end
+		elseif type(v) == "table" then
+			local nodeCharSkill = CharManager.getSkillRecord(nodeChar, v.text);
+			if nodeCharSkill and (DB.getValue(nodeCharSkill, "prof", 0) == 1) then
+				table.insert(tFinalOptions, v);
+			end
 		end
 	end
 
-	CharBuildDropManager.helperGetSkillOptionsLinks(tSkillOptions);
-	return tSkillOptions;
+	CharBuildDropManager.helperGetSkillOptionsLinks(tFinalOptions);
+	return tFinalOptions;
 end
 
-function pickSkillIncrease(nodeChar, tSkills, nPicks, tData)
+function pickSkillIncrease(nodeChar, tOptions, nPicks, tData)
 	nPicks = nPicks or 1;
 	if nPicks <= 0 then
 		return;
 	end
 
-	local tSkillOptions;
-	if #(tSkills or {}) == 0 then
-		tSkillOptions = CharBuildDropManager.getSkillIncreaseOptions(nodeChar);
+	if #(tOptions or {}) == 0 then
+		tOptions = CharBuildDropManager.getSkillIncreaseOptions(nodeChar);
 	else
-		tSkillOptions = CharBuildDropManager.helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tSkills);
+		tOptions = CharBuildDropManager.helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tSkillOptions then
-		for _,v in ipairs(tSkillOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.increaseSkillProficiency(nodeChar, v.text);
 		end
 		return;
@@ -1499,7 +1558,7 @@ function pickSkillIncrease(nodeChar, tSkills, nPicks, tData)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofincreases"),
 		msg = Interface.getString("char_build_message_selectprofincreases"):format(nPicks),
-		options = tSkillOptions,
+		options = tOptions,
 		min = nPicks,
 		callback = CharBuildDropManager.onSkillIncreaseSelect,
 		custom = { nodeChar = nodeChar, nIncrease = tData and tData.nIncrease, },
@@ -1516,25 +1575,31 @@ function getSkillIncreaseOptions(nodeChar)
 		return {};
 	end
 
-	local tSkills = {};
+	local tOptions = {};
 	for k,_ in pairs(DataCommon.skilldata) do
-		table.insert(tSkills, k);
+		table.insert(tOptions, k);
 	end
-	table.sort(tSkills);
-
-	return CharBuildDropManager.helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tSkills);
+	table.sort(tOptions);
+	return CharBuildDropManager.helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tOptions);
 end
-function helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tSkills)
-	local tSkillOptions = {};
-	for _,s in ipairs(tSkills) do
-		local nodeCharSkill = CharManager.getSkillRecord(nodeChar, s);
-		if not nodeCharSkill or (DB.getValue(nodeCharSkill, "prof", 0) ~= 2) then
-			table.insert(tSkillOptions, s);
+function helperGetSkillIncreaseOptionsFilterAndLink(nodeChar, tOptions)
+	local tFinalOptions = {};
+	for _,v in ipairs(tOptions) do
+		if type(v) == "string" then
+			local nodeCharSkill = CharManager.getSkillRecord(nodeChar, v);
+			if not nodeCharSkill or (DB.getValue(nodeCharSkill, "prof", 0) ~= 2) then
+				table.insert(tFinalOptions, { text = v, });
+			end
+		elseif type(v) == "table" then
+			local nodeCharSkill = CharManager.getSkillRecord(nodeChar, v.text);
+			if not nodeCharSkill or (DB.getValue(nodeCharSkill, "prof", 0) ~= 2) then
+				table.insert(tFinalOptions, v);
+			end
 		end
 	end
 
-	CharBuildDropManager.helperGetSkillOptionsLinks(tSkillOptions);
-	return tSkillOptions;
+	CharBuildDropManager.helperGetSkillOptionsLinks(tFinalOptions);
+	return tFinalOptions;
 end
 
 function pickToolProficiencyBySubtype(nodeChar, s, nPicks)
@@ -1602,15 +1667,14 @@ function pickFeat(nodeChar, tOptions, nPicks, tData)
 		return;
 	end
 
-	local tDialogOptions;
 	if #(tOptions or {}) == 0 then
-		tDialogOptions = CharBuildDropManager.getFeatOptions(nodeChar, tData and tData.bSource2024);
+		tOptions = CharBuildDropManager.getFeatOptions(nodeChar, tData);
 	else
-		tDialogOptions = CharBuildDropManager.helperGetFeatOptionsFilter(nodeChar, tOptions);
+		tOptions = CharBuildDropManager.helperGetFeatOptionsFilter(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tDialogOptions then
-		for _,v in ipairs(tDialogOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.addFeat(nodeChar, v.text, tData);
 		end
 		return;
@@ -1619,47 +1683,45 @@ function pickFeat(nodeChar, tOptions, nPicks, tData)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectfeats"),
 		msg = Interface.getString("char_build_message_selectfeats"):format(nPicks),
-		options = tDialogOptions,
+		options = tOptions,
 		min = nPicks,
 		callback = CharBuildDropManager.onFeatSelect,
 		custom = { nodeChar = nodeChar, bSource2024 = tData and tData.bSource2024, bWizard = tData and tData.bWizard, },
 	};
-	DialogManager.requestSelectionDialog(tDialogData);
+	DialogManager.requestSelectionDialog(tDialogData, tData and tData.bFront);
 end
 function onFeatSelect(tSelection, tData)
 	for _,s in ipairs(tSelection) do
 		CharManager.addFeat(tData.nodeChar, s, tData);
 	end
 end
-function getFeatOptions(nodeChar, bIs2024)
+function getFeatOptions(nodeChar, tData)
 	if not nodeChar then
 		return {};
 	end
 
 	local tFilters = {
-		{ sField = "version", sValue = bIs2024 and "2024" or "", },
+		{ sField = "version", sValue = tData and tData.bSource2024 and "2024" or "", },
 	};
 	local tOptions = RecordManager.getRecordOptionsByFilter("feat", tFilters, true);
-
 	return CharBuildDropManager.helperGetFeatOptionsFilter(nodeChar, tOptions);
 end
 function helperGetFeatOptionsFilter(nodeChar, tOptions)
-	local tFilteredOptions = {};
+	local tFinalOptions = {};
 	for _,v in ipairs(tOptions) do
-		local sFeat;
 		if type(v) == "string" then
-			sFeat = s;
-		elseif type(v) == "table" then
-			sFeat = v.text;
-		end
-		if sFeat then
-			local nodeFeat = CharManager.getFeatRecord(nodeChar, sFeat);
+			local nodeFeat = CharManager.getFeatRecord(nodeChar, v);
 			if not nodeFeat or (DB.getValue(nodeFeat, "repeatable", 0) == 1) then
-				table.insert(tFilteredOptions, v);
+				table.insert(tFinalOptions, { text = v, });
+			end
+		elseif type(v) == "table" then
+			local nodeFeat = CharManager.getFeatRecord(nodeChar, v.text);
+			if not nodeFeat or (DB.getValue(nodeFeat, "repeatable", 0) == 1) then
+				table.insert(tFinalOptions, v);
 			end
 		end
 	end
-	return tFilteredOptions;
+	return tFinalOptions;
 end
 
 function pickLanguage(nodeChar, tOptions, nPicks, tData)
@@ -1668,15 +1730,14 @@ function pickLanguage(nodeChar, tOptions, nPicks, tData)
 		return;
 	end
 
-	local tDialogOptions;
 	if #(tOptions or {}) == 0 then
-		tDialogOptions = CharBuildDropManager.getLanguageOptions(nodeChar);
+		tOptions = CharBuildDropManager.getLanguageOptions(nodeChar);
 	else
-		tDialogOptions = CharBuildDropManager.helperGetLanguageOptionsFilter(nodeChar, tOptions);
+		tOptions = CharBuildDropManager.helperGetLanguageOptionsFilter(nodeChar, tOptions);
 	end
 		
-	if nPicks >= #tDialogOptions then
-		for _,v in ipairs(tDialogOptions) do
+	if nPicks >= #tOptions then
+		for _,v in ipairs(tOptions) do
 			CharManager.addLanguage(nodeChar, v.text, tData);
 		end
 		return;
@@ -1685,7 +1746,7 @@ function pickLanguage(nodeChar, tOptions, nPicks, tData)
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectlanguages"),
 		msg = Interface.getString("char_build_message_selectlanguages"):format(nPicks),
-		options = tDialogOptions,
+		options = tOptions,
 		min = nPicks,
 		callback = CharBuildDropManager.onLanguageSelect,
 		custom = { nodeChar = nodeChar, bSource2024 = tData and tData.bSource2024, bWizard = tData and tData.bWizard, },
@@ -1707,14 +1768,19 @@ function getLanguageOptions(nodeChar)
 		table.insert(tOptions, k);
 	end
 	table.sort(tOptions);
-
 	return CharBuildDropManager.helperGetLanguageOptionsFilter(nodeChar, tOptions);
 end
 function helperGetLanguageOptionsFilter(nodeChar, tOptions)
 	local tFilteredOptions = {};
-	for _,s in ipairs(tOptions) do
-		if not CharManager.hasLanguage(nodeChar, s) then
-			table.insert(tFilteredOptions, { text = StringManager.capitalizeAll(s) });
+	for _,v in ipairs(tOptions) do
+		if type(v) == "string" then
+			if not CharManager.hasLanguage(nodeChar, v) then
+				table.insert(tFilteredOptions, { text = StringManager.capitalizeAll(v) });
+			end
+		elseif type(v) == "table" then
+			if not CharManager.hasLanguage(nodeChar, v.text) then
+				table.insert(tFilteredOptions, v);
+			end
 		end
 	end
 	return tFilteredOptions;
@@ -1769,11 +1835,7 @@ function onSpellGroupAbilityChoice(tSelection, tData)
 	DB.setValue(tData.nodePowerGroup, "stat", "string", tSelection[1]:lower());
 end
 
-function pickSpellByFilter(rAdd, tFilters, nPicks, tData)
-	if not rAdd then
-		return;
-	end
-
+function getSpellOptionsByFilter(tFilters, tData)
 	local tOptions = RecordManager.getRecordOptionsByFilter("spell", tFilters);
 
 	-- Handle class-specific filter differently, since it's a combination field
@@ -1792,6 +1854,15 @@ function pickSpellByFilter(rAdd, tFilters, nPicks, tData)
 		end
 		tOptions = tTemp;
 	end
+
+	return tOptions;
+end
+function pickSpellByFilter(rAdd, tFilters, nPicks, tData)
+	if not rAdd then
+		return;
+	end
+
+	local tOptions = CharBuildDropManager.getSpellOptionsByFilter(tFilters, tData);
 
 	local tPickData = {
 		sGroup = rAdd.sSpellGroup,
@@ -1817,7 +1888,7 @@ function pickSpell(nodeChar, tOptions, nPicks, tData)
 	if #(tOptions or {}) == 0 then
 		tDialogOptions = {};
 	else
-		tDialogOptions = CharBuildDropManager.helperGetSpellOptionsFilter(nodeChar, tData.sGroup, tOptions);
+		tDialogOptions = CharBuildDropManager.helperGetSpellOptionsFilter(nodeChar, tData.sGroup, tOptions, tData);
 	end
 		
 	if nPicks >= #tDialogOptions then
@@ -1840,7 +1911,7 @@ function pickSpell(nodeChar, tOptions, nPicks, tData)
 	table.sort(tDialogOptions, function(a,b) return a.text < b.text; end);
 
 	local tLookup = {};
-	for _,v in ipairs(tOptions) do
+	for _,v in ipairs(tDialogOptions) do
 		tLookup[v.text] = v.linkrecord;
 	end
 	local tDialogData = {
@@ -1882,11 +1953,24 @@ function onSpellSelect(tSelection, tData)
 		tData.fnCallback(tData.tCallbackData);
 	end
 end
-function helperGetSpellOptionsFilter(nodeChar, sGroup, tOptions)
+function helperGetSpellOptionsFilter(nodeChar, sGroup, tOptions, tData)
 	local tFilteredOptions = {};
 	for _,v in ipairs(tOptions) do
-		if not CharManager.hasGroupPower(nodeChar, sGroup, v.text) then
-			table.insert(tFilteredOptions, v);
+		if type(v) == "string" then
+			if not CharManager.hasGroupPower(nodeChar, sGroup, v) then
+				local tFilters = {
+					{ sField = "name", sValue = v, bIgnoreCase = true, },
+					{ sField = "version", sValue = tData and tData.bSource2024 and "2024" or "", },
+				};
+				local nodeSpell = RecordManager.findRecordByFilter("spell", tFilters);
+				if nodeSpell then
+					table.insert(tFilteredOptions, { text = v, linkclass = "power", linkrecord = DB.getPath(nodeSpell), });
+				end
+			end
+		elseif type(v) == "table" then
+			if not CharManager.hasGroupPower(nodeChar, sGroup, v.text) then
+				table.insert(tFilteredOptions, v);
+			end
 		end
 	end
 	return tFilteredOptions;

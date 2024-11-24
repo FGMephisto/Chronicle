@@ -72,6 +72,9 @@ function helperResolveSpeciesOnAncestryDrop(rAdd)
 end
 
 function getAncestryOptions(nodeSpecies)
+	if not nodeSpecies then
+		return {};
+	end
 	local bSource2024 = (DB.getValue(nodeSpecies, "version", "") == "2024");
 	if not bSource2024 and (DB.getValue(nodeSpecies, "ignoresubrace", 0) == 1) then
 		return {};
@@ -233,6 +236,9 @@ function helperAddAncestry(rAdd)
 	end
 end
 
+function getSpeciesPowerGroupByName(sSpecies)
+	return Interface.getString("char_species_powergroup"):format(sSpecies or "");
+end
 function getTraitSpeciesName(rAdd)
 	local s = DB.getValue(rAdd.nodeSource, "...race", "");
 	if s ~= "" then
@@ -244,7 +250,7 @@ function getTraitSpellGroup(rAdd)
 	return Interface.getString("char_spell_powergroup"):format(CharSpeciesManager.getTraitSpeciesName(rAdd));
 end
 function getTraitPowerGroup(rAdd)
-	return Interface.getString("char_species_powergroup"):format(CharSpeciesManager.getTraitSpeciesName(rAdd));
+	return CharSpeciesManager.getSpeciesPowerGroupByName(CharSpeciesManager.getTraitSpeciesName(rAdd));
 end
 
 function helperAddSpeciesTraitMain(rAdd)
@@ -264,15 +270,6 @@ function checkSpeciesTraitSkipAdd(rAdd)
 				return true;
 			end
 			if CharWizardData.aRaceSpecialSpeed[rAdd.sSourceType] then
-				return true;
-			end
-			if CharWizardData.aRaceLanguages[rAdd.sSourceType] then
-				return true;
-			end
-			if CharWizardData.aRaceProficiency[rAdd.sSourceType] then
-				return true;
-			end
-			if CharWizardData.aRaceSkill[rAdd.sSourceType] then
 				return true;
 			end
 		end
@@ -306,12 +303,17 @@ function checkSpeciesTraitSpecialHandling(rAdd)
 	end
 end
 function helperCheckSpeciesTraitSpecialHandling2024(rAdd)
+	if not rAdd.bWizard then
+		if rAdd.sSourceType == "versatile" then
+			CharSpeciesManager.helperAddSpeciesTraitVersatileDrop2024(rAdd);
+			return true;
+		end
+	end
+
 	if rAdd.sSourceType == "darkvision" or rAdd.sSourceType == "enhanceddarkvision" then
 		CharSpeciesManager.helperAddSpeciesTraitDarkvisionDrop(rAdd);
 	elseif rAdd.sSourceType == "enhancedspeed" then
 		CharSpeciesManager.helperAddSpeciesTraitEnhancedSpeedDrop(rAdd);
-	elseif rAdd.sSourceType == "versatile" then
-		CharSpeciesManager.helperAddSpeciesTraitVersatileDrop2024(rAdd);
 	elseif rAdd.sSourceType == "dwarventoughness" then
 		CharSpeciesManager.applyDwarvenToughness(rAdd.nodeChar, true);
 	else
@@ -367,94 +369,87 @@ function helperAddSpeciesTraitAbilityIncreaseDrop2014(rAdd)
 		return;
 	end
 
-	local sAdjust = rAdd.sSourceText:lower();
-	
-	if sAdjust:match("your ability scores each increase") then
-		for _,v in pairs(DataCommon.abilities) do
-			CharManager.addAbilityAdjustment(rAdd.nodeChar, v, 1);
-		end
-		return;
+	local tBase, tAbilitySelect = CharSpeciesManager.helperParseSpeciesAbilityIncrease2014(rAdd.sSourceText);
+	CharBuildDropManager.pickAbilities2014(rAdd.nodeChar, tBase, tAbilitySelect);
+end
+function helperParseSpeciesAbilityIncrease2014(s)
+	if not s then
+		return {}, {};
 	end
 
-	local aIncreases = {};
-	
-	local n1, n2;
-	local a1, a2, sIncrease = sAdjust:match("your (%w+) and (%w+) scores increase by (%d+)");
-	if not a1 then
-		a1, a2, sIncrease = sAdjust:match("your (%w+) and (%w+) scores both increase by (%d+)");
+	s = s:lower();
+
+	local tBase = {};
+	if s:match("your ability scores each increase") then
+		for _,sAbility in pairs(DataCommon.abilities) do
+			tBase[sAbility] = 1;
+		end
+		return tBase, {};
 	end
-	if a1 then
+
+	local sAbility1, sAbility2, sIncrease = s:match("your (%w+) and (%w+) scores increase by (%d+)");
+	if not sAbility1 then
+		sAbility1, sAbility2, sIncrease = s:match("your (%w+) and (%w+) scores both increase by (%d+)");
+	end
+	if sAbility1 then
 		local nIncrease = tonumber(sIncrease) or 0;
-		aIncreases[a1] = nIncrease;
-		aIncreases[a2] = nIncrease;
+		if StringManager.contains(DataCommon.abilities, sAbility1) then
+			tBase[sAbility1] = nIncrease;
+		end
+		if StringManager.contains(DataCommon.abilities, sAbility2) then
+			tBase[sAbility2] = nIncrease;
+		end
 	else
-		for a1, sIncrease in sAdjust:gmatch("your (%w+) score increases by (%d+)") do
-			local nIncrease = tonumber(sIncrease) or 0;
-			aIncreases[a1] = nIncrease;
+		for sAbility1, sIncrease in s:gmatch("your (%w+) score increases by (%d+)") do
+			if StringManager.contains(DataCommon.abilities, sAbility1) then
+				tBase[sAbility1] = tonumber(sIncrease) or 0;
+			end
 		end
-		for a1, sDecrease in sAdjust:gmatch("your (%w+) score is reduced by (%d+)") do
-			local nDecrease = tonumber(sDecrease) or 0;
-			aIncreases[a1] = nDecrease * -1;
+		for sAbility1, sDecrease in s:gmatch("your (%w+) score is reduced by (%d+)") do
+			if StringManager.contains(DataCommon.abilities, sAbility1) then
+				tBase[sAbility1] = (tonumber(sDecrease) or 0) * -1;
+			end
 		end
-	end
-	
-	for k,v in pairs(aIncreases) do
-		CharManager.addAbilityAdjustment(rAdd.nodeChar, k, v);
 	end
 	
 	local tAbilitySelect = {};
-	sIncrease = sAdjust:match("two different ability scores of your choice increase by (%d+)")
+	sIncrease = s:match("two different ability scores of your choice increase by (%d+)")
 	if sIncrease then
 		local nAbilityAdj = tonumber(sIncrease) or 1;
 		table.insert(tAbilitySelect, { nPicks = 2, nAbilityAdj = nAbilityAdj });
 	end
-	sIncrease = sAdjust:match("one ability score of your choice increases by (%d+)");
+	sIncrease = s:match("one ability score of your choice increases by (%d+)");
 	if sIncrease then
 		local nAbilityAdj = tonumber(sIncrease) or 1;
 		table.insert(tAbilitySelect, { nAbilityAdj = nAbilityAdj });
 	end
-	sIncrease = sAdjust:match("one other ability score of your choice increases by (%d+)");
+	sIncrease = s:match("one other ability score of your choice increases by (%d+)");
 	if sIncrease then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if not aIncreases[v] then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		if #aAbilities > 0 then
-			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nAbilityAdj = nAbilityAdj, bOther = true });
-		end
+		local nAbilityAdj = tonumber(sIncrease) or 1;
+		table.insert(tAbilitySelect, { nAbilityAdj = nAbilityAdj, bOther = true });
 	end
-	sIncrease = sAdjust:match("two other ability scores of your choice increase by (%d+)");
+	sIncrease = s:match("two other ability scores of your choice increase by (%d+)");
 	if sIncrease then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if not aIncreases[v] then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
+		local nAbilityAdj = tonumber(sIncrease) or 1;
+		table.insert(tAbilitySelect, { nPicks = 2, nAbilityAdj = nAbilityAdj, bOther = true });
+	end
+
+	sAbility1, sAbility2, sIncrease = s:match("either your (%w+) or your (%w+) increases by (%d+)");
+	if sAbility1 then
+		local tAbilities = {};
+		if StringManager.contains(DataCommon.abilities, sAbility1) then
+			table.insert(tAbilities, StringManager.capitalize(sAbility1));
 		end
-		if #aAbilities > 0 then
+		if StringManager.contains(DataCommon.abilities, sAbility2) then
+			table.insert(tAbilities, StringManager.capitalize(sAbility2));
+		end
+		if #tAbilities > 0 then
 			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nPicks = 2, nAbilityAdj = nAbilityAdj, bOther = true });
+			table.insert(tAbilitySelect, { tAbilities = tAbilities, nAbilityAdj = nAbilityAdj });
 		end
 	end
-	a1, a2, sIncrease = sAdjust:match("either your (%w+) or your (%w+) increases by (%d+)");
-	if a1 then
-		local aAbilities = {};
-		for _,v in ipairs(DataCommon.abilities) do
-			if (v == a1) or (v == a2) then
-				table.insert(aAbilities, StringManager.capitalize(v));
-			end
-		end
-		if #aAbilities > 0 then
-			local nAbilityAdj = tonumber(sIncrease) or 1;
-			table.insert(tAbilitySelect, { aAbilities = aAbilities, nAbilityAdj = nAbilityAdj });
-		end
-	end
-	if #tAbilitySelect > 0 then
-		CharBuildDropManager.pickAbilities2014(rAdd.nodeChar, tAbilitySelect);
-	end
+
+	return tBase, tAbilitySelect;
 end
 function helperAddSpeciesTraitSizeDrop2014(rAdd)
 	if not CharBuildDropManager.helperBuildGetText(rAdd) then

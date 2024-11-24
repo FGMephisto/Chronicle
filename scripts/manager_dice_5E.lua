@@ -60,6 +60,46 @@ local _tActorDiceSystemRules = {
 		sName = "Water Elemental|Water Elemental Myrmidon|Water Weird|Ice Mephit|Marid", 
 		sDefaultKey = "elemental_water", 
 	},
+	["undead_vampire"] = { 
+		sName = "Vampire|Vampire Spawn|Vampire Spellcaster|Vampire Warrior", 
+		sDefaultKey = "undead_vampire", 
+	},
+	["undead_mummy"] = { 
+		sName = "Mummy|Mummy Lord|Demilich|Lich", 
+		sDefaultKey = "undead_mummy", 
+	},
+	["undead_zombie"] = { 
+		sName = "Ogre Zombie|Zombie|Beholder Zombie|Ghoul|Ghast", 
+		sDefaultKey = "undead_zombie", 
+	},
+	["undead_skeleton"] = { 
+		sName = "Warhorse Skeleton|Minotaur Skeleton|Skeleton|Bone Devil|Bone Devil (variant)", 
+		sDefaultKey = "undead_skeleton", 
+	},
+	["humanoid_were"] = { 
+		sName = "Werebear|Wereboar|Wererat|Weretiger|Werewolf", 
+		sDefaultKey = "humanoid_were", 
+	},
+	["beast_insect"] = { 
+		sName = "Giant Centipeded|Giant Fire Beetle|Giant Scorpion|Giant Wasp|Scorpion|Swarm of Insects|Swarm of Insects (Beetles)|Swarm of Insects (Centipedes)|Swarm of Insects (Wasps)", 
+		sDefaultKey = "beast_insect", 
+	},
+	["beast_reptile"] = { 
+		sName = "Allosaurus|Ankylosaurus|Crocodile|Giant Crocodile|Giant Lizard|Lizard|Lizardfolk|Lizardfolk Shaman|Lizardfolk King/Queen||Pteranodon|Triceratops|Tyrannosaurus Rex", 
+		sDefaultKey = "beast_reptile", 
+	},
+	["humanoid_death"] = { 
+		sName = "Death Knight|Death Slaad|Death Tyrant|Revenant|Wraith", 
+		sDefaultKey = "humanoid_death", 
+	},
+	["beast_aquatic"] = { 
+		sName = "Aboleth|Plesiosaurus|Dragon Turtle|Giant Octopus|Giant Shark|Hunter Shark|Killer Whale|Kuo-toa|Kuo-toa Archpriest|Kuo-toa Monitor|Kuo-toa Whip|Merfolk|Merrow|Octopus|Reef Shark|Sea Hag|Sea Horse|Swarm of Quippers", 
+		sDefaultKey = "beast_aquatic", 
+	},
+	["beast_avian"] = { 
+		sName = "Aarakocra|Axe Beak|Blood Hawk|Cockatrice|Eagle|Giant Eagle|Giant Owl|Owl|Hawk|Owlbear|Peryton|Raven|Swarm of Ravens", 
+		sDefaultKey = "beast_avian", 
+	},
 };
 local _tActorSystemDefaults = {
 	["dragon_red"] = {
@@ -103,6 +143,36 @@ local _tActorSystemDefaults = {
 	},
 	["elemental_water"] = {
 		{ diceskin = 109 }
+	},
+	["undead_vampire"] = {
+		{ diceskin = 302 }
+	},
+	["undead_mummy"] = {
+		{ diceskin = 303 }
+	},
+	["undead_zombie"] = {
+		{ diceskin = 304 }
+	},
+	["undead_skeleton"] = {
+		{ diceskin = 305 }
+	},
+	["humanoid_were"] = {
+		{ diceskin = 306 }
+	},
+	["beast_insect"] = {
+		{ diceskin = 307 }
+	},
+	["beast_reptile"] = {
+		{ diceskin = 308 }
+	},
+	["humanoid_death"] = {
+		{ diceskin = 309 }
+	},
+	["beast_aquatic"] = {
+		{ diceskin = 310 }
+	},
+	["beast_avian"] = {
+		{ diceskin = 311 }
 	},
 };
 local _tActorTypeDefaults = {

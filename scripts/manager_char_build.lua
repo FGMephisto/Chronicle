@@ -247,7 +247,7 @@ function getSkillsFromText2014(s)
 	-- Tabaxi - Cat's Talent - Volo
 	local sSkill, sSkill2 = s:match("proficiency in the ([%w%s]+) and ([%w%s]+) skills");
 	if sSkill and sSkill2 then
-		return { sSkill1, sSkill2 }, {}, 0;
+		return { sSkill, sSkill2 }, {}, 0;
 	end
 
 	-- Elf - Keen Senses - PHB
@@ -463,6 +463,7 @@ function getToolProfFromText2024(s)
 		return {}, {}, 0;
 	end
 	s = s:lower();
+
 	-- PHB - Class - Monk - Warrior of Mercy - Implements of Mercy
 	if s:match("and proficiency with the herbalism kit") then
 		return { "Herbalism Kit" }, {}, 0;
@@ -487,6 +488,7 @@ function getToolProfFromText2014(s)
 		return {}, {}, 0;
 	end
 	s = s:lower();
+
 	if s:match("gain proficiency with the artisan's tools of your choice: smith's tools, brewer's supplies, or mason's tools") then
 		return {}, { "Smith's Tools", "Brewer's Supplies", "Mason's Tools" }, 1;
 	elseif s:match("have proficiency with artisan's tools (tinker's tools)") then
@@ -495,6 +497,8 @@ function getToolProfFromText2014(s)
 		return {}, CharBuildManager.getToolNamesByType("Artisan's Tools", false), 1;
 	elseif s:match("gain proficiency with the disguise kit and the poisoner's kit") then
 		return { "Disguise Kit", "Poisoner's Kit" }, {}, 0;
+	elseif s:match("proficiency with one musical instrument of your choice") then
+		return {}, CharBuildManager.getToolNamesByType("Musical Instrument", false), 1;
 	-- XGtE - Prodigy
 	elseif s:match("one tool proficiency of your choice") then
 		return {}, CharBuildManager.getToolNamesByType(nil, false), 1;
@@ -538,7 +542,7 @@ function getLanguagesFromText2014(s)
 	-- XGtE - Fey Teleportation
 	local sLanguage = s:match("learn to speak, read, and write (%w+)");
 	if sLanguage then
-		return { sLanguage }, {}, 1;
+		return { sLanguage }, {}, 0;
 	end
 
 	-- Known languages
@@ -557,7 +561,7 @@ function getLanguagesFromText2014(s)
 		sLanguages = s:match("You can read and write ([^.]+)");
 	end
 	if not sLanguages then
-		sLanguages = s:match("You can read and write ([^.]+)");
+		sLanguages = s:match("can speak, read, and write ([^.]+)");
 	end
 	if sLanguages then
 		local tBase = {};
@@ -582,6 +586,8 @@ function getLanguagesFromText2014(s)
 			end
 		end
 
+		-- EXCEPTION - Satyr - Languages - MMotM
+		sLanguages = sLanguages:gsub("one other language that you and your DM agree is appropriate for the character", "Choice");
 		sLanguages = sLanguages:gsub(" and ", ",");
 		sLanguages = sLanguages:gsub("one extra language of your choice", "Choice");
 		sLanguages = sLanguages:gsub("one other language of your choice", "Choice");
@@ -629,10 +635,30 @@ function getSpellsFromText2014(s)
 	if not s then
 		return {}, {}, 0;
 	end
+	s = s:lower();
+
 	local tBase = {};
-	local sText = s:lower();
-	for _,vSentence in pairs(StringManager.split(sText, ".")) do
-	 	local sSpellText = vSentence:match("you know the (.-) cantrip");
+
+	for _,vSentence in pairs(StringManager.split(s, ".")) do
+		-- Special Case: High Elf - Cantrip
+		local sClassName = vSentence:match("you know one cantrip of your choice from the (%w+) spell list");
+		if sClassName then
+			local tFilters = {
+				{ sField = "version", sValue = "", },
+				{ sField = "level", sValue = "0", },
+			};
+			local tDialogOptions = CharBuildDropManager.getSpellOptionsByFilter(tFilters, { sClassName = StringManager.capitalize(sClassName), });
+			local tOptions = {};
+			for _,v in ipairs(tDialogOptions) do
+				table.insert(tOptions, v.text);
+			end
+			return {}, tOptions, 1;
+		end
+
+		local sSpellText = vSentence:match("you know the (.-) cantrip");
+		if not sSpellText then
+			sSpellText = vSentence:match("you gain the (.-) cantrip");
+		end
 		if not sSpellText then
 		 	sSpellText = vSentence:match("you know the cantrip[s]? ([%w%s]+)");
 		end
@@ -758,12 +784,12 @@ function parseSkillsField2014(s)
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
 
-	local sPicks, nMatchEnd = s:match("Choose (%w+) from()");
+	local sPicks, nMatchEnd = s:match("Choose (%w+) from among()");
 	if sPicks then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
 
-	local sPicks, nMatchEnd = s:match("Choose (%w+) from among()");
+	local sPicks, nMatchEnd = s:match("Choose (%w+) from()");
 	if sPicks then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
@@ -900,12 +926,13 @@ function parseWeaponField2014(s)
 	local tBase = {};
 
 	for _,sSplit in ipairs(CharBuildManager.parseOptionsFromString(s)) do
-		if sSplit:match("simple weapons") then
+		local sSplitLower = sSplit:lower();
+		if sSplitLower:match("simple weapons") then
 			table.insert(tBase, "Simple");
-		elseif sSplit:match("martial weapons") then
+		elseif sSplitLower:match("martial weapons") then
 			table.insert(tBase, "Martial");
 		else
-			table.insert(tBase, sSplit);
+			table.insert(tBase, StringManager.capitalize(sSplit));
 		end
 	end
 
@@ -968,29 +995,35 @@ function parseToolsField2014(s)
 		return {}, {}, 0;
 	end
 
+	local nPicks;
+
 	local sPicks, nMatchEnd = s:match("Choose (%w+) from among()");
+	local bEarlyPickMatch = false;
 	if sPicks then
-		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
+		nPicks = CharBuildManager.convertSingleNumberTextToNumber(sPicks);
+		s = s:sub(nMatchEnd);
+		bEarlyPickMatch = true;
 	end
 
 	s = s:gsub(", likely something native to your homeland", "");
 
 	local tBase = {};
 	local tOptions = {};
-	local nPicks = 1;
 
 	local tSplit = CharBuildManager.parseOptionsFromString(s);
 	for _,sSplit in ipairs(tSplit) do
 		local sSplitLower = sSplit:lower();
 
-		if sSplitLower:match("^%d+$") then
-			nPicks = tonumber(sSplitLower:match("%d+")) or 1;
-		elseif sSplitLower:match("^one$") then
-			nPicks = 1;
-		elseif sSplitLower:match("^two$") then
-			nPicks = 2;
-		elseif sSplitLower:match("^three$") then
-			nPicks = 3;
+		if not nPicks then
+			if sSplitLower:match("^%d+") then
+				nPicks = tonumber(sSplitLower:match("%d+")) or 1;
+			elseif sSplitLower:match("^one") then
+				nPicks = 1;
+			elseif sSplitLower:match("^two") then
+				nPicks = 2;
+			elseif sSplitLower:match("^three") then
+				nPicks = 3;
+			end
 		end
 
 		if sSplitLower:match("musical") then
@@ -1009,7 +1042,11 @@ function parseToolsField2014(s)
 				table.insert(tOptions, v);
 			end
 		else
-			table.insert(tBase, sSplit);
+			if bEarlyPickMatch then
+				table.insert(tOptions, StringManager.capitalizeAll(sSplit));
+			else
+				table.insert(tBase, sSplit);
+			end
 		end
 	end
 
@@ -1030,6 +1067,11 @@ end
 function parseLanguagesField2014(s)
 	if ((s or "") == "") or (s:lower() == "none") then
 		return {}, {}, 0;
+	end
+
+	-- Clan Crafter - Sword Coast
+	if s:match("Dwarvish or one other of your choice") then
+		return { "Dwarvish" }, {}, 0;
 	end
 
 	local sPicks = s:match("Choose any (%w+)");
@@ -1069,12 +1111,10 @@ function getCommonSkills(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if tOverride then
-		if tOverride.skill then
-			tBase = tOverride.skill.innate or {};
-			tOptions = tOverride.skill.choice_skill or {};
-			nPicks = tOverride.skill.choice or 0;
-		end
+	if tOverride and tOverride.skill then
+		tBase = tOverride.skill.innate or {};
+		tOptions = tOverride.skill.choice_skill or {};
+		nPicks = tOverride.skill.choice or 0;
 	else
 		if bIs2024 then
 			tBase, tOptions, nPicks = CharBuildManager.getSkillsFromText2024(s);
@@ -1093,12 +1133,10 @@ function getCommonArmorProf(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if tOverride then
-		if tOverride.armorprof then
-			tBase = tOverride.armorprof.innate or {};
-			tOptions = tOverride.armorprof.choice_prof or {};
-			nPicks = tOverride.armorprof.choice or 0;
-		end
+	if tOverride and tOverride.armorprof then
+		tBase = tOverride.armorprof.innate or {};
+		tOptions = tOverride.armorprof.choice_prof or {};
+		nPicks = tOverride.armorprof.choice or 0;
 	else
 		if bIs2024 then
 			tBase, tOptions, nPicks = CharBuildManager.getArmorProfFromText2024(s);
@@ -1117,12 +1155,10 @@ function getCommonWeaponProf(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if tOverride then
-		if tOverride.weaponprof then
-			tBase = tOverride.weaponprof.innate or {};
-			tOptions = tOverride.weaponprof.choice_prof or {};
-			nPicks = tOverride.weaponprof.choice or 0;
-		end
+	if tOverride and tOverride.weaponprof then
+		tBase = tOverride.weaponprof.innate or {};
+		tOptions = tOverride.weaponprof.choice_prof or {};
+		nPicks = tOverride.weaponprof.choice or 0;
 	else
 		if bIs2024 then
 			tBase, tOptions, nPicks = CharBuildManager.getWeaponProfFromText2024(s);
@@ -1141,12 +1177,10 @@ function getCommonToolProf(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if tOverride then
-		if tOverride.toolprof then
-			tBase = tOverride.toolprof.innate or {};
-			tOptions = tOverride.toolprof.choice_prof or {};
-			nPicks = tOverride.toolprof.choice or 0;
-		end
+	if tOverride and tOverride.toolprof then
+		tBase = tOverride.toolprof.innate or {};
+		tOptions = tOverride.toolprof.choice_prof or {};
+		nPicks = tOverride.toolprof.choice or 0;
 	else
 		if bIs2024 then
 			tBase, tOptions, nPicks = CharBuildManager.getToolProfFromText2024(s);
@@ -1165,12 +1199,10 @@ function getCommonLanguages(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if tOverride then
-		if tOverride.language then
-			tBase = tOverride.language.innate or {};
-			tOptions = tOverride.language.choice_language or {};
-			nPicks = tOverride.language.choice or 0;
-		end
+	if tOverride and tOverride.language then
+		tBase = tOverride.language.innate or {};
+		tOptions = tOverride.language.choice_language or {};
+		nPicks = tOverride.language.choice or 0;
 	else
 		if bIs2024 then
 			tBase, tOptions, nPicks = CharBuildManager.getLanguagesFromText2024(s);
@@ -1189,11 +1221,9 @@ function getCommonSpells(tOverride, s, bIs2024)
 	local tOptions = {};
 	local nPicks = 0;
 
-	if bIs2024 and tOverride then
-		if tOverride.spells then
-			for _,v in ipairs(tOverride.spells) do
-				table.insert(tBase, v.name);
-			end
+	if bIs2024 and tOverride and tOverride.spells then
+		for _,v in ipairs(tOverride.spells) do
+			table.insert(tBase, v.name);
 		end
 	else
 		if bIs2024 then
@@ -1348,35 +1378,35 @@ end
 --	SPECIES SPECIFIC
 --
 
-function getSpeciesTraitOverrideData(sFeatureName, bIs2024)
-	local sFeatureType = StringManager.simplify(sFeatureName);
+function getSpeciesTraitOverrideData(sTraitName, bIs2024)
+	local sFeatureType = StringManager.simplify(sTraitName);
 	if bIs2024 then
 		return CharWizardDataAction.tBuildDataSpecies2024[sFeatureType];
 	end
 	return CharWizardDataAction.parsedata[sFeatureType];
 end
-function getSpeciesTraitSkills(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitSkills(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonSkills(tOverride, s, bIs2024);
 end
-function getSpeciesTraitArmorProf(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitArmorProf(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonArmorProf(tOverride, s, bIs2024);
 end
-function getSpeciesTraitWeaponProf(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitWeaponProf(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonWeaponProf(tOverride, s, bIs2024);
 end
-function getSpeciesTraitToolProf(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitToolProf(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonToolProf(tOverride, s, bIs2024);
 end
-function getSpeciesTraitLanguages(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitLanguages(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonLanguages(tOverride, s, bIs2024);
 end
-function getSpeciesTraitSpells(sFeatureName, s, bIs2024)
-	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sFeatureName, bIs2024);
+function getSpeciesTraitSpells(sTraitName, s, bIs2024)
+	local tOverride = CharBuildManager.getSpeciesTraitOverrideData(sTraitName, bIs2024);
 	return CharBuildManager.getCommonSpells(tOverride, s, bIs2024);
 end
 

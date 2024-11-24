@@ -21,7 +21,7 @@
 		<tab merge="add">
 			<name>notes</name>
 			<resource>tab_notes</resource>
-			<class>record_content_text</class>
+			<class>npc_notes</class>
 			<embed />
 		</tab>
 		<tab merge="add">
@@ -823,6 +823,13 @@
 			</label_content_column>
 			<string_content_columnh name="damageimmunities" />
 						
+			<!--
+			<label_column name="gear_label">
+				<static textres="npc_label_gear" />
+			</label_column>
+			<string_columnh name="gear" />
+			-->
+
 			<label_content_column name="senses_label">
 				<static textres="npc_label_senses" />
 			</label_content_column>
@@ -1229,6 +1236,60 @@
 				<multilinespacing>20</multilinespacing>
 				<script file="campaign/scripts/string_powerdesc.lua" />
 			</basicstring>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_notes">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("npc_notes_2024", nodeRecord);
+				else
+					sub_content.setValue("record_content_text", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_notes_2024">
+		<script>
+			function update()
+				local node = getDatabaseNode();
+				local bReadOnly = WindowManager.getReadOnlyState(node);
+				local sRecordType = WindowManager.getRecordType(self);
+				local bID = RecordDataManager.getIDState(sRecordType, node);
+
+				local tFields = { "habitat", "treasure", "text", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="habitat_label">
+				<static textres="npc_label_habitat" />
+			</label_content_column>
+			<string_content_columnh name="habitat" />
+
+			<label_content_column name="treasure_label">
+				<static textres="npc_label_treasure" />
+			</label_content_column>
+			<string_content_columnh name="treasure" />
+
+			<ft_content_noframe_noscroll_top name="text" />
 		</sheetdata>
 	</windowclass>
 </root>

@@ -77,6 +77,20 @@ function onTargeting(rSource, aTargeting, rRolls)
 	return aTargeting;
 end
 
+--
+--	ROLL BUILD/MOD/RESOLVE
+--
+
+function getRoll(rActor, rAction)
+	local rRoll = ActionsManager2.setupD20RollBuild("attack", rActor);
+	ActionAttack.setupRollBuild(rRoll, rActor, rAction);
+	ActionsManager2.finalizeD20RollBuild(rRoll);
+	return rRoll;
+end
+function performRoll(draginfo, rActor, rAction)
+	local rRoll = ActionAttack.getRoll(rActor, rAction);
+	ActionsManager.performAction(draginfo, rActor, rRoll);
+end
 function performPartySheetVsRoll(draginfo, rActor, rAction)
 	local rRoll = ActionAttack.getRoll(nil, rAction);
 	

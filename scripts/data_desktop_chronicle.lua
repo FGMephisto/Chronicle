@@ -24,7 +24,7 @@ function onInit()
 		end
 	end
 end
-	
+
 function onVersionChoice(result)
 	if result == "yes" then
 		OptionsManager.setOption("GAVE","2024");

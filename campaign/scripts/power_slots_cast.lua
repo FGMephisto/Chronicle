@@ -4,52 +4,58 @@
 --
 
 function onInit()
-	rebuildSlots();
+	self.rebuildSlots();
 	DB.addHandler(DB.getPath(getDatabaseNode(), "powermeta.*.max"), "onUpdate", rebuildSlots);
-	onModeChanged();
+	self.onModeChanged();
 end
-
 function onClose()
 	DB.removeHandler(DB.getPath(getDatabaseNode(), "powermeta.*.max"), "onUpdate", rebuildSlots);
 end
 
+function onEditModeChanged()
+	self.onModeChanged();
+end
+
 function onModeChanged()
+	local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
+	if bEditMode then
+		parentcontrol.setVisible(false);
+		return;
+	end
+
 	local nodeChar = getDatabaseNode();
 	local sMode = DB.getValue(nodeChar, "powermode", "");
-	if sMode == "preparation" then
-		parentcontrol.setVisible(false);
-	else
-		local bSpellSlotsVisible = false;
-		for i = 1, PowerManager.SPELL_LEVELS do
-			if DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".max", 0) > 0 then
-				bSpellSlotsVisible = true;
-				break;
-			end
+
+	local bSpellSlotsVisible = false;
+	for i = 1, PowerManager.SPELL_LEVELS do
+		if DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".max", 0) > 0 then
+			bSpellSlotsVisible = true;
+			break;
 		end
-		local bPactMagicSlotsVisible = false;
-		for i = 1, PowerManager.SPELL_LEVELS do
-			if DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".max", 0) > 0 then
-				bPactMagicSlotsVisible = true;
-				break;
-			end
-		end
-		
-		if bSpellSlotsVisible then
-			spellslots.setVisible(true);
-			spellslots_label.setVisible(bPactMagicSlotsVisible);
-		else
-			spellslots.setVisible(false);
-			spellslots_label.setVisible(false);
-		end
-		if bPactMagicSlotsVisible then
-			pactmagicslots.setVisible(true);
-			pactmagicslots_label.setVisible(true);
-		else
-			pactmagicslots.setVisible(false);
-			pactmagicslots_label.setVisible(false);
-		end
-		parentcontrol.setVisible(bSpellSlotsVisible or bPactMagicSlotsVisible);
 	end
+	local bPactMagicSlotsVisible = false;
+	for i = 1, PowerManager.SPELL_LEVELS do
+		if DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".max", 0) > 0 then
+			bPactMagicSlotsVisible = true;
+			break;
+		end
+	end
+	
+	if bSpellSlotsVisible then
+		spellslots.setVisible(true);
+		spellslots_label.setVisible(bPactMagicSlotsVisible);
+	else
+		spellslots.setVisible(false);
+		spellslots_label.setVisible(false);
+	end
+	if bPactMagicSlotsVisible then
+		pactmagicslots.setVisible(true);
+		pactmagicslots_label.setVisible(true);
+	else
+		pactmagicslots.setVisible(false);
+		pactmagicslots_label.setVisible(false);
+	end
+	parentcontrol.setVisible(bSpellSlotsVisible or bPactMagicSlotsVisible);
 end
 
 -- NOTE: We can not delete windows here; 

@@ -9,7 +9,7 @@
 	<windowclass name="charwizard">
 		<frame>utilitybox</frame>
 		<sizelimits>
-			<minimum width="707" height="600" />
+			<minimum width="720" height="600" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_char</minimize>
@@ -101,6 +101,55 @@
 			<button_charwizard_tab name="button_commit" >
 				<state textres="charwizard_label_commit" />
 			</button_charwizard_tab>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charwizard_instructions">
+		<script>
+			function onInit()
+				CharWizardManager.refreshInstructionsVisibility(self);
+			end
+			function toggleInstructions()
+				local bShow = (button_toggle.getValue() == 1);
+				CharWizardManager.setInstructionsVisibility(bShow);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<header_content_framed_metalplate name="header">
+				<static textres="charwizard_header_instructions" />
+				<script>
+					function onClickDown()
+						return true;
+					end
+					function onClickRelease()
+						window.toggleInstructions();
+						return true;
+					end
+				</script>
+			</header_content_framed_metalplate>
+			<button_collapse_expand_toggle name="button_toggle">
+				<anchored to="header" position="insidetopright" offset="10,0" />
+				<colortarget>header</colortarget>
+				<script>
+					function onClickDown()
+						return true;
+					end
+					function onClickRelease()
+						window.toggleInstructions();
+						return true;
+					end
+				</script>
+			</button_collapse_expand_toggle>
+
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringc_content_noframe_noscroll_static_top>
 		</sheetdata>
 	</windowclass>
 </root>

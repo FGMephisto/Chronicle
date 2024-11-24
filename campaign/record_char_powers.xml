@@ -148,18 +148,9 @@
 	</windowclass>
 	<windowclass name="power_slots_prep">
 		<script>
-			function onInit()
-				onModeChanged();
-			end
-			
-			function onModeChanged()
-				local nodeChar = getDatabaseNode();
-				local sMode = DB.getValue(nodeChar, "powermode", "");
-				if sMode == "preparation" then
-					parentcontrol.setVisible(true);
-				else
-					parentcontrol.setVisible(false);
-				end
+			function onEditModeChanged()
+				local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
+				parentcontrol.setVisible(bEditMode);
 			end
 		</script>
 		<sheetdata>

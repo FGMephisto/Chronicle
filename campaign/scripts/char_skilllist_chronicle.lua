@@ -77,9 +77,9 @@ function constructDefaultSkills()
 				w.name.setValue(k);
 
 				if t.stat then
-					w.stat.setStringValue(t.stat);
+					w.stat.setValue(t.stat);
 				else
-					w.stat.setStringValue("");
+					-- w.stat.setStringValue("");
 				end
 				
 				-- Add the item windows instance to the key

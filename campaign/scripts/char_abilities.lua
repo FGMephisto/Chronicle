@@ -22,6 +22,6 @@ end
 function onDrop(x, y, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass, sRecord = draginfo.getShortcutData();
-		return CharManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
+		return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
 	end
 end

@@ -179,23 +179,12 @@ function applySave(rSource, rOrigin, rAction, sUser)
 		local bAvoidance = false;
 		local bEvasion = false;
 		if bHalfMatch then
-			if EffectManager5E.hasEffectCondition(rSource, "Avoidance") then
+			if ActorManager5E.hasRollFeature(rSource, "Avoidance") then
 				bAvoidance = true;
 				msgLong.text = msgLong.text .. " [AVOIDANCE]";
-			else
-				local bEvasionCheck = EffectManager5E.hasEffectCondition(rSource, "Evasion");
-				if not bEvasionCheck and ActorManager.isPC(rSource) then
-					local nodeActor = ActorManager.getCreatureNode(rSource);
-					if CharManager.hasFeature(nodeActor, CharManager.FEATURE_EVASION) then
-						bEvasionCheck = true;
-					end
-				end
-				if bEvasionCheck then
-					if rAction.sSave == "dexterity" then
-						bEvasion = true;
-						msgLong.text = msgLong.text .. " [EVASION]";
-					end
-				end
+			elseif (rAction.sSave == "dexterity") and ActorManager5E.hasRollFeature(rSource, "Evasion") then
+				bEvasion = true;
+				msgLong.text = msgLong.text .. " [EVASION]";
 			end
 		end
 
@@ -266,8 +255,16 @@ function setupRollBuildConcentration(rRoll, rActor, nTargetDC, tData)
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
 	end
-	if tData and ((tData.sAddText or "") ~= "") then
-		table.insert(rRoll.tNotifications, tData.sAddText);
+	if tData then
+		if tData.bADV then
+			rRoll.bADV = true;
+		end
+		if tData.bDIS then
+			rRoll.bDIS = true;
+		end
+		if (tData.sAddText or "") ~= "" then
+			table.insert(rRoll.tNotifications, tData.sAddText);
+		end
 	end
 
 	rRoll.nTarget = nTargetDC;
@@ -397,19 +394,11 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	if rRoll.sSaveDesc then
 		if rRoll.sSaveDesc:match("%[MAGIC%]") then
 			local bMagicResistance = false;
-			if EffectManager5E.hasEffectCondition(rSource, "Magic Resistance") then
+			if ActorManager5E.hasRollTrait(rSource, CharManager.TRAIT_MAGIC_RESISTANCE) then
 				bMagicResistance = true;
-			elseif StringManager.contains({ "intelligence", "wisdom", "charisma" }, rRoll.sSave) then
-				if EffectManager5E.hasEffectCondition(rSource, "Gnome Cunning") then
-					bMagicResistance = true;
-				else
-					if ActorManager.isPC(rSource) then
-						local nodeActor = ActorManager.getCreatureNode(rSource);
-						if CharManager.hasTrait(nodeActor, CharManager.TRAIT_GNOME_CUNNING) then
-							bMagicResistance = true;
-						end
-					end
-				end
+			elseif StringManager.contains({ "intelligence", "wisdom", "charisma" }, rRoll.sSave) and 
+						ActorManager5E.hasRollTrait(rSource, CharManager.TRAIT_GNOME_CUNNING) then
+				bMagicResistance = true;
 			end
 			if bMagicResistance then
 				rRoll.bEffects = true;
@@ -419,12 +408,11 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	end
 
 	-- Handle War Caster feat
-	if rRoll.sSave == "concentration" and ActorManager.isPC(rSource) then
-		local nodeActor = ActorManager.getCreatureNode(rSource);
-		if CharManager.hasFeat(nodeActor, CharManager.FEAT_WAR_CASTER) then
+	if rRoll.sSave == "concentration" then
+		if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_WAR_CASTER) then
 			rRoll.bADV = true;
 			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_warcaster")));
-		elseif CharManager.hasFeature(nodeActor, CharManager.FEATURE_ELDRITCH_INVOCATION_ELDRITCH_MIND) then
+		elseif ActorManager5E.hasFeature(rSource, CharManager.FEATURE_ELDRITCH_INVOCATION_ELDRITCH_MIND) then
 			rRoll.bADV = true;
 			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_eldritchinvocationeldritchmind")));
 		end

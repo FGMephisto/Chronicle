@@ -4,9 +4,19 @@
 --
 
 function onTabletopInit()
-	ImportUtilityManager.registerImportMode("npc", "2024", Interface.getString("import_mode_2024"), ImportNPCManager.import2024);
-	ImportUtilityManager.registerImportMode("npc", "2024_dndb", Interface.getString("import_mode_dndb_2024"), ImportNPCManager.importDNDB2024);
-	ImportUtilityManager.registerImportMode("npc", "2022", Interface.getString("import_mode_2022"), ImportNPCManager.import2022);
+	ImportNPCManager.registerImportModes();
+end
+
+function registerImportModes()
+	if OptionsManager.isOption("GAVE", "2024") then
+		ImportUtilityManager.registerImportMode("npc", "2024", Interface.getString("import_mode_2024"), ImportNPCManager.import2024);
+		ImportUtilityManager.registerImportMode("npc", "2024_dndb", Interface.getString("import_mode_dndb_2024"), ImportNPCManager.importDNDB2024);
+		ImportUtilityManager.registerImportMode("npc", "2022", Interface.getString("import_mode_2022"), ImportNPCManager.import2022);
+	else
+		ImportUtilityManager.registerImportMode("npc", "2022", Interface.getString("import_mode_2022"), ImportNPCManager.import2022);
+		ImportUtilityManager.registerImportMode("npc", "2024", Interface.getString("import_mode_2024"), ImportNPCManager.import2024);
+		ImportUtilityManager.registerImportMode("npc", "2024_dndb", Interface.getString("import_mode_dndb_2024"), ImportNPCManager.importDNDB2024);
+	end
 end
 
 function performImport(w)
@@ -1050,7 +1060,7 @@ function finalizeAction(tImportState)
 		sActionDesc = sActionDesc:gsub("DC equals your spell save DC", "DC {$SpellDC}");
 		sActionDesc = sActionDesc:gsub("Bonus equals your spell attack modifier", "+{$SpellAttack}");
 		sActionDesc = sActionDesc:gsub("plus the spell’s level", "plus +{$SpellLevel}");
-		sActionDesc = sActionDesc:gsub("+ your spellcasting ability modifier", "+ {$SpellAttack}");
+		sActionDesc = sActionDesc:gsub("%+ your spellcasting ability modifier", "+ {$SpellAttack}");
 
 		-- Write the modified description to the database
 		DB.setValue(node, "desc", "string", sActionDesc);

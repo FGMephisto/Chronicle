@@ -14,9 +14,6 @@ end
 function getAllSpecies()
 	return _tSpecies;
 end
-function setAllSpecies(tSpecies)
-	_tSpecies = tSpecies;
-end
 function getAllModules()
 	return _tModules;
 end
@@ -44,31 +41,16 @@ function addListRecord(vNode)
 	rRecord.sDisplayName = DB.getValue(vNode, "name", "");
 	rRecord.sDisplayNameLower = rRecord.sDisplayName:lower();
 
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
-	rRecord.tAncestry = {};
-	local tAncestries = CharSpeciesManager.getAncestryOptions(vNode);
-	for _,v in ipairs(tAncestries) do
-		table.insert(rRecord.tAncestry, v.linkrecord);
-	end
-
 	local tSpecies = self.getAllSpecies();
-	if not tSpecies[rRecord.sDisplayNameLower] then
-		tSpecies[rRecord.sDisplayNameLower] = {};
-	end
-
+	tSpecies[rRecord.sDisplayNameLower] = tSpecies[rRecord.sDisplayNameLower] or {};
 	table.insert(tSpecies[rRecord.sDisplayNameLower], rRecord);
-	self.setAllSpecies(tSpecies);
+
 	self.getAllModules()[rRecord.sModule] = true;
 end
 
@@ -119,12 +101,11 @@ function addDisplayListItem(k, tSpecies)
 	wSpecies.module.addItems(tFinalModules);
 	wSpecies.module.setVisible(true);
 
+	wSpecies.module.setValue(tFinalModules[1]);
 	if #tFinalModules == 1 then
 		wSpecies.module.setComboBoxReadOnly(true);
 		wSpecies.module.setFrame(nil);
 	end
-
-	wSpecies.module.setValue(tFinalModules[1]);
 end
 
 local _sComboFilter = "";

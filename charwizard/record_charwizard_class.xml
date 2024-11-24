@@ -11,6 +11,10 @@
 		<sheetdata>
 			<anchor_content_top />
 
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_class_instructions</class>
+			</sub_content_top>
+
 			<header_content_framed_metalplate_with_icon_top name="class_select_header">
 				<icon>char_class</icon>
 				<static textres="charwizard_title_class" />
@@ -35,6 +39,22 @@
 			</sub_content_top>
 		</sheetdata>
 	</windowclass>
+	<windowclass name="charwizard_class_instructions" copy="charwizard_instructions">
+		<script>
+			function onInit()
+				super.onInit();
+				if UtilityManager.getTopWindow(self).getClass() == "charwizard_levelup" then
+					text.setValue(Interface.getString("charwizard_message_instructions_class_levelup"));
+				end
+			end
+		</script>
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_class" />
+			</stringc_content_noframe_noscroll_static_top>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="list_entry_charwizard_class">
 		<margins control="0,0,0,5" />
 		<script>
@@ -48,7 +68,7 @@
 					button_features.setValue(0);
 				end
 
-				list_class_features.setVisible(sType == "features");
+				list_features.setVisible(sType == "features");
 				sub_class_spells.setVisible(button_spells.isVisible() and (sType == "spells"));
 
 				WindowManager.callInnerWindowFunction(self, "rebuildSpells");
@@ -130,7 +150,7 @@
 				<state textres="charwizard_label_spells" />
 			</button_charwizard_class_features>
 
-			<list_content_noscroll_top name="list_class_features">
+			<list_content_noscroll_top name="list_features">
 				<class>list_entry_charwizard_classfeatures</class>
 				<sortby><control>level</control><control>feature</control></sortby>
 				<invisible />

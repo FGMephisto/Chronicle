@@ -13,9 +13,6 @@ local _tModules = {};
 function getAllClasses()
 	return _tClasses;
 end
-function setAllClasses(tClasses)
-	_tClasses = tClasses;
-end
 function getAllModules()
 	return _tModules;
 end
@@ -44,25 +41,16 @@ function addListRecord(vNode)
 	rRecord.sDisplayName = DB.getValue(vNode, "name", "");
 	rRecord.sDisplayNameLower = rRecord.sDisplayName:lower();
 
-	local bIs2024 = (DB.getValue(vNode, "version", "") == "2024");
-	local tModule = Module.getModuleInfo(DB.getModule(vNode));
-	rRecord.sModule = "Campaign";
-	rRecord.sModuleName = "Campaign";
-	if tModule then
-		rRecord.sModule = tModule.displayname;
-		rRecord.sModuleName = tModule.name;
-	end
-	if not bIs2024 then 
+	rRecord.sModuleName = DB.getModule(vNode);
+	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
+	if (DB.getValue(vNode, "version", "") ~= "2024") then 
 		rRecord.sModule = rRecord.sModule .. " (Legacy)";
 	end
 
 	local tClasses = self.getAllClasses();
-	if not tClasses[rRecord.sDisplayNameLower] then
-		tClasses[rRecord.sDisplayNameLower] = {};
-	end
-
+	tClasses[rRecord.sDisplayNameLower] = tClasses[rRecord.sDisplayNameLower] or {};
 	table.insert(tClasses[rRecord.sDisplayNameLower], rRecord);
-	self.setAllClasses(tClasses);
+
 	self.getAllModules()[rRecord.sModule] = true;
 end
 function buildFilters()

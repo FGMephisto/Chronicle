@@ -135,8 +135,10 @@ function encodeAdvantage(rRoll, bADV, bDIS)
 		rRoll.sDesc = rRoll.sDesc .. " [DIS]";
 	end
 	if (rRoll.bADV and not rRoll.bDIS) or (rRoll.bDIS and not rRoll.bADV) then
-		table.insert(rRoll.aDice, 2, "d20");
-		rRoll.aDice.expr = nil;
+		if rRoll.aDice[1] then
+			table.insert(rRoll.aDice, 2, UtilityManager.copyDeep(rRoll.aDice[1]));
+			rRoll.aDice.expr = nil;
+		end
 	end
 end
 function decodeAdvantage(rRoll)
@@ -193,11 +195,7 @@ function applyGeneralRollModifiers(rRoll)
 end
 
 function handleLuckTrait(rActor, rRoll)
-	if not ActorManager.isPC(rActor) then
-		return;
-	end
-	local nodeActor = ActorManager.getCreatureNode(rActor);
-	if not CharManager.hasTrait(nodeActor, CharManager.TRAIT_LUCK) and not CharManager.hasTrait(nodeActor, CharManager.TRAIT_LUCKY) then
+	if not ActorManager5E.hasRollTrait(rActor, CharManager.TRAIT_LUCK) and not ActorManager5E.hasTrait(rActor, CharManager.TRAIT_LUCKY) then
 		return;
 	end
 
@@ -222,11 +220,7 @@ function handleReliable(rActor, rRoll)
 	ActionsManager2.helperHandleMinValue(rRoll, 1, 10);
 end
 function handleHealerFeat(rActor, rRoll)
-	if not rRoll or not ActorManager.isPC(rActor) then
-		return;
-	end
-	local nodeActor = ActorManager.getCreatureNode(rActor);
-	if not CharManager.hasFeat2024(nodeActor, CharManager.FEAT_HEALER) then
+	if not ActorManager5E.hasRollFeat2024(rActor, CharManager.FEAT_HEALER) then
 		return;
 	end
 
@@ -237,17 +231,16 @@ function handleHealerFeat(rActor, rRoll)
 	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_healer"));
 end
 function handleElvenAccuracyFeatMod(rRoll, rActor)
-	if not rRoll or not ActorManager.isPC(rActor) then
-		return;
-	end
-	local nodeActor = ActorManager.getCreatureNode(rActor);
-	if not CharManager.hasFeat2014(nodeActor, CharManager.FEAT_ELVEN_ACCURACY) then
+	if not ActorManager5E.hasRollFeat2014(rActor, CharManager.FEAT_ELVEN_ACCURACY) then
 		return;
 	end
 	if not rRoll.bADV or not StringManager.contains({ "dexterity", "intelligence", "wisdom", "charisma", }, rRoll.sAbility) then
 		return;
 	end
-	table.insert(rRoll.aDice, 2, "d20");
+	if not rRoll.aDice[1] then
+		return;
+	end
+	table.insert(rRoll.aDice, 2, UtilityManager.copyDeep(rRoll.aDice[1]));
 	rRoll.aDice.expr = nil;
 	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_elvenaccuracy"));
 end

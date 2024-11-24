@@ -238,20 +238,8 @@ function parseNPCPower(rActor, nodePower, tEffects, bAllowSpellDataOverride)
 end
 function parseNPCPowerBuildEffects(nodePower, tEffects)
 	local sName = StringManager.simplify(DB.getValue(nodePower, "name", ""));
-	if sName == "avoidance" then
-		table.insert(tEffects, "Avoidance");
-	elseif sName == "evasion" then
-		table.insert(tEffects, "Evasion");
-	elseif sName == "magicresistance" then
-		table.insert(tEffects, "Magic Resistance");
-	elseif sName == "gnomecunning" then
-		table.insert(tEffects, "Gnome Cunning");
-	elseif sName == "magicweapons" or sName == "hellishweapons" or sName == "angelicweapons" then
+	if sName == "magicweapons" or sName == "hellishweapons" or sName == "angelicweapons" then
 		table.insert(tEffects, "DMGTYPE: magic");
-	elseif sName == "improvedcritical" then
-		table.insert(tEffects, "CRIT: 19");
-	elseif sName == "superiorcritical" then
-		table.insert(tEffects, "CRIT: 18");
 	elseif sName == "regeneration" then
 		local sDesc = StringManager.trim(DB.getValue(nodePower, "desc", ""):lower());
 		local tPowerWords = StringManager.parseWords(sDesc);

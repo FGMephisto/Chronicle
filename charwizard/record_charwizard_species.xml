@@ -12,6 +12,10 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_species_instructions</class>
+			</sub_content_top>
+
 			<header_content_framed_metalplate_with_icon_top name="ancestry_selection_header">
 				<static textres="charwizard_label_ancestryselection" />
 				<icon>char_abilities</icon>
@@ -24,17 +28,12 @@
 				<invisible />
 			</list_content_top>
 
-			<label_charframetop name="species_select_header">
-				<anchored height="20">
-					<top parent="contentanchor" anchor="bottom" relation="relative" offset="10" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_race</icons>
+			<header_content_framed_metalplate_with_icon_top name="species_select_header">
+				<icon>char_race</icon>
 				<static textres="charwizard_label_speciesselection" />
-			</label_charframetop>
+			</header_content_framed_metalplate_with_icon_top>
 			<button_text name="button_changespecies">
-				<anchored to="species_select_header" position="insidetopleft" offset="45,0" width="100" height="15" />
+				<anchored to="species_select_header" position="insidetopleft" offset="45,0" width="100" height="20" />
 				<state textres="charwizard_label_changespecies" />
 				<invisible />
 				<script>
@@ -44,7 +43,7 @@
 				</script>
 			</button_text>
 			<button_text name="button_changeancestry">
-				<anchored to="species_select_header" position="insidetopright" offset="25,0" width="100" height="15" />
+				<anchored to="species_select_header" position="insidetopright" offset="25,0" width="100" height="20" />
 				<state textres="charwizard_label_changeancestry" />
 				<invisible />
 				<script>
@@ -54,11 +53,10 @@
 				</script>
 			</button_text>
 
-			<sub_content name="sub_speciesselection">
+			<sub_content_top name="sub_speciesselection">
 				<class>sub_charwizard_species_speciesselection</class>
-			</sub_content>
-
-			<list_content_top name="species_decisions_list">
+			</sub_content_top>
+			<list_content_top name="list_features">
 				<class>list_entry_charwizard_speciestraits</class>
 				<sortby><control>trait</control></sortby>
 				<empty textres="charwizard_empty_list" />
@@ -66,12 +64,18 @@
 			</list_content_top>
 		</sheetdata>
 	</windowclass>
+	<windowclass name="charwizard_species_instructions" copy="charwizard_instructions">
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_species" />
+			</stringc_content_noframe_noscroll_static_top>
+		</sheetdata>
+	</windowclass>
 
 	<windowclass name="sub_charwizard_species_speciesselection">
 		<script file="charwizard/scripts/species_sub_speciesselections.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			<anchor_content_bottom />
 
 			<filter_label_content_top name="label_source">
 				<static textres="charwizard_label_filtersource" />
@@ -88,17 +92,72 @@
 				<anchored height="5" />
 			</spacer_content_top>
 
-			<sub_content_paging name="sub_paging" />
-
-			<list_content name="list">
+			<list_content_top name="list">
 				<class>list_entry_charwizard_speciesselection</class>
 				<sortby><control>name</control></sortby>
 				<empty textres="charwizard_empty_list" />
-			</list_content>
-			<scrollbar_content_list />
+			</list_content_top>
+
+			<sub_content_paging_top name="sub_paging" />
 		</sheetdata>
 	</windowclass>
-	<windowclass name="list_entry_charwizard_speciesselection" copy="list_entry_charwizard_item_selection" />
+	<windowclass name="list_entry_charwizard_speciesselection" copy="list_entry_charwizard_item_selection">
+		<script>
+			function onModuleValueChanged()
+				super.onModuleValueChanged();
+				
+				local tAncestries = CharSpeciesManager.getAncestryOptions(shortcut.getTargetDatabaseNode());
+				if #tAncestries > 0 then
+					ancestries.closeAll();
+					for _,v in ipairs(tAncestries) do
+						local w = ancestries.createWindow();
+						w.name.setValue(v.text);
+						w.shortcut.setValue(v.linkclass, v.linkrecord);
+					end
+					ancestries_label.setVisible(true);
+					ancestries.setVisible(true);
+				else
+					ancestries_label.setVisible(false);
+					ancestries.setVisible(false);
+					ancestries.closeAll();
+				end
+			end
+		</script>
+		<sheetdata>
+			<label name="ancestries_label">
+				<anchored>
+					<top parent="name" anchor="bottom" offset="7" />
+					<left parent="leftanchor" offset="20" />
+				</anchored>
+				<static textres="library_recordtype_label_race_subrace" />
+				<invisible />
+			</label>
+			<windowlist name="ancestries">
+				<anchored to="contentanchor">
+					<top parent="name" anchor="bottom" offset="5" />
+					<left parent="leftanchor" offset="120" />
+					<right parent="rightanchor" />
+				</anchored>
+				<columns width="150" fillwidth="true" />
+				<noscroll />
+				<class>list_entry_charwizard_speciesselection_ancestry</class>
+				<invisible />
+			</windowlist>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="list_entry_charwizard_speciesselection_ancestry">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<link_listitem_left name="shortcut" />
+
+			<string_listitem_center_noframe_static_linked name="name">
+				<linktarget>shortcut</linktarget>
+			</string_listitem_center_noframe_static_linked>
+		</sheetdata>
+	</windowclass>
 
 	<windowclass name="list_entry_charwizard_ancestryselection" copy="list_entry_charwizard_item_selection" />
 

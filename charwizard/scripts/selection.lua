@@ -7,6 +7,8 @@ function onSelectButtonPressed()
 	local sClass = getClass();
 	if sClass == "list_entry_charwizard_backgroundselection" then
 		CharWizardBackgroundManager.processBackground(self);
+	elseif sClass == "list_entry_decision_backgroundfeat" then
+		CharWizardBackgroundManager.onAddFeatBackgroundButton(self);
 	elseif sClass == "list_entry_charwizard_speciesselection" then
 		CharWizardSpeciesManager.processSpecies(self);
 	elseif sClass == "list_entry_charwizard_ancestryselection" then
@@ -28,6 +30,8 @@ function onModuleValueChanged()
 	local sClass = getClass();
 	if sClass == "list_entry_charwizard_backgroundselection" then
 		self.onModuleValueChangedGeneral("getAllBackgrounds", "reference_background");
+	elseif sClass == "list_entry_decision_backgroundfeat" then
+		self.onModuleValueChangedGeneral("getAllFeats", "reference_feat");
 	elseif sClass == "list_entry_charwizard_speciesselection" then
 		self.onModuleValueChangedGeneral("getAllSpecies", "reference_race");
 	elseif sClass == "list_entry_charwizard_ancestryselection" then

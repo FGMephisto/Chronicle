@@ -69,6 +69,17 @@ function setGenMethod(w)
 	w.charisma_genup.setVisible(bPointBuy);
 	w.charisma_gendown.setVisible(false);
 
+	w.strength_genright.setVisible(not bPointBuy);
+	w.dexterity_genleft.setVisible(not bPointBuy);
+	w.dexterity_genright.setVisible(not bPointBuy);
+	w.constitution_genleft.setVisible(not bPointBuy);
+	w.constitution_genright.setVisible(not bPointBuy);
+	w.intelligence_genleft.setVisible(not bPointBuy);
+	w.intelligence_genright.setVisible(not bPointBuy);
+	w.wisdom_genleft.setVisible(not bPointBuy);
+	w.wisdom_genright.setVisible(not bPointBuy);
+	w.charisma_genleft.setVisible(not bPointBuy);
+
 	if bPointBuy then
 		CharWizardAbilitiesManager.recalcAbilityPointsSpent(w);
 	end
@@ -174,17 +185,7 @@ function collectASIAbilities()
 	return tFinalASI;
 end
 
-function handleAbilityPointBuy(w, sName, nMod)
-	local sAbility = "";
-	local bUp = false;
-
-	if nMod > 0 then
-		sAbility = sName:gsub("_genup", "");
-		bUp = true;
-	else
-		sAbility = sName:gsub("_gendown", "");
-	end
-
+function handleAbilityPointBuy(w, sAbility, nMod)
 	local tASI = CharWizardManager.getAbilityData();
 	tASI[sAbility] = tASI[sAbility] or {};
 	tASI[sAbility].score = (tASI[sAbility].score or 10) + nMod;
@@ -227,4 +228,42 @@ function recalcAbilityPointsSpent(w)
 			w[v .. "_genup"].setVisible(false);
 		end
 	end
+end
+
+function handleAbilitySwapRight(sAbility)
+	if sAbility == "strength" then
+		CharWizardAbilitiesManager.helperAbilitySwap("strength", "dexterity");
+	elseif sAbility == "dexterity" then
+		CharWizardAbilitiesManager.helperAbilitySwap("dexterity", "constitution");
+	elseif sAbility == "constitution" then
+		CharWizardAbilitiesManager.helperAbilitySwap("constitution", "intelligence");
+	elseif sAbility == "intelligence" then
+		CharWizardAbilitiesManager.helperAbilitySwap("intelligence", "wisdom");
+	elseif sAbility == "wisdom" then
+		CharWizardAbilitiesManager.helperAbilitySwap("wisdom", "charisma");
+	end
+	CharWizardAbilitiesManager.updateAbilities();
+end
+function handleAbilitySwapLeft(sAbility)
+	if sAbility == "dexterity" then
+		CharWizardAbilitiesManager.helperAbilitySwap("dexterity", "strength");
+	elseif sAbility == "constitution" then
+		CharWizardAbilitiesManager.helperAbilitySwap("constitution", "dexterity");
+	elseif sAbility == "intelligence" then
+		CharWizardAbilitiesManager.helperAbilitySwap("intelligence", "constitution");
+	elseif sAbility == "wisdom" then
+		CharWizardAbilitiesManager.helperAbilitySwap("wisdom", "intelligence");
+	elseif sAbility == "charisma" then
+		CharWizardAbilitiesManager.helperAbilitySwap("charisma", "wisdom");
+	end
+	CharWizardAbilitiesManager.updateAbilities();
+end
+function helperAbilitySwap(sAbility1, sAbility2)
+	local tASI = CharWizardManager.getAbilityData();
+	tASI[sAbility1] = tASI[sAbility1] or {};
+	tASI[sAbility2] = tASI[sAbility2] or {};
+
+	local nTemp = (tASI[sAbility1].score or 10);
+	tASI[sAbility1].score = (tASI[sAbility2].score or 10);
+	tASI[sAbility2].score = nTemp;
 end

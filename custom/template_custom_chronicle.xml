@@ -3,6 +3,7 @@
 <!-- 
   Please see the license.html file included with this distribution for
   attribution and copyright information.
+  File adjusted for Chronicle System
 -->
 
 <root>
@@ -39,7 +40,7 @@
 			<script>
 				function onInit()
 					super.onInit()
-					self.addItems(DataCommon.wpnskilldata)
+					self.addItems(DataCommon.weaponskilldata)
 				end
 			</script>
 		</combobox>
@@ -74,7 +75,7 @@
 			<script>
 				function onInit()
 					super.onInit()
-					self.addItems(DataCommon.wpnskilldata)
+					self.addItems(DataCommon.weaponskilldata)
 				end
 			</script>
 		</combobox_content_columnh>

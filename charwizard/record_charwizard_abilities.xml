@@ -11,25 +11,27 @@
 		<script>
 		</script>
 		<sheetdata>
-			<label_charframetop name="abilities_select_header">
-				<anchored height="20">
-					<top offset="10"/>
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_stats</icons>
-				<static textres="charwizard_title_abilityscores" />
-			</label_charframetop>
+			<anchor_content_top />
 
+			<sub_content_top name="sub_instructions">
+				<class>charwizard_abilities_instructions</class>
+			</sub_content_top>
+
+			<header_content_framed_metalplate_with_icon_top name="abilities_select_header">
+				<icon>char_stats</icon>
+				<static textres="charwizard_title_abilityscores" />
+			</header_content_framed_metalplate_with_icon_top>
+			
 			<comboboxc name="cb_genmethod">
 				<anchored width="150" height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="10" />
 					<left offset="85" />
 				</anchored>
 				<listdirection >down</listdirection>
 				<center />
 				<script>
 					function onInit()
+						super.onInit();
 						addItems(CharWizardData.genmethod);
 					end
 					function onValueChanged()
@@ -44,7 +46,7 @@
 			</label>
 
 			<button_roll name="cb_genroll">
-				<anchored to="cb_genmethod" position="righthigh" offset="10,-10" width="40" height="40" />
+				<anchored to="cb_genmethod" position="righthigh" offset="10,0" width="20" height="20" />
 				<invisible />
 				<script>
 					function onButtonPress()
@@ -77,7 +79,7 @@
 			<!-- Totals -->
 			<number_charwizard_abilitytotal name="strength_total">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="25" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="25" merge="replace" />
 					<left anchor="center" offset="-230" merge="replace" />
 				</anchored>
 			</number_charwizard_abilitytotal>
@@ -134,19 +136,17 @@
 				<anchored to="charisma_total" />
 			</string_abilitymodtext>
 
+			<spacer_content_top name="spacer">
+				<anchored height="15" />
+			</spacer_content_top>
+
 			<!-- Base -->
-			<label_charframetop name="abilities_base_header">
-				<anchored height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_init</icons>
+			<header_content_framed_metalplate name="abilities_base_header">
 				<static textres="charwizard_label_base" />
-			</label_charframetop>
+			</header_content_framed_metalplate>
 			<number_charwizard_abilitybase name="strength_base">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="10" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="0" merge="replace" />
 					<left parent="strength_total" offset="10" merge="replace" />
 				</anchored>
 			</number_charwizard_abilitybase>
@@ -156,6 +156,9 @@
 			<button_charwizard_ability_genvaldown name="strength_gendown">
 				<anchored to="strength_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genright name="strength_genright">
+				<anchored to="strength_base" />
+			</button_charwizard_ability_genright>
 
 			<number_charwizard_abilitybase name="dexterity_base" />
 			<button_charwizard_ability_genvalup name="dexterity_genup">
@@ -164,6 +167,12 @@
 			<button_charwizard_ability_genvaldown name="dexterity_gendown">
 				<anchored to="dexterity_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genleft name="dexterity_genleft">
+				<anchored to="dexterity_base" />
+			</button_charwizard_ability_genleft>
+			<button_charwizard_ability_genright name="dexterity_genright">
+				<anchored to="dexterity_base" />
+			</button_charwizard_ability_genright>
 
 			<number_charwizard_abilitybase name="constitution_base" />
 			<button_charwizard_ability_genvalup name="constitution_genup">
@@ -172,6 +181,12 @@
 			<button_charwizard_ability_genvaldown name="constitution_gendown">
 				<anchored to="constitution_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genleft name="constitution_genleft">
+				<anchored to="constitution_base" />
+			</button_charwizard_ability_genleft>
+			<button_charwizard_ability_genright name="constitution_genright">
+				<anchored to="constitution_base" />
+			</button_charwizard_ability_genright>
 
 			<number_charwizard_abilitybase name="intelligence_base" />
 			<button_charwizard_ability_genvalup name="intelligence_genup">
@@ -180,6 +195,12 @@
 			<button_charwizard_ability_genvaldown name="intelligence_gendown">
 				<anchored to="intelligence_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genleft name="intelligence_genleft">
+				<anchored to="intelligence_base" />
+			</button_charwizard_ability_genleft>
+			<button_charwizard_ability_genright name="intelligence_genright">
+				<anchored to="intelligence_base" />
+			</button_charwizard_ability_genright>
 
 			<number_charwizard_abilitybase name="wisdom_base" />
 			<button_charwizard_ability_genvalup name="wisdom_genup">
@@ -188,6 +209,12 @@
 			<button_charwizard_ability_genvaldown name="wisdom_gendown">
 				<anchored to="wisdom_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genleft name="wisdom_genleft">
+				<anchored to="wisdom_base" />
+			</button_charwizard_ability_genleft>
+			<button_charwizard_ability_genright name="wisdom_genright">
+				<anchored to="wisdom_base" />
+			</button_charwizard_ability_genright>
 
 			<number_charwizard_abilitybase name="charisma_base" />
 			<button_charwizard_ability_genvalup name="charisma_genup">
@@ -196,20 +223,17 @@
 			<button_charwizard_ability_genvaldown name="charisma_gendown">
 				<anchored to="charisma_base" />
 			</button_charwizard_ability_genvaldown>
+			<button_charwizard_ability_genleft name="charisma_genleft">
+				<anchored to="charisma_base" />
+			</button_charwizard_ability_genleft>
 
 			<!-- Background -->
-			<label_charframetop name="abilities_background_header">
-				<anchored height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_background</icons>
+			<header_content_framed_metalplate name="abilities_background_header">
 				<static textres="charwizard_label_background" />
-			</label_charframetop>
+			</header_content_framed_metalplate>
 			<number_charwizard_abilitybackground name="strength_background">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="10" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="0" merge="replace" />
 					<left parent="strength_total" offset="10" merge="replace" />
 				</anchored>
 			</number_charwizard_abilitybackground>
@@ -220,18 +244,12 @@
 			<number_charwizard_abilitybackground name="charisma_background" />
 
 			<!-- Species -->
-			<label_charframetop name="abilities_species_header">
-				<anchored height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_race</icons>
+			<header_content_framed_metalplate name="abilities_species_header">
 				<static textres="charwizard_label_species" />
-			</label_charframetop>
+			</header_content_framed_metalplate>
 			<number_charwizard_abilityspecies name="strength_species">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="10" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="0" merge="replace" />
 					<left parent="strength_total" offset="10" merge="replace" />
 				</anchored>
 			</number_charwizard_abilityspecies>
@@ -242,18 +260,12 @@
 			<number_charwizard_abilityspecies name="charisma_species" />
 
 			<!-- ASI -->
-			<label_charframetop name="abilities_asi_header">
-				<anchored height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_class</icons>
+			<header_content_framed_metalplate name="abilities_asi_header">
 				<static textres="charwizard_label_asi" />
-			</label_charframetop>
+			</header_content_framed_metalplate>
 			<number_charwizard_abilityasi name="strength_asi">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="10" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="0" merge="replace" />
 					<left parent="strength_total" offset="10" merge="replace" />
 				</anchored>
 			</number_charwizard_abilityasi>
@@ -264,18 +276,12 @@
 			<number_charwizard_abilityasi name="charisma_asi" />
 
 			<!-- Misc -->
-			<label_charframetop name="abilities_misc_header">
-				<anchored height="20">
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
-					<right offset="-15" />
-				</anchored>
-				<icons>char_name</icons>
+			<header_content_framed_metalplate name="abilities_misc_header">
 				<static textres="misc" />
-			</label_charframetop>
+			</header_content_framed_metalplate>
 			<number_charwizard_abilitymisc name="strength_misc">
 				<anchored>
-					<top parent="abilities_select_header" anchor="bottom" relation="relative" offset="10" merge="replace" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="0" merge="replace" />
 					<left parent="strength_total" offset="10" merge="replace" />
 				</anchored>
 				<displaysign />
@@ -285,6 +291,13 @@
 			<number_charwizard_abilitymisc name="intelligence_misc" />
 			<number_charwizard_abilitymisc name="wisdom_misc" />
 			<number_charwizard_abilitymisc name="charisma_misc" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charwizard_abilities_instructions" copy="charwizard_instructions">
+		<sheetdata>
+			<stringc_content_noframe_noscroll_static_top name="text">
+				<static textres="charwizard_message_instructions_abilities" />
+			</stringc_content_noframe_noscroll_static_top>
 		</sheetdata>
 	</windowclass>
 

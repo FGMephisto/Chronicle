@@ -322,12 +322,6 @@ parsedata = {
 	-- Bard
 	["bardicinspiration"] = { actions = { { type = "effect", sName = "Bardic Inspiration (d6) used for ability check, attack roll, or saving throw", nDuration = 10, sUnits = "minute" }, }, },
 	["countercharm"] = { actions = { { type = "effect", sName = "Countercharm; Advantage on saving throws vs. Frightened or Charmed", sTargeting = "self", nDuration = 1 }, }, },
-	["jackofalltrades"] = {
-		actions = {
-			{ type = "effect", sName = "Jack of all Trades; INIT: [HPRF]", sTargeting = "self", nDuration = 1, sApply = "roll" },
-			{ type = "effect", sName = "Jack of all Trades; CHECK: [HPRF], all", sTargeting = "self", sApply = "roll" },
-		},
-	},
 	["songofrest"] = { actions = { { type = "heal", clauses = { { dice = { "d6" }, }, }, }, }, },
 	-- Bard - College of Creation
 	-- Bard - College of Eloquence
@@ -2127,7 +2121,7 @@ tBuildDataClass2024 = {
 	-- Barbarian
 	["rage"] = {
 		actions = {
-			{ type = "effect", sName = "Rage; ADVCHK: strength; ADVSAV: strength; DMG: 2, melee; RESIST: bludgeoning, piercing, slashing", sTargeting = "self", nDuration = 10, sUnits = "minute", },
+			{ type = "effect", sName = "Rage; ADVCHK: strength; ADVSAV: strength; DMG: 2; RESIST: bludgeoning, piercing, slashing", sTargeting = "self", nDuration = 10, sUnits = "minute", },
 		},
 		group = "Rage (Barbarian)",
 		ability = "strength",

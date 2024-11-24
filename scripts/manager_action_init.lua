@@ -88,6 +88,7 @@ end
 -- Returns effect existence, effect dice, effect mod, effect advantage, effect disadvantage
 function getEffectAdjustments(rActor)
 	local rRoll = {
+		sType = "init",
 		bEffects = false,
 		tEffectDice = {},
 		nEffectMod = 0,

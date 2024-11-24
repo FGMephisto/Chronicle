@@ -35,7 +35,7 @@ function handleSubclassDrop(draginfo)
 	if sClass == "reference_classability" then
 		CampaignDataManager2.helperOldSubclassCopy(draginfo.getDatabaseNode());
 		return true;
-	elseif LibraryData.isRecordDisplayClass("class", sClass) then
+	elseif RecordDataManager.isRecordTypeDisplayClass("class", sClass) then
 		for _,nodeOldSpec in ipairs(DB.getChildList(DB.getPath(sRecord, "abilities"))) do
 			CampaignDataManager2.helperOldSubclassCopy(nodeOldSpec);
 		end
@@ -49,7 +49,7 @@ function handleAncestryDrop(draginfo)
 	end
 
 	local sClass,sRecord = draginfo.getShortcutData();
-	if LibraryData.isRecordDisplayClass("race", sClass) then
+	if RecordDataManager.isRecordTypeDisplayClass("race", sClass) then
 		for _,nodeOldAncestry in ipairs(DB.getChildList(DB.getPath(sRecord, "subraces"))) do
 			CampaignDataManager2.helperOldAncestryCopy(nodeOldAncestry);
 		end

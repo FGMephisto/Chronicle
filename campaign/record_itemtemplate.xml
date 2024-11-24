@@ -6,7 +6,12 @@
 -->
 
 <root>
-	<windowclass name="itemtemplate" copy="record_window" />
+	<windowclass name="itemtemplate" copy="record_window">
+		<minimize>minimized_item</minimize>
+		<sheetdata>
+			<sub_record_version name="sub_version" insertbefore="content" />
+		</sheetdata>
+	</windowclass>
 	<windowclass name="itemtemplate_header" copy="record_header" />
 	
 	<windowclass name="itemtemplate_main">
