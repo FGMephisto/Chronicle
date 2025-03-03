@@ -3362,7 +3362,7 @@ tBuildDataClass2024 = {
 			},
 		},
 		choicetype = "Maneuver",
-		choicenum = 4,
+		choicenum = 3,
 	},
 	["extramaneuvers"] = {
 		choicetype = "Maneuver",
@@ -4071,7 +4071,7 @@ tBuildDataClass2024 = {
 	},
 	["wholenessofbody"] = {
 		actions = {
-			{ type = "heal", clauses = { { dice = { "d6" }, stat = "wisdom", }, }, },
+			{ type = "heal", sTargeting = "self", clauses = { { dice = { "d6" }, stat = "wisdom", }, }, },
 		},
 		prepared = 1,
 	},
@@ -4676,7 +4676,7 @@ tBuildDataClass2024 = {
 		multiple_actions = {
 			["Dread Ambusher"] = {
 				actions = {
-					{ type = "effect", sName = "Dread Ambusher; ADVINIT", sTargeting = "self" },
+					{ type = "effect", sName = "Dread Ambusher; INIT: [WIS]", sTargeting = "self" },
 					{ type = "effect", sName = "Ambusher's Leap; Speed +10", sTargeting = "self", nDuration = 1 },
 				},
 			},
@@ -6201,7 +6201,7 @@ tBuildDataSpecies2024 = {
 			{ type = "effect", sName = "Celestial Revelation; DMG: [PRF] radiant", sTargeting = "self", sApply = "action" },
 			{ type = "effect", sName = "Heavenly Wings", sTargeting = "self", nDuration = 1, sUnits = "minute" },
 			{ type = "effect", sName = "Inner Radiance", sTargeting = "self", nDuration = 1, sUnits = "minute" },
-			{ type = "damage", clauses = { { dice = {}, modifier = 2, dmgtype = "radiant", }, }, },
+			{ type = "damage", clauses = { { dice = {}, stat = "prf", dmgtype = "radiant", }, }, },
 			{ type = "effect", sName = "Necrotic Shroud", sTargeting = "self", nDuration = 1, sUnits = "minute" },
 			{ type = "effect", sName = "Frightened", nDuration = 1, },
 		},
@@ -6696,7 +6696,7 @@ tBuildDataFeat2024 = {
 		multiple_actions = {
 			["Heavy Armor Master (Damage Reduction)"] = {
 				actions = {
-					{ type = "effect", sName = "Heavy Armor Master (Damage Reduction); RESIST: [PRF] bludgeoning,piercing,slashing", },
+					{ type = "effect", sTargeting = "self", sName = "Heavy Armor Master (DR); RESIST: [PRF] bludgeoning,piercing,slashing", },
 				},
 			},
 		},

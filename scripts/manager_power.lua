@@ -417,7 +417,7 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 			aPowerGroup.bInnate = bInnate; 
 			
 			local sDesc = DB.getValue(nodeTrait, "desc", ""):lower();
-			aPowerGroup.sStat = sDesc:match("spellcasting ability is (%w+)") or "";
+			aPowerGroup.sStat = sDesc:match("spellcasting ability is (%w+)") or sDesc:match("using (%w+) as the spellcasting ability") or "";
 			
 			aPowerGroup.nAtkProf = 1;
 			aPowerGroup.sAtkStat = aPowerGroup.sStat;

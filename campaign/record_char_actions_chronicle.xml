@@ -92,10 +92,16 @@
 	<windowclass name="charsheet_actions_contents">
 		<margins control="0,0,0,2" />
 		<script>
+			function onInit()
+				self.onEditModeChanged();
+				self.onModeChanged();
+			end
+			function onEditModeChanged()
+				-- spellslots_prep.subwindow.onEditModeChanged();
+				-- spellslots_cast.subwindow.onEditModeChanged();
+			end
 			function onModeChanged()
 				weapons.onModeChanged();
-				
-				-- spellslots_prep.subwindow.onModeChanged();
 				-- spellslots_cast.subwindow.onModeChanged();
 				-- actions.subwindow.onModeChanged();
 			end

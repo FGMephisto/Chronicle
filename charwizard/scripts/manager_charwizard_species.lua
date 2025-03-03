@@ -366,7 +366,10 @@ function collectAncestries()
 		v.sModuleName = DB.getModule(vNode);
 		v.sModule = ModuleManager.getModuleDisplayName(v.sModuleName);
 		if StringManager.contains(CharWizardData.module_order_2014, v.sModuleName) then 
-			v.sModule = v.sModule .. " (Legacy)";
+		local sLegacySuffix = Interface.getString("suffix_legacy");
+			if not StringManager.endsWith(v.sModule, sLegacySuffix) then
+				v.sModule = string.format("%s %s", v.sModule, sLegacySuffix);
+			end
 		end
 
 		table.insert(tFinalAncestries[v.text], v);

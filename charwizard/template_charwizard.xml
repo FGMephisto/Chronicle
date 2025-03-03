@@ -289,6 +289,7 @@
 		<buttoncontrol>
 			<anchored position="aboveright" offset="-25,-20" width="20" height="20" />
 			<icon normal="arrow_sm_up" />
+			<frame name="fieldlight" offset="2,2,2,2" />
 			<invisible />
 			<script>
 				function onButtonPress()
@@ -301,6 +302,7 @@
 		<buttoncontrol>
 			<anchored position="belowright" offset="-25,-20" width="20" height="20" />
 			<icon normal="arrow_sm_down" />
+			<frame name="fieldlight" offset="2,2,2,2" />
 			<invisible />
 			<script>
 				function onButtonPress()
@@ -313,6 +315,7 @@
 		<buttoncontrol>
 			<anchored position="lefthigh" offset="-2,10" width="20" height="20" />
 			<icon normal="arrow_sm_left" />
+			<frame name="fieldlight" offset="2,2,2,2" />
 			<invisible />
 			<script>
 				function onButtonPress()
@@ -325,6 +328,7 @@
 		<buttoncontrol>
 			<anchored position="righthigh" offset="-2,10" width="20" height="20" />
 			<icon normal="arrow_sm_right" />
+			<frame name="fieldlight" offset="2,2,2,2" />
 			<invisible />
 			<script>
 				function onButtonPress()

@@ -56,7 +56,10 @@ function addListRecord(vNode)
 	rRecord.sModuleName = DB.getModule(vNode);
 	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
 	if (DB.getValue(vNode, "version", "") ~= "2024") then 
-		rRecord.sModule = rRecord.sModule .. " (Legacy)";
+		local sLegacySuffix = Interface.getString("suffix_legacy");
+		if not StringManager.endsWith(rRecord.sModule, sLegacySuffix) then
+			rRecord.sModule = string.format("%s %s", rRecord.sModule, sLegacySuffix);
+		end
 	end
 
 	local tSubclasses = self.getAllSubclasses();

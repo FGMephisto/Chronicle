@@ -1,59 +1,53 @@
 -- 
--- Please see the license.html file included with this distribution for
+-- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
 --
 
---
---
+-- Adjusted
 function onInit()
-	onSummaryChanged();
-	update();
+	self.update();
+	-- registerMenuItem(Interface.getString("npc_menu_parsespells"), "radial_magicwand", 7);
 end
 
---
 -- Adjusted
---
-function onSummaryChanged()
-	-- local sSize = size.getValue();
-	-- local sType = type.getValue();
-	-- local sAlign = alignment.getValue();
-	
-	-- local aText = {};
-	-- if sSize ~= "" then
-		-- table.insert(aText, sSize);
+function onMenuSelection(selection)
+	-- if selection == 7 then
+		-- CampaignDataManager2.updateNPCSpells(getDatabaseNode());
 	-- end
-	-- if sType ~= "" then
-		-- table.insert(aText, sType);
-	-- end
-	-- local sText = table.concat(aText, " ");
-
-	-- summary_label.setValue(sText);
 end
 
---
+function onVersionChanged()
+	self.update();
+end
+function onSummonChanged()
+	self.update();
+end
+
 -- Adjusted
---
 function update()
-	local nodeRecord = getDatabaseNode();
-	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
+	-- local nodeRecord = getDatabaseNode();
+	-- local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
+	
+	-- if sub_summon then
+		-- local bSummon = (DB.getValue(nodeRecord, "summon", 0) ~= 0);
+		-- if (bSummon or not bReadOnly) then
+			-- if sub_summon.isEmpty() then
+				-- sub_summon.setValue("npc_combat_summon_2024", nodeRecord);
+			-- end
+		-- else
+			-- sub_summon.setValue("", "");
+		-- end
+		-- WindowManager.callSafeControlUpdate(self, "sub_summon", bReadOnly);
+	-- end
 
-	local bSection1 = false;
-	if Session.IsHost then
-		if WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly) then bSection1 = true; end;
-	else
-		WindowManager.callSafeControlUpdate(self, "nonid_name", bReadOnly, true);
-	end
-	-- divider.setVisible(bSection1);
-
-	WindowManager.callSafeControlUpdate(self, "size", bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "type", bReadOnly);
-	-- summary_label.setVisible(bReadOnly);
+	-- WindowManager.callSafeControlUpdate(self, "sub_top", bReadOnly);
+	-- WindowManager.callSafeControlUpdate(self, "sub_abilities", bReadOnly);
+	-- WindowManager.callSafeControlUpdate(self, "sub_bottom", bReadOnly);
+	-- WindowManager.callSafeControlUpdate(self, "sub_action", bReadOnly);
 end
 
---
 -- Adjusted
---
 function onDrop(x, y, draginfo)
 	-- if WindowManager.getReadOnlyState(getDatabaseNode()) then
 		-- return true;
@@ -63,45 +57,39 @@ function onDrop(x, y, draginfo)
 		-- local nodeSource = draginfo.getDatabaseNode();
 		
 		-- if sClass == "reference_spell" or sClass == "power" then
-			-- addSpellDrop(nodeSource);
-		-- elseif sClass == "reference_backgroundfeature" then
-			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
-		-- elseif sClass == "reference_classfeature" then
-			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
-		-- elseif sClass == "reference_feat" then
-			-- addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+			-- self.addSpellDrop(nodeSource);
 		-- elseif sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
-			-- addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+			-- self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+		-- elseif sClass == "reference_backgroundfeature" then
+			-- self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+		-- elseif sClass == "reference_classfeature" or sClass == "reference_classfeaturechoice" then
+			-- self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+		-- elseif sClass == "reference_feat" then
+			-- self.addAction(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 		-- end
 		-- return true;
 	-- end
 end
 
---
 -- Adjusted
---
 function addSpellDrop(nodeSource, bInnate)
 	-- CampaignDataManager2.addNPCSpell(getDatabaseNode(), nodeSource, bInnate);
 end
 
---
 -- Adjusted
---
-function addAction(sName, sDesc)
-	-- local w = actions.createWindow();
-	-- if w then
-		-- w.name.setValue(sName);
-		-- w.desc.setValue(sDesc);
+function addTrait(sName, sDesc)
+	-- local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "traits"));
+	-- if nodeTrait then
+		-- DB.setValue(nodeTrait, "name", "string", sName);
+		-- DB.setValue(nodeTrait, "desc", "string", sDesc);
 	-- end
 end
 
---
 -- Adjusted
---
-function addTrait(sName, sDesc)
-	-- local w = traits.createWindow();
-	-- if w then
-		-- w.name.setValue(sName);
-		-- w.desc.setValue(sDesc);
+function addAction(sName, sDesc)
+	-- local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "actions"));
+	-- if nodeTrait then
+		-- DB.setValue(nodeTrait, "name", "string", sName);
+		-- DB.setValue(nodeTrait, "desc", "string", sDesc);
 	-- end
 end

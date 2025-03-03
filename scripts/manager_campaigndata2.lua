@@ -4,27 +4,11 @@
 --
 
 function handleDrop(sTarget, draginfo)
-	if sTarget == "spell" then
-		return CampaignDataManager2.handleSpellDrop(draginfo);
-	elseif sTarget == "class_specialization" then
+	if sTarget == "class_specialization" then
 		return CampaignDataManager2.handleSubclassDrop(draginfo);
 	elseif sTarget == "race_subrace" then
 		return CampaignDataManager2.handleAncestryDrop(draginfo);
 	end
-end
-function handleSpellDrop(draginfo)
-	if not LibraryData.allowEdit("spell") then
-		return false;
-	end
-
-	local sRootMapping = LibraryData.getRootMapping("spell");
-	local sClass, sRecord = draginfo.getShortcutData();
-	if ((sClass == "reference_spell") or (sClass == "power")) and ((sRootMapping or "") ~= "") then
-		local nodeTarget = DB.createChildAndCopy(sRootMapping, DB.findNode(sRecord));
-		DB.setValue(nodeTarget, "locked", "number", 1);
-		return true;
-	end
-	return false;
 end
 function handleSubclassDrop(draginfo)
 	if not LibraryData.allowEdit("class_specialization") then

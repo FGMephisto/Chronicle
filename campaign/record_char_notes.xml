@@ -7,13 +7,31 @@
 
 <root>
 	<windowclass name="charsheet_notes">
+		<script>
+			function onInit()
+				self.onBastionOptionChanged();
+			end
+			function onBastionOptionChanged()
+				local bShow = OptionsManager.isOption("HRBASTION", "on");
+				if bShow then
+					footer.setValue("charsheet_notes_footer", getDatabaseNode());
+				else
+					footer.setValue("", "");
+				end
+				footer.setVisible(bShow);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 			<anchor_content_bottom />
 
-			<sub_content_scroll name="content">
+			<sub_content_framed_groupbox_bottom name="footer">
+				<class>charsheet_notes_footer</class>
+			</sub_content_framed_groupbox_bottom>
+
+			<sub_content_framed_groupbox name="content">
 				<class>charsheet_notes_contents</class>
-			</sub_content_scroll>
+			</sub_content_framed_groupbox>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -155,6 +173,37 @@
 				<anchored to="deity" offset="0,5" />
 				<static textres="char_label_deity" />
 			</label_charfieldtop>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_notes_footer">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<button_text name="button_bastion">
+				<anchored position="insidetopleft" offset="5,5" width="60" height="20" />
+				<state textres="bastion" />
+				<script>
+					function onButtonPress()
+						local nodeBastion = self.getBastionNode();
+						if nodeBastion then
+							Interface.openWindow("location", nodeBastion);
+						end
+					end
+					function getBastionNode()
+						local nodeChar = window.getDatabaseNode();
+						local sPath = DB.getPath(nodeChar, "bastion");
+						local nodeBastion = DB.findNode(sPath);
+						if not nodeBastion then
+							nodeBastion = DB.createNode(DB.getPath(nodeChar, "bastion"));
+							DB.setValue(nodeBastion, "name", "string", string.format("%s %s", DB.getValue(nodeChar, "name", ""), Interface.getString("bastion")));
+							DB.setValue(nodeBastion, "type", "string", Interface.getString("bastion"));
+						end
+						return nodeBastion;
+					end
+				</script>
+			</button_text>
 		</sheetdata>
 	</windowclass>
 </root>

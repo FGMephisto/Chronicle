@@ -125,38 +125,19 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="char_weapon_editor">
-		<frame>charsheethelper</frame>
+	<windowclass name="char_weapon_editor" copy="charsheethelper_base">
 		<sizelimits>
 			<minimum width="380" height="350" />
-			<dynamic />
 		</sizelimits>
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
 				<prefix>weapon_title</prefix>
 			</windowtitlebar_charsheethelper>
-			<anchor_title_charsheethelper name="contentanchor" />
 			
-			<genericcontrol name="contentframe">
-				<anchored to="contentanchor">
-					<top anchor="bottom" offset="0" />
-					<left />
-					<right />
-					<bottom parent="" offset="-30" />
-				</anchored>
-			</genericcontrol>
-
-			<subwindow_record name="main">
+			<sub_content_framed_groupbox name="main">
 				<class>char_weapon_editor_main</class>
-				<activate />
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-
-			<resize_charsheethelper />
-			<close_charsheethelper />
+			</sub_content_framed_groupbox>
+			<scrollbar_content_main />
 		</sheetdata>
 	</windowclass>
 	<windowclass name="char_weapon_editor_main">

@@ -7,7 +7,7 @@
 -->
 
 <root>
-Adjusted
+	<!-- Adjusted -->
 	<windowclass name="charsheet_abilities">
 		<script>
 			function onDrop(x, y, draginfo)

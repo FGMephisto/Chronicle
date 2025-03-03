@@ -7,7 +7,7 @@
 -->
 
 <root version="3.0" release="10" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2024-12-01) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+	<announcement text="Chronicle System ruleset (v2025-01-03) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>
@@ -93,14 +93,15 @@
 	<!-- <script name="ImportSpeciesManager" file="scripts/manager_import_species.lua" /> -->
 
 	<!-- Character Wizard -->
-	<script name="CharWizardManager" file="charwizard/scripts/manager_charwizard.lua" />
-	<script name="CharWizardSpeciesManager" file="charwizard/scripts/manager_charwizard_species.lua" />
-	<script name="CharWizardClassManager" file="charwizard/scripts/manager_charwizard_class.lua" />
-	<script name="CharWizardAbilitiesManager" file="charwizard/scripts/manager_charwizard_abilities.lua" />
-	<script name="CharWizardBackgroundManager" file="charwizard/scripts/manager_charwizard_background.lua" />
-	<script name="CharWizardEquipmentManager" file="charwizard/scripts/manager_charwizard_equipment.lua" />
-	<script name="CharWizardData" file="charwizard/scripts/data_charwizard.lua" />
-	<script name="CharWizardDataAction" file="charwizard/scripts/data_charwizard_action.lua" />
+	<!-- <script name="CharWizardManager" file="charwizard/scripts/manager_charwizard.lua" /> -->
+	<!-- <script name="CharWizardDecisionManager" file="charwizard/scripts/manager_charwizard_decision.lua" /> -->
+	<!-- <script name="CharWizardSpeciesManager" file="charwizard/scripts/manager_charwizard_species.lua" /> -->
+	<!-- <script name="CharWizardClassManager" file="charwizard/scripts/manager_charwizard_class.lua" /> -->
+	<!-- <script name="CharWizardAbilitiesManager" file="charwizard/scripts/manager_charwizard_abilities.lua" /> -->
+	<!-- <script name="CharWizardBackgroundManager" file="charwizard/scripts/manager_charwizard_background.lua" /> -->
+	<!-- <script name="CharWizardEquipmentManager" file="charwizard/scripts/manager_charwizard_equipment.lua" /> -->
+	<!-- <script name="CharWizardData" file="charwizard/scripts/data_charwizard.lua" /> -->
+	<!-- <script name="CharWizardDataAction" file="charwizard/scripts/data_charwizard_action.lua" /> -->
 
 	<!-- <includefile source="charwizard/template_charwizard.xml" /> -->
 	<!-- <includefile source="charwizard/record_charwizard.xml" /> -->

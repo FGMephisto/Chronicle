@@ -33,9 +33,9 @@
 				<edittarget>content</edittarget>
 			</button_iedit>
 
-			<sub_content_scroll name="content">
+			<sub_content_framed_groupbox name="content">
 				<class>charsheet_abilities_contents</class>
-			</sub_content_scroll>
+			</sub_content_framed_groupbox>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -72,8 +72,8 @@
 			-->
 			<label_charframetop name="header">
 				<anchored to="contentanchor" height="20">
-					<top relation="relative" offset="8" postoffset="8" />
-					<left offset="15" />
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
 			</label_charframetop>
@@ -84,8 +84,8 @@
 
 			<list_content_noscroll_alternating_top name="list">
 				<anchored>
-					<left offset="10" />
-					<right offset="-10" />
+					<left offset="5" />
+					<right offset="-5" />
 				</anchored>
 				<listheader>header</listheader>
 				<script>

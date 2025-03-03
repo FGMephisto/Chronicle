@@ -1,7 +1,7 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for HM3.5
+-- File adjusted for Chronicle System
 --
 
 tAbilitiesGroups = {};

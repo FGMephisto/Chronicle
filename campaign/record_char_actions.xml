@@ -77,9 +77,9 @@
 				</script>
 			</button_stringcycler>
 
-			<sub_content_scroll name="content">
+			<sub_content_framed_groupbox name="content">
 				<class>charsheet_actions_contents</class>
-			</sub_content_scroll>
+			</sub_content_framed_groupbox>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -107,7 +107,7 @@
 			<label_charframetop name="weapon_header">
 				<anchored to="contentanchor" height="20">
 					<top relation="relative" offset="8" postoffset="8" />
-					<left offset="15" />
+					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
 				<icons>char_attacks</icons>
@@ -182,20 +182,19 @@
 		</sheetdata>
 	</windowclass>
 	
-	<windowclass name="char_weaponmeta">
-		<frame>charsheethelper</frame>
+	<windowclass name="char_weaponmeta" copy="charsheethelper_base">
 		<sizelimits>
 			<minimum width="400" height="175" />
-			<dynamic />
 		</sizelimits>
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
 				<prefix>char_weaponmeta_title</prefix>
 			</windowtitlebar_charsheethelper>
-			<anchor_title_charsheethelper name="contentanchor" />
+
+			<area_content_framed_groupbox name="content_area" />
 
 			<label name="label_critrange">
-				<anchored to="contentanchor" position="belowleft" offset="0,15" width="60" />
+				<anchored to="content_area" position="insidetopleft" offset="0,15" width="60" />
 				<static textres="char_label_critrange" />
 			</label>
 			<basicnumber name="critrange_melee" source="weapon.critrange.melee">
@@ -243,15 +242,12 @@
 			</label_fieldtop>
 			
 			<label name="label_fightingstyle2weapon">
-				<anchored to="contentanchor" position="belowleft" offset="0,50"/>
+				<anchored to="content_area" position="insidetopleft" offset="0,50"/>
 				<static textres="char_label_fightingstyle2weapon" />
 			</label>
 			<button_checkbox name="fightingstyle2weapon" source="weapon.twoweaponfighting">
 				<anchored to="label_fightingstyle2weapon" position="righthigh" offset="10,0" width="20" height="20" />
 			</button_checkbox>
-
-			<resize_charsheethelper />
-			<close_charsheethelper />
 		</sheetdata>
 	</windowclass>
 </root>

@@ -41,11 +41,11 @@
 			<sub_content_top name="items">
 				<class>charsheet_inventory_items</class>
 			</sub_content_top>
-			<sub_content_top name="encumbrance">
-				<class>charsheet_inventory_encumbrance</class>
-			</sub_content_top>
 			<sub_content_top name="currencies">
 				<class>charsheet_inventory_currencies</class>
+			</sub_content_top>
+			<sub_content_top name="encumbrance">
+				<class>charsheet_inventory_encumbrance</class>
 			</sub_content_top>
 		</sheetdata>
 	</windowclass>
@@ -95,6 +95,7 @@
 			<button_iadd name="list_iadd">
 				<anchored to="header" position="insidetopright" offset="5,0" />
 				<target>list</target>
+				<recordtype>item</recordtype>
 			</button_iadd>
 			<!-- <button_details name="button_invmeta"> -->
 				<!-- <anchored to="header" position="insidetopright" offset="35,0" /> -->
@@ -142,7 +143,6 @@
 			<!-- <icon_list_content_button_label_right name="label_attuned"> -->
 				<!-- <icon>char_attuned</icon> -->
 				<!-- <tooltip textres="char_inventory_tooltip_attuned" /> -->
-				<!-- <invisible /> -->
 			<!-- </icon_list_content_button_label_right> -->
 			<label_list_content_right name="label_location">
 				<static textres="char_label_itemlocation" />
@@ -401,11 +401,16 @@
 				<!-- <anchored to="contentanchor" height="20"> -->
 					<!-- <top relation="relative" offset="8" postoffset="8" /> -->
 					<!-- <left offset="15" /> -->
-					<!-- <right /> -->
+					<!-- <right offset="-10" /> -->
 				<!-- </anchored> -->
 				<!-- <icons>char_abilities_orange</icons> -->
 				<!-- <static textres="char_label_encumbrance" /> -->
 			<!-- </label_charframetop> -->
+			<!--
+			<header_content_framed_metalplate name="header">
+				<static textres="char_label_encumbrance" />
+			</header_content_framed_metalplate>
+			-->
 
 			<number_static name="encumbranceload" source="encumbrance.load">
 				<anchored to="contentanchor" width="30" height="20">
@@ -464,7 +469,6 @@
 				<!-- <anchored to="encumbrancedrag" offset="10,1" /> -->
 				<!-- <static textres="char_label_encdrag" /> -->
 			<!-- </label_fieldtop> -->
-			
 			<number_static name="encumbrancebulk" source="encumbrance.bulk">
 				<anchored to="encumbranceload" position="left" offset="14,0" width="30" />
 				<tooltip textres="char_inventory_tooltip_totalbulk" />
@@ -472,7 +476,6 @@
 			<label_fieldtop name="encumbrancebulk_label">
 				<anchored to="encumbrancebulk" />
 				<static textres="char_label_totalbulk" />
-				<font>sheetlabel</font>
 			</label_fieldtop>
 		</sheetdata>
 	</windowclass>

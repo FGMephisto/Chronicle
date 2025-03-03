@@ -108,7 +108,7 @@
 			<label_charframetop name="slotstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
+					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
 				<icons>char_powers</icons>
@@ -159,7 +159,7 @@
 			<label_charframetop name="slotstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
+					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
 				<icons>char_powers</icons>
@@ -316,7 +316,7 @@
 			<hnc name="level" />
 			
 			<label_charframetop name="name">
-				<bounds>15,10,-10,20</bounds>
+				<bounds>10,10,-10,20</bounds>
 				<script>
 					function onClickDown()
 						return true;
@@ -375,67 +375,60 @@
 			</button_iadd>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="power_groupdetail">
-		<margins control="30,0,0,0" />
-		<frame>charsheethelper</frame>
+	<windowclass name="power_groupdetail" copy="charsheethelper_base">
 		<sizelimits>
-			<minimum width="430" height="290" />
-			<dynamic />
+			<minimum width="430" height="230" />
 		</sizelimits>
-		<script file="campaign/scripts/power_groupdetail.lua" />
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
 				<prefix>power_groupdetail_title</prefix>
 			</windowtitlebar_charsheethelper>
-			<anchor_title_charsheethelper name="contentanchor" />
+			<sub_content_framed_groupbox name="content">
+				<class>power_groupdetail_content</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_groupdetail_content">
+		<script file="campaign/scripts/power_groupdetail.lua" />
+		<sheetdata>
+			<anchor_content_top />
 
-			<anchor_column name="columnanchor">
-				<anchored to="contentanchor" position="below" offset="0,-5" />
-			</anchor_column>
-			
-			<label_column name="name_label">
+			<label_content_column name="name_label">
 				<static textres="power_label_groupname" />
-			</label_column>
-			<string_column name="name">
-				<anchored>
-					<right offset="-35" />
-				</anchored>
+			</label_content_column>
+			<string_content_column name="name">
 				<delaykeyupdate />
-			</string_column>
+			</string_content_column>
 			
-			<label_column name="castertype_label">
+			<label_content_column name="castertype_label">
 				<static textres="power_label_grouptype" />
-			</label_column>
+			</label_content_column>
 			<button_grouptype>
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
+				<anchored to="contentanchor">
+					<top relation="relative" offset="3" postoffset="3" />
+					<left offset="110" />
 				</anchored>
 			</button_grouptype>
 			
-			<line_column>
-				<anchored>
-					<right offset="-30" />
-				</anchored>
-			</line_column>
+			<line_content_top />
 
-			<label_column name="groupstat_label">
+			<label_content_column name="groupstat_label">
 				<static textres="power_label_groupstat" />
-			</label_column>
+			</label_content_column>
 			<cycler_ability name="stat">
-				<anchored width="30" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
+				<anchored to="contentanchor" width="30" height="20">
+					<top relation="relative" offset="3" postoffset="3" />
+					<left offset="110" />
 				</anchored>
 			</cycler_ability>
 			
-			<label_column name="groupatk_label">
+			<label_content_column name="groupatk_label">
 				<static textres="power_label_groupatk" />
-			</label_column>
+			</label_content_column>
 			<cycler_abilitybase name="atkstat">
-				<anchored width="30" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
+				<anchored to="contentanchor" width="30" height="20">
+					<top relation="relative" offset="3" postoffset="3" />
+					<left offset="110" />
 				</anchored>
 			</cycler_abilitybase>
 			<label name="label_atkplus">
@@ -457,13 +450,13 @@
 				<hideonvalue value="0" />
 			</basicnumber>
 
-			<label_column name="groupsave_label">
+			<label_content_column name="groupsave_label">
 				<static textres="power_label_groupsave" />
-			</label_column>
+			</label_content_column>
 			<label name="groupsavebase_label">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
+				<anchored to="contentanchor">
+					<top relation="relative" offset="3" postoffset="3" />
+					<left offset="110" />
 				</anchored>
 				<static>8 +</static>
 			</label>
@@ -489,44 +482,26 @@
 				<hideonvalue value="0" />
 			</basicnumber>
 
-			<line_column>
-				<anchored>
-					<right offset="-30" />
-				</anchored>
-			</line_column>
+			<line_content_top />
 
-			<label_column name="groupuses_label">
+			<label_content_column name="groupuses_label">
 				<static textres="power_label_groupuses" />
-			</label_column>
-			<basicnumber name="uses">
-				<anchored width="20" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
-				</anchored>
+			</label_content_column>
+			<number_content_column name="uses">
 				<hideonvalue>0</hideonvalue>
-			</basicnumber>
+			</number_content_column>
 			<cycler_power_useperiod name="usesperiod">
-				<anchored to="uses">
-					<top />
-					<left anchor="right" offset="10" />
-				</anchored>
+				<anchored to="uses" position="righthigh" offset="10,0" />
 			</cycler_power_useperiod>
 
-			<label_column name="groupprepared_label">
+			<label_content_column name="groupprepared_label">
 				<static textres="power_label_groupprepared" />
-			</label_column>
-			<basicnumber name="prepared">
-				<anchored width="20" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
-				</anchored>
+			</label_content_column>
+			<number_content_column name="prepared">
 				<hideonvalue>0</hideonvalue>
 				<min>0</min>
 				<delaykeyupdate />
-			</basicnumber>
-			
-			<resize_charsheethelper />
-			<close_charsheethelper />
+			</number_content_column>
 		</sheetdata>
 	</windowclass>
 	

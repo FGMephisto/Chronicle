@@ -31,9 +31,9 @@ function getClassSpellListViewRecord(sClassName)
 
 	local rList = {};
 	if tRecord then
-		rList.sDisplayText = string.format("%s %s", tRecord.sName, Interface.getString("title_class_spell_view"));
+		rList.sTitle = string.format("%s %s", tRecord.sName, Interface.getString("title_class_spell_view"));
 	else
-		rList.sDisplayText = string.format("Unknown %s", Interface.getString("title_class_spell_view"));
+		rList.sTitle = string.format("Unknown %s", Interface.getString("title_class_spell_view"));
 	end
 	rList.aColumns = {
 		{ sName = "name", sType = "string", sHeadingRes = "spell_view_grouped_label_name", nWidth=150, bWrapped=true, },

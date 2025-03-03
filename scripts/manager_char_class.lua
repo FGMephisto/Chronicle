@@ -272,39 +272,10 @@ function helperAddClassFeatures(rAdd)
 		return;
 	end
 
-	-- Add standard class features
 	CharClassManager.helperAddClassBaseFeatures(rAdd);
 
-	-- Add subclass features
-	if not rAdd.nodeSubclass then
-		local _, sSubclassRecord = DB.getValue(rAdd.nodeCharClass, "specializationlink", "", "");
-		if sSubclassRecord ~= "" then
-			rAdd.nodeSubclass = DB.findNode(sSubclassRecord);
-		end
-		if not rAdd.nodeSubclass then
-			local sSubclass = CharManager.getSubclass(rAdd.nodeChar, rAdd.sSourceName, rAdd.bSource2024);
-			if sSubclass ~= "" then
-				local bSpecIs2024 = (DB.getValue(rAdd.nodeCharClass, "specializationversion", "") == "2024");
-				local tSubclassFilters = {
-					{ sField = "name", sValue = sSubclass, bIgnoreCase = true, },
-					{ sField = "version", sValue = (bSpecIs2024 and "2024" or ""), },
-				};
-				rAdd.nodeSubclass = RecordManager.findRecordByFilter("class_specialization", tSubclassFilters);
-				if not rAdd.nodeSubclass then
-					CharClassManager.helperGetLegacySubclassFeatures(rAdd);
-				end
-			end
-		end
-		if not rAdd.nodeSubclass then
-			return;
-		end
-	end
-
-	for _,vFeature in ipairs(DB.getChildList(rAdd.nodeSubclass, "features")) do
-		if DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel then
-			CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(vFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
-		end
-	end
+	CharClassManager.helperAddSubclassFeatures(rAdd);
+	CharClassManager.helperGetLegacySubclassFeatures(rAdd);
 end
 function helperGetClassBaseFeatures(rAdd)
 	local tOutput = {};
@@ -326,6 +297,23 @@ function helperAddClassBaseFeatures(rAdd)
 		end
 	end
 end
+function helperAddSubclassFeatures(rAdd)
+	if not rAdd.nodeSubclass then
+		local _, sSubclassRecord = DB.getValue(rAdd.nodeCharClass, "specializationlink", "", "");
+		if sSubclassRecord ~= "" then
+			rAdd.nodeSubclass = DB.findNode(sSubclassRecord);
+		end
+		if not rAdd.nodeSubclass then
+			return;
+		end
+	end
+
+	for _,vFeature in ipairs(DB.getChildList(rAdd.nodeSubclass, "features")) do
+		if DB.getValue(vFeature, "level", 0) == rAdd.nCharClassLevel then
+			CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(vFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
+		end
+	end
+end
 function helperGetLegacySubclassFeatures(rAdd)
 	local bClassIs2024 = (DB.getValue(rAdd.nodeSource, "version", "") == "2024");
 	if bClassIs2024 then
@@ -344,7 +332,7 @@ function helperGetLegacySubclassFeatures(rAdd)
 		if (DB.getValue(nodeFeature, "level", 0) == rAdd.nCharClassLevel) then
 			local sFeatureSpec = StringManager.trim(DB.getValue(nodeFeature, "specialization", ""));
 			if (sFeatureSpec ~= "") and CharClassManager.helperHasCharClassLegacySpecialization(rAdd.nodeChar, sFeatureSpec) then
-				CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(vFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
+				CharClassManager.addClassFeature(rAdd.nodeChar, DB.getPath(nodeFeature), { nodeCharClass = rAdd.nodeCharClass, bWizard = rAdd.bWizard });
 			end
 		end
 	end

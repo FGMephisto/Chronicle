@@ -47,7 +47,7 @@
 
 	<windowclass name="reference_feat_main_2024">
 		<margins control="0,0,0,5" />
-		<script file="campaign/scripts/feat_main_chronicle.lua" />
+		<script file="campaign/scripts/feat_main.lua" />
 		<sheetdata>
 			<anchor_content_top />
 			

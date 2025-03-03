@@ -7,6 +7,7 @@
 
 <root>
 	<!-- Common -->
+	<string name="suffix_legacy">(Legacy)</string>
 	<string name="misc">Misc</string>
 	<string name="STR">STR</string>
 	<string name="DEX">DEX</string>
@@ -101,6 +102,7 @@
 	<string name="option_label_HREN">PC: Encumbrance</string>
 	<string name="option_label_HRHV">PC: Healing variants</string>
 	<string name="option_label_HRIS">PC: Inspiration slots</string>
+	<string name="option_label_HRBASTION">Game: Bastion Support</string>
 
 	<string name="option_label_GAVE">Game: Rules Version</string>
 
@@ -829,4 +831,30 @@
 	<string name="library_recordtype_empty_backgroundfeature">&#171; New Background Feature &#187;</string>
 	<string name="library_recordtype_empty_racialtrait">&#171; New Racial Trait &#187;</string>
 	<string name="library_recordtype_empty_subracialtrait">&#171; New Sub-Racial Trait &#187;</string>
+
+	<!-- House Rule - Bastions -->
+	<string name="tab_bastion">Bastion</string>
+	<string name="bastion">Bastion</string>
+
+	<string name="ps_label_bastion">BASTION</string>
+
+	<string name="ps_tooltip_bastion_log">Log of Bastion Turns</string>
+	<string name="ps_tooltip_bastion_advance">Advance Bastion Turns</string>
+	<string name="ps_tooltip_bastion_facility_order_clear">Clear Order</string>
+
+	<string name="ps_label_bastion_facility_order">ORDERS</string>
+	<string name="ps_tooltip_bastion_facility_order">Drag order button onto facility to set the current facility order.</string>
+	<string name="ps_label_bastion_facility_order_none">NONE</string>
+	<string name="ps_label_bastion_facility_order_craft">CRAFT</string>
+	<string name="ps_label_bastion_facility_order_empower">EMPOWER</string>
+	<string name="ps_label_bastion_facility_order_harvest">HARVEST</string>
+	<string name="ps_label_bastion_facility_order_maintain">MAINTAIN</string>
+	<string name="ps_label_bastion_facility_order_recruit">RECRUIT</string>
+	<string name="ps_label_bastion_facility_order_research">RESEARCH</string>
+	<string name="ps_label_bastion_facility_order_trade">TRADE</string>
+
+	<string name="ps_bastion_log_window_title">Bastion Turn Log</string>
+	<string name="ps_tooltip_bastion_log_clear">Clear Bastion Log</string>
+	<string name="ps_tooltip_bastion_log_turn_reset">Reset Bastion Turn Counter</string>
+	<string name="ps_label_bastion_log_turn">Turn</string>
 </root>

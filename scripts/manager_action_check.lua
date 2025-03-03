@@ -190,9 +190,14 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		if EffectManager5E.hasEffectCondition(rSource, "DISINIT") then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
-		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager5E.hasEffectCondition(rSource, "Incapacitated") then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
+		elseif OptionsManager.isOption("GAVE", "2024") then
+			if EffectManager5E.hasEffectCondition(rSource, "Incapacitated") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			elseif EffectManager5E.hasEffectCondition(rSource, "Surprised") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			end
 		end
 	elseif rRoll.sType == "skill" then
 		local tSkillDice, nSkillMod, nSkillEffect = EffectManager5E.getEffectsBonus(rSource, {"SKILL"}, false, rRoll.tSkillFilter);

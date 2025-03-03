@@ -108,7 +108,6 @@
 
 			<picture_charsheet name="portrait" />
 
-			<button_charactivate_charsheet name="speak" />
 			<!-- <label_charframetop name="inspirationtitle"> -->
 				<!-- <anchored to="rightanchor" width="30" height="20"> -->
 					<!-- <top offset="2" /> -->
@@ -125,6 +124,12 @@
 				<!-- <tooltip textres="char_tooltip_inspiration" /> -->
 				<!-- <sourcefields><current>inspiration</current></sourcefields> -->
 				<!-- <values><maximum>3</maximum></values> -->
+				<!-- <script> -->
+					<!-- function adjustCounter(nAdj) -->
+						<!-- super.adjustCounter(nAdj); -->
+						<!-- CharManager.messageInspiration(window.getDatabaseNode(), nAdj); -->
+					<!-- end -->
+				<!-- </script> -->
 			<!-- </buttongroup_counter> -->
 
 			<label_charframetop name="nametitle">

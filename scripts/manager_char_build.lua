@@ -640,21 +640,6 @@ function getSpellsFromText2014(s)
 	local tBase = {};
 
 	for _,vSentence in pairs(StringManager.split(s, ".")) do
-		-- Special Case: High Elf - Cantrip
-		local sClassName = vSentence:match("you know one cantrip of your choice from the (%w+) spell list");
-		if sClassName then
-			local tFilters = {
-				{ sField = "version", sValue = "", },
-				{ sField = "level", sValue = "0", },
-			};
-			local tDialogOptions = CharBuildDropManager.getSpellOptionsByFilter(tFilters, { sClassName = StringManager.capitalize(sClassName), });
-			local tOptions = {};
-			for _,v in ipairs(tDialogOptions) do
-				table.insert(tOptions, v.text);
-			end
-			return {}, tOptions, 1;
-		end
-
 		local sSpellText = vSentence:match("you know the (.-) cantrip");
 		if not sSpellText then
 			sSpellText = vSentence:match("you gain the (.-) cantrip");
@@ -1286,6 +1271,9 @@ function getClassFeatureSpellcastingData(tData)
 
 	-- Calculate spellcasting ability
 	tResult.sAbility = tData.sSourceText:match("(%a+) is your spellcasting ability");
+	if not tResult.sAbility then
+		tResult.sAbility = tData.sSourceText:match("(%a+) is the spellcasting ability");
+	end
 	if tResult.sAbility then
 		tResult.sAbility = tResult.sAbility:lower();
 	end
@@ -1295,7 +1283,7 @@ function getClassFeatureSpellcastingData(tData)
 	if nFeatureLevel > 0 then
 		local tExceptions;
 		if tData.bSource2024 then
-			tExceptions = { CharManager.CLASS_PALADIN, CharManager.CLASS_RANGER };
+			tExceptions = { CharManager.CLASS_PALADIN, CharManager.CLASS_RANGER, CharManager.CLASS_ARTIFICER };
 		else
 			tExceptions = { CharManager.CLASS_ARTIFICER };
 		end
@@ -1313,7 +1301,7 @@ function getClassFeatureSpellcastingData(tData)
 	local sCantrips = tData.sSourceText:match("know (%w+) cantrips of your choice");
 	-- Sorcerer/Warlock/Wizard (2024)
 	if not sCantrips then
-		sCantrips = tData.sSourceText:match("know %w+ (%w+) cantrips of your choice");
+		sCantrips = tData.sSourceText:match("know (%w+) %w+ cantrips of your choice");
 	end
 	-- Arcane Trickster (2024/2014)
 	if not sCantrips then
@@ -1321,7 +1309,7 @@ function getClassFeatureSpellcastingData(tData)
 	end
 	if sCantrips then
 		tResult.nCantrips = CharBuildManager.convertSingleNumberTextToNumber(sCantrips, 2);
-		if nFeatureLevel == 1 then
+		if nFeatureLevel == 1 and ((tResult.nCasterLevelMult or 0) == 1) then
 			if nClassLevel >= 4 then
 				tResult.nCantrips = tResult.nCantrips + 1;
 			end
@@ -1329,11 +1317,17 @@ function getClassFeatureSpellcastingData(tData)
 		if nClassLevel >= 10 then
 			tResult.nCantrips = tResult.nCantrips + 1;
 		end
+		-- Artificer (2024 - UA) Special case
+		if (nFeatureLevel == 1) and ((tResult.nCasterLevelMult or 0) == -2) then
+			if nClassLevel >= 14 then
+				tResult.nCantrips = tResult.nCantrips + 1;
+			end
+		end
 	end
 
 	-- Calculate prepared spells
 	if tData.bSource2024 then
-		local tPreparedData = CharWizardData[sClassNameLower];
+		local tPreparedData = CharWizardData.SPELLS_PREPARED_2024[sClassNameLower];
 		if not tPreparedData then
 			if tResult.nCasterLevelMult > 1 then
 				tPreparedData = CharWizardData.SPELLS_PREPARED_2024.subclass;

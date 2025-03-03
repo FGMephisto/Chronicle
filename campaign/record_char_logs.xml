@@ -29,9 +29,9 @@
 				<edittarget>content</edittarget>
 			</button_iedit>
 
-			<sub_content_scroll name="content">
+			<sub_content_framed_groupbox name="content">
 				<class>charsheet_logs_contents</class>
-			</sub_content_scroll>
+			</sub_content_framed_groupbox>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
@@ -40,7 +40,7 @@
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />
-
+			
 			<header_content_framed_metalplate name="details_header" />
 			<area_content_top name="details">
 				<anchored height="20" />

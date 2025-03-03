@@ -234,10 +234,21 @@ function handleElvenAccuracyFeatMod(rRoll, rActor)
 	if not ActorManager5E.hasRollFeat2014(rActor, CharManager.FEAT_ELVEN_ACCURACY) then
 		return;
 	end
-	if not rRoll.bADV or not StringManager.contains({ "dexterity", "intelligence", "wisdom", "charisma", }, rRoll.sAbility) then
+	if not rRoll.aDice[1] then
 		return;
 	end
-	if not rRoll.aDice[1] then
+	if rRoll.bDIS or not rRoll.bADV then
+		return;
+	end
+	local sAbility = rRoll.sAbility;
+	if not sAbility then
+		if rRoll.sRange == "R" then
+			sAbility = "dexterity";
+		else
+			sAbility = "strength";
+		end
+	end
+	if not StringManager.contains({ "dexterity", "intelligence", "wisdom", "charisma", }, sAbility) then
 		return;
 	end
 	table.insert(rRoll.aDice, 2, UtilityManager.copyDeep(rRoll.aDice[1]));

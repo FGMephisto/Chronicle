@@ -8,9 +8,7 @@ WEAPON_PROP_TWOHANDED = "twohanded"
 WEAPON_PROP_OFFHAND = "offhand"
 WEAPON_PROP_DEFENSIVE = "defensive"
 
---
 -- Adjusted
---
 function onInit()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
@@ -19,13 +17,10 @@ function onInit()
 	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
 	DB.addHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged);
 
-	onDataChanged();
+	self.onDataChanged();
 end
 
-
---
 -- Adjusted
---
 function onClose()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
@@ -53,9 +48,7 @@ function onLinkChanged()
 	end
 end
 
---
 -- Adjusted
---
 function onDataChanged()
 	-- Update Attack Attribute and show/hide ammo UI
 	local nodeWeapon = getDatabaseNode()
@@ -79,15 +72,13 @@ function onDataChanged()
 	end
 
 	-- Run update functions
-	onLinkChanged()
-	onAttackChanged()
-	onDamageChanged()
-	updateDefenseBonus()
+	self.onLinkChanged()
+	self.onAttackChanged()
+	self.onDamageChanged()
+	self.updateDefenseBonus()
 end
 
---
 -- Adjusted
---
 function onAttackChanged()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
@@ -169,9 +160,7 @@ function onDamageAction(draginfo)
 	return true;
 end
 
---
 -- Added
---
 function updateDefenseBonus()
 	-- Debug.chat("FN: updateDefenseBonus in char_weapon")
 	local nodeWeapon = getDatabaseNode()

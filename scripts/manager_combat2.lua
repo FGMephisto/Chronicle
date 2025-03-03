@@ -8,6 +8,7 @@ function onInit()
 
 	CombatManager.setCustomRoundStart(onRoundStart);
 	CombatManager.setCustomTurnStart(onTurnStart);
+	CombatManager.setCustomTurnEnd(onTurnEnd);
 	CombatManager.setCustomCombatReset(resetInit);
 
 	CombatRecordManager.addStandardVehicleCombatRecordType();
@@ -18,6 +19,11 @@ function onInit()
 	ActorCommonManager.setRecordTypeSpaceReachCallback("vehicle", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	CombatRecordManager.setRecordTypePostAddCallback("npc", onNPCPostAdd);
 	CombatRecordManager.setRecordTypePostAddCallback("vehicle", onVehiclePostAdd);
+end
+
+function onEffectActorEndTurn(nodeActor, nodeEffect)
+				EffectManager.removeCondition(rTarget, "Stable");
+
 end
 
 --
@@ -41,7 +47,7 @@ function onTurnStart(nodeEntry)
 	-- Check for exhaustion levels for pre-2024 rules
 	if nodeEntry then
 		local sClass, sRecord = DB.getValue(nodeEntry, "link");
-		if sClass == "charsheet" and sRecord then
+		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
 			local nHP = DB.getValue(nodeEntry, "hptotal", 0);
 			local nWounds = DB.getValue(nodeEntry, "wounds", 0);
 			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
@@ -73,21 +79,23 @@ function onTurnStart(nodeEntry)
 	
 	-- Check for death saves (based on option)
 	if OptionsManager.isOption("HRST", "on") then
-		if nodeEntry then
-			local sClass, sRecord = DB.getValue(nodeEntry, "link");
-			if sClass == "charsheet" and sRecord then
-				local nHP = DB.getValue(nodeEntry, "hptotal", 0);
-				local nWounds = DB.getValue(nodeEntry, "wounds", 0);
-				local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
-				if (nHP > 0) and (nWounds >= nHP) and (nDeathSaveFail < 3) then
-					local rActor = ActorManager.resolveActor(sRecord);
-					if not EffectManager.hasCondition(rActor, "Stable") then
-						ActionSave.performDeathRoll(nil, rActor, true);
-					end
+		local sClass, sRecord = DB.getValue(nodeEntry, "link");
+		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
+			local nHP = DB.getValue(nodeEntry, "hptotal", 0);
+			local nWounds = DB.getValue(nodeEntry, "wounds", 0);
+			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
+			if (nHP > 0) and (nWounds >= nHP) and (nDeathSaveFail < 3) then
+				local rActor = ActorManager.resolveActor(sRecord);
+				if not EffectManager.hasCondition(rActor, "Stable") then
+					ActionSave.performDeathRoll(nil, rActor, true);
 				end
 			end
 		end
 	end
+end
+
+function onTurnEnd(nodeEntry)
+	EffectManager.removeCondition(ActorManager.resolveActor(nodeEntry), "Surprised");
 end
 
 --
@@ -632,9 +640,8 @@ function clearExpiringEffects()
 	function checkEffectExpire(nodeEffect)
 		local sLabel = DB.getValue(nodeEffect, "label", "");
 		local nDuration = DB.getValue(nodeEffect, "duration", 0);
-		local sApply = DB.getValue(nodeEffect, "apply", "");
 		
-		if nDuration ~= 0 or sApply ~= "" or sLabel == "" then
+		if nDuration ~= 0 or sLabel == "" then
 			DB.deleteNode(nodeEffect);
 		end
 	end
@@ -696,12 +703,23 @@ function getEntryInitRecord(nodeEntry)
 	return tInit;
 end
 function rollRandomInit(tInit)
+	local tSuffix = {};
+	if (tInit.nMod or 0) ~= 0 then
+		table.insert(tSuffix, string.format("(%+d)", tInit.nMod));
+	end
+
 	local nInitResult = math.random(20);
 	if tInit.bADV and not tInit.bDIS then
-		nInitResult = math.max(nInitResult, math.random(20));
+		local nInitResult2 = math.random(20);
+		table.insert(tSuffix, string.format("[ADV] (DROPPED %d)", math.min(nInitResult, nInitResult2)));
+		nInitResult = math.max(nInitResult, nInitResult2);
 	elseif tInit.bDIS and not tInit.bADV then
-		nInitResult = math.min(nInitResult, math.random(20));
+		local nInitResult2 = math.random(20);
+		table.insert(tSuffix, string.format("[DIS] (DROPPED %d)", math.max(nInitResult, nInitResult2)));
+		nInitResult = math.min(nInitResult, nInitResult2);
 	end
+	tInit.sSuffix = table.concat(tSuffix, " ");
+
 	return nInitResult + (tInit.nMod or 0);
 end
 
