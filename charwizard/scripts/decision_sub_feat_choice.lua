@@ -81,7 +81,7 @@ function addListRecord(vNode)
 
 	rRecord.sModuleName = DB.getModule(vNode);
 	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
-	if (DB.getValue(vNode, "version", "") ~= "2024") then 
+	if (DB.getValue(vNode, "version", "") ~= "2024") then
 		local sLegacySuffix = Interface.getString("suffix_legacy");
 		if not StringManager.endsWith(rRecord.sModule, sLegacySuffix) then
 			rRecord.sModule = string.format("%s %s", rRecord.sModule, sLegacySuffix);
@@ -95,7 +95,7 @@ function addListRecord(vNode)
 	self.getAllModules()[rRecord.sModule] = true;
 	self.getAllCategories()[rRecord.sCategory] = true;
 end
-function addDisplayListItem(k, tFeat)
+function addDisplayListItem(_, tFeat)
 	if #(tFeat or {}) == 0 then
 		return;
 	end
@@ -105,7 +105,6 @@ function addDisplayListItem(k, tFeat)
 	end
 
 	local tBaseFeats, tChoiceFeats = CharWizardManager.collectFeats();
-	local bSelected = false;
 	for _,v in ipairs(tBaseFeats) do
 		if v.name == sFeat then
 			return;
@@ -127,7 +126,7 @@ function addDisplayListItem(k, tFeat)
 				nOrder = k2;
 				break
 			else
-				for k3,v3 in ipairs(CharWizardData.module_order_2014) do
+				for _,v3 in ipairs(CharWizardData.module_order_2014) do
 					if v.sModuleName == v3 then
 						nOrder = k2 + 1;
 						break
@@ -182,13 +181,13 @@ function buildFilters()
 
 	filter_source.clear();
 	filter_source.add("");
-	for k,v in pairs(self.getAllModules()) do
+	for k,_ in pairs(self.getAllModules()) do
 		filter_source.add(k);
 	end
 
 	filter_category.clear();
 	filter_category.add("");
-	for k,v in pairs(self.getAllCategories()) do
+	for k,_ in pairs(self.getAllCategories()) do
 		filter_category.add(k);
 	end
 end

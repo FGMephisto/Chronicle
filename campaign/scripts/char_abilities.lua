@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -19,7 +19,7 @@ function expand()
 	languagestitle.expand();
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass, sRecord = draginfo.getShortcutData();
 		return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);

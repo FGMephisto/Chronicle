@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -27,7 +27,7 @@ function clearStatus(w)
 	w.sub_buttons.subwindow.status.setValue("");
 end
 
-function onDrop(w, draginfo)
+function onDrop(_, draginfo)
 	if draginfo.getType() == "shortcut" then
 		local sClass, sRecord = draginfo.getShortcutData();
 		if RecordDataManager.isRecordTypeDisplayClass("itemtemplate", sClass) then
@@ -67,7 +67,7 @@ function addSpellAsTemplate(sClass, sRecord)
 	if not nodeSource then
 		return;
 	end
-	
+
 	-- get School, level and name
 	local level = DB.getValue(nodeSource, "level", 0);
 	local school = DB.getValue(nodeSource, "school", "");
@@ -76,29 +76,36 @@ function addSpellAsTemplate(sClass, sRecord)
 	local sCastingTime = DB.getValue(nodeSource, "castingtime", "");
 	local sRange = DB.getValue(nodeSource, "range", "");
 	local sComponents = DB.getValue(nodeSource, "components", "");
-	local sDuration = DB.getValue(nodeSource, "components", "");
+	local sDuration = DB.getValue(nodeSource, "duration", "");
 	local sSource = DB.getValue(nodeSource, "source", "");
-	
-	local sSubtype = nil;
-	
+
+	local sSubtype;
 	if (level == 0) then
 		sSubtype = school .. " (Cantrip)";
 	else
 		sSubtype = school .. " (Level " .. tostring(level) .. ")";
-	end 
-	local rarity = getRarityBasedOnLevel(level);
-	
+	end
+	local rarity = ForgeManagerItem.getRarityBasedOnLevel(level);
 
 	-- create a new template node and assign known values
 	local nodeTarget = DB.createChildAndCopy(FORGE_PATH_TEMPLATES, nodeSource);
 	DB.setValue(nodeTarget, "locked", "number", 1);
 	DB.setValue(nodeTarget, "refclass", "string", sClass);
 	DB.setValue(nodeTarget, "type", "string", "spell");
-	DB.setValue(nodeTarget, "rarity", "string", rarity);	
+	DB.setValue(nodeTarget, "rarity", "string", rarity);
 	DB.setValue(nodeTarget, "subtype", "string", sSubtype);
+	-- set the default spell value to 0. It should get picked up by the scroll
+	DB.setValue(nodeTarget, "cost", "string", "0 gp");
 	-- &#13; is a line feed
-	DB.setValue(nodeTarget, "description", "formattedtext", "<h>" .. sName .. "</h><p><i>" .. sSubtype .. "</i></p>" .. "<p><b>Casting Time:</b> " .. sCastingTime .. "&#13;<b>Range:</b> " .. sRange .. "&#13;<b>Components:</b> " .. sComponents .. "&#13;<b>Duration:</b> " .. sDuration .. "</p>" ..  sDescription .. "<p><b>Source:</b> " .. sSource .. "</p>");
-	
+	DB.setValue(nodeTarget, "description", "formattedtext",
+			"<h>" .. sName .. "</h><p><i>" .. sSubtype .. "</i></p>" ..
+			"<p><b>Casting Time:</b> " .. sCastingTime ..
+			"<b>&#13;Range:</b> " .. sRange ..
+			"<b>&#13;Components:</b> " .. sComponents ..
+			"<b>&#13;Duration:</b> " .. sDuration ..
+			"</p>" ..  sDescription ..
+			"<p><b>Source:</b> " .. sSource .. "</p>"
+		);
 end
 
 -- Get a rarity value based on a spell's level
@@ -128,29 +135,23 @@ function forgeMagicItem(w)
 	if not w then
 		return;
 	end
-	
+
 	-- Cache item and template nodes
 	_tItems = DB.getChildList(FORGE_PATH_BASE_ITEMS);
 	_tTemplates = DB.getChildList(FORGE_PATH_TEMPLATES);
-	
+
 	-- Validate forging data
 	if ((#_tItems ~= 0) and (#_tTemplates ~= 0)) or (#_tTemplates >= 2) then
-		-- turn off compatibility limits
-		--if ForgeManagerItem.isCompatible() then
-		if true then 
-			ForgeManagerItem.createMagicItem();
-			ForgeManagerItem.setStatus(w, "ok", Interface.getString("forge_item_message_success"));
-		else
-			ForgeManagerItem.setStatus(w, "error", Interface.getString("forge_item_message_incompatible"));
-		end	
-	else 
+		ForgeManagerItem.createMagicItem();
+		ForgeManagerItem.setStatus(w, "ok", Interface.getString("forge_item_message_success"));
+	else
 		ForgeManagerItem.setStatus(w, "error", Interface.getString("forge_item_message_missing"));
 	end
 end
 
 function getDisplayType(node)
 	local sIcon = "";
-	
+
 	local bMagicItem = (DB.getValue(node, "rarity", "") ~= "");
 
 	local sTypeLower = StringManager.trim(DB.getValue(node, "type", ""):lower());
@@ -169,11 +170,11 @@ function getDisplayType(node)
 		bMagicItem = true;
 		sIcon = "spell";
 	end
-	
+
 	if bMagicItem and (sIcon ~= "") then
 		sIcon = "m" .. sIcon;
 	end
-	
+
 	return sIcon;
 end
 
@@ -181,7 +182,7 @@ function getCompatibilityType(node)
 	local sNameLower =  StringManager.trim(DB.getValue(node, "name", "")):lower();
 	local sTypeLower = StringManager.trim(DB.getValue(node, "type", "")):lower();
 	local sSubTypeLower = StringManager.trim(DB.getValue(node, "subtype", "")):lower();
-	
+
 	if sTypeLower == "armor" then
 		return "armor";
 	elseif sTypeLower == "weapon" or ((sTypeLower == "adventuring gear") and (sSubTypeLower == "ammunition")) then
@@ -190,9 +191,9 @@ function getCompatibilityType(node)
 		return "arcane focus";
 	elseif sTypeLower == "ring" then
 		return "ring";
-	elseif sTypeLower == "potion" or 
-				((sTypeLower == "adventuring gear") and 
-				(sNameLower:match("potion") or sNameLower:match("bottle") or sNameLower:match("flask") or 
+	elseif sTypeLower == "potion" or
+				((sTypeLower == "adventuring gear") and
+				(sNameLower:match("potion") or sNameLower:match("bottle") or sNameLower:match("flask") or
 				sNameLower:match("vial") or sNameLower:match("oil"))) then
 		return "potion";
 	elseif sTypeLower == "scroll" or ((sTypeLower == "adventuring gear") and (sNameLower:match("scroll") or sNameLower:match("paper"))) then
@@ -204,12 +205,12 @@ function getCompatibilityType(node)
 	elseif sTypeLower == "adventuring gear" then
 		return "adventuring gear";
 	end
-	
+
 	return "";
 end
 function isCompatible()
 	local sCompatibilityType = nil;
-	
+
 	-- Check to make sure _tTemplates are all the same type
 	for _,v in ipairs(_tTemplates) do
 		local sTemplateCompatibilityType = ForgeManagerItem.getCompatibilityType(v);
@@ -226,14 +227,14 @@ function isCompatible()
 	if not sCompatibilityType then
 		return false;
 	end
-	
+
 	-- Check to make sure items are compatible type to the templates
 	for _,v in ipairs(_tItems) do
 		if sCompatibilityType ~= ForgeManagerItem.getCompatibilityType(v) then
 			return false;
 		end
 	end
-	
+
 	return true;
 end
 
@@ -256,26 +257,26 @@ function createMagicItem()
 		if bAllTemplates then
 			rMagicItem.isTemplate = true;
 		end
-			
+
 		if StringManager.contains({"armor", "weapon", "rod", "staff", "wand", "spell"}, rMagicItem.sType:lower()) then
 			rMagicItem.sName = rMagicItem.sName:gsub("%,?%s%+%d+$", "");
 		end
-		
-		for x,y in ipairs(_tTemplates) do
-			local rTemplate = ForgeManagerItem.getItemStats(y);
+
+		for _,v2 in ipairs(_tTemplates) do
+			local rTemplate = ForgeManagerItem.getItemStats(v2);
 
 			local sTemplateNameLower = rTemplate.sName:lower();
 			local sTemplateTypeLower = rTemplate.sType:lower();
-		
+
 			if StringManager.contains({"armor", "weapon", "rod", "staff", "wand", "spell"}, sTemplateTypeLower) then
 				rTemplate.sName = rTemplate.sName:gsub("%,?%s%+%d+$", "");
 			end
-		
+
 			-- Inherit from template when fields empty
 			if rMagicItem.sType == "" then
 				rMagicItem.sType = rTemplate.sType;
 			end
-			if rMagicItem.sSubType == "" then	
+			if rMagicItem.sSubType == "" then
 				rMagicItem.sSubType = rTemplate.sSubType;
 			end
 			if StringManager.contains({"weapon", "armor"}, sTemplateTypeLower) then
@@ -304,17 +305,17 @@ function createMagicItem()
 				table.insert(aProperties, "magic");
 				rMagicItem.sProperties = table.concat(aProperties, ", ");
 			end
-					   
+
 			-- Rarity Adjustment
 			if ForgeManagerItem.getItemRarityValue(rMagicItem.sRarity) < ForgeManagerItem.getItemRarityValue(rTemplate.sRarity) then
 				rMagicItem.sRarity = rTemplate.sRarity;
 			end
-		
+
 			-- Bonus Adjustment
 			if StringManager.contains({"armor", "weapon", "rod", "staff", "wand"}, rMagicItem.sType:lower()) then
 				rMagicItem.nBonus = (rMagicItem.nBonus or 0) + (rTemplate.nBonus or 0);
 			end
-			
+
 			-- Name Adjustment
 			if rMagicItem.sName == "" then
 				rMagicItem.sName = rTemplate.sName;
@@ -407,7 +408,7 @@ function createMagicItem()
 				end
 				if sNewName then
 					rMagicItem.sName = sNewName;
-					
+
 					local _,nEndOf = rMagicItem.sName:find(" [oO]f ");
 					if nEndOf then
 						rMagicItem.sName = rMagicItem.sName:sub(1, nEndOf) .. rMagicItem.sName:sub(nEndOf + 1):gsub(" [oO]f ", " and ");
@@ -430,7 +431,7 @@ function createMagicItem()
 					rMagicItem.sName = rMagicItem.sName:gsub(" %[[^%]]+%]", "") .. " " .. table.concat(aParens, " ");
 				end
 			end
-		
+
 			-- Description Adjustment
 			if rMagicItem.sDescription == "" then
 				rMagicItem.sDescription = rTemplate.sDescription;
@@ -438,7 +439,7 @@ function createMagicItem()
 				if sTemplateTypeLower == "scroll" then
 					if rTemplate.sSpells ~= "" then
 						local aSpells = StringManager.split(rTemplate.sSpells, ";", true);
-						for _,sSpellEntry in pairs(aSpells) do 
+						for _,sSpellEntry in pairs(aSpells) do
 							local sSpellName, sSpellRecord = sSpellEntry:match("(.*),(.*)");
 							local sSpellLink = [[<link class="reference_spell" recordname="]] .. sSpellRecord .. [[">Spell: ]] .. sSpellName .. [[</link>]];
 							rMagicItem.sDescription = rMagicItem.sDescription:gsub("<h>Description</h>", "<h>Description</h>" .. sSpellLink);
@@ -448,30 +449,25 @@ function createMagicItem()
 					rMagicItem.sDescription = rMagicItem.sDescription .. "<p><b>" .. rTemplate.sName .. " Notes</b></p>" .. rTemplate.sDescription:gsub("%<h%>Description%<%/h%>", "");
 				end
 			end
-			
+
 			-- Cost Adjustment
-			combineCosts(rMagicItem, rTemplate)
+			ForgeManagerItem.combineCosts(rMagicItem, rTemplate)
 		end
-		
+
 		if StringManager.contains({"armor", "weapon", "rod", "staff", "wand"}, rMagicItem.sType:lower()) then
 			if rMagicItem.nBonus and rMagicItem.nBonus ~= 0 then
 				rMagicItem.sName = rMagicItem.sName .. ", +" .. rMagicItem.nBonus;
 			end
 		end
-				
-		--local sCost = rMagicItem.sCost:match("(%d+)%s[c|s|e|g|p]p");
-		--if sCost then
-			--rMagicItem.sCost = ForgeManagerItem.getMagicItemValue(sCost, rMagicItem.sRarity);
-		--end
 
 		-- Now that we've built the item, add it to the campaign
-		ForgeManagerItem.addMagicItemToCampaign(rMagicItem);		
+		ForgeManagerItem.addMagicItemToCampaign(rMagicItem);
 	end
 end
 
 function getItemDescBonus(sDesc)
 	local sDescLower = (sDesc or ""):lower();
-	
+
 	local sBonus = sDescLower:match("%+(%d+)%sbonus%sto%sattack");
 	if not sBonus then
 		sBonus = sDescLower:match("%+(%d+)%sbonus%sto%sthe%sattack");
@@ -479,13 +475,13 @@ function getItemDescBonus(sDesc)
 	if not sBonus then
 		sBonus = sDescLower:match("%+(%d+)%sbonus%sto%sac");
 	end
-	
+
 	return tonumber(sBonus) or 0;
 end
 
 function getItemRarityValue(sRarity)
 	local sRarityLower = (sRarity or ""):lower();
-	
+
 	local nResult = RARITY_UNKNOWN;
 	if sRarityLower:match("legendary") then
 		nResult = RARITY_LEGENDARY;
@@ -497,8 +493,8 @@ function getItemRarityValue(sRarity)
 		nResult = RARITY_UNCOMMON;
 	elseif sRarityLower:match("common") then
 		nResult = RARITY_COMMON;
-	end	
-	
+	end
+
 	return nResult;
 end
 
@@ -508,19 +504,19 @@ end
 --		sSubType
 -- 		sCost;
 --		sDescription;
---		nWeight;		
+--		nWeight;
 --		nAC
 -- 		sDexBonus
 -- 		sStrength
 -- 		sStealth
 -- 		sDamage
 -- 		sProperties
---		sRarity	
+--		sRarity
 --		sSpells;
 
 function getItemStats(node)
 	local rItemRecord = {};
-		
+
 	rItemRecord.sName = StringManager.trim(DB.getValue(node, "name", ""));
 	rItemRecord.sVersion = DB.getValue(node, "version", "");
 	rItemRecord.sPicture = DB.getValue(node, "picture", "");
@@ -555,7 +551,7 @@ function getItemStats(node)
 	elseif StringManager.contains({"rod", "staff", "wand"}, sTypeLower) then
 		rItemRecord.nBonus = DB.getValue(node, "bonus", 0);
 	end
-	
+
 	-- Calculate the template bonus from the name and description, and check whether it matches bonus field
 	if StringManager.contains({"armor", "weapon", "rod", "staff", "wand"}, sTypeLower) then
 		if rItemRecord.nBonus == 0 then
@@ -563,7 +559,7 @@ function getItemStats(node)
 			if nTemplateNameBonus ~= 0 then
 				rItemRecord.nBonus = nTemplateNameBonus;
 			else
-				rItemRecord.nBonus = getItemDescBonus(rItemRecord.sDescription);
+				rItemRecord.nBonus = ForgeManagerItem.getItemDescBonus(rItemRecord.sDescription);
 			end
 		end
 	end
@@ -571,14 +567,14 @@ function getItemStats(node)
 	return rItemRecord;
 end
 
-function getMagicItemValue(sCost, sRarity) 
+function getMagicItemValue(sCost, sRarity)
 	if sRarity == "" then
 		return sCost .. " gp";
 	end
-	
+
 	local nValue = 0;
-	
-	local nRarity = getItemRarityValue(sRarity);
+
+	local nRarity = ForgeManagerItem.getItemRarityValue(sRarity);
 	if nRarity == RARITY_LEGENDARY then
 		nValue = math.random(50001, 100000);
 	elseif nRarity == RARITY_VERY_RARE then
@@ -592,9 +588,10 @@ function getMagicItemValue(sCost, sRarity)
 	end
 
 	nValue = nValue + (tonumber(sCost) or 0);
-	
+
+	local k;
 	local sValue = tostring(nValue);
-	while true do  
+	while true do
 		sValue, k = sValue:gsub("^(%d+)(%d%d%d)", '%1,%2')
 		if (k == 0) then
 			break;
@@ -604,74 +601,77 @@ function getMagicItemValue(sCost, sRarity)
 end
 
 function parseCost(sCost)
-    sCost = sCost:lower():gsub(",", "") -- normalize case and remove commas
+	sCost = sCost:lower():gsub(",", ""); -- normalize case and remove commas
 
-    -- Check for range values and take the average if present
-    local low, high, unit = sCost:match("(%d+)%s*-%s*(%d+)%s*([c|s|e|g|p]p)")
-    if low and high and unit then
-        return (tonumber(low) + tonumber(high)) / 2, unit
-    end
+	-- Check for range values and take the average if present
+	local low, high, unit = sCost:match("(%d+)%s*-%s*(%d+)%s*([c|s|e|g|p]p)");
+	if low and high and unit then
+		return (tonumber(low) + tonumber(high)) / 2, unit;
+	end
 
-    -- Parse single cost
-    local value, unit = sCost:match("(%d+)%s*([c|s|e|g|p]p)")
-    return tonumber(value), unit or "gp" -- default to gp if no unit is found
+	-- Parse single cost
+	local value, unit = sCost:match("(%d+)%s*([c|s|e|g|p]p)");
+	return tonumber(value), unit or "gp"; -- default to gp if no unit is found
 end
 
 function convertToCP(value, unit)
-    return value * (CURRENCY_VALUES[unit] or 100)
+	return value * (CURRENCY_VALUES[unit] or 100);
 end
 
 function formatWithCommas(amount)
-    local formatted = tostring(amount)
-    while true do
-        formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", '%1,%2')
-        if k == 0 then break end
-    end
-    return formatted
+	local k;
+	local formatted = tostring(amount);
+	while true do
+		formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", '%1,%2');
+		if k == 0 then
+			break;
+		end
+	end
+	return formatted;
 end
 
 function convertFromCP(cpTotal)
-    -- Ensure cpTotal is a valid number before conversion
-    if not cpTotal or cpTotal <= 0 then
-        return "0 cp"
-    end
+	-- Ensure cpTotal is a valid number before conversion
+	if not cpTotal or cpTotal <= 0 then
+		return "0 cp";
+	end
 
-    -- Convert to the highest possible denomination without remainder
-    for unit, factor in pairs({ pp = 1000, gp = 100, ep = 50, sp = 10, cp = 1 }) do
-        if cpTotal % factor == 0 then
-            local finalValue = cpTotal / factor
-            return formatWithCommas(finalValue) .. " " .. unit
-        end
-    end
-    -- Default return for any remainder case
-    return formatWithCommas(cpTotal) .. " cp"
+	-- Convert to the highest possible denomination without remainder
+	for unit, factor in pairs({ pp = 1000, gp = 100, ep = 50, sp = 10, cp = 1 }) do
+		if cpTotal % factor == 0 then
+			local finalValue = cpTotal / factor;
+			return ForgeManagerItem.formatWithCommas(finalValue) .. " " .. unit;
+		end
+	end
+	-- Default return for any remainder case
+	return ForgeManagerItem.formatWithCommas(cpTotal) .. " cp";
 end
 
 function combineCosts(rMagicItem, rTemplate)
-    local magicValue, magicUnit = parseCost(rMagicItem.sCost)
-    local templateValue, templateUnit = parseCost(rTemplate.sCost)
+	local magicValue, magicUnit = ForgeManagerItem.parseCost(rMagicItem.sCost);
+	local templateValue, templateUnit = ForgeManagerItem.parseCost(rTemplate.sCost);
 
-    if magicValue and templateValue then
-        -- Both values are defined, so convert to CP and add
-        local totalCP = convertToCP(magicValue, magicUnit) + convertToCP(templateValue, templateUnit)
-        rMagicItem.sCost = convertFromCP(totalCP)
-    elseif templateValue then
-        -- Only template cost exists
-        rMagicItem.sCost = rTemplate.sCost
-    else
-        -- If neither has a valid cost, set to "0 gp"
-        rMagicItem.sCost = "0 gp"
-    end
+	if magicValue and templateValue then
+		-- Both values are defined, so convert to CP and add
+		local totalCP = ForgeManagerItem.convertToCP(magicValue, magicUnit) + ForgeManagerItem.convertToCP(templateValue, templateUnit);
+		rMagicItem.sCost = ForgeManagerItem.convertFromCP(totalCP);
+	elseif templateValue then
+		-- Only template cost exists
+		rMagicItem.sCost = rTemplate.sCost;
+	else
+		-- If neither has a valid cost, set to "0 gp"
+		rMagicItem.sCost = "0 gp";
+	end
 end
 
 function addMagicItemToCampaign(rMagicItem)
 	local nodeTarget;
 	if rMagicItem.isTemplate then
-		nodeTarget = DB.createdChild("itemtemplate");
+		nodeTarget = DB.createChild("itemtemplate");
 	else
 		nodeTarget = DB.createChild("item");
 	end
-	
+
 	DB.setValue(nodeTarget, "locked", "number", 1);
 	DB.setValue(nodeTarget, "name", "string", rMagicItem.sName);
 	DB.setValue(nodeTarget, "version", "string", rMagicItem.sVersion);
@@ -682,7 +682,7 @@ function addMagicItemToCampaign(rMagicItem)
 	DB.setValue(nodeTarget, "weight", "number", rMagicItem.nWeight);
 	DB.setValue(nodeTarget, "cost", "string", rMagicItem.sCost);
 	DB.setValue(nodeTarget, "description", "formattedtext", rMagicItem.sDescription);
-	
+
 	local sTypeLower = rMagicItem.sType:lower();
 	if sTypeLower == "armor" then
 		DB.setValue(nodeTarget, "bonus", "number", rMagicItem.nBonus);
@@ -696,7 +696,7 @@ function addMagicItemToCampaign(rMagicItem)
 		DB.setValue(nodeTarget, "properties", "string", rMagicItem.sProperties);
 		DB.setValue(nodeTarget, "mastery", "string", rMagicItem.sMastery);
 	end
-	
+
 	if rMagicItem.isTemplate then
 		Interface.openWindow("itemtemplate", nodeTarget);
 	else

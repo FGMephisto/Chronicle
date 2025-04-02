@@ -1,12 +1,12 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onTabletopInit()
-	RecordShareManager.setWindowClassCallback("ref_ability", handleAbilityShare);
-	RecordShareManager.setRecordTypeCallback("item", handleItemShare);
-	RecordShareManager.setRecordTypeCallback("spell", handleSpellShare);
+	RecordShareManager.setWindowClassCallback("ref_ability", RecordShareManager5E.handleAbilityShare);
+	RecordShareManager.setRecordTypeCallback("item", RecordShareManager5E.handleItemShare);
+	RecordShareManager.setRecordTypeCallback("spell", RecordShareManager5E.handleSpellShare);
 end
 
 function handleAbilityShare(node, tOutput)

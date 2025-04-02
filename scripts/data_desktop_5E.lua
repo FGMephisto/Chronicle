@@ -1,7 +1,9 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
+
+--luacheck: globals _tDataModuleSets _tModifierExclusionSets _tModifierWindowPresets
 
 function onInit()
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
@@ -12,34 +14,15 @@ function onInit()
 			Desktop.addDataModuleSet(k, v2);
 		end
 	end
-
-	-- Ask the GM if they want to use the new D&D 2024 Rules
-	if Session.IsHost then
-		if not CampaignRegistry or not CampaignRegistry.DD2024Rules then	
-			local sTitle = Interface.getString("record_label_version_title");
-			local sPrompt = Interface.getString("record_label_version_prompt");
-			Interface.dialogMessage(onVersionChoice, sPrompt, sTitle, "yesno");	
-		end
-	end
-end
-
-function onVersionChoice(result)
-	if result == "yes" then
-		OptionsManager.setOption("GAVE","2024");
-		CampaignRegistry.DD2024Rules = "2024";
-	else 
-		OptionsManager.setOption("GAVE","2014");
-		CampaignRegistry.DD2024Rules = "2014";
-	end
 end
 
 -- Shown in Modifiers window
 -- NOTE: Set strings for "modifier_category_*" and "modifier_label_*"
 _tModifierWindowPresets =
 {
-	{ 
+	{
 		sCategory = "attack",
-		tPresets = 
+		tPresets =
 		{
 			"ATT_OPP",
 			"DEF_COVER",
@@ -47,9 +30,9 @@ _tModifierWindowPresets =
 			"DEF_SCOVER",
 		},
 	},
-	{ 
+	{
 		sCategory = "damage",
-		tPresets = { 
+		tPresets = {
 			"DMG_CRIT",
 			"DMG_MAX",
 			"",
@@ -63,7 +46,7 @@ _tModifierExclusionSets =
 };
 
 -- Shown in Campaign Setup window
-_tDataModuleSets = 
+_tDataModuleSets =
 {
 	["client"] =
 	{
@@ -71,17 +54,17 @@ _tDataModuleSets =
 			name = "2024 - Free Rules",
 			modules =
 			{
-				{ name = "DND2024FREERULES", displayname = "Dungeons &amp; Dragons Free Rules" },
+				{ name = "DND2024FREERULES", displayname = "D&D Free Rules" },
 			},
 		},
 		{
 			name = "2024 - Core Rules",
 			modules =
 			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "Dungeons &amp; Dragons Player's Handbook" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
 			},
-		},		
+		},
 		{
 			name = "2014 - SRD",
 			modules =
@@ -107,8 +90,8 @@ _tDataModuleSets =
 			name = "All Rules",
 			modules =
 			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&amp;D Player's Handbook" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
 				{ name = "DD Curse of Strahd Players", storeid = "WOTC5ECOS", displayname = "D&D Curse of Strahd - Player" },
 				{ name = "DD Eberron Rising From the Last War - Players", storeid = "WOTC5EERFTLW", displayname = "D&D Eberron Rising From the Last War - Player" },
 				{ name = "DD Elemental Evil Players Companion", storeid = "WOTC5EEEPC", displayname = "D&D Elemental Evil Player's Companion" },
@@ -132,18 +115,19 @@ _tDataModuleSets =
 			name = "2024 - Free Rules",
 			modules =
 			{
-				{ name = "DND2024FREERULES", displayname = "Dungeons &amp; Dragons Free Rules" },
+				{ name = "DND2024FREERULES", displayname = "D&D Free Rules" },
 			},
 		},
 		{
 			name = "2024 - Core Rules",
 			modules =
 			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&amp;D Player's Handbook" },
-				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50MM", storeid = "WOTC50MM", displayname = "D&D Monster Manual" },
 			},
-		},		
+		},
 		{
 			name = "2014 - SRD",
 			modules =
@@ -175,10 +159,10 @@ _tDataModuleSets =
 			name = "All Rules",
 			modules =
 			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&amp;D Player's Handbook" },
-				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&amp;D Dungeon Master's Guide - Player" },
-				{ name = "DD MM Monster Manual", storeid = "WOTC5EMMDELUXE", displayname = "D&D Monster Manual" },
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50MM", storeid = "WOTC50MM", displayname = "D&D Monster Manual" },
 				{ name = "DD Curse of Strahd Players", storeid = "WOTC5ECOS", displayname = "D&D Curse of Strahd - Player" },
 				{ name = "DD Eberron Rising From the Last War - DM", storeid = "WOTC5EERFTLW", displayname = "D&D Eberron Rising From the Last War"},
 				{ name = "DD Eberron Rising From the Last War - Players", storeid = "WOTC5EERFTLW", displayname = "D&D Eberron Rising From the Last War - Player" },

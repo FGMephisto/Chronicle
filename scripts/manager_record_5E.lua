@@ -1,21 +1,21 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onTabletopInit()
-	RecordManager.setRecordAddCallback("background", onNewBackground);
-	RecordManager.setRecordAddCallback("class", onNewClass);
-	RecordManager.setRecordAddCallback("class_specialization", onNewSubclass);
-	RecordManager.setRecordAddCallback("feat", onNewFeat);
-	RecordManager.setRecordAddCallback("item", onNewItem);
-	RecordManager.setRecordAddCallback("itemtemplate", onNewItemTemplate);
-	RecordManager.setRecordAddCallback("npc", onNewNPC);
-	RecordManager.setRecordAddCallback("race", onNewSpecies);
-	RecordManager.setRecordAddCallback("race_subrace", onNewAncestry);
-	RecordManager.setRecordAddCallback("skill", onNewSkill);
-	RecordManager.setRecordAddCallback("spell", onNewSpell);
-	RecordManager.setRecordAddCallback("vehicle", onNewVehicle);
+	RecordManager.setRecordAddCallback("background", RecordManager5E.onNewBackground);
+	RecordManager.setRecordAddCallback("class", RecordManager5E.onNewClass);
+	RecordManager.setRecordAddCallback("class_specialization", RecordManager5E.onNewSubclass);
+	RecordManager.setRecordAddCallback("feat", RecordManager5E.onNewFeat);
+	RecordManager.setRecordAddCallback("item", RecordManager5E.onNewItem);
+	RecordManager.setRecordAddCallback("itemtemplate", RecordManager5E.onNewItemTemplate);
+	RecordManager.setRecordAddCallback("npc", RecordManager5E.onNewNPC);
+	RecordManager.setRecordAddCallback("race", RecordManager5E.onNewSpecies);
+	RecordManager.setRecordAddCallback("race_subrace", RecordManager5E.onNewAncestry);
+	RecordManager.setRecordAddCallback("skill", RecordManager5E.onNewSkill);
+	RecordManager.setRecordAddCallback("spell", RecordManager5E.onNewSpell);
+	RecordManager.setRecordAddCallback("vehicle", RecordManager5E.onNewVehicle);
 end
 
 function onNewBackground(nodeRecord)

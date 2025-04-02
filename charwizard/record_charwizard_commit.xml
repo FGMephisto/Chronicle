@@ -158,7 +158,6 @@
 					<left anchor="center" offset="-55" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -177,7 +176,6 @@
 					<right parent="constitution_total" anchor="left" relation="relative" offset="-20" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -196,7 +194,6 @@
 					<right parent="constitution_total" anchor="left" relation="relative" offset="-20" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -215,7 +212,6 @@
 					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -234,7 +230,6 @@
 					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -253,7 +248,6 @@
 					<left parent="constitution_total" anchor="right" relation="relative" offset="20" />
 				</anchored>
 				<default>10</default>
-				<modifiersize>mini</modifiersize>
 				<nodrag />
 				<readonly />
 			</basicnumberc>
@@ -360,7 +354,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -379,7 +373,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -416,7 +410,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -435,7 +429,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 
@@ -454,7 +448,7 @@
 				</anchored>
 				<readonly />
 				<class>charwizard_summary_item</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</windowlist>
 		</sheetdata>

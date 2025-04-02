@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -7,12 +7,12 @@ OOB_MSGTYPE_APPLYDMG = "applydmg";
 OOB_MSGTYPE_APPLYDMGSTATE = "applydmgstate";
 
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMG, handleApplyDamage);
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYDMGSTATE, handleApplyDamageState);
+	OOBManager.registerOOBMsgHandler(ActionDamage.OOB_MSGTYPE_APPLYDMG, ActionDamage.handleApplyDamage);
+	OOBManager.registerOOBMsgHandler(ActionDamage.OOB_MSGTYPE_APPLYDMGSTATE, ActionDamage.handleApplyDamageState);
 
-	ActionsManager.registerModHandler("damage", modDamage);
-	ActionsManager.registerPostRollHandler("damage", onDamageRoll);
-	ActionsManager.registerResultHandler("damage", onDamage);
+	ActionsManager.registerModHandler("damage", ActionDamage.modDamage);
+	ActionsManager.registerPostRollHandler("damage", ActionDamage.onDamageRoll);
+	ActionsManager.registerResultHandler("damage", ActionDamage.onDamage);
 end
 
 function handleApplyDamage(msgOOB)
@@ -21,7 +21,7 @@ function handleApplyDamage(msgOOB)
 	if rTarget then
 		rTarget.nOrder = msgOOB.nTargetOrder;
 	end
-	
+
 	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
 	ActionDamage.applyDamage(rSource, rTarget, rRoll);
 end
@@ -29,8 +29,6 @@ function notifyApplyDamage(rSource, rTarget, rRoll)
 	if not rTarget then
 		return;
 	end
-
-	rRoll.bSecret = rRoll.bTower;
 
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionDamage.OOB_MSGTYPE_APPLYDMG;
@@ -41,30 +39,21 @@ function notifyApplyDamage(rSource, rTarget, rRoll)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
-function getRoll(rActor, rAction)
+function getRoll(_, rAction)
 	local rRoll = {};
 	rRoll.sType = "damage";
 	rRoll.aDice = {};
 	rRoll.nMod = 0;
 	rRoll.bWeapon = rAction.bWeapon;
-	
+
 	rRoll.sLabel = StringManager.capitalizeAll(rAction.label);
 	rRoll.nOrder = rAction.order;
-	rRoll.sRange = rAction.range;
-	rRoll.range = rAction.range; -- Legacy
-	
-	rRoll.sDesc = "[DAMAGE";
-	if rAction.order and rAction.order > 1 then
-		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
-	end
-	if rAction.range then
-		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range ..")";
-	end
-	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
-	
+
+	rRoll.sDesc = ActionDamageCore.encodeActionText(rAction);
+
 	-- Save the damage properties in the roll structure
 	rRoll.clauses = rAction.clauses;
-	
+
 	-- Add the dice and modifiers
 	for _,vClause in ipairs(rRoll.clauses) do
 		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, { dmgtype = vClause.dmgtype });
@@ -77,15 +66,19 @@ function getRoll(rActor, rAction)
 	if #(rAction.tAddText or {}) > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(rAction.tAddText, " ");
 	end
-	
+
 	-- Encode the damage types
 	ActionDamage.encodeDamageTypes(rRoll);
-	
+
+	-- Legacy
+	rRoll.sRange = rAction.range;
+	rRoll.range = rAction.range;
+
 	return rRoll;
 end
 function performRoll(draginfo, rActor, rAction)
 	local rRoll = ActionDamage.getRoll(rActor, rAction);
-	
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
@@ -93,41 +86,33 @@ function modDamage(rSource, rTarget, rRoll)
 	ActionDamage.setupModRoll(rRoll, rSource, rTarget);
 
 	if rSource then
+		ActionDamage.applyDmgBaseTypeEffectsToModRoll(rRoll, rSource, rTarget);
+
 		ActionDamage.applyAbilityEffectsToModRoll(rRoll, rSource, rTarget);
 		ActionDamage.applyDmgEffectsToModRoll(rRoll, rSource, rTarget);
 		ActionDamage.applyEffectModNotificationToModRoll(rRoll);
 
 		ActionDamage.applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget);
 	end
-	
+
 	if rRoll.bCritical then
 		ActionDamage.applyCriticalToModRoll(rRoll, rSource, rTarget);
 	end
-	
+
 	if ActorManager.isRecordType(rSource, "npc") and OptionsManager.isOption("NPCD", "fixed") then
 		ActionDamage.applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget);
 	end
 
 	ActionDamage.applyModifierKeysToModRoll(rRoll, rSource, rTarget);
-	
+
 	ActionDamage.finalizeModRoll(rRoll);
 end
-function onDamageRoll(rSource, rRoll)
+function onDamageRoll(_, rRoll)
 	ActionsManager2.applyGeneralRollModifiers(rRoll);
 	ActionDamage.decodeDamageTypes(rRoll, true);
 end
 function onDamage(rSource, rTarget, rRoll)
-	-- Rebuild detail fields if dragging from chat window
-	if not rRoll.nOrder then
-		rRoll.nOrder = tonumber(rRoll.sDesc:match("%[DAMAGE.*#%d+")) or nil;
-	end
-	if not rRoll.sRange then
-		rRoll.sRange = rRoll.sDesc:match("%[DAMAGE.*%((%w+)%)%]");
-		rRoll.range = rRoll.sRange; -- Legacy
-	end
-	if not rRoll.sLabel then
-		rRoll.sLabel = StringManager.trim(rRoll.sDesc:match("%[DAMAGE.*%]([^%[]+)"));
-	end
+	ActionDamageCore.decodeRollData(rRoll);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = string.gsub(rMessage.text, " %[MOD:[^]]*%]", "");
@@ -152,9 +137,11 @@ end
 --
 
 function setupModRoll(rRoll, rSource, rTarget)
+	ActionDamageCore.decodeRollData(rRoll);
+
 	ActionDamage.decodeDamageTypes(rRoll);
 	CombatManager2.addRightClickDiceToClauses(rRoll);
-	
+
 	rRoll.tNotifications = {};
 
 	rRoll.bCritical = rRoll.bCritical or ModifierManager.getKey("DMG_CRIT") or Input.isShiftPressed();
@@ -173,7 +160,7 @@ function setupModRoll(rRoll, rSource, rTarget)
 	rRoll.tEffectDice = {};
 	rRoll.nEffectMod = 0;
 end
-function applyAbilityEffectsToModRoll(rRoll, rSource, rTarget)
+function applyAbilityEffectsToModRoll(rRoll, rSource, _)
 	-- NOTE: Ability effects do not support targeting
 	for _,rClause in ipairs(rRoll.clauses) do
 		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, rClause.stat);
@@ -196,7 +183,7 @@ function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
 		if #(rRoll.clauses) > 0 then
 			sEffectBaseType = rRoll.clauses[1].dmgtype or "";
 		end
-		
+
 		for _,v in pairs(tDmgEffects) do
 			local bCritEffect = false;
 			local aEffectDmgType = {};
@@ -211,12 +198,12 @@ function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
 					table.insert(aEffectDmgType, sType);
 				end
 			end
-			
+
 			if not bCritEffect or rRoll.bCritical then
 				rRoll.bEffects = true;
-		
+
 				local rClause = {};
-				
+
 				rClause.dice = {};
 				for _,vDie in ipairs(v.dice) do
 					table.insert(rRoll.tEffectDice, vDie);
@@ -229,7 +216,7 @@ function applyDmgEffectsToModRoll(rRoll, rSource, rTarget)
 				rRoll.nEffectMod = rRoll.nEffectMod + v.mod;
 				rClause.modifier = v.mod;
 				rRoll.nMod = rRoll.nMod + v.mod;
-				
+
 				rClause.stat = "";
 
 				if #aEffectDmgType == 0 then
@@ -255,6 +242,21 @@ function applyEffectModNotificationToModRoll(rRoll)
 	if rRoll.bEffects then
 		local sMod = StringManager.convertDiceToString(rRoll.tEffectDice, rRoll.nEffectMod, true);
 		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(sMod));
+	end
+end
+function applyDmgBaseTypeEffectsToModRoll(rRoll, rSource, rTarget)
+	if rRoll.clauses[1] then
+		local tDmgBaseTypeEffects = EffectManager5E.getEffectsByType(rSource, "DMGBASETYPE", nil, rTarget);
+		if #tDmgBaseTypeEffects > 0 then
+			local sNewDmgType = tDmgBaseTypeEffects[1].remainder[1];
+			if StringManager.contains(DataCommon.dmgtypes, sNewDmgType) then
+				if (rRoll.clauses[1].dmgtype or "") == "" then
+					rRoll.clauses[1].dmgtype = sNewDmgType;
+				else
+					rRoll.clauses[1].dmgtype = rRoll.clauses[1].dmgtype:gsub("^%w*", sNewDmgType);
+				end
+			end
+		end
 	end
 end
 function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
@@ -286,9 +288,9 @@ function applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget)
 		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(table.concat(tAddDmgTypes, ",")));
 	end
 end
-function applyCriticalToModRoll(rRoll, rSource, rTarget)
+function applyCriticalToModRoll(rRoll, rSource, _)
 	table.insert(rRoll.tNotifications, "[CRITICAL]");
-	
+
 	-- Double the dice, and add extra critical dice
 	local aNewClauses = {};
 	local nMaxSides = 0;
@@ -304,7 +306,7 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 				break;
 			end
 		end
-		
+
 		if bApplyCritToClause then
 			local bNewMax = false;
 			local aCritClauseDice = {};
@@ -314,7 +316,7 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 				if vClause.reroll then
 					table.insert(aCritClauseReroll, vClause.reroll[kDie]);
 				end
-				
+
 				if kClause <= rRoll.nOrigClauses and vDie:sub(1,1) ~= "-" then
 					local nDieSides = tonumber(vDie:sub(2)) or 0;
 					if nDieSides > nMaxSides then
@@ -336,7 +338,7 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 					table.insert(rNewClause.reroll, aCritClauseReroll[kDie]);
 				end
 				table.insert(aNewClauses, rNewClause);
-				
+
 				if bNewMax then
 					nMaxClause = #aNewClauses;
 				end
@@ -355,9 +357,9 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 				end
 			end
 		end
-		
+
 		if nCritDice > 0 then
-			for i = 1, nCritDice do
+			for _ = 1, nCritDice do
 				table.insert(aNewClauses[nMaxClause].dice, "d" .. nMaxSides);
 				if aNewClauses[nMaxClause].reroll then
 					table.insert(aNewClauses[nMaxClause].reroll, aNewClauses[nMaxClause].reroll[1]);
@@ -365,7 +367,6 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 			end
 		end
 	end
-	local aFinalClauses = {};
 	for _,vClause in ipairs(aNewClauses) do
 		table.insert(rRoll.clauses, vClause);
 
@@ -376,7 +377,7 @@ function applyCriticalToModRoll(rRoll, rSource, rTarget)
 		DiceRollManager.addDamageDice(rRoll.aDice, vClause.dice, tDiceData);
 	end
 end
-function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
+function applyFixedDamageOptionToModRoll(rRoll, _, _)
 	local aFixedClauses = {};
 	local aFixedDice = {};
 	local nFixedPositiveCount = 0;
@@ -386,7 +387,7 @@ function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
 	for kClause,vClause in ipairs(rRoll.clauses) do
 		if kClause <= rRoll.nOrigClauses then
 			local nClauseFixedMod = 0;
-			for kDie,vDie in ipairs(vClause.dice) do
+			for _,vDie in ipairs(vClause.dice) do
 				if vDie:sub(1,1) == "-" then
 					nFixedNegativeCount = nFixedNegativeCount + 1;
 					nClauseFixedMod = nClauseFixedMod - math.floor(math.ceil(tonumber(vDie:sub(3)) or 0) / 2);
@@ -413,15 +414,15 @@ function applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget)
 			end
 			DiceRollManager.addDamageDice(aFixedDice, vClause.dice, tDiceData);
 		end
-		
+
 		table.insert(aFixedClauses, vClause);
 	end
-	
+
 	rRoll.clauses = aFixedClauses;
 	rRoll.aDice = aFixedDice;
 	rRoll.nMod = rRoll.nMod + nFixedMod;
 end
-function applyModifierKeysToModRoll(rRoll, rSource, rTarget)
+function applyModifierKeysToModRoll(rRoll, _, _)
 	if ModifierManager.getKey("DMG_MAX") then
 		table.insert(rRoll.tNotifications, "[MAX]");
 	end
@@ -462,10 +463,10 @@ function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 				bValid = false;
 			end
 		end
-		
+
 		if bValid then
 			local nSubTotal = StringManager.evalDice(v.dice, v.mod);
-			
+
 			local sDamageType = rDamageOutput.sFirstDamageType;
 			if sDamageType then
 				sDamageType = sDamageType .. "," .. k;
@@ -474,7 +475,7 @@ function applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget)
 			end
 
 			rDamageOutput.aDamageTypes[sDamageType] = (rDamageOutput.aDamageTypes[sDamageType] or 0) + nSubTotal;
-			
+
 			nDamageEffectTotal = nDamageEffectTotal + nSubTotal;
 			nDamageEffectCount = nDamageEffectCount + 1;
 		end
@@ -549,13 +550,13 @@ function decodeDamageTypes(rRoll, bFinal)
 		if #aReroll > 0 then
 			rClause.reroll = aReroll;
 		end
-		for kDie,vDie in ipairs(rClause.dice) do
+		for kDie,_ in ipairs(rClause.dice) do
 			nMainDieIndex = nMainDieIndex + 1;
 			local tDie = rRoll.aDice[nMainDieIndex];
 			if tDie then
-				if bFinal and 
-						rClause.reroll and rClause.reroll[kDie] and 
-						tDie.result and 
+				if bFinal and
+						rClause.reroll and rClause.reroll[kDie] and
+						tDie.result and
 						(math.abs(tDie.result) <= rClause.reroll[kDie]) then
 					local nDieSides = tonumber(string.match(tDie.type, "[%-%+]?[a-z](%d+)")) or 0;
 					if nDieSides > 0 then
@@ -572,7 +573,7 @@ function decodeDamageTypes(rRoll, bFinal)
 				rClause.nTotal = rClause.nTotal + (tDie.result or 0);
 			end
 		end
-		
+
 		table.insert(rRoll.clauses, rClause);
 	end
 	if #aRerollOutput > 0 then
@@ -585,7 +586,7 @@ function decodeDamageTypes(rRoll, bFinal)
 		local sTotal = string.match(sDamageDice, "=(%d+)");
 		if sTotal then
 			local nTotal = tonumber(sTotal) or 0;
-			
+
 			local rClause = {};
 			rClause.dmgtype = StringManager.trim(sDamageType);
 			rClause.stat = "";
@@ -596,7 +597,7 @@ function decodeDamageTypes(rRoll, bFinal)
 			table.insert(rRoll.clauses, rClause);
 		end
 	end
-	
+
 	-- Add untyped clause if no TYPE tag found
 	if #(rRoll.clauses) == 0 then
 		local rClause = {};
@@ -616,7 +617,7 @@ function decodeDamageTypes(rRoll, bFinal)
 
 		table.insert(rRoll.clauses, rClause);
 	end
-	
+
 	-- Handle drag results that are halved or doubled
 	if #(rRoll.aDice) == 0 then
 		local nResultTotal = 0;
@@ -637,10 +638,10 @@ function decodeDamageTypes(rRoll, bFinal)
 			end
 		end
 	end
-	
+
 	-- Remove damage type information from roll description
 	rRoll.sDesc = string.gsub(rRoll.sDesc, " %[TYPE:[^]]*%]", "");
-	
+
 	if bFinal then
 		local nFinalTotal = ActionsManager.total(rRoll);
 
@@ -680,7 +681,7 @@ function decodeDamageTypes(rRoll, bFinal)
 				end
 			end
 		end
-		
+
 		-- Collapse damage clauses into smallest set, then add to roll description as text
 		local aDamage = ActionDamage.getDamageStrings(rRoll.clauses);
 		for _, rDamage in ipairs(aDamage) do
@@ -716,20 +717,20 @@ function getDamageStrings(clauses)
 		rDmgType.nMod = rDmgType.nMod + vClause.modifier;
 		rDmgType.nTotal = rDmgType.nTotal + (vClause.nTotal or 0);
 	end
-	
+
 	return aOrderedTypes;
 end
 function getDamageTypesFromString(sDamageTypes)
 	local sLower = string.lower(sDamageTypes);
 	local aSplit = StringManager.split(sLower, ",", true);
-	
+
 	local aDamageTypes = {};
 	for _,v in ipairs(aSplit) do
 		if StringManager.contains(DataCommon.dmgtypes, v) then
 			table.insert(aDamageTypes, v);
 		end
 	end
-	
+
 	return aDamageTypes;
 end
 
@@ -737,115 +738,45 @@ end
 -- DAMAGE APPLICATION
 --
 
-function checkReductionTypeHelper(rMatch, aDmgType)
-	if not rMatch or (rMatch.mod ~= 0) then
-		return false;
-	end
-	if #(rMatch.aNegatives) > 0 then
-		local bMatchNegative = false;
-		for _,vNeg in pairs(rMatch.aNegatives) do
-			if StringManager.contains(aDmgType, vNeg) then
-				bMatchNegative = true;
-				break;
-			end
-		end
-		return not bMatchNegative;
-	end
-	return true;
-end
-function checkReductionType(aReduction, aDmgType)
-	for _,sDmgType in pairs(aDmgType) do
-		if ActionDamage.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamage.checkReductionTypeHelper(aReduction["all"], aDmgType) then
-			return true;
-		end
-	end
-	
-	return false;
-end
-function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
-	if not rMatch or (rMatch.mod == 0) then
-		return 0;
-	end
-
-	local bMatch = false;
-	if #rMatch.aNegatives > 0 then
-		local bMatchNegative = false;
-		for _,vNeg in pairs(rMatch.aNegatives) do
-			if StringManager.contains(aDmgType, vNeg) then
-				bMatchNegative = true;
-				break;
-			end
-		end
-		if not bMatchNegative then
-			bMatch = true;
-		end
-	else
-		bMatch = true;
-	end
-	
-	local nAdjust = 0;
-	if bMatch then
-		nAdjust = rMatch.mod - (rMatch.nApplied or 0);
-		if nLimit then
-			nAdjust = math.min(nAdjust, nLimit);
-		end
-		rMatch.nApplied = (rMatch.nApplied or 0) + nAdjust;
-	end
-	
-	return nAdjust;
-end
-function checkNumericalReductionType(aReduction, aDmgType, nLimit)
-	local nAdjust = 0;
-	for _,sDmgType in pairs(aDmgType) do
-		if nLimit then
-			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType, nLimit);
-		else
-			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType);
-		end
-	end
-	if nLimit then
-		nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType, nLimit - nAdjust);
-	else
-		nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType);
-	end
-
-	return nAdjust;
-end
 function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 	local nDamageAdjust = 0;
 	local bVulnerable = false;
 	local bResist = false;
-	
+
 	-- Get damage adjustment effects
-	local aVuln = ActorManager5E.getDamageVulnerabilities(rTarget, rSource);
-	local aResist = ActorManager5E.getDamageResistances(rTarget, rSource);
-	local aImmune = ActorManager5E.getDamageImmunities(rTarget, rSource);
-	
+	local tVuln = ActorManager5E.getDamageVulnerabilities(rTarget, rSource);
+	local tResist = ActorManager5E.getDamageResistances(rTarget, rSource);
+	local tImmune = ActorManager5E.getDamageImmunities(rTarget, rSource);
+
 	-- Handle immune all
-	if aImmune["all"] then
+	if tImmune["all"] then
 		nDamageAdjust = 0 - nDamage;
 		bResist = true;
 		return nDamageAdjust, bVulnerable, bResist;
 	end
-	
+
+	local bBasicDamage = false;
+	local tBasicDamageTypes = { "bludgeoning", "piercing", "slashing", };
+
 	-- Iterate through damage type entries for vulnerability, resistance and immunity
-	local nVulnApplied = 0;
 	local bResistCarry = false;
 	for k, v in pairs(rDamageOutput.aDamageTypes) do
 		-- Get individual damage types for each damage clause
-		local aSrcDmgClauseTypes = {};
-		local aTemp = StringManager.split(k, ",", true);
-		for _,vType in ipairs(aTemp) do
-			if vType ~= "untyped" and vType ~= "" then
-				table.insert(aSrcDmgClauseTypes, vType);
+		local tDamageTypes = {};
+		for _,sType in ipairs(StringManager.split(k, ",", true)) do
+			if (sType ~= "untyped") and (sType ~= "") then
+				table.insert(tDamageTypes, sType);
+				if not bBasicDamage and StringManager.contains(tBasicDamageTypes, sType) then
+					bBasicDamage = true;
+				end
 			end
 		end
-		
+
 		-- Handle standard immunity, vulnerability and resistance
-		local bLocalVulnerable = ActionDamage.checkReductionType(aVuln, aSrcDmgClauseTypes);
-		local bLocalResist = ActionDamage.checkReductionType(aResist, aSrcDmgClauseTypes);
-		local bLocalImmune = ActionDamage.checkReductionType(aImmune, aSrcDmgClauseTypes);
-		
+		local bLocalVulnerable = ActionDamage.checkBasicReductionType(tVuln, tDamageTypes);
+		local bLocalResist = ActionDamage.checkBasicReductionType(tResist, tDamageTypes);
+		local bLocalImmune = ActionDamage.checkBasicReductionType(tImmune, tDamageTypes);
+
 		-- Calculate adjustment
 		-- Vulnerability = double
 		-- Resistance = half
@@ -856,13 +787,13 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 			bResist = true;
 		else
 			-- Handle numerical resistance
-			local nLocalResist = ActionDamage.checkNumericalReductionType(aResist, aSrcDmgClauseTypes, v);
+			local nLocalResist = ActionDamage.checkNumericReductionType(tResist, tDamageTypes, v);
 			if nLocalResist ~= 0 then
 				nLocalDamageAdjust = nLocalDamageAdjust - nLocalResist;
 				bResist = true;
 			end
 			-- Handle numerical vulnerability
-			local nLocalVulnerable = ActionDamage.checkNumericalReductionType(aVuln, aSrcDmgClauseTypes);
+			local nLocalVulnerable = ActionDamage.checkNumericReductionType(tVuln, tDamageTypes);
 			if nLocalVulnerable ~= 0 then
 				nLocalDamageAdjust = nLocalDamageAdjust + nLocalVulnerable;
 				bVulnerable = true;
@@ -888,11 +819,11 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 				bVulnerable = true;
 			end
 		end
-		
+
 		-- Apply adjustment to this damage type clause
 		nDamageAdjust = nDamageAdjust + nLocalDamageAdjust;
 	end
-	
+
 	-- Handle damage and mishap threshold
 	if (rTarget.sSubtargetPath or "") ~= "" then
 		local nDT = DB.getValue(DB.getPath(rTarget.sSubtargetPath, "damagethreshold"), 0);
@@ -912,13 +843,95 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 		end
 	end
 
+	-- Handle Heavy Armor Master notification
+	if bResist and bBasicDamage then
+		if ActorManager5E.hasRollFeat(rTarget, CharManager.FEAT_HEAVY_ARMOR_MASTER) then
+			table.insert(rDamageOutput.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feat_heavyarmormaster")));
+		end
+	end
+
 	-- Results
 	return nDamageAdjust, bVulnerable, bResist;
+end
+function checkBasicReductionType(tData, tDamageTypes)
+	if not tData then
+		return false;
+	end
+
+	if ActionDamage.helperCheckBasicReductionType(tData["all"], tDamageTypes) then
+		return true;
+	end
+	for _,sType in pairs(tDamageTypes) do
+		if ActionDamage.helperCheckBasicReductionType(tData[sType], tDamageTypes) then
+			return true;
+		end
+	end
+	return false;
+end
+function helperCheckBasicReductionType(tData, tDamageTypes)
+	if not tData then
+		return false;
+	end
+	for _,tBasicData in ipairs(tData.tBasic or {}) do
+		local bMatchNegative = false;
+		for _,s in pairs(tBasicData.tNegatives or {}) do
+			if StringManager.contains(tDamageTypes, s) then
+				bMatchNegative = true;
+				break;
+			end
+		end
+		if not bMatchNegative then
+			return true;
+		end
+	end
+	return false;
+end
+function checkNumericReductionType(tData, tDamageTypes, nLimit)
+	if not tData then
+		return false;
+	end
+
+	local nAdjust = 0;
+	for _,sDmgType in pairs(tDamageTypes) do
+		nAdjust = nAdjust + ActionDamage.helperCheckNumericReductionType(tData[sDmgType], tDamageTypes, nLimit);
+	end
+	nAdjust = nAdjust + ActionDamage.helperCheckNumericReductionType(tData["all"], tDamageTypes, nLimit and (nLimit - nAdjust));
+	return nAdjust;
+end
+function helperCheckNumericReductionType(tData, tDamageTypes, nLimit)
+	if not tData then
+		return 0;
+	end
+
+	local nMax = 0;
+	for _,tNumericData in ipairs(tData.tNumeric or {}) do
+		local bMatchNegative = false;
+		for _,s in pairs(tNumericData.tNegatives or {}) do
+			if StringManager.contains(tDamageTypes, s) then
+				bMatchNegative = true;
+				break;
+			end
+		end
+		if not bMatchNegative then
+			nMax = math.max(nMax, tNumericData.nMod);
+		end
+	end
+
+	if nMax == 0 then
+		return 0;
+	end
+
+	local nAdjust = nMax - (tData.nApplied or 0);
+	if nLimit then
+		nAdjust = math.min(nAdjust, nLimit);
+	end
+	tData.nApplied = (tData.nApplied or 0) + nAdjust;
+	return nAdjust;
 end
 
 function decodeDamageText(nDamage, sDamageDesc)
 	local rDamageOutput = {};
-	
+
 	if string.match(sDamageDesc, "%[RECOVERY") then
 		rDamageOutput.sType = "recovery";
 		rDamageOutput.sTypeOutput = "Recovery";
@@ -952,7 +965,8 @@ function decodeDamageText(nDamage, sDamageDesc)
 		rDamageOutput.bCritical = string.match(sDamageDesc, "%[CRITICAL%]");
 
 		-- Determine range
-		rDamageOutput.sRange = string.match(sDamageDesc, "%[DAMAGE %((%w)%)%]") or "";
+		local sDamageRangePattern = string.format("%%[%s %%((%%w)%%)%%]", Interface.getString("action_damage_tag"));
+		rDamageOutput.sRange = string.match(sDamageDesc, sDamageRangePattern) or "";
 		rDamageOutput.aDamageFilter = {};
 		if rDamageOutput.sRange == "M" then
 			table.insert(rDamageOutput.aDamageFilter, "melee");
@@ -963,13 +977,13 @@ function decodeDamageText(nDamage, sDamageDesc)
 		-- Determine damage energy types
 		local nDamageRemaining = nDamage;
 		rDamageOutput.aDamageTypes = {};
-		for sDamageType, sDamageDice, sDamageSubTotal in string.gmatch(sDamageDesc, "%[TYPE: ([^(]*) %(([%d%+%-dD]+)%=(%d+)%)%]") do
+		for sDamageType,_,sDamageSubTotal in string.gmatch(sDamageDesc, "%[TYPE: ([^(]*) %(([%d%+%-dD]+)%=(%d+)%)%]") do
 			local nDamageSubTotal = (tonumber(sDamageSubTotal) or 0);
 			rDamageOutput.aDamageTypes[sDamageType] = nDamageSubTotal + (rDamageOutput.aDamageTypes[sDamageType] or 0);
 			if not rDamageOutput.sFirstDamageType then
 				rDamageOutput.sFirstDamageType = sDamageType;
 			end
-			
+
 			nDamageRemaining = nDamageRemaining - nDamageSubTotal;
 		end
 		if nDamageRemaining > 0 then
@@ -978,7 +992,7 @@ function decodeDamageText(nDamage, sDamageDesc)
 			ChatManager.SystemMessage("Total mismatch in damage type totals");
 		end
 	end
-	
+
 	return rDamageOutput;
 end
 
@@ -1028,11 +1042,9 @@ function applyDamage(rSource, rTarget, rRoll)
 	-- Decode damage/heal description
 	local rDamageOutput = ActionDamage.decodeDamageText(rRoll.nTotal, rRoll.sDesc);
 	rDamageOutput.tNotifications = {};
-	
+
 	-- Healing
 	if rDamageOutput.sType == "recovery" then
-		local sClassNode = rRoll.sDesc:match("%[NODE:([^]]+)%]");
-		
 		if nWounds <= 0 then
 			table.insert(rDamageOutput.tNotifications, "[NOT WOUNDED]");
 		else
@@ -1040,6 +1052,7 @@ function applyDamage(rSource, rTarget, rRoll)
 			local nClassHD = 0;
 			local nClassHDMult = 0;
 			local nClassHDUsed = 0;
+			local sClassNode = rRoll.sDesc:match("%[NODE:([^]]+)%]");
 			if (sTargetNodeType == "pc") and sClassNode then
 				local nodeClass = DB.findNode(sClassNode);
 				if nodeClass then
@@ -1048,26 +1061,26 @@ function applyDamage(rSource, rTarget, rRoll)
 					nClassHDUsed = DB.getValue(nodeClass, "hdused", 0);
 				end
 			end
-			
+
 			if (nClassHD * nClassHDMult) <= nClassHDUsed then
 				table.insert(rDamageOutput.tNotifications, "[INSUFFICIENT HIT DICE FOR THIS CLASS]");
 			else
 				-- Calculate heal amounts
 				local nHealAmount = rDamageOutput.nVal;
-				
+
 				-- If healing from zero (or negative), then remove Stable effect and reset wounds to match HP
 				if (nHealAmount > 0) and (nWounds >= nTotalHP) then
 					EffectManager.removeCondition(rTarget, "Stable");
 					nWounds = nTotalHP;
 				end
-				
+
 				local nWoundHealAmount = math.min(nHealAmount, nWounds);
 				nWounds = nWounds - nWoundHealAmount;
-				
+
 				-- Display actual heal amount
 				rDamageOutput.nVal = nWoundHealAmount;
 				rDamageOutput.sVal = string.format("%01d", nWoundHealAmount);
-				
+
 				-- Decrement HD used
 				if (sTargetNodeType == "pc") and sClassNode then
 					local nodeClass = DB.findNode(sClassNode);
@@ -1085,17 +1098,17 @@ function applyDamage(rSource, rTarget, rRoll)
 		else
 			-- Calculate heal amounts
 			local nHealAmount = rDamageOutput.nVal;
-			
+
 			-- If healing from zero (or negative), then remove Stable effect and reset wounds to match HP
 			if (nHealAmount > 0) and (nWounds >= nTotalHP) then
 				EffectManager.removeCondition(rTarget, "Stable");
 				nWounds = nTotalHP;
 			end
-			
+
 			local nWoundHealAmount = math.min(nHealAmount, nWounds);
 			nWounds = nWounds - nWoundHealAmount;
 			rRoll.nOverflow = nHealAmount - nWoundHealAmount;
-			
+
 			-- Display actual heal amount
 			rDamageOutput.nVal = nWoundHealAmount;
 			rDamageOutput.sVal = string.format("%01d", nWoundHealAmount);
@@ -1107,17 +1120,17 @@ function applyDamage(rSource, rTarget, rRoll)
 
 	-- Damage
 	else
-		-- Apply any targeted damage effects 
+		-- Apply any targeted damage effects
 		if rSource and rTarget and rTarget.nOrder then
 			ActionDamage.applyTargetedDmgEffectsToDamageOutput(rDamageOutput, rSource, rTarget);
 			ActionDamage.applyTargetedDmgTypeEffectsToDamageOutput(rDamageOutput, rSource, rTarget);
 		end
-		
+
 		-- Handle avoidance/evasion and half damage
 		local isAvoided = false;
 		local isHalf = rRoll.sDesc:match("%[HALF%]");
-		local sAttack = rRoll.sDesc:match("%[DAMAGE[^]]*%] ([^[]+)");
-		if sAttack then
+		local sAttack = ActionDamageCore.decodeLabelText(rRoll.sDesc);
+		if (sAttack or "") ~= "" then
 			local sDamageState = ActionDamage.getDamageState(rSource, rTarget, StringManager.trim(sAttack));
 			if sDamageState == "none" then
 				isAvoided = true;
@@ -1131,7 +1144,7 @@ function applyDamage(rSource, rTarget, rRoll)
 		end
 		if isAvoided then
 			table.insert(rDamageOutput.tNotifications, "[EVADED]");
-			for kType, nType in pairs(rDamageOutput.aDamageTypes) do
+			for kType,_ in pairs(rDamageOutput.aDamageTypes) do
 				rDamageOutput.aDamageTypes[kType] = 0;
 			end
 			rDamageOutput.nVal = 0;
@@ -1152,7 +1165,7 @@ function applyDamage(rSource, rTarget, rRoll)
 			end
 			rDamageOutput.nVal = math.max(math.floor(rDamageOutput.nVal / 2), 1);
 		end
-		
+
 		-- Apply damage type adjustments
 		rTarget.sSubtargetPath = rRoll.sSubtargetPath;
 		local nDamageAdjust, bVulnerable, bResist = ActionDamage.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
@@ -1170,10 +1183,10 @@ function applyDamage(rSource, rTarget, rRoll)
 		if bVulnerable then
 			table.insert(rDamageOutput.tNotifications, "[VULNERABLE]");
 		end
-		
+
 		-- Prepare for concentration checks if damaged
 		nConcentrationDamage = nAdjustedDamage;
-		
+
 		-- Reduce damage by temporary hit points
 		if nTempHP > 0 and nAdjustedDamage > 0 then
 			if nAdjustedDamage > nTempHP then
@@ -1191,17 +1204,17 @@ function applyDamage(rSource, rTarget, rRoll)
 		if nAdjustedDamage > 0 then
 			-- Remember previous wounds
 			local nPrevWounds = nWounds;
-			
+
 			-- Apply wounds
 			nWounds = math.max(nWounds + nAdjustedDamage, 0);
-			
+
 			-- Calculate wounds above HP
 			local nRemainder = 0;
 			if nWounds > nTotalHP then
 				nRemainder = nWounds - nTotalHP;
 				nWounds = nTotalHP;
 			end
-			
+
 			-- Deal with remainder damage
 			rRoll.nOverflow = nRemainder;
 			if nRemainder >= nTotalHP then
@@ -1222,7 +1235,7 @@ function applyDamage(rSource, rTarget, rRoll)
 					ActionSave.performSystemShockRoll(nil, rTarget);
 				end
 			end
-			
+
 			-- Handle stable situation
 			EffectManager.removeCondition(rTarget, "Stable");
 
@@ -1231,14 +1244,13 @@ function applyDamage(rSource, rTarget, rRoll)
 				-- Disable regeneration next round on correct damage type
 				-- Calculate which damage types actually did damage
 				local aTempDamageTypes = {};
-				local aActualDamageTypes = {};
 				for k,v in pairs(rDamageOutput.aDamageTypes) do
 					if v > 0 then
 						table.insert(aTempDamageTypes, k);
 					end
 				end
 				local aActualDamageTypes = StringManager.split(table.concat(aTempDamageTypes, ","), ",", true);
-				
+
 				-- Check target's effects for regeneration effects that match
 				for _,v in ipairs(DB.getChildList(nodeTargetCT, "effects")) do
 					local nActive = DB.getValue(v, "isactive", 0);
@@ -1255,7 +1267,7 @@ function applyDamage(rSource, rTarget, rRoll)
 									end
 								end
 							end
-							
+
 							if bMatch then
 								EffectManager.disableEffect(nodeTargetCT, v);
 							end
@@ -1264,12 +1276,12 @@ function applyDamage(rSource, rTarget, rRoll)
 				end
 			end
 		end
-		
+
 		-- Update the damage output variable to reflect adjustments
 		rDamageOutput.nVal = nAdjustedDamage;
 		rDamageOutput.sVal = string.format("%01d", nAdjustedDamage);
 	end
-	
+
 	-- Clear death saves if health greater than zero
 	if nWounds < nTotalHP then
 		nDeathSaveSuccess = 0;
@@ -1320,7 +1332,7 @@ function applyDamage(rSource, rTarget, rRoll)
 		end
 
 		-- Check for status announcement
-		local bShowStatus = false;
+		local bShowStatus;
 		if ActorManager.isFaction(rTarget, "friend") then
 			bShowStatus = not OptionsManager.isOption("SHPC", "off");
 		else
@@ -1364,7 +1376,7 @@ function messageDamage(rSource, rTarget, rRoll)
 	if not rTarget then
 		return;
 	end
-	
+
 	local msgShort = { font = "msgfont" };
 	local msgLong = { font = "msgfont" };
 
@@ -1411,8 +1423,8 @@ function messageDamage(rSource, rTarget, rRoll)
 	if (rRoll.sResults or "") ~= "" then
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sResults);
 	end
-	
-	ActionsManager.outputResult(rRoll.bSecret, rSource, rTarget, msgLong, msgShort);
+
+	ActionsManager.outputResult(rRoll.bTower, rSource, rTarget, msgLong, msgShort);
 end
 
 --
@@ -1423,11 +1435,11 @@ local aDamageState = {};
 
 function applyDamageState(rSource, rTarget, sAttack, sState)
 	local msgOOB = {};
-	msgOOB.type = OOB_MSGTYPE_APPLYDMGSTATE;
-	
+	msgOOB.type = ActionDamage.OOB_MSGTYPE_APPLYDMGSTATE;
+
 	msgOOB.sSourceNode = ActorManager.getCTNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCTNodeName(rTarget);
-	
+
 	msgOOB.sAttack = sAttack;
 	msgOOB.sState = sState;
 
@@ -1436,7 +1448,7 @@ end
 function handleApplyDamageState(msgOOB)
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
-	
+
 	if Session.IsHost then
 		ActionDamage.setDamageState(rSource, rTarget, msgOOB.sAttack, msgOOB.sState);
 	end
@@ -1446,13 +1458,13 @@ function setDamageState(rSource, rTarget, sAttack, sState)
 		ActionDamage.applyDamageState(rSource, rTarget, sAttack, sState);
 		return;
 	end
-	
+
 	local sSourceCT = ActorManager.getCTNodeName(rSource);
 	local sTargetCT = ActorManager.getCTNodeName(rTarget);
 	if sSourceCT == "" or sTargetCT == "" then
 		return;
 	end
-	
+
 	if not aDamageState[sSourceCT] then
 		aDamageState[sSourceCT] = {};
 	end
@@ -1470,7 +1482,7 @@ function getDamageState(rSource, rTarget, sAttack)
 	if sSourceCT == "" or sTargetCT == "" then
 		return "";
 	end
-	
+
 	if not aDamageState[sSourceCT] then
 		return "";
 	end
@@ -1480,8 +1492,85 @@ function getDamageState(rSource, rTarget, sAttack)
 	if not aDamageState[sSourceCT][sAttack][sTargetCT] then
 		return "";
 	end
-	
+
 	local sState = aDamageState[sSourceCT][sAttack][sTargetCT];
 	aDamageState[sSourceCT][sAttack][sTargetCT] = nil;
 	return sState;
+end
+
+-- DEPRECATED (2025-03)
+
+function checkReductionTypeHelper(rMatch, aDmgType)
+	if not rMatch or (rMatch.mod ~= 0) then
+		return false;
+	end
+	if #(rMatch.aNegatives) > 0 then
+		local bMatchNegative = false;
+		for _,vNeg in pairs(rMatch.aNegatives) do
+			if StringManager.contains(aDmgType, vNeg) then
+				bMatchNegative = true;
+				break;
+			end
+		end
+		return not bMatchNegative;
+	end
+	return true;
+end
+function checkReductionType(aReduction, aDmgType)
+	for _,sDmgType in pairs(aDmgType) do
+		if ActionDamage.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamage.checkReductionTypeHelper(aReduction["all"], aDmgType) then
+			return true;
+		end
+	end
+
+	return false;
+end
+function checkNumericalReductionTypeHelper(rMatch, aDmgType, nLimit)
+	if not rMatch or (rMatch.mod == 0) then
+		return 0;
+	end
+
+	local bMatch = false;
+	if #rMatch.aNegatives > 0 then
+		local bMatchNegative = false;
+		for _,vNeg in pairs(rMatch.aNegatives) do
+			if StringManager.contains(aDmgType, vNeg) then
+				bMatchNegative = true;
+				break;
+			end
+		end
+		if not bMatchNegative then
+			bMatch = true;
+		end
+	else
+		bMatch = true;
+	end
+
+	local nAdjust = 0;
+	if bMatch then
+		nAdjust = rMatch.mod - (rMatch.nApplied or 0);
+		if nLimit then
+			nAdjust = math.min(nAdjust, nLimit);
+		end
+		rMatch.nApplied = (rMatch.nApplied or 0) + nAdjust;
+	end
+
+	return nAdjust;
+end
+function checkNumericalReductionType(aReduction, aDmgType, nLimit)
+	local nAdjust = 0;
+	for _,sDmgType in pairs(aDmgType) do
+		if nLimit then
+			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType, nLimit);
+		else
+			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType);
+		end
+	end
+	if nLimit then
+		nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType, nLimit - nAdjust);
+	else
+		nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType);
+	end
+
+	return nAdjust;
 end

@@ -8,12 +8,11 @@
 <root>
 	<windowclass name="quest_main" merge="join">
 		<script>
-			function update()
-				super.update();
-
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				cr.setReadOnly(bReadOnly);
-				xp.setReadOnly(bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				if super.onLockModeChanged then
+					super.onLockModeChanged(bReadOnly);
+				end
+				WindowManager.callSafeControlsSetLockMode(self, { "cr", "xp", }, bReadOnly);
 			end
 		</script>
 		<sheetdata>

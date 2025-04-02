@@ -1,10 +1,10 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ActionsManager.registerResultHandler("recharge", onRecharge);
+	ActionsManager.registerResultHandler("recharge", ActionRecharge.onRecharge);
 end
 
 function performRoll(draginfo, rActor, sRecharge, nRecharge, bGMOnly, nodeEffect)
@@ -12,25 +12,25 @@ function performRoll(draginfo, rActor, sRecharge, nRecharge, bGMOnly, nodeEffect
 	rRoll.sType = "recharge";
 	rRoll.aDice = DiceRollManager.getActorDice({ "d6" }, rActor);
 	rRoll.nMod = 0;
-	
+
 	rRoll.sDesc = "[RECHARGE " .. nRecharge .. "+] " .. StringManager.capitalizeAll(sRecharge);
 
 	rRoll.bSecret = bGMOnly;
-	
+
 	if nodeEffect then
 		rRoll.sEffectRecord = DB.getPath(nodeEffect);
 	end
-	
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function onRecharge(rSource, rTarget, rRoll)
+function onRecharge(rSource, _, rRoll)
 	-- Validate
 	if not Session.IsHost then
 		ChatManager.SystemMessage(Interface.getString("ct_error_rechargeclient"));
 		return;
 	end
-	
+
 	-- Create basic message
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
@@ -39,7 +39,7 @@ function onRecharge(rSource, rTarget, rRoll)
 	if rRoll.sEffectRecord and rRoll.sEffectRecord ~= "" then
 		nodeTargetEffect = DB.findNode(rRoll.sEffectRecord);
 	end
-	
+
 	-- If target effect found, then check for recharge
 	if nodeTargetEffect then
 		-- Check the effect components
@@ -55,13 +55,13 @@ function onRecharge(rSource, rTarget, rRoll)
 				break;
 			end
 		end
-		
+
 		-- Check for successful recharge
 		local nTotal = ActionsManager.total(rRoll);
 		if nRecharge and nTotal >= nRecharge then
 			-- Add notification
 			rMessage.text = rMessage.text .. " [RECHARGED]";
-			
+
 			-- Delete effect
 			local nodeEffectsList = DB.getParent(nodeTargetEffect);
 			DB.deleteNode(nodeTargetEffect);

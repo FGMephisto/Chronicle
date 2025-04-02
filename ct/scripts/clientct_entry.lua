@@ -1,20 +1,20 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
 	super.onInit();
-	onHealthChanged();
+	self.onHealthChanged();
 end
 
 function onFactionChanged()
 	super.onFactionChanged();
-	updateHealthDisplay();
+	self.updateHealthDisplay();
 end
 function onActiveChanged()
 	super.onActiveChanged();
-	
+
 	local sClass = link.getValue();
 	local sRecordType = LibraryData.getRecordTypeFromDisplayClass(sClass);
 	if (sRecordType == "vehicle") and name.isVisible() then
@@ -27,13 +27,13 @@ function onActiveChanged()
 end
 function onIDChanged()
 	super.onIDChanged();
-	
+
 	self.onActiveChanged();
 end
 function onHealthChanged()
 	local rActor = ActorManager.resolveActor(getDatabaseNode())
 	local sColor = ActorHealthManager.getHealthColor(rActor);
-	
+
 	wounds.setColor(sColor);
 	status.setColor(sColor);
 end
@@ -45,7 +45,7 @@ function updateHealthDisplay()
 	else
 		sOption = OptionsManager.getOption("SHNPC");
 	end
-	
+
 	local bShowDetail = (sOption == "detailed");
 	local bShowStatus = (sOption == "status");
 

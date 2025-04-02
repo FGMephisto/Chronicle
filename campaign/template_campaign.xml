@@ -54,9 +54,11 @@
 	<windowclass name="record_version">
 		<margins control="0,0,0,2" />
 		<script>
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());				
-				version.setReadOnly(bReadOnly);
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "version", }, bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -213,7 +215,7 @@
 					action(draginfo);
 					return true;
 				end
-				
+
 				function onButtonPress()
 					action();
 					return true;
@@ -236,7 +238,7 @@
 					action(draginfo);
 					return true;
 				end
-				
+
 				function onButtonPress()
 					action();
 					return true;

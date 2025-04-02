@@ -1,17 +1,19 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
-function onInit()
-	OptionsManager.registerCallback("HREN", onHRENOptionChanged);
-	onHRENOptionChanged();
+--luacheck: globals attunecalc.warning
 
-	updateAttunement();
+function onInit()
+	OptionsManager.registerCallback("HREN", self.onHRENOptionChanged);
+	self.onHRENOptionChanged();
+
+	self.updateAttunement();
 end
 
 function onClose()
-	OptionsManager.unregisterCallback("HREN", onHRENOptionChanged);
+	OptionsManager.unregisterCallback("HREN", self.onHRENOptionChanged);
 end
 
 function onHRENOptionChanged()
@@ -23,7 +25,7 @@ function onHRENOptionChanged()
 	encumbranceheavy.setVisible(bShowVariant);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	return ItemManager.handleAnyDrop(getDatabaseNode(), draginfo);
 end
 
@@ -32,7 +34,7 @@ function updateAttunement()
 	local nUsed = CharAttunementManager.getUsedSlots(nodeChar);
 	local nAllowed = CharAttunementManager.getTotalSlots(nodeChar);
 	local sUsage = string.format("%d / %d", nUsed, nAllowed);
-	
+
 	attunecalc.setValue(sUsage);
 	if nUsed > nAllowed then
 		attunecalc.setColor(attunecalc.warning[1])

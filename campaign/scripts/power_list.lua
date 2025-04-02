@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -7,23 +7,17 @@ local aFilters = {};
 
 function onInit()
 	local sPath = getDatabaseNode();
-	DB.addHandler(sPath, "onChildAdded", onChildListChanged);
-	DB.addHandler(sPath, "onChildDeleted", onChildListChanged);
+	DB.addHandler(sPath, "onChildAdded", self.onChildListChanged);
+	DB.addHandler(sPath, "onChildDeleted", self.onChildListChanged);
 end
 function onClose()
 	local sPath = getDatabaseNode();
-	DB.removeHandler(sPath, "onChildAdded", onChildListChanged);
-	DB.removeHandler(sPath, "onChildDeleted", onChildListChanged);
+	DB.removeHandler(sPath, "onChildAdded", self.onChildListChanged);
+	DB.removeHandler(sPath, "onChildDeleted", self.onChildListChanged);
 end
 
-function addEntry(bFocus)
-	local w = createWindow();
-	if w then
-		if bFocus then
-			w.header.subwindow.name.setFocus();
-		end
-	end
-	return w;
+function addEntry()
+	return createWindow(nil, true);
 end
 
 function onChildListChanged()
@@ -38,10 +32,10 @@ function onEnter()
 		createWindow(nil, true);
 		return true;
 	end
-	
+
 	return false;
 end
-					
+
 function onDrop(x, y, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass = draginfo.getShortcutData();
@@ -67,7 +61,7 @@ function onHeaderToggle(wh)
 		aFilters[sCategory] = nil;
 		wh.name.setFont("subwindowsmalltitle");
 	else
-		aFilters[sCategory] = true; 
+		aFilters[sCategory] = true;
 		wh.name.setFont("subwindowsmalltitle_disabled");
 	end
 	applyFilter();
@@ -83,6 +77,6 @@ function onFilter(w)
 	if aFilters[sCategory] then
 		return false;
 	end
-	
+
 	return w.getFilter();
 end

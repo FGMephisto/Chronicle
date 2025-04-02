@@ -43,7 +43,7 @@ function addListRecord(vNode)
 
 	rRecord.sModuleName = DB.getModule(vNode);
 	rRecord.sModule = ModuleManager.getModuleDisplayName(rRecord.sModuleName);
-	if (DB.getValue(vNode, "version", "") ~= "2024") then 
+	if (DB.getValue(vNode, "version", "") ~= "2024") then
 		local sLegacySuffix = Interface.getString("suffix_legacy");
 		if not StringManager.endsWith(rRecord.sModule, sLegacySuffix) then
 			rRecord.sModule = string.format("%s %s", rRecord.sModule, sLegacySuffix);
@@ -66,7 +66,7 @@ function buildFilters()
 	end
 end
 
-function addDisplayListItem(k, tClass)
+function addDisplayListItem(_, tClass)
 	if #(tClass or {}) == 0 then
 		return;
 	end
@@ -87,7 +87,7 @@ function addDisplayListItem(k, tClass)
 				nOrder = k2;
 				break
 			else
-				for k3,v3 in ipairs(CharWizardData.module_order_2014) do
+				for _,v3 in ipairs(CharWizardData.module_order_2014) do
 					if v.sModuleName == v3 then
 						nOrder = k2 + 1;
 						break

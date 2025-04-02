@@ -58,14 +58,14 @@
 			<button_modifierkey name="DIS">
 				<bounds>80,35,30,18</bounds>
 			</button_modifierkey>
-			
+
 			<button_modifierkey name="PLUS2">
 				<bounds>120,8,30,18</bounds>
 			</button_modifierkey>
 			<button_modifierkey name="MINUS2">
 				<bounds>120,35,30,18</bounds>
 			</button_modifierkey>
-			
+
 			<button_modifierkey name="PLUS5">
 				<bounds>160,8,30,18</bounds>
 			</button_modifierkey>

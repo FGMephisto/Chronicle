@@ -41,18 +41,13 @@
 			<class>charsheet_notes</class>
 		</tab>
 		<tab merge="add">
-			<name>logs</name>
-			<resource>tab_log</resource>
-			<class>charsheet_logs</class>
-		</tab>
-		<tab merge="add">
 			<name>actions</name>
 			<resource>tab_actions</resource>
 			<class>charsheet_actions</class>
 		</tab>
 		<script file="campaign/scripts/char.lua" />
 	</windowclass>
-	
+
 	<windowclass name="charsheet_overview" copy="charsheet_overview_base_alt">
 		<script file="campaign/scripts/char_overview.lua" />
 		<sheetdata>

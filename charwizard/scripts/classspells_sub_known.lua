@@ -4,7 +4,6 @@
 --
 
 local _tSlots = {};
-local sFilter = "";
 
 function onInit()
 	self.buildRecords();
@@ -50,9 +49,9 @@ function buildRecords(bUpdate)
 	if not bUpdate then
 		self.buildFilters();
 	end
-	
+
 	local tSpells = self.getAllRecords();
-	for k,v in pairs(tSpells) do
+	for _,v in pairs(tSpells) do
 		if self.isFilteredRecord(v) then
 			self.addDisplayListItem(v);
 		end

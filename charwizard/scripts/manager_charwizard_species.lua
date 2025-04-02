@@ -28,7 +28,7 @@ function setSpeciesRecord(sRecord)
 	end
 	CharWizardManager.updateAlerts();
 end
-function getAncestryRecord(sRecord)
+function getAncestryRecord()
 	local tSpecies = CharWizardManager.getSpeciesData();
 	return tSpecies.ancestry;
 end
@@ -69,10 +69,11 @@ function setSpeciesSpeed(n)
 end
 function addSpeciesSpecialMove(s, vDist)
 	local nDist = math.max(tonumber(vDist) or 0, 0);
-	if not nodeChar or ((s or "") == "") then
+	if ((s or "") == "") then
 		return;
 	end
 
+	local tSpecies = CharWizardManager.getSpeciesData();
 	local tSplit = StringManager.splitByPattern(tSpecies.speedspecial, ",", true);
 
 	if nDist == 0 then
@@ -84,8 +85,8 @@ function addSpeciesSpecialMove(s, vDist)
 		local sNewMove = string.format("%s %d", s, nDist);
 		local sPatternMove = string.format("^%s %%d+$", s);
 		local bPatternMatch = false;
-		for k,v in ipairs(tSplit) do
-			local sPatternMatch = sSpecialMove:match(sPatternMove);
+		for k,s in ipairs(tSplit) do
+			local sPatternMatch = s:match(sPatternMove);
 			if sPatternMatch then
 				if (tonumber(sPatternMatch) or 0) >= nDist then
 					return;
@@ -268,6 +269,7 @@ function removeSpeciesChoiceFeatPath(sPath)
 end
 
 function setSpeciesSpellAbility(sAbility)
+	local tSpecies = CharWizardManager.getSpeciesData();
 	if not sAbility then
 		tSpecies.spellability = nil;
 		return;
@@ -327,7 +329,7 @@ function processSpecies(w)
 	CharWizardSpeciesManager.setupAncestries(wSpecies.ancestry_selection_list);
 	CharWizardManager.updateAlerts();
 end
-function resetSpecies(w)
+function resetSpecies()
 	CharWizardManager.clearSpeciesData();
 
 	local wSpecies = CharWizardManager.getWizardSpeciesWindow();
@@ -363,9 +365,8 @@ function collectAncestries()
 			tFinalAncestries[v.text] = {};
 		end
 
-		v.sModuleName = DB.getModule(vNode);
 		v.sModule = ModuleManager.getModuleDisplayName(v.sModuleName);
-		if StringManager.contains(CharWizardData.module_order_2014, v.sModuleName) then 
+		if StringManager.contains(CharWizardData.module_order_2014, v.sModuleName) then
 		local sLegacySuffix = Interface.getString("suffix_legacy");
 			if not StringManager.endsWith(v.sModule, sLegacySuffix) then
 				v.sModule = string.format("%s %s", v.sModule, sLegacySuffix);
@@ -389,15 +390,15 @@ function setupAncestries(w)
 		wAncestry.module.setVisible(true);
 
 		local tModules = {};
-		for _,v2 in ipairs(v) do
+		for k2,v2 in ipairs(v) do
 			local nOrder;
 			for k3,v3 in ipairs(CharWizardData.module_order_2024) do
 				if v2.sModuleName == v3 then
 					nOrder = k2;
 					break
 				else
-					for k4,v4 in ipairs(CharWizardData.module_order_2014) do
-						if v2.sModuleName == v3 then
+					for _,v4 in ipairs(CharWizardData.module_order_2014) do
+						if v2.sModuleName == v4 then
 							nOrder = k3 + 1;
 							break
 						end
@@ -497,7 +498,7 @@ function handleSpeciesSizeField2024(w)
 		CharWizardSpeciesManager.setSpeciesSize(tOptions[1]);
 	end
 end
-function handleSpeciesSpeedField2024(w)
+function handleSpeciesSpeedField2024()
 	local sRecord = CharWizardSpeciesManager.getSpeciesRecord();
 	if (sRecord or "") == "" then
 		return {};
@@ -530,10 +531,10 @@ end
 -- Traits
 --
 
-function clearAncestryTraits(w)
+function clearAncestryTraits()
 	local tSpeciesTraits = {};
 	CharWizardSpeciesManager.collectAncestryTraits(tSpeciesTraits);
-	
+
 	local tTraits = {};
 	for _,v in pairs(tSpeciesTraits) do
 		tTraits[v.speciestrait] = true;
@@ -718,7 +719,7 @@ function handleSpeciesSizeTrait(w, s)
 		CharWizardSpeciesManager.setSpeciesSize(sSize);
 	end
 end
-function handleSpeciesSpeedTrait(w, s, bSpecialTrait)
+function handleSpeciesSpeedTrait(_, s)
 	local nSpeed, tSpecial = CharSpeciesManager.helperParseSpeciesSpeed2014(s);
 
 	CharWizardSpeciesManager.setSpeciesSpeed(nSpeed);
@@ -832,8 +833,8 @@ function handleSpeciesSpells(w, sTrait, s)
 		CharWizardSpeciesManager.setSpeciesSpellAbility(sAbility);
 	end
 end
-function handleSpeciesFeat(w, sFeat, s, bIs2024)
-	local bChoice, tFeats, tChoiceFeats, nChoices = CharWizardSpeciesManager.parseSpeciesFeats(s);
+function handleSpeciesFeat(w, _, s)
+	local bChoice, tFeats, _, _ = CharWizardSpeciesManager.parseSpeciesFeats(s);
 	for _,v in ipairs(tFeats) do
 		CharWizardSpeciesManager.addSpeciesBaseFeat(v.name);
 	end
@@ -889,7 +890,7 @@ function parseSpeciesFeats(s)
 
 	local tAvailableFeats = CharBuildManager.getFeatNames(false);
 	local aSortAvailableFeats = {};
-	for k,v in pairs(tAvailableFeats) do
+	for _,v in pairs(tAvailableFeats) do
 		aSortAvailableFeats[v] = "";
 	end
 
@@ -1092,7 +1093,7 @@ function processSpeciesDecisionVariableTrait(wDecision)
 
 	CharWizardDecisionManager.refreshOverallDecision("skill");
 end
-function processSpeciesDecisionSpell(wDecision, sDecision)
+function processSpeciesDecisionSpell(wDecision)
 	CharWizardSpeciesManager.clearSpeciesSpellChoice();
 
 	local tMap = CharWizardDecisionManager.processSpellDecision(wDecision);

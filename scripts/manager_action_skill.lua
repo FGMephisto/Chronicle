@@ -1,11 +1,11 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ActionsManager.registerModHandler("skill", modRoll);
-	ActionsManager.registerResultHandler("skill", onRoll);
+	ActionsManager.registerModHandler("skill", ActionSkill.modRoll);
+	ActionsManager.registerResultHandler("skill", ActionSkill.onRoll);
 end
 
 --
@@ -38,7 +38,7 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 	if not rRoll then
 		rRoll = ActionSkill.getUnlistedRoll(rActor, sSkill);
 	end
-	
+
 	local nTargetDC = DB.getValue("partysheet.skilldc", 0);
 	if nTargetDC == 0 then
 		nTargetDC = nil;
@@ -48,7 +48,7 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 		rRoll.bSecret = true;
 		rRoll.bTower = true;
 	end
-	
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 function getUnlistedRoll(rActor, sSkill)
@@ -84,7 +84,7 @@ end
 function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	local sSkill = DB.getValue(nodeSkill, "name", "");
 	local sAbility = DB.getValue(nodeSkill, "stat", "");
-	
+
 	local sAddText;
 	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
 	rRoll.nMod = rRoll.nMod + DB.getValue(nodeSkill, "misc", 0);
@@ -124,17 +124,17 @@ function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
 	if rRoll.sAbility then
 		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, rRoll.sAbility, sSkill);
 	end
-	
+
 	table.insert(rRoll.tNotifications, "[SKILL]");
 	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
 	end
-	if rRoll.nMod and ((rRoll.nMod or 0) ~= 0) then
-		table.insert(rRoll.tNotifications, string.format(" [%+d]", nMod));
+	if (rRoll.nMod or 0) ~= 0 then
+		table.insert(rRoll.tNotifications, string.format(" [%+d]", rRoll.nMod));
 	end
 end
-function setupRollBuildFromNameNPC(rRoll, rActor, sSkill, nSkill)
+function setupRollBuildFromNameNPC(rRoll, _, sSkill, nSkill)
 	table.insert(rRoll.tNotifications, "[SKILL]");
 	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
 	rRoll.nMod = nSkill;

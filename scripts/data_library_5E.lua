@@ -1,13 +1,17 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
+
+--luacheck: globals aListViews aRecordOverrides
+--luacheck: globals getItemIsIdentified getItemAttunementValue getItemRarityValue getNPCTypeValue getSpellSourceValue
+--luacheck: globals getSpellViewGroup getSpellViewCastTime getVersionValue isItemIdentifiable sortNPCCRValues
 
 function getVersionValue(node)
 	return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "Legacy";
 end
 
-function getItemIsIdentified(vRecord, vDefault)
+function getItemIsIdentified(vRecord, _)
 	return LibraryData.getIDState("item", vRecord, true);
 end
 
@@ -92,14 +96,19 @@ end
 
 aRecordOverrides = {
 	-- CoreRPG overrides
-	["quest"] = { 
-		aDataMap = { "quest", "reference.questdata" }, 
+	["charsheet"] = {
+		tOptions = {
+			bNoLock = false,
+		},
 	},
-	["image"] = { 
-		aDataMap = { "image", "reference.imagedata" }, 
+	["quest"] = {
+		aDataMap = { "quest", "reference.questdata" },
 	},
-	["npc"] = { 
-		aDataMap = { "npc", "reference.npcdata" }, 
+	["image"] = {
+		aDataMap = { "image", "reference.imagedata" },
+	},
+	["npc"] = {
+		aDataMap = { "npc", "reference.npcdata" },
 		sListDisplayClass = "masterindexitem_version",
 		aGMListButtons = { "button_npc_byletter", "button_npc_bycr", "button_npc_bytype" },
 		aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
@@ -109,11 +118,15 @@ aRecordOverrides = {
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
 	},
-	["item"] = { 
+	["item"] = {
 		fIsIdentifiable = isItemIdentifiable,
-		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" }, 
+		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" },
 		sListDisplayClass = "masterindexitem_id_version",
-		aRecordDisplayClasses = { "item", "reference_magicitem", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
+		aRecordDisplayClasses = {
+			"item", "reference_magicitem", "reference_armor",
+			"reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles",
+			"reference_vehicle",
+		},
 		aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear", "button_item_template" , "button_forge_item" },
 		--aGMEditButtons = { "button_add_item_import_text" },
 		aPlayerListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
@@ -134,10 +147,10 @@ aRecordOverrides = {
 			["Type"] = { sField = "type" },
 		},
 	},
-	
+
 	-- New record types
-	["itemtemplate"] = { 
-		aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
+	["itemtemplate"] = {
+		aDataMap = { "itemtemplate", "reference.magicrefitemdata" },
 		sListDisplayClass = "masterindexitem_version",
 		aGMListButtons = { "button_forge_item"  };
 		tOptions = {
@@ -150,9 +163,9 @@ aRecordOverrides = {
 		},
 	},
 	["background"] = {
-		aDataMap = { "background", "reference.backgrounddata" }, 
+		aDataMap = { "background", "reference.backgrounddata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_background", 
+		sRecordDisplayClass = "reference_background",
 		tOptions = {
 			bExport = true,
 		},
@@ -164,9 +177,9 @@ aRecordOverrides = {
 		},
 	},
 	["class"] = {
-		aDataMap = { "class", "reference.classdata" }, 
+		aDataMap = { "class", "reference.classdata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_class", 
+		sRecordDisplayClass = "reference_class",
 		aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
 		aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
 		tOptions = {
@@ -180,9 +193,9 @@ aRecordOverrides = {
 		},
 	},
 	["class_specialization"] = {
-		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
+		aDataMap = { "class_specialization", "reference.class_specializationdata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_class_specialization", 
+		sRecordDisplayClass = "reference_class_specialization",
 		tOptions = {
 			bExport = true,
 			bHidden = true,
@@ -193,8 +206,8 @@ aRecordOverrides = {
 		},
 	},
 	["class_spell_list"] = {
-		aDataMap = { "class_spell_list", "reference.class_spell_listdata" }, 
-		sRecordDisplayClass = "reference_class_spell_list", 
+		aDataMap = { "class_spell_list", "reference.class_spell_listdata" },
+		sRecordDisplayClass = "reference_class_spell_list",
 		tOptions = {
 			bExport = true,
 			bExportListSkip = true,
@@ -202,9 +215,9 @@ aRecordOverrides = {
 		},
 	},
 	["feat"] = {
-		aDataMap = { "feat", "reference.featdata" }, 
+		aDataMap = { "feat", "reference.featdata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_feat", 
+		sRecordDisplayClass = "reference_feat",
 		tOptions = {
 			bExport = true,
 		},
@@ -217,9 +230,9 @@ aRecordOverrides = {
 		},
 	},
 	["race"] = {
-		aDataMap = { "race", "reference.racedata" }, 
+		aDataMap = { "race", "reference.racedata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_race", 
+		sRecordDisplayClass = "reference_race",
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_species_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
@@ -234,9 +247,9 @@ aRecordOverrides = {
 		},
 	},
 	["race_subrace"] = {
-		aDataMap = { "race_subrace", "reference.race_subracedata" }, 
+		aDataMap = { "race_subrace", "reference.race_subracedata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_subrace", 
+		sRecordDisplayClass = "reference_subrace",
 		tOptions = {
 			bExport = true,
 			bHidden = true,
@@ -247,9 +260,9 @@ aRecordOverrides = {
 		},
 	},
 	["skill"] = {
-		aDataMap = { "skill", "reference.skilldata" }, 
+		aDataMap = { "skill", "reference.skilldata" },
 		sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_skill", 
+		sRecordDisplayClass = "reference_skill",
 		tOptions = {
 			bExport = true,
 		},
@@ -261,7 +274,7 @@ aRecordOverrides = {
 		},
 	},
 	["spell"] = {
-		aDataMap = { "spell", "reference.spelldata" }, 
+		aDataMap = { "spell", "reference.spelldata" },
 		sListDisplayClass = "masterindexitem_version",
 		aRecordDisplayClasses = { "power", "reference_spell" },
 		tOptions = {
@@ -299,7 +312,7 @@ aListViews = {
 			},
 			aFilters = { },
 			aGroups = { { sDBField = "cr", sPrefix = "CR" } },
-			aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2", 
+			aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2",
 								"CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8", "CR 9" },
 		},
 		["bytype"] = {
@@ -323,9 +336,9 @@ aListViews = {
 				{ sName = "stealth", sType = "string", sHeadingRes = "item_grouped_label_stealth", sTooltipRes = "item_grouped_tooltip_stealth", nWidth=100, bCentered=true },
 				{ sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true }
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Armor" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Armor" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
 			aGroupValueOrder = { "Light Armor", "Medium Armor", "Heavy Armor", "Shield" },
@@ -339,9 +352,9 @@ aListViews = {
 				{ sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true },
 				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", bCentered=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Weapon" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Weapon" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
 			aGroupValueOrder = { "Simple Melee Weapons", "Simple Ranged Weapons", "Martial Weapons", "Martial Melee Weapons", "Martial Ranged Weapons" },
@@ -352,8 +365,8 @@ aListViews = {
 				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", bCentered=true },
 				{ sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Adventuring Gear|Tools" }, 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Adventuring Gear|Tools" },
 				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
@@ -367,9 +380,9 @@ aListViews = {
 				{ sName = "damagethreshold", sType = "number", sHeadingRes = "dt", sTooltipRes = "damagethreshold", nWidth=40, bCentered=true },
 				{ sName = "hp", sType = "number", sHeadingRes = "hp", sTooltipRes = "hitpoints", bCentered=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Vehicle Component" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Vehicle Component" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "type" } },
 			aGroupValueOrder = {},
@@ -379,9 +392,9 @@ aListViews = {
 				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
 				{ sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=100, bWrapped=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Vehicle Component Upgrade" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Vehicle Component Upgrade" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "type" } },
 			aGroupValueOrder = {},

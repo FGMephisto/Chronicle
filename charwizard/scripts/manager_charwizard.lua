@@ -162,8 +162,6 @@ end
 --
 
 local _tCharData = {};
-local _bIsClass2024 = false;
-local _bIsSpecies2024 = false;
 
 function getData()
 	return _tCharData;
@@ -270,7 +268,7 @@ function clearBackgroundData()
 	end
 end
 
-function hasClasses() 
+function hasClasses()
 	local tClassData = CharWizardManager.getClassData();
 	return next(tClassData) and true or false;
 end
@@ -375,7 +373,7 @@ function helperCollectDataTypeMap(s)
 	local tChoiceMap = CharWizardManager.helperCollectDataTypeChoiceMap(s);
 
 	local tFinalMap = {};
-	for k,_ in pairs(tBaseMap) do 
+	for k,_ in pairs(tBaseMap) do
 		tFinalMap[k] = true;
 	end
 	for k,_ in pairs(tChoiceMap) do
@@ -506,7 +504,7 @@ function collectSaveProficienciesNew()
 end
 function collectArmorProficienciesNew()
 	local tProfs = CharWizardManager.collectArmorProficiencies();
-	
+
 	local tImportData = CharWizardManager.getImportData();
 	if not tImportData or (#(tImportData.armorprof or {}) == 0) then
 		return tProfs;
@@ -526,7 +524,7 @@ function collectArmorProficienciesNew()
 end
 function collectWeaponProficienciesNew()
 	local tProfs = CharWizardManager.collectWeaponProficiencies();
-	
+
 	local tImportData = CharWizardManager.getImportData();
 	if not tImportData or (#(tImportData.weaponprof or {}) == 0) then
 		return tProfs;
@@ -676,7 +674,7 @@ function populateSummary()
 			table.insert(tClasses, sClass .. " " .. math.floor(nLevel*100)*0.01);
 		end
 
-		for k,v2 in pairs(v.features or {}) do
+		for k,_ in pairs(v.features or {}) do
 			local w = wContents.summary_features.createWindow();
 			w.name.setValue(k);
 		end
@@ -691,7 +689,7 @@ function populateSummary()
 	wContents.summary_speed.setValue(tSpecies.speed);
 	wContents.summary_speedspecial.setValue(tSpecies.speedspecial);
 
-	for k,v in ipairs(CharWizardManager.collectSkills()) do
+	for _,v in ipairs(CharWizardManager.collectSkills()) do
 		local w = wContents.summary_skills.createWindow();
 		w.name.setValue(v);
 	end
@@ -776,8 +774,8 @@ end
 
 function updateAlerts()
 	local wTop = CharWizardManager.getWizardWindow();
-	local aButtons = {};
 
+	local aButtons;
 	if CharWizardManager.isLevelUpData() then
 		aButtons = { "class" };
 	else
@@ -825,7 +823,7 @@ function updateAlerts()
 	return tSpeciesAlerts, tClassAlerts, tAbilitiesAlerts, tBackgroundAlerts, tEquipmentAlerts;
 end
 
-function updateClassAlerts(w)
+function updateClassAlerts()
 	local wClassPage = CharWizardManager.getWizardClassWindow();
 	if not wClassPage then
 		return true, {"Select Class"};
@@ -841,7 +839,7 @@ function updateClassAlerts(w)
 		for _,v in pairs(vClass.list_features.getWindows()) do
 			local bAlert = false;
 			for _,v2 in pairs(v.list_decisions.getWindows()) do
-				if ((v2.decision_choice.getValue() or "") == "") and 
+				if ((v2.decision_choice.getValue() or "") == "") and
 						((v2.choice.getValue() or "") == "") then
 					bAlert = true;
 					bTopAlert = true;
@@ -855,7 +853,7 @@ function updateClassAlerts(w)
 
 	return bTopAlert, tAlerts
 end
-function updateBackgroundAlerts(w)
+function updateBackgroundAlerts()
 	local wBackground = CharWizardManager.getWizardBackgroundWindow();
 	if not wBackground then
 		return true, {"Select Background"};
@@ -870,7 +868,7 @@ function updateBackgroundAlerts(w)
 	for _,v in pairs(wBackground.list_features.getWindows()) do
 		local bAlert = false;
 		for _,v2 in pairs(v.list_decisions.getWindows()) do
-			if ((v2.decision_choice.getValue() or "") == "") and 
+			if ((v2.decision_choice.getValue() or "") == "") and
 					((v2.choice.getValue() or "") == "") then
 				bAlert = true;
 				bTopAlert = true;
@@ -883,17 +881,15 @@ function updateBackgroundAlerts(w)
 
 	if CharWizardManager.hasSpecies() and CharWizardManager.hasBackground() then
 		if CharWizardSpeciesManager.isSpecies2024() and not CharWizardBackgroundManager.isBackground2024() then
-			local sMsg = "You chose a 2024 Species and a Legacy Background. Adjust the MISC ability scores by increasing one score by 2 and a different one by one, or increasing three scores by one. Additionally, if the background doesn’t include a feat, choose an Origin feat.";
-			table.insert(tAlerts, sMsg);
+			table.insert(tAlerts, Interface.getString("charwizard_alert_species2024_background2014"));
 		elseif not CharWizardSpeciesManager.isSpecies2024() and CharWizardBackgroundManager.isBackground2024() then
-			local sMsg = "You chose a Legacy Species and a 2024 Background. The ASI for the Species will be ignored.";
-			table.insert(tAlerts, sMsg);
+			table.insert(tAlerts, Interface.getString("charwizard_alert_species2014_background2024"));
 		end
 	end
-	
+
 	return bTopAlert, tAlerts;
 end
-function updateSpeciesAlerts(w)
+function updateSpeciesAlerts()
 	local wSpecies = CharWizardManager.getWizardSpeciesWindow();
 	if not wSpecies then
 		return true, { Interface.getString("charwizard_label_speciesselection_alert") };
@@ -911,7 +907,7 @@ function updateSpeciesAlerts(w)
 	for _,v in pairs(wSpecies.list_features.getWindows()) do
 		local bAlert = false;
 		for _,v2 in pairs(v.list_decisions.getWindows()) do
-			if ((v2.decision_choice.getValue() or "") == "") and 
+			if ((v2.decision_choice.getValue() or "") == "") and
 					((v2.choice.getValue() or "") == "") then
 				bAlert = true;
 				bTopAlert = true;
@@ -921,10 +917,10 @@ function updateSpeciesAlerts(w)
 		end
 		v.alert.setVisible(bAlert);
 	end
-	
+
 	return bTopAlert, tAlerts
 end
-function updateAbilitiesAlerts(w)
+function updateAbilitiesAlerts()
 	local wAbility = CharWizardManager.getWizardAbilitiesWindow();
 	if not wAbility then
 		return true, {"Select Ability Scores"};
@@ -954,7 +950,7 @@ function updateAbilitiesAlerts(w)
 	end
 	return false, {};
 end
-function updateEquipmentAlerts(w)
+function updateEquipmentAlerts()
 	local wEquipment = CharWizardManager.getWizardEquipmentWindow();
 	if not wEquipment then
 		return true, { "Select Equipment Choice" };
@@ -1072,7 +1068,6 @@ function importCharacter(nodeChar)
 	tSpecies.size = DB.getValue(nodeChar, "size", "");
 
 	local tAbility = CharWizardManager.getAbilityData();
-	local nStr, nDex, nCon, nInt, nWis, nCha;
 	for k,nodeAbility in pairs(DB.getChildren(nodeChar, "abilities", "")) do
 		tAbility[k] = { score = DB.getValue(nodeAbility, "score", 0), };
 	end
@@ -1220,10 +1215,11 @@ function onCommit()
 		end
 	end
 end
+local _bRequested = false;
 function requestCommit()
-	if not bRequested then
-		User.requestIdentity(nil, "charsheet", "name", nil, CharWizardManager.requestCommitResponse);
-		bRequested = true;
+	if not _bRequested then
+		User.requestIdentity(nil, nil, nil, nil, CharWizardManager.requestCommitResponse);
+		_bRequested = true;
 	end
 end
 function requestCommitResponse(bResult, sIdentity)
@@ -1232,7 +1228,7 @@ function requestCommitResponse(bResult, sIdentity)
 	else
 		ChatManager.SystemMessage("Error: Failed to create new PC identity.")
 	end
-	bRequested = false;
+	_bRequested = false;
 end
 function commitCharacter(nodeChar)
 	-- Open the character sheet
@@ -1380,7 +1376,7 @@ function addCommitClasses(nodeChar)
 		end
 	end
 
-	for i = 1, tMainClass.nLevel do
+	for _ = 1, tMainClass.nLevel do
 		local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_class", tMainClass.sRecord, { bWizard = true });
 		if rAdd then
 			rAdd.sSubclassRecord = tMainClass.sSubclassRecord;
@@ -1390,7 +1386,7 @@ function addCommitClasses(nodeChar)
 
 	if #tMultiClasses > 0 then
 		for _,tMultiClass in ipairs(tMultiClasses) do
-			for i = 1, tMultiClass.nLevel do
+			for _ = 1, tMultiClass.nLevel do
 				local rAdd = CharBuildDropManager.helperBuildAddStructure(nodeChar, "reference_class", tMultiClass.sRecord, { bWizard = true });
 				if rAdd then
 					rAdd.sSubclassRecord = tMultiClass.sSubclassRecord;
@@ -1407,7 +1403,6 @@ function addCommitLevelUpClass(nodeChar)
 		sRecord = "",
 	};
 
-	local sClassRecord = "";
 	for k,v in pairs(CharWizardManager.getClassData()) do
 		if v.levelup == 1 then
 			tLvlClass.sName = k;

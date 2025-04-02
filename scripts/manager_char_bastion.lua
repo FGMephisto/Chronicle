@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -57,7 +57,7 @@ function advanceBastionLog()
 	DB.setValue(nodeLog, "turn", "number", nTurn + 1);
 	DB.setValue(nodeLog, "text", "formattedtext", DB.getValue(nodeLog, "text", "") .. table.concat(tLogTurn));
 end
-function advanceFacilityTurns(nodeBastion)
+function advanceFacilityTurns()
 	for _,nodePSChar in ipairs(DB.getChildList("partysheet.partyinformation")) do
 		local _,sRecord = DB.getValue(nodePSChar, "link", "", "");
 		if sRecord ~= "" then

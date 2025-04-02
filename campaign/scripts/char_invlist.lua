@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -25,6 +25,6 @@ function updateContainers()
 	ItemManager.onInventorySortUpdate(self);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	return ItemManager.handleAnyDrop(window.getDatabaseNode(), draginfo);
 end

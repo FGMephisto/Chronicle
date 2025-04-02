@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -47,14 +47,16 @@ FEATURE_UNARMORED_DEFENSE = "unarmored defense";
 FEAT_ELVEN_ACCURACY = "Elven Accuracy"; -- 2014
 FEAT_HEALER = "Healer"; -- 2024
 FEAT_MAGE_SLAYER = "Mage Slayer"; -- 2024 / 2014
-FEAT_WAR_CASTER = "War Caster"; -- 2024 / 2014 
+FEAT_WAR_CASTER = "War Caster"; -- 2024 / 2014
 
+FEAT_ALERT = "alert"; -- 2024
 FEAT_ARCHERY = "archery"; -- 2024
 FEAT_DEFENSE = "defense"; -- 2024
 FEAT_DRAGON_HIDE = "dragon hide"; -- 2014
 FEAT_DUELING = "dueling"; -- 2024
 FEAT_DURABLE = "durable"; -- 2014
 FEAT_GREAT_WEAPON_FIGHTING = "great weapon fighting"; -- 2024
+FEAT_HEAVY_ARMOR_MASTER = "heavy armor master";  -- 2024 / 2014
 FEAT_MEDIUM_ARMOR_MASTER = "medium armor master"; -- 2024 / 2014
 FEAT_TOUGH = "tough"; -- 2024 / 2014
 FEAT_THROWN_WEAPON_FIGHTING = "thrown weapon fighting"; -- 2024
@@ -95,7 +97,7 @@ function onCharItemAdd(nodeItem)
 	else
 		DB.setValue(nodeItem, "carried", "number", 1);
 	end
-	
+
 	CharArmorManager.addToArmorDB(nodeItem);
 	CharWeaponManager.addToWeaponDB(nodeItem);
 end
@@ -109,7 +111,7 @@ function onCharInventoryArmorCalcIfCarried(nodeItem, sField)
 		CharManager.onCharInventoryArmorCalc(nodeItem, sField);
 	end
 end
-function onCharInventoryArmorCalc(nodeItem, sField)
+function onCharInventoryArmorCalc(nodeItem, _)
 	if ItemManager.isArmor(nodeItem) then
 		local nodeChar = DB.getChild(nodeItem, "...");
 		CharArmorManager.calcItemArmorClass(nodeChar);
@@ -139,7 +141,7 @@ function resetHealth(nodeChar, bLong)
 	local bResetHitDice = false;
 	local bResetHalfHitDice = false;
 	local bResetQuarterHitDice = false;
-	
+
 	local sOptHRHV = OptionsManager.getOption("HRHV");
 	if sOptHRHV == "fast" then
 		if bLong then
@@ -165,7 +167,7 @@ function resetHealth(nodeChar, bLong)
 			end
 		end
 	end
-	
+
 	-- Reset health fields and conditions
 	if bResetWounds then
 		DB.setValue(nodeChar, "hp.wounds", "number", 0);
@@ -175,7 +177,7 @@ function resetHealth(nodeChar, bLong)
 	if bResetTemp then
 		DB.setValue(nodeChar, "hp.temporary", "number", 0);
 	end
-	
+
 	-- Reset all hit dice
 	if bResetHitDice then
 		for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
@@ -203,7 +205,7 @@ function resetHealth(nodeChar, bLong)
 					nodeClassMax = nil;
 					nClassMaxHDSides = 0;
 					nClassMaxHDUsed = 0;
-					
+
 					for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
 						local nClassHDUsed = DB.getValue(vClass, "hdused", 0);
 						if nClassHDUsed > 0 then
@@ -218,14 +220,14 @@ function resetHealth(nodeChar, bLong)
 							end
 						end
 					end
-					
+
 					if nodeClassMax then
 						if nHDRecovery >= nClassMaxHDUsed then
 							DB.setValue(nodeClassMax, "hdused", "number", 0);
 							nHDRecovery = nHDRecovery - nClassMaxHDUsed;
 						else
 							DB.setValue(nodeClassMax, "hdused", "number", nClassMaxHDUsed - nHDRecovery);
-							nHDRecovery = 0;						
+							nHDRecovery = 0;
 						end
 					else
 						break;
@@ -265,7 +267,7 @@ function onClassLinkPressed(nodeCharClass)
 		return true;
 	end
 	CharManager.helperOpenLinkRecordFail("class", sRecord);
-	return false;	
+	return false;
 end
 function onSubclassLinkPressed(nodeCharClass)
 	local _, sRecord = DB.getValue(nodeCharClass, "specializationlink", "", "");
@@ -278,7 +280,7 @@ function onSubclassLinkPressed(nodeCharClass)
 		return true;
 	end
 	CharManager.helperOpenLinkRecordFail("class_specialization", sRecord);
-	return false;	
+	return false;
 end
 function onBackgroundLinkPressed(nodeChar)
 	local _, sRecord = DB.getValue(nodeChar, "backgroundlink", "", "");
@@ -291,7 +293,7 @@ function onBackgroundLinkPressed(nodeChar)
 		return true;
 	end
 	CharManager.helperOpenLinkRecordFail("background", sRecord);
-	return false;	
+	return false;
 end
 function onSpeciesLinkPressed(nodeChar)
 	local _, sRecord = DB.getValue(nodeChar, "racelink", "", "");
@@ -492,13 +494,13 @@ function getClassSummary(nodeChar, bShort)
 	if not nodeChar then
 		return "";
 	end
-	
+
 	local tSorted = {};
 	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
 		table.insert(tSorted, nodeChild);
 	end
 	table.sort(tSorted, function(a,b) return DB.getValue(a, "name", "") < DB.getValue(b, "name", ""); end);
-			
+
 	local tClasses = {};
 	for _,nodeChild in pairs(tSorted) do
 		local sClass = DB.getValue(nodeChild, "name", "");
@@ -520,14 +522,14 @@ function getClassHDUsage(nodeChar)
 
 	local nHD = 0;
 	local nHDUsed = 0;
-	
+
 	for _,nodeChild in ipairs(DB.getChildList(nodeChar, "classes")) do
 		local nLevel = DB.getValue(nodeChild, "level", 0);
 		local nHDMult = #(DB.getValue(nodeChild, "hddie", {}));
 		nHD = nHD + (nLevel * nHDMult);
 		nHDUsed = nHDUsed + DB.getValue(nodeChild, "hdused", 0);
 	end
-	
+
 	return nHDUsed, nHD;
 end
 function getSubclass(nodeChar, s, bSource2024)
@@ -617,11 +619,11 @@ function getGroupPowerRecord(nodeChar, sGroup, s)
 	if not nodeChar or ((sGroup or "") == "") or (s or "") == "" then
 		return nil;
 	end
-	
+
 	local sGroupLower = StringManager.simplify(sGroup);
 	local sLower = StringManager.simplify(s);
 	for _,v in ipairs(DB.getChildList(nodeChar, "powers")) do
-		if StringManager.simplify(DB.getValue(v, "group", "")) == sGroupLower and 
+		if StringManager.simplify(DB.getValue(v, "group", "")) == sGroupLower and
 				StringManager.simplify(DB.getValue(v, "name", "")) == sLower then
 			return v;
 		end
@@ -755,7 +757,7 @@ function addSpecialMove(nodeChar, s, vDist)
 		local sNewMove = string.format("%s %d", s, nDist);
 		local sPatternMove = string.format("^%s %%d+$", s);
 		local bPatternMatch = false;
-		for k,v in ipairs(tSplit) do
+		for k,_ in ipairs(tSplit) do
 			local sPatternMatch = sSpecialMove:match(sPatternMove);
 			if sPatternMatch then
 				if (tonumber(sPatternMatch) or 0) >= nDist then
@@ -867,7 +869,7 @@ function addProficiency(nodeChar, sType, s)
 			return nodeProf;
 		end
 	end
-	
+
 	local nodeEntry = DB.createChild(nodeList);
 	DB.setValue(nodeEntry, "name", "string", sValue);
 
@@ -879,7 +881,7 @@ function addLanguage(nodeChar, s)
 	if not nodeList then
 		return nil;
 	end
-	
+
 	if s ~= "Choice" then
 		for _,v in ipairs(DB.getChildList(nodeList)) do
 			if DB.getValue(v, "name", "") == s then

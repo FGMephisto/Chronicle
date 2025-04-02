@@ -19,12 +19,6 @@
 			<class>reference_subrace_main</class>
 			<embed />
 		</tab>
-		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
-		</script>
 		<sheetdata>
 			<sub_record_version name="sub_version" />
 		</sheetdata>
@@ -35,12 +29,11 @@
 		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
-				update();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				WindowManager.callSafeControlUpdate(self, "race", bReadOnly);
-				WindowManager.callSafeControlUpdate(self, "list", bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "race", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 			function onDrop(x, y, draginfo)
 				if WindowManager.getReadOnlyState(getDatabaseNode()) then
@@ -49,7 +42,7 @@
 				if draginfo.isType("shortcut") then
 					local sClass = draginfo.getShortcutData();
 					local nodeSource = draginfo.getDatabaseNode();
-					
+
 					if sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
 						self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
 					end
@@ -66,7 +59,7 @@
 		</script>
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<label_content_column name="race_label">
 				<static textres="race_subrace_label_race" />
 			</label_content_column>
@@ -75,12 +68,8 @@
 			<header_content_framed_headersimple name="list_header">
 				<static textres="race_header_traits"/>
 			</header_content_framed_headersimple>
-			<button_iedit name="list_iedit">
-				<anchored to="list_header" position="insidetopright" offset="2,0" />
-				<edittarget>list</edittarget>
-			</button_iedit>
 			<button_iadd name="list_iadd">
-				<anchored to="list_header" position="insidetopright" offset="22,0" />
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
 			</button_iadd>
 			<list_content_column name="list">
 				<datasource>.traits</datasource>

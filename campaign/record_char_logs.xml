@@ -6,7 +6,10 @@
 -->
 
 <root>
-	<windowclass name="charsheet_logs">
+	<windowclass name="charsheet_logs" copy="charsheethelper_base">
+		<sizelimits>
+			<minimum width="400" height="500" />
+		</sizelimits>
 		<script>
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
@@ -18,16 +21,9 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_content_top />
-			<anchor_content_bottom />
-
-			<area_content_framed_groupbox_bottom name="area_controls">
-				<anchored height="20" />
-			</area_content_framed_groupbox_bottom>
-			<button_iedit name="sheet_iedit">
-				<anchored to="area_controls" position="insidetopright" offset="0,0" />
-				<edittarget>content</edittarget>
-			</button_iedit>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>tab_log</prefix>
+			</windowtitlebar_charsheethelper>
 
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_logs_contents</class>
@@ -38,9 +34,18 @@
 
 	<windowclass name="charsheet_logs_contents">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "faction", "dci", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<header_content_framed_metalplate name="details_header" />
 			<area_content_top name="details">
 				<anchored height="20" />
@@ -98,16 +103,22 @@
 
 	<windowclass name="char_log_item">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
 
-			<button_listitem_idelete name="idelete">
-				<editmode>sheet_iedit</editmode>
-			</button_listitem_idelete>
-			<linkc_listitem_right name="shortcut">
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
 				<class>ref_adventure</class>
-			</linkc_listitem_right>
+			</linkc_listitem_left>
 
 			<string_listitem_center_text name="name" />
 		</sheetdata>

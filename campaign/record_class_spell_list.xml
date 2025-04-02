@@ -12,6 +12,13 @@
 	<windowclass name="reference_class_spell_list_main">
 		<margins control="0,0,0,7" />
 		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "spells_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
 					local sClass,sRecord = draginfo.getShortcutData();
@@ -29,59 +36,49 @@
 					end
 				end
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				spells.update(bReadOnly);
-			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<header_column name="spells_header">
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="spells_header">
 				<static textres="class_spell_list_header_spells"/>
-				<center />
-			</header_column>
-			<button_iedit name="spells_iedit">
+			</header_content_framed_headersimple>
+			<button_iadd name="spells_iadd">
 				<anchored to="spells_header" position="righthigh" offset="-20,0" />
 				<target>spells</target>
-			</button_iedit>
-			<button_iadd name="spells_iadd">
-				<anchored to="spells_iedit" position="lefthigh" offset="5,0" />
-				<target>spells</target>
 			</button_iadd>
-			<list_column name="spells">
+			<list_content_column name="spells">
 				<datasource>.spells</datasource>
 				<class>ref_class_spell</class>
 				<sortby><control>level</control><control>name</control></sortby>
-			</list_column>
+			</list_content_column>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="ref_class_spell">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				level.setReadOnly(bReadOnly);
-				name.setReadOnly(bReadOnly);
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "level", "name", "idelete", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
-			<anchor_listitem_column_right name="rightanchor" />
-			<genericcontrol name="rightspacer">
-				<anchored to="rightanchor" width="20" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-5" />
-				</anchored>
-				<disabled />
-			</genericcontrol>
-			<button_listitem_column_delete name="idelete" />
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
 
-			<basicnumber name="level">
-				<anchored position="insidetopleft" offset="5,2" height="20" width="20" />
-			</basicnumber>
-			<string_listitem_column_name name="name">
-				<anchored offset="35,2" />
+			<button_listitem_idelete_left name="idelete" />
+			<number_listitem_left name="level">
+				<anchored width="20" />
+			</number_listitem_left>
+
+			<string_listitem_center name="name">
+				<font>sheetlabel</font>
 				<empty textres="library_recordtype_empty_spell" />
-			</string_listitem_column_name>
+				<delaykeyupdate />
+			</string_listitem_center>
 		</sheetdata>
 	</windowclass>
 </root>

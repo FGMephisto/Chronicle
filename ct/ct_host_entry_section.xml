@@ -95,7 +95,7 @@
 				</anchored>
 				<disabled />
 			</genericcontrol>
-			
+
 			<frame_ct_section name="frame_section">
 				<anchored>
 					<left parent="icon_section" anchor="right" offset="0" />
@@ -170,7 +170,7 @@
 				<anchored to="traits" />
 				<static textres="ct_label_traits" />
 			</label_ct_section>
-			
+
 			<list_ct_section_actions name="actions">
 				<datasource>.actions</datasource>
 			</list_ct_section_actions>
@@ -194,7 +194,7 @@
 				<anchored to="reactions" />
 				<static textres="ct_label_reactions" />
 			</label_ct_section>
-			
+
 			<list_ct_section_actions name="legendaryactions">
 				<datasource>.legendaryactions</datasource>
 			</list_ct_section_actions>
@@ -202,7 +202,7 @@
 				<anchored to="legendaryactions" />
 				<static textres="ct_label_legendaryactions" />
 			</label_ct_section>
-			
+
 			<list_ct_section_actions name="lairactions">
 				<datasource>.lairactions</datasource>
 			</list_ct_section_actions>
@@ -210,7 +210,7 @@
 				<anchored to="lairactions" />
 				<static textres="ct_label_lairactions" />
 			</label_ct_section>
-			
+
 			<list_ct_section_actions name="innatespells">
 				<datasource>.innatespells</datasource>
 			</list_ct_section_actions>
@@ -218,7 +218,7 @@
 				<anchored to="innatespells" />
 				<static textres="ct_label_innatespells" />
 			</label_ct_section>
-			
+
 			<subwindow name="spellslots">
 				<anchored to="anchor_section">
 					<top anchor="bottom" relation="relative" offset="3" />
@@ -313,7 +313,7 @@
 				</anchored>
 				<disabled />
 			</genericcontrol>
-			
+
 			<list_ct_section_labeled name="traits">
 				<datasource>.traits</datasource>
 				<class>ct_power</class>
@@ -323,7 +323,7 @@
 				<anchored to="traits" />
 				<static textres="ct_label_traits" />
 			</label_ct_section>
-			
+
 			<list_ct_section_labeled name="components">
 				<datasource>.components</datasource>
 				<class>ct_section_active_vehicle_component</class>

@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -7,7 +7,7 @@ function parseAction(s)
 	if not s then
 		return nil;
 	end
-	local nStarts, nEnds, sLabel, sMod = s:find("([%a%s%(%)]*[%a%(%)]+)%s*([%+%-–]?%d*)");
+	local nStarts, _, sLabel, sMod = s:find("([%a%s%(%)]*[%a%(%)]+)%s*([%+%-–]?%d*)");
 	if not nStarts or sMod == "" then
 		return nil;
 	end

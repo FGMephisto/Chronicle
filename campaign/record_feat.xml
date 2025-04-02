@@ -7,12 +7,6 @@
 
 <root>
 	<windowclass name="reference_feat" copy="record_window">
-		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
-		</script>
 		<sheetdata>
 			<sub_record_version name="sub_version" insertbefore="content" />
 		</sheetdata>
@@ -22,12 +16,9 @@
 	<windowclass name="reference_feat_main">
 		<script>
 			function onInit()
-				self.update();
+				self.onVersionChanged();
 			end
 			function onVersionChanged()
-				self.update();
-			end
-			function update()
 				local nodeRecord = getDatabaseNode();
 				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
 				if bIs2024 then
@@ -35,7 +26,6 @@
 				else
 					sub_content.setValue("reference_feat_main_2014", nodeRecord);
 				end
-				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -49,12 +39,12 @@
 		<script file="campaign/scripts/feat_main.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<sub_content_hidden_top name="sub_summary_fields">
 				<class>reference_feat_main_summary_fields</class>
 			</sub_content_hidden_top>
 			<summary_content_column name="summary" />
-			
+
 			<line_content_top name="divider" />
 
 			<ft_content_columnh_full name="text" />

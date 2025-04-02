@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -48,7 +48,7 @@ function parseOptionsFromText(s)
 	end
 	local nPeriod = s:match("%.()");
 	if nPeriod then
-		s = s:sub(1, nPeriod);
+		s = s:sub(1, nPeriod - 2);
 	end
 	return CharBuildManager.parseOptionsFromString(s);
 end
@@ -193,7 +193,7 @@ end
 --	OPTION STRING PARSING
 --
 
-function processSkillDataOptions(tOptions, bIs2024)
+function processSkillDataOptions(tOptions)
 	if not tOptions or (#tOptions == 0) then
 		tOptions = CharBuildManager.getSkillNames();
 	end
@@ -283,32 +283,32 @@ function getSkillsFromText2014(s)
 		return {}, {}, CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
 
-	local sMatchEnd = s:match("choose one of the following skills()");
+	local nMatchEnd = s:match("choose one of the following skills.()");
 	if nMatchEnd then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), 1;
 	end
 
 	-- Cleric - Acolyte of Nature - PHB
-	local nMatchEnd = s:match("proficiency in one of the following skills of your choice()")
+	nMatchEnd = s:match("proficiency in one of the following skills of your choice.()")
 	if nMatchEnd then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), 1;
 	end
 
 	-- Lizardfolk - Hunter's Lore - Volo
-	sPicks, nMatchEnd = s:match("proficiency with (%w+) of the following skills of your choice()")
+	sPicks, nMatchEnd = s:match("proficiency with (%w+) of the following skills of your choice.()")
 	if sPicks then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
 
 	-- Lizardfolk - Hunter's Lore - Volo
-	sPicks, nMatchEnd = s:match("proficiency with (%w+) of the following skills of your choice()")
+	sPicks, nMatchEnd = s:match("proficiency with (%w+) of the following skills of your choice.()")
 	if sPicks then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);
 	end
 
 	-- Cleric - Blessings of Knowledge - PHB
 	-- Kenku - Kenku Training - Volo
-	sPicks, nMatchEnd = s:match("proficient in your choice of (%w+) of the following skills()")
+	sPicks, nMatchEnd = s:match("proficient in your choice of (%w+) of the following skills.()")
 	if sPicks then
 		if s:match("proficiency bonus is doubled") then
 			return {}, {}, 0;
@@ -333,10 +333,10 @@ function getSkillsFromText2014(s)
 		return {}, {}, CharBuildManager.convertSingleNumberTextToNumber(sSkillPicks);
 	end
 
-	return {}, {}, 0;	
+	return {}, {}, 0;
 end
 
-function processArmorProfDataOptions(tOptions, bIs2024)
+function processArmorProfDataOptions(tOptions)
 	if not tOptions then
 		return {};
 	end
@@ -506,7 +506,7 @@ function getToolProfFromText2014(s)
 	return {}, {}, 0;
 end
 
-function processLanguageDataOptions(tOptions, bIs2024)
+function processLanguageDataOptions(tOptions)
 	if not tOptions or (#tOptions == 0) then
 		return CharBuildManager.getLanguageNames();
 	end
@@ -578,7 +578,7 @@ function getLanguagesFromText2014(s)
 			nPicks = 2;
 			sLanguages = sLanguages:gsub("two other languages of your choice", "");
 		else
-			for k,v in pairs(CharWizardData.aParseRaceLangChoices) do
+			for k,_ in pairs(CharWizardData.aParseRaceLangChoices) do
 				if sLanguages:find(k) then
 					nPicks = 1;
 					sLanguages = sLanguages:gsub(k, "");
@@ -594,7 +594,7 @@ function getLanguagesFromText2014(s)
 		-- EXCEPTION - Kenku - Languages - Volo
 		sLanguages = sLanguages:gsub(", but you.*$", "");
 		sLanguages = sLanguages:gsub(", but you can speak only by using your mimicry trait", "");
-		
+
 		local tSplitLanguages = StringManager.split(sLanguages, ",", true);
 		for _,v in pairs(tSplitLanguages) do
 			table.insert(tBase, v);
@@ -645,7 +645,7 @@ function getSpellsFromText2014(s)
 			sSpellText = vSentence:match("you gain the (.-) cantrip");
 		end
 		if not sSpellText then
-		 	sSpellText = vSentence:match("you know the cantrip[s]? ([%w%s]+)");
+			sSpellText = vSentence:match("you know the cantrip[s]? ([%w%s]+)");
 		end
 		if not sSpellText then
 			sSpellText = vSentence:match("you can cast the (.-) on");
@@ -693,20 +693,12 @@ function getSpellsFromText2014(s)
 
 			if #tSplit > 0 then
 				for _,v in pairs(tSplit) do
-					if vSentence:match("3rd") then
-						-- Skip?
-					elseif vSentence:match("5th") then
-						-- Skip?
-					else
+					if not vSentence:match("3rd") and not vSentence:match("5th") then
 						table.insert(tBase, v);
 					end
 				end
 			else
-				if vSentence:match("3rd") then
-					-- Skip?
-				elseif vSentence:match("5th") then
-					-- Skip?
-				else
+				if not vSentence:match("3rd") and not vSentence:match("5th") then
 					table.insert(tBase, sSpellText);
 				end
 			end
@@ -817,7 +809,7 @@ function parseSkillsField2014(s)
 end
 
 function parseArmorField(s, bSource2024)
-	local tBase, tOptions, nPicks; 
+	local tBase, tOptions, nPicks;
 	if bSource2024 then
 		tBase, tOptions, nPicks = CharBuildManager.parseArmorField2024(s);
 	else
@@ -869,7 +861,7 @@ function helperParseArmorField(s, bSource2024)
 end
 
 function parseWeaponField(s, bSource2024)
-	local tBase, tOptions, nPicks; 
+	local tBase, tOptions, nPicks;
 	if bSource2024 then
 		tBase, tOptions, nPicks = CharBuildManager.parseWeaponField2024(s);
 	else
@@ -891,7 +883,7 @@ function parseWeaponField2024(s)
 	if s:match("Simple") then
 		table.insert(tBase, "Simple");
 	end
-	
+
 	-- Monk/Rogue special cases
 	if s:match("Martial weapons that have the Light property") then
 		table.insert(tBase, "Martial weapons that have the Light property");
@@ -925,7 +917,7 @@ function parseWeaponField2014(s)
 end
 
 function parseToolsField(s, bSource2024)
-	local tBase, tOptions, nPicks; 
+	local tBase, tOptions, nPicks;
 	if bSource2024 then
 		tBase, tOptions, nPicks = CharBuildManager.parseToolsField2024(s);
 	else
@@ -1042,7 +1034,7 @@ function parseLanguagesField(s, bSource2024)
 	if bSource2024 then
 		return {}, {}, 0;
 	end
-	
+
 	local tBase, tOptions, nPicks = CharBuildManager.parseLanguagesField2014(s);
 	if (nPicks or 0) > 0 then
 		tOptions = CharBuildManager.processLanguageDataOptions(tOptions, bSource2024);
@@ -1092,10 +1084,7 @@ end
 --
 
 function getCommonSkills(tOverride, s, bIs2024)
-	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tBase, tOptions, nPicks;
 	if tOverride and tOverride.skill then
 		tBase = tOverride.skill.innate or {};
 		tOptions = tOverride.skill.choice_skill or {};
@@ -1114,10 +1103,7 @@ function getCommonSkills(tOverride, s, bIs2024)
 	return tBase or {}, tOptions or {}, nPicks or 0;
 end
 function getCommonArmorProf(tOverride, s, bIs2024)
-	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tBase, tOptions, nPicks;
 	if tOverride and tOverride.armorprof then
 		tBase = tOverride.armorprof.innate or {};
 		tOptions = tOverride.armorprof.choice_prof or {};
@@ -1136,10 +1122,7 @@ function getCommonArmorProf(tOverride, s, bIs2024)
 	return tBase or {}, tOptions or {}, nPicks or 0;
 end
 function getCommonWeaponProf(tOverride, s, bIs2024)
-	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tBase, tOptions, nPicks;
 	if tOverride and tOverride.weaponprof then
 		tBase = tOverride.weaponprof.innate or {};
 		tOptions = tOverride.weaponprof.choice_prof or {};
@@ -1158,10 +1141,7 @@ function getCommonWeaponProf(tOverride, s, bIs2024)
 	return tBase or {}, tOptions or {}, nPicks or 0;
 end
 function getCommonToolProf(tOverride, s, bIs2024)
-	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tBase, tOptions, nPicks;
 	if tOverride and tOverride.toolprof then
 		tBase = tOverride.toolprof.innate or {};
 		tOptions = tOverride.toolprof.choice_prof or {};
@@ -1180,10 +1160,7 @@ function getCommonToolProf(tOverride, s, bIs2024)
 	return tBase or {}, tOptions or {}, nPicks or 0;
 end
 function getCommonLanguages(tOverride, s, bIs2024)
-	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tBase, tOptions, nPicks;
 	if tOverride and tOverride.language then
 		tBase = tOverride.language.innate or {};
 		tOptions = tOverride.language.choice_language or {};
@@ -1203,9 +1180,7 @@ function getCommonLanguages(tOverride, s, bIs2024)
 end
 function getCommonSpells(tOverride, s, bIs2024)
 	local tBase = {};
-	local tOptions = {};
-	local nPicks = 0;
-
+	local tOptions, nPicks;
 	if bIs2024 and tOverride and tOverride.spells then
 		for _,v in ipairs(tOverride.spells) do
 			table.insert(tBase, v.name);
@@ -1428,7 +1403,7 @@ end
 -- BACKGROUND SPECIFIC
 --
 
-function getBackgroundFeatureLanguages(sFeatureName, s, bIs2024)
+function getBackgroundFeatureLanguages(_, s, bIs2024)
 	return CharBuildManager.getCommonLanguages(nil, s, bIs2024);
 end
 
@@ -1443,7 +1418,7 @@ function getFeatOverrideData(sFeatureName, bIs2024)
 	end
 	return CharWizardDataAction.parsedata[sFeatureType];
 end
-function getFeatSkills(sFeat, s, bIs2024)
+function getFeatSkills(sFeatureName, s, bIs2024)
 	local tOverride = CharBuildManager.getFeatOverrideData(sFeatureName, bIs2024);
 	return CharBuildManager.getCommonSkills(tOverride, s, bIs2024);
 end
@@ -1483,7 +1458,7 @@ function helperAddEquipmentKit(rAdd)
 		return;
 	end
 
-	local tOptions = {};
+	local tOptions;
 	if rAdd.sSourceClass == "reference_class" then
 		tOptions = CharBuildManager.getRecordEquipmentKitOptions2024(rAdd.nodeSource, "startingequipmentlist");
 	else
@@ -1519,7 +1494,7 @@ function getRecordEquipmentKitOptions2024(nodeRecord, sListPath)
 
 	local tOptions = {};
 
-	for k,nodeOption in ipairs(DB.getChildList(nodeRecord, sListPath or "equipmentlist")) do
+	for _,nodeOption in ipairs(DB.getChildList(nodeRecord, sListPath or "equipmentlist")) do
 		local tOutput = {};
 		for _,nodeItem in ipairs(DB.getChildList(nodeOption, "items")) do
 			local nCount = DB.getValue(nodeItem, "count", 0);

@@ -68,7 +68,7 @@
 					end
 				</script>
 			</button_text>
-			
+
 			<area_content_framed_groupbox name="statusframe">
 				<anchored>
 					<left parent="forgeclear" anchor="right" offset="20" />
@@ -166,7 +166,7 @@
 			<scrollbar_content_list />
 		</sheetdata>
 	</windowclass>
-	
+
 	<windowclass name="forge_item_entry">
 		<margins control="0,0,0,2" />
 		<script>
@@ -194,15 +194,15 @@
 			</hs>
 
 			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete_left>
 			<link_listitem_left name="link">
 				<class>item</class>
 			</link_listitem_left>
 			<button_forgeitemtype name="itemtype"/>
-
-			<anchor_listitem_right_sm />
-			<button_listitem_idelete name="idelete">
-				<editmode>list_iedit</editmode>
-			</button_listitem_idelete>
 
 			<string_listitem_center_noframe_static_linked name="name">
 				<empty textres="library_recordtype_empty_item" />
@@ -236,15 +236,15 @@
 			</hs>
 
 			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete_left>
 			<link_listitem_left name="link">
 				<class>itemtemplate</class>
 			</link_listitem_left>
 			<button_forgeitemtype name="itemtype"/>
-
-			<anchor_listitem_right_sm />
-			<button_listitem_idelete name="idelete">
-				<editmode>list_iedit</editmode>
-			</button_listitem_idelete>
 
 			<string_listitem_center_noframe_static_linked name="name">
 				<empty textres="library_recordtype_empty_item" />

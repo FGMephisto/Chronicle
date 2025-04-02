@@ -26,7 +26,7 @@
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<label_content_column name="race_label">
 				<static textres="pregen_label_race" />
 			</label_content_column>

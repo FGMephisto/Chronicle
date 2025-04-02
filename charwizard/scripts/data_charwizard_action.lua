@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -12,7 +12,7 @@
 --		Each damage action can have multiple clauses which can do different damage types
 --
 -- { type = "heal", [subtype = "temp", ][sTargeting = "self", ] clauses = { { dice = { "d#", ... }, bonus = #, [stat = ""] }, ... }, }
---		Each heal action can have multiple clauses 
+--		Each heal action can have multiple clauses
 --		Heal actions are either direct healing or granting temporary hit points (if subtype = "temp" set)
 --		If sTargeting = "self" set, then the heal will always be applied to self instead of target.
 --
@@ -47,7 +47,6 @@ parsedata = {
 		prepared = 1,
 	},
 	["restorativereagents"] = {
-		spell = { innate = { "Lesser Restoration", }, },
 		actions = { { type = "heal", subtype = "temp", clauses = { { dice = { "d6", "d6" }, stat = "intelligence" }, }, }, },
 	},
 	["flashofgenius"] = { actions = { { type = "effect", sName = "Flash of Genius; SAVE: [INT]; CHECK: [INT]", sApply = "action", }, }, prepared = 1, },
@@ -84,7 +83,6 @@ parsedata = {
 			},
 		},
 	},
-	["restorativereagents"] = { actions = { { type = "heal", subtype = "temp", clauses = { { dice = { "d6", "d6" }, stat = "intelligence" }, }, }, }, },
 	["chemicalmastery"] = {
 		actions = { { type = "effect", sName = "Chemical Mastery; RESIST: acid; RESIST: poison; IMMUNE: poisoned", sTargeting = "self", }, },
 		spell = { innate = { "Greater Restoration" }, },
@@ -171,7 +169,10 @@ parsedata = {
 		},
 	},
 	-- Barbarian
-	["rage"] = { actions = { { type = "effect", sName = "Rage; ADVCHK: strength; ADVSAV: strength; DMG: 2, melee; RESIST: bludgeoning, piercing, slashing", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, prepared = 2, },
+	["rage"] = {
+		actions = { { type = "effect", sName = "Rage; ADVCHK: strength; ADVSAV: strength; DMG: 2, melee; RESIST: bludgeoning, piercing, slashing", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+		prepared = 2,
+	},
 	["recklessattack"] = { actions = { { type = "effect", sName = "Reckless Attack; ADVATK: melee; GRANTADVATK", sTargeting = "self", nDuration = 1,  }, }, },
 	["feralinstinct"] = { actions = { { type = "effect", sName = "Feral Instinct; ADVINIT; Can't be surprised but must enter rage", sTargeting = "self" }, }, },
 	["relentlessrage"] = { actions = { { type = "powersave", save = "constitution", savemod = 10, }, }, usesperiod = "enc", },
@@ -260,9 +261,15 @@ parsedata = {
 	},
 	["stormsoul"] = {
 		multiple_actions = {
-			["Storm Soul (Desert)"] = { actions = { { type = "effect", sName = "Storm Soul: Desert; RESIST: fire; Special fire powers", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
-			["Storm Soul (Sea)"] = { actions = { { type = "effect", sName = "Storm Soul: Sea; RESIST: lightning; Breathe underwater; Swim Speed 30'", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
-			["Storm Soul (Tundra)"] = { actions = { { type = "effect", sName = "Storm Soul: Tundra; RESIST: cold; Special water powers", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
+			["Storm Soul (Desert)"] = {
+				actions = { { type = "effect", sName = "Storm Soul: Desert; RESIST: fire; Special fire powers", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+			},
+			["Storm Soul (Sea)"] = {
+				actions = { { type = "effect", sName = "Storm Soul: Sea; RESIST: lightning; Breathe underwater; Swim Speed 30'", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+			},
+			["Storm Soul (Tundra)"] = {
+				actions = { { type = "effect", sName = "Storm Soul: Tundra; RESIST: cold; Special water powers", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+			},
 		},
 	},
 	["shieldingstorm"] = {
@@ -380,7 +387,9 @@ parsedata = {
 	},
 	-- Bard - College of Valor
 	["bonusproficienciesvalor"] = { armorprof = { innate = { "Medium", "Shields" }, }, weaponprof = { innate = { "Martial" }, }, },
-	["combatinspiration"] = { actions = { { type = "effect", sName = "Combat Inspiration; (d6) used for ability check, attack roll, saving throw, weapon damage, or AC", nDuration = 10, sUnits = "minute" }, }, },
+	["combatinspiration"] = {
+		actions = { { type = "effect", sName = "Combat Inspiration; (d6) used for ability check, attack roll, saving throw, weapon damage, or AC", nDuration = 10, sUnits = "minute" }, },
+	},
 	-- Bard - College of Whispers
 	["psychicblades"] = { actions = { { type = "effect", sName = "Psychic Blades; DMG: 2d6 psychic", sTargeting = "self", sApply = "roll" }, }, },
 	["wordsofterror"] = {
@@ -415,17 +424,21 @@ parsedata = {
 			},
 		},
 	},
-	["channeldivinityarcaneabjuration"] = { actions = { { type = "effect", sName = "Channel Divinity (Arcane Abjuration); Banished", nDuration = 1, sUnits = "minute", }, }, prepared = 1, },
-	["channeldivinitydestructivewrath"] = { actions = {}, prepared = 1 },
-	["channeldivinitytouchofdeath"] = {
-		actions = {
-			{ type = "damage", clauses = { { dice = { }, modifier = 5, dmgtype = "necrotic", stat = "cleric" }, }, },
-			{ type = "effect", sName = "Channel Divinity (Touch of Death); DMG: 5 [2LVL] necrotic", sTargeting = "self", sApply = "action", },
-		},
+	["channeldivinityarcaneabjuration"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Arcane Abjuration); Banished", nDuration = 1, sUnits = "minute", }, },
 		prepared = 1,
 	},
-	["channeldivinitypathtothegrave"] = { actions = { { type = "effect", sName = "Channel Divinity (Path to the Grave); VULN: all", sApply = "action" }, }, },
-	["channeldivinityknowledgeoftheages"] = { actions = { { type = "effect", sName = "Channel Divinity (Knowledge of the Ages); SKILL: [PRF]", sTargeting = "self", nDuration = 10, sUnits = "minute" }, }, prepared = 1, },
+	["channeldivinitydestructivewrath"] = {
+		actions = {},
+		prepared = 1,
+	},
+	["channeldivinitypathtothegrave"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Path to the Grave); VULN: all", sApply = "action" }, },
+	},
+	["channeldivinityknowledgeoftheages"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Knowledge of the Ages); SKILL: [PRF]", sTargeting = "self", nDuration = 10, sUnits = "minute" }, },
+		prepared = 1,
+	},
 	["channeldivinityreadthoughts"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", },
@@ -433,7 +446,10 @@ parsedata = {
 		},
 		prepared = 1,
 	},
-	["channeldivinitypreservelife"] = { actions = { { type = "heal", clauses = { { dice = { }, stat = "cleric" }, }, }, }, prepared = 1 },
+	["channeldivinitypreservelife"] = {
+		actions = { { type = "heal", clauses = { { dice = { }, stat = "cleric" }, }, }, },
+		prepared = 1,
+	},
 	["channeldivinityradianceofthedawn"] = {
 		actions = {
 			{ type = "powersave", save = "constitution", onmissdamage = "half" },
@@ -448,7 +464,9 @@ parsedata = {
 		},
 		prepared = 1,
 	},
-	["channeldivinitybalmofpeace"] = { actions = { { type = "heal", clauses = { { dice = { "d6", "d6" }, stat = "wisdom" }, }, }, }, },
+	["channeldivinitybalmofpeace"] = {
+		actions = { { type = "heal", clauses = { { dice = { "d6", "d6" }, stat = "wisdom" }, }, }, },
+	},
 	["channeldivinityinvokeduplicity"] = {
 		actions = {
 			{ type = "effect", sName = "Channel Divinity (Invoke Duplicity)", sTargeting = "self", nDuration = 1, sUnits = "minute" },
@@ -456,7 +474,10 @@ parsedata = {
 		},
 		prepared = 1,
 	},
-	["channeldivinitycloakofshadows"] = { actions = { { type = "effect", sName = "Channel Divinity (Cloak of Shadows); Invisible", sTargeting = "self", nDuration = 1, }, }, prepared = 1, },
+	["channeldivinitycloakofshadows"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Cloak of Shadows); Invisible", sTargeting = "self", nDuration = 1, }, },
+		prepared = 1,
+	},
 	["channeldivinitytwilightsanctuary"] = {
 		actions = {
 			{ type = "heal", subtype = "temp", clauses = { { dice = { "d6" }, stat = "cleric" }, }, },
@@ -464,8 +485,14 @@ parsedata = {
 			{ type = "effect", sName = "Channel Divinity (Twilight Sanctuary); Frightened", },
 		},
 	},
-	["channeldivinityguidedstrike"] = { actions = { { type = "effect", sName = "Channel Divinity (Guided Strike); ATK: 10", sTargeting = "self", sApply = "roll" }, }, prepared = 1, },
-	["channeldivinitywargodsblessing"] = { actions = { { type = "effect", sName = "Channel Divinity (War God's Blessing); ATK: 10", sApply = "roll" }, }, prepared = 1, },
+	["channeldivinityguidedstrike"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Guided Strike); ATK: 10", sTargeting = "self", sApply = "roll" }, },
+		prepared = 1,
+	},
+	["channeldivinitywargodsblessing"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (War God's Blessing); ATK: 10", sApply = "roll" }, },
+		prepared = 1,
+	},
 	["channeldivinitycontrolundead"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", },
@@ -478,7 +505,9 @@ parsedata = {
 			{ type = "effect", sName = "Channel Divinity (Dreadful Aspect); Frightened", nDuration = 1, sUnits = "minute", },
 		},
 	},
-	["channeldivinitytouchofdeath"] = { actions = { { type = "effect", sName = "Channel Divinity (Touch of Death); DMG: 5 [2LVL] necrotic", sTargeting = "self", sApply = "action", }, }, },
+	["channeldivinitytouchofdeath"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Touch of Death); DMG: 5 [2LVL] necrotic", sTargeting = "self", sApply = "action", }, },
+	},
 	["channeldivinityabjureenemy"] = {
 		actions = {
 			{ type = "effect", sName = "Channel Divinity (Abjure Enemy); IF: TYPE (fiend,undead); DISSAV: wisdom", nDuration = 1, sApply = "roll", },
@@ -494,7 +523,9 @@ parsedata = {
 			{ type = "powersave", save = "strength", },
 		},
 	},
-	["channeldivinitysacredweapon"] = { actions = { { type = "effect", sName = "Channel Divinity (Sacred Weapon); ATK: [CHA]; DMGTYPE: magic", sTargeting = "self", nDuration = 1, sUnits = "minute", }, }, },
+	["channeldivinitysacredweapon"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Sacred Weapon); ATK: [CHA]; DMGTYPE: magic", sTargeting = "self", nDuration = 1, sUnits = "minute", }, },
+	},
 	["channeldivinityturnofthefaithless"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", },
@@ -507,18 +538,30 @@ parsedata = {
 			{ type = "effect", sName = "Channel Divinity (Turn the Unholy); Frightened; Incapacitated", nDuration = 1, sUnits = "minute", },
 		},
 	},
-	["channeldivinityturnthetide"] = { actions = { { type = "heal", clauses = { { dice = { "d6" }, stat = "charisma" }, }, }, }, },
-	["channeldivinityvowofenmity"] = { actions = { { type = "effect", sName = "Channel Divinity (Vow of Enmity); ADVATK", sTargeting = "self", nDuration = 1, sUnits = "minute", }, }, },
-	["channeldivinityordersdemand"] = { actions = { { type = "powersave", save = "wisdom", }, { type = "effect", sName = "Order's Demand; Charmed", }, }, },
-	["channeldivinitypathofthegrave"] = { actions = { { type = "effect", sName = "Channel Divinity (Path to the Grave); VULN: ; ADVATK", nDuration = 1, }, }, },
+	["channeldivinityturnthetide"] = {
+		actions = { { type = "heal", clauses = { { dice = { "d6" }, stat = "charisma" }, }, }, },
+	},
+	["channeldivinityvowofenmity"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Vow of Enmity); ADVATK", sTargeting = "self", nDuration = 1, sUnits = "minute", }, },
+	},
+	["channeldivinityordersdemand"] = {
+		actions = { { type = "powersave", save = "wisdom", }, { type = "effect", sName = "Order's Demand; Charmed", }, },
+	},
+	["channeldivinitypathofthegrave"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Path to the Grave); VULN: ; ADVATK", nDuration = 1, }, },
+	},
 	["channeldivinityconqueringpresence"] = {
 		actions = {
 			{ type = "powersave", save = "widsom", },
 			{ type = "effect", sName = "Channel Divinity (Conquering Presense); Frightened", nDuration = 1, sUnits = "minute" },
 		},
 	},
-	["channeldivinityemissaryofpeace"] = { actions = { { type = "effect", sName = "Channel Divinity (Emissary of Peace); SKILL: 5 persuasion", sTargeting = "self", nDuration = 10, sUnits = "minute" }, }, },
-	["channeldivinityrebuketheviolent"] = { actions = { { type = "powersave", save = "wisdom", onmissdamage = "half" }; }, },
+	["channeldivinityemissaryofpeace"] = {
+		actions = { { type = "effect", sName = "Channel Divinity (Emissary of Peace); SKILL: 5 persuasion", sTargeting = "self", nDuration = 10, sUnits = "minute" }, },
+	},
+	["channeldivinityrebuketheviolent"] = {
+		actions = { { type = "powersave", save = "wisdom", onmissdamage = "half" }; },
+	},
 	["divineintervention"] = { actions = {}, prepared = 1 },
 
 	-- Cleric - Arcana Domain
@@ -612,8 +655,8 @@ parsedata = {
 	},
 	["visionsofthepast"] = { actions = { { type = "effect", sName = "Visions of the Past", sTargeting = "self", nDuration = 1, sUnits = "minute", }, }, prepared = 1, usesperiod = "enc" },
 	["blessingsofknowledge"] = {
-		language = { choice = 2, }, 
-		skill = { choice = 2, choice_skill = { "Arcana", "History", "Nature", "Religion" }, prof = "double", }, 
+		language = { choice = 2, },
+		skill = { choice = 2, choice_skill = { "Arcana", "History", "Nature", "Religion" }, prof = "double", },
 	},
 	-- Cleric - Life Domain
 	["domainspellslife"] = {
@@ -854,7 +897,8 @@ parsedata = {
 	["bonuscantripland"] = {
 		spell = { choice = 1, spelllist = "Druid", spelllevel = 0, },
 	},
-	["landsstride"] = { actions = { { type = "effect", sName = "Land's Stride; IFT: TYPE(plant); ADVSAV:all", sTargeting = "self", sApply = "action" }, }, },
+	-- Overriden by Ranger
+	--["landsstride"] = { actions = { { type = "effect", sName = "Land's Stride; IFT: TYPE(plant); ADVSAV:all", sTargeting = "self", sApply = "action" }, }, },
 	["naturalrecovery"] = { actions = {}, prepared = 1 },
 	["naturesward"] = {
 		actions = {
@@ -1071,7 +1115,7 @@ parsedata = {
 	["royalenvoy"] = { actions = { { type = "effect", sName = "SKILL:[PRF], persuasion", sTargeting = "self", }, }, },
 	-- Fighter - Rune Knight
 	["bonusproficienciesruneknight"] = {
-		toolprof = { innate = { "Smith's Tools" }, }, 
+		toolprof = { innate = { "Smith's Tools" }, },
 		language = { innate = { "Giant" }, },
 	},
 	-- Fighter - Samurai
@@ -1259,14 +1303,32 @@ parsedata = {
 	["searingsunburst"] = { actions = { { type = "powersave", save = "constitution", }, { type = "damage", clauses = { { dice = { "d6", "d6" }, dmgtype = "radiant", }, }, }, }, },
 	["sunshield"] = { actions = { { type = "damage", clauses = { { dice = { }, modifier = 5, dmgtype = "radiant", stat = "wisdom" }, }, }, }, },
 	-- Paladin
-	["layonhands"] = { actions = { { type = "heal", clauses = { { dice = { }, bonus = 5, }, }, }, }, },
-	["divinesmite"] = { actions = { { type = "effect", sName = "Divine Smite; DMG: 2d8 radiant; IFT: TYPE(fiend,undead); DMG:1d8 radiant", sTargeting = "self", sApply = "roll" }, }, },
-	["divinesense"] = { actions = { { type = "effect", sName = "Divine Sense; Know the location of any celestial, fiend, or undead (also hallow spell) within 60'", sTargeting = "self", nDuration = 1, }, }, prepared = 1 },
-	["divinehealth"] = { actions = { { type = "effect", sName = "Divine Health; Immune to disease", sTargeting = "self", }, }, },
-	["auraofprotection"] = { actions = { { type = "effect", sName = "Aura of Protection; SAVE: [CHA]", sTargeting = "self" }, }, },
-	["auraofcourage"] = { actions = { { type = "effect", sName = "Aura of Courage; IMMUNE: frightened", }, }, },
-	["improveddivinesmite"] = { actions = { { type = "effect", sName = "Improved Divine Smite; DMG: 1d8 radiant,melee", sTargeting = "self", }, }, },
-	["cleansingtouch"] = { actions = {}, prepared = 1 },
+	["layonhands"] = {
+		actions = { { type = "heal", clauses = { { dice = { }, bonus = 5, }, }, }, },
+	},
+	["divinesmite"] = {
+		actions = { { type = "effect", sName = "Divine Smite; DMG: 2d8 radiant; IFT: TYPE(fiend,undead); DMG:1d8 radiant", sTargeting = "self", sApply = "roll" }, },
+	},
+	["divinesense"] = {
+		actions = { { type = "effect", sName = "Divine Sense; Know the location of any celestial, fiend, or undead (also hallow spell) within 60'", sTargeting = "self", nDuration = 1, }, },
+		prepared = 1,
+	},
+	["divinehealth"] = {
+		actions = { { type = "effect", sName = "Divine Health; Immune to disease", sTargeting = "self", }, },
+	},
+	["auraofprotection"] = {
+		actions = { { type = "effect", sName = "Aura of Protection; SAVE: [CHA]", sTargeting = "self" }, },
+	},
+	["auraofcourage"] = {
+		actions = { { type = "effect", sName = "Aura of Courage; IMMUNE: frightened", }, },
+	},
+	["improveddivinesmite"] = {
+		actions = { { type = "effect", sName = "Improved Divine Smite; DMG: 1d8 radiant,melee", sTargeting = "self", }, },
+	},
+	["cleansingtouch"] = {
+		actions = {},
+		prepared = 1,
+	},
 	-- Paladin - Oath of Conquest
 	["conquestoathspells"] = {
 		spell = {
@@ -1326,7 +1388,9 @@ parsedata = {
 	},
 	-- Paladin - Oath of the Watchers
 	-- Paladin - Oath of Vengeance
-	["relentlessavenger"] = { actions = { { type = "effect", sName = "Relentless Avenger; After hitting with an opportunity attack, move up to half your speed immediately, doesn't provoke opportunity attacks", sTargeting = "self", }, }, },
+	["relentlessavenger"] = {
+		actions = { { type = "effect", sName = "Relentless Avenger; After successful opportunity attack, move up to half speed immediately, doesn't provoke opportunity attacks", sTargeting = "self", }, },
+	},
 	["avengingangel"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", },
@@ -1398,9 +1462,15 @@ parsedata = {
 	-- Ranger - Hunter
 	["huntersprey"] = {
 		multiple_actions = {
-			["Hunter's Prey (Colossus Slayer)"] = { actions = { { type = "effect", sName = "Colossus Slayer; IFT: Wounded; DMG: 1d8", sTargeting = "self", sApply = "roll" }, }, },
-			["Hunter's Prey (Giant Killer)"] = { actions = { { type = "effect", sName = "Giant Killer; Large(r) creature within 5 feet misses, can reaction attack", sTargeting = "self", sApply = "roll" }, }, },
-			["Hunter's Prey (Horde Breaker)"] = { actions = { { type = "effect", sName = "Horde Breaker; Can attack additional foe adjacent to target once per turn", sTargeting = "self", }, }, },
+			["Hunter's Prey (Colossus Slayer)"] = {
+				actions = { { type = "effect", sName = "Colossus Slayer; IFT: Wounded; DMG: 1d8", sTargeting = "self", sApply = "roll" }, },
+			},
+			["Hunter's Prey (Giant Killer)"] = {
+				actions = { { type = "effect", sName = "Giant Killer; Large(r) creature within 5 feet misses, can reaction attack", sTargeting = "self", sApply = "roll" }, },
+			},
+			["Hunter's Prey (Horde Breaker)"] = {
+				actions = { { type = "effect", sName = "Horde Breaker; Can attack additional foe adjacent to target once per turn", sTargeting = "self", }, },
+			},
 		},
 	},
 	["defensivetactics"] = {
@@ -1412,9 +1482,15 @@ parsedata = {
 	},
 	["superiorhuntersdefense"] = {
 		multiple_actions = {
-			["Superior Hunter's Defense (Evasion)"] = { actions = { { type = "effect", sName = "Superior Hunter's Defense (Evasion); Evasion", sTargeting = "self", }, }, },
-			["Superior Hunter's Defense (Stand Against the Tide)"] = { actions = { { type = "effect", sName = "Superior Hunter's Defense (Stand Against the Tide); Creature misses with melee, can force that same attack against another creature", sTargeting = "self", }, }, },
-			["Superior Hunter's Defense (Uncanny Dodge)"] = { actions = { { type = "effect", sName = "Superior Hunter's Defense (Uncanny Dodge); RESIST: all", sTargeting = "self", sApply = "action" }, }, },
+			["Superior Hunter's Defense (Evasion)"] = {
+				actions = { { type = "effect", sName = "Sup. Hunter's Def. (Evasion); Evasion", sTargeting = "self", }, },
+			},
+			["Superior Hunter's Defense (Stand Against the Tide)"] = {
+				actions = { { type = "effect", sName = "Sup. Hunter's Def. (Stand Against the Tide); Creature misses with melee, can force that same attack against another creature", sTargeting = "self", }, },
+			},
+			["Superior Hunter's Defense (Uncanny Dodge)"] = {
+				actions = { { type = "effect", sName = "Sup. Hunter's Def. (Uncanny Dodge); RESIST: all", sTargeting = "self", sApply = "action" }, },
+			},
 		},
 	},
 	-- Ranger - Monster Slayer
@@ -1493,7 +1569,6 @@ parsedata = {
 	-- Sorcerer - Clockwork Soul
 	-- Sorcerer - Divine Soul
 	["favoredbythegods"] = { actions = {}, prepared = 1, },
-	["strengthofthegrave"] = { actions = {}, prepared = 1 },
 	-- Sorcerer - Draconic Bloodline
 	["elementalaffinity"] = {
 		actions = {
@@ -1669,8 +1744,14 @@ parsedata = {
 	["benigntransposition"] = { actions = {}, prepared = 1 },
 	-- Wizard - Bladesinging
 	["songofvictory"] = { actions = { { type = "effect", sName = "Song of Victory; DMG: [INT]", sTargeting = "self", }, }, },
-	["bladesong"] = { actions = { { type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; Speed increase by 10", sTargeting = "self", nDuration = 1, sUnits = "minute", }, }, prepared = 1, usesperiod = "enc", },
-	["durablemagic"] = { actions = { { type = "effect", sName = "Durable Magic; AC: 2; SAVE: 2; (C)", sTargeting = "self", }, }, },
+	["bladesong"] = {
+		actions = { { type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; Speed increase by 10", sTargeting = "self", nDuration = 1, sUnits = "minute", }, },
+		prepared = 1,
+		usesperiod = "enc",
+	},
+	["durablemagic"] = {
+		actions = { { type = "effect", sName = "Durable Magic; AC: 2; SAVE: 2; (C)", sTargeting = "self", }, },
+	},
 	["powersurge"] = { actions = { { type = "effect", sName = "Power Surge; DMG: [HLVL] force,magic", sTargeting = "self", sApply = "roll", }, }, },
 	["tacticalwit"] = { actions = { { type = "effect", sName = "Tactical Wit; INIT: [INT]", sTargeting = "self", }, }, },
 	-- Wizard - Chronurgy Magic
@@ -1872,7 +1953,6 @@ parsedata = {
 	["wardsandseals"] = { actions = {}, prepared = 1 },
 	["wardersintuition"] = { actions = { { type = "effect", sName = "Warder's Intuition; SKILL: 1d4 investigation, thieves' tools", sTargeting = "self", }, }, },
 	-- Elf
-	["feyancestry"] = { actions = { { type = "effect", sName = "Fey Ancestry; Advantage on saving throws vs. charmed, no magic sleep", sTargeting = "self", }, }, },
 	["feystep"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", savestat = "charisma", },
@@ -1951,7 +2031,11 @@ parsedata = {
 	["artisansintuition"] = { actions = { { type = "effect", sName = "Artisan's Intuition; SKILL 1d4 edit", sTargeting = "self" }, }, },
 	["everhospitable"] = { actions = { { type = "effect", sName = "Ever Hospitable; SKILL: 1d4 persuasion, brewer's supplies", sTargeting = "self" }, }, },
 	-- Human
-	["intuitivemotion"] = { actions = { { type = "effect", sName = "Intuitive Motion; SKILL: 1d4 athletics", sTargeting = "self" }, { type = "effect", sName = "Intuitive Motion; SKILL: 1d4", sTargeting = "self", sApply ="action" }, }, },
+	["intuitivemotion"] = {
+		actions = {
+			{ type = "effect", sName = "Intuitive Motion; SKILL: 1d4 athletics", sTargeting = "self" }, { type = "effect", sName = "Intuitive Motion; SKILL: 1d4", sTargeting = "self", sApply ="action" },
+		},
+	},
 	["primalconnection"] = { actions = {}, prepared = 1, usesperiod = "enc" },
 	["sentinelsintuition"] = {
 		actions = {
@@ -2026,24 +2110,41 @@ parsedata = {
 	},
 	["shiftingfeature"] = {
 		multiple_actions = {
-			["Shifting Feature (Beasthide)"] = { actions = { { type = "heal", subtype = "temp", sTargeting = "self", clauses = { { dice = { "d6" }, }, }, }, { type = "effect", sName = "Shifting Feature (Beastside); AC: 1", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
-			["Shifting Feature (Longtooth)"] = { actions = { { type = "damage", clauses = { { dice = { "d6" }, dmgtype = "piercing", stat = "strength" }, }, }, }, },
-			["Shifting Feature (Swiftstride)"] = { actions = { { type = "effect", sName = "Shifting Feature (Swiftstride); Special movement", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
-			["Shifting Feature (Wildhunt)"] = { actions = { { type = "effect", sName = "Shifting Feature (Wildhunt); ADVCHK: wisdom", sTargeting = "self", nDuration = 1, sUnits = "minute" }, }, },
+			["Shifting Feature (Beasthide)"] = {
+				actions = {
+					{ type = "heal", subtype = "temp", sTargeting = "self", clauses = { { dice = { "d6" }, }, }, },
+					{ type = "effect", sName = "Shifting Feature (Beastside); AC: 1", sTargeting = "self", nDuration = 1, sUnits = "minute" },
+				},
+			},
+			["Shifting Feature (Longtooth)"] = {
+				actions = { { type = "damage", clauses = { { dice = { "d6" }, dmgtype = "piercing", stat = "strength" }, }, }, },
+			},
+			["Shifting Feature (Swiftstride)"] = {
+				actions = { { type = "effect", sName = "Shifting Feature (Swiftstride); Special movement", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+			},
+			["Shifting Feature (Wildhunt)"] = {
+				actions = { { type = "effect", sName = "Shifting Feature (Wildhunt); ADVCHK: wisdom", sTargeting = "self", nDuration = 1, sUnits = "minute" }, },
+			},
 		},
 	},
 	-- Simic Hybrid
 	["animalenhancement"] = {
 		multiple_actions = {
-			["Animal Enhancement (Manta Glide)"] = { actions = { { type = "effect", sName = "Animal Enhancement (Underater Adaptation); Can breathe air and water, swimming speed equal to walking speed.", sTargeting = "self", }, }, },
-			["Animal Enhancement (Nimble Climber)"] = { actions = { { type = "effect", sName = "Animal Enhancement (Nimble Climber); Climbing speed equal to walking speed", sTargeting = "self", }, }, },
+			["Animal Enhancement (Manta Glide)"] = {
+				actions = { { type = "effect", sName = "Animal Enh. (Underater Adaptation); Can breathe air and water, swimming speed equal to walking speed.", sTargeting = "self", }, },
+			},
+			["Animal Enhancement (Nimble Climber)"] = {
+				actions = { { type = "effect", sName = "Animal Enh. (Nimble Climber); Climbing speed equal to walking speed", sTargeting = "self", }, },
+			},
 			["Animal Enhancement (Grappling Appendages)"] = {
 				actions = {
-					{ type = "effect", sName = "Animal Enhancement (Grappling Appendages); Grappled", },
+					{ type = "effect", sName = "Animal Enh. (Grappling Appendages); Grappled", },
 					{ type = "damage", clauses = { { dice = { "d6" }, dmgtype = "bludgeoning", stat = "strength" }, }, },
 				},
 			},
-			["Animal Enhancement (Carapace)"] = { actions = { { type = "effect", sName = "Animal Enhancement (Carapace); AC: 1", sTargeting = "self", }, }, },
+			["Animal Enhancement (Carapace)"] = {
+				actions = { { type = "effect", sName = "Animal Enh. (Carapace); AC: 1", sTargeting = "self", }, },
+			},
 			["Animal Enhancement (Acid Spit)"] = {
 				actions = {
 					{ type = "powersave", save = "dexterity", savestat = "constitution", },
@@ -2092,14 +2193,17 @@ parsedata = {
 	["tirelessprecision"] = { actions = { { type = "effect", sName = "Tireless Precision; SKILL: 1d4", sTargeting = "self", sApply = "roll" }, }, },
 	["vedalkendispassion"] = { actions = { { type = "effect", sName = "Vedalken Dispassion; ADVSAV: intelligence,wisdom,charisma", sTargeting = "self", }, }, },
 	-- Verdan
-	["vedalkendispassion"] = { actions = { { type = "effect", sName = "Vedalken Dispassion; ADVSAV: intelligence,wisdom,charisma", sTargeting = "self", }, }, },
 	["telepathicinsight"] = { actions = { { type = "effect", sName = "Telepathic Insight; ADVSAV: wisdom, charisma", sTargeting = "self", }, }, },
 	["limitedtelepathy"] = { actions = { { type = "effect", sName = "Limited Telepathy 30 ft.", sTargeting = "self", }, }, },
 	-- Warforged
 	["integratedtool"] = { actions = { { type = "effect", sName = "Integrated Tool: ADVSKILL: ", sTargeting = "self" }, }, },
 	["ironfists"] = { actions = { { type = "damage", clauses = { { dice = { "d4" }, dmgtype = "bludgeoning", stat = "strength" }, }, }, }, },
-	["warforgedresilience"] = { actions = { { type = "effect", sName = "Warforged Resilience; RESIST: poison; Advantage against poison; Immune to disease and exhaustion; don't need sleep, food, drink, or air", sTargeting = "self" }, }, },
-	["constructedresilience"] = { actions = { { type = "effect", sName = "Constructed Resilience; RESIST: poison; advantage on saves vs. poisoned, do not need to eat, drink, or breathe, or sleep, immune to disease, cannot be put to sleep by magic. ", sTargeting = "self" }, }, },
+	["warforgedresilience"] = {
+		actions = { { type = "effect", sName = "Warforged Resilience; RESIST: poison; Adv against poison; Immune to disease and exhaustion", sTargeting = "self" }, },
+	},
+	["constructedresilience"] = {
+		actions = { { type = "effect", sName = "Constructed Resilience; RESIST: poison; Adv on save vs. poisoned, Immune to disease, Cannot be put to sleep by magic. ", sTargeting = "self" }, },
+		},
 	["integratedprotection"] = { actions = { { type = "effect", sName = "Integrated Protection; AC: 1", sTargeting = "self" }, }, },
 	-- Yuan-ti
 	["yuantiinnatespellcasting"] = {
@@ -2334,7 +2438,7 @@ tBuildDataClass2024 = {
 		group = "Rage (Barbarian)",
 		ability = "strength",
 	},
-	
+
 	-- Bard
 	["bardicinspiration"] = {
 		actions = {
@@ -3721,11 +3825,6 @@ tBuildDataClass2024 = {
 				group = "Psionic Power (Fighter)",
 				ability = "intelligence",
 			},
-			["Guarded Mind"] = {
-				actions = {},
-				group = "Psionic Energy (Fighter)",
-				ability = "intelligence",
-			},
 		},
 	},
 	["bulwarkofforce"] = {
@@ -3770,7 +3869,7 @@ tBuildDataClass2024 = {
 				group = "Focus (Monk)",
 				ability = "wisdom",
 				prepared = 2,
-				usesperiod = "enc" 
+				usesperiod = "enc",
 			},
 			["Flurry of Blows"] = {
 				actions = {},
@@ -3813,7 +3912,7 @@ tBuildDataClass2024 = {
 					{ type = "heal", clauses = { { dice = { "d10" }, stat = "dexterity" }, { dice = {}, stat = "monk" }, } },
 				},
 			},
-			["Deflect Attacks"] = {
+			["Deflect Attacks (Redirect)"] = {
 				actions = {
 					{ type = "powersave", save = "dexterity", savestat = "base", },
 					{ type = "damage", clauses = { { dice = { "d6", "d6" }, stat = "dexterity", }, }, },
@@ -4330,7 +4429,13 @@ tBuildDataClass2024 = {
 	},
 	["livinglegend"] = {
 		actions = {
-			{ type = "effect", sName = "Living Legend; ADVCHECK: charisma; NOTE: Reaction to reroll failed Saves; NOTE: 1/turn - change Attack miss to a hit", sTargeting = "self", nDuration = 10, sUnits = "minute" },
+			{
+				type = "effect",
+				sName = "Living Legend; ADVCHECK: charisma; NOTE: Reaction to reroll failed Saves; NOTE: 1/turn - change Attack miss to a hit",
+				sTargeting = "self",
+				nDuration = 10,
+				sUnits = "minute",
+			},
 		},
 		prepared = 1,
 	},
@@ -4469,7 +4574,13 @@ tBuildDataClass2024 = {
 	},
 	["avengingangel"] = {
 		actions = {
-			{ type = "effect", sName = "Avenging Angel; Fly Speed 60; Hover; ADVCHECK: charisma; NOTE: Reaction to reroll failed Saves; NOTE: 1/turn - change Attack miss to a hit", sTargeting = "self", nDuration = 10, sUnits = "minute" },
+			{
+				type = "effect",
+				sName = "Avenging Angel; Fly Speed 60; Hover; ADVCHECK: charisma; NOTE: Reaction reroll failed Saves; NOTE: 1/turn - change Attack miss to a hit",
+				sTargeting = "self",
+				nDuration = 10,
+				sUnits = "minute",
+			},
 			{ type = "powersave", save = "wisdom", savestat = "base", magic = true, },
 			{ type = "effect", sName = "Avenging Angel (Enemy); Frightened; GRANTADVATK", nDuration = 1, sUnits = "minute" },
 		},
@@ -6514,7 +6625,7 @@ tBuildDataFeat2024 = {
 			},
 		},
 	},
-	
+
 	-- General Feats
 	["actor"] = {
 		multiple_actions = {
@@ -6692,15 +6803,7 @@ tBuildDataFeat2024 = {
 			},
 		},
 	},
-	["heavyarmormaster"] = {
-		multiple_actions = {
-			["Heavy Armor Master (Damage Reduction)"] = {
-				actions = {
-					{ type = "effect", sTargeting = "self", sName = "Heavy Armor Master (DR); RESIST: [PRF] bludgeoning,piercing,slashing", },
-				},
-			},
-		},
-	},
+	["heavyarmormaster"] = {},
 	["inspiringleader"] = {
 		multiple_actions = {
 			["Inspiring Leader (Bolstering Performance)"] = {
@@ -6723,7 +6826,7 @@ tBuildDataFeat2024 = {
 			["Mage Slayer (Guarded Mind)"] = {
 				actions = {},
 				prepared = 1,
-				usesperiod = "enc",				
+				usesperiod = "enc",
 			},
 		},
 	},
@@ -6912,7 +7015,7 @@ tBuildDataFeat2024 = {
 			},
 		},
 	},
-	
+
 	-- Fighting Style Feats
 	["interception"] = {
 		actions = {

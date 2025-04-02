@@ -14,7 +14,7 @@
 		<script file="ct/scripts/ct_entry.lua" />
 		<sheetdata>
 			<hs name="status" />
-			
+
 			<hsx name="type" />
 			<hsx name="size" />
 			<hsx name="alignment" />

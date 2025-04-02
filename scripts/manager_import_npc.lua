@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -30,8 +30,10 @@ end
 --	Built-in supported import modes
 --
 
+local _sStoredInitiativeBonus;
 function import2024(sStats, sDesc)
 	-- Track state information
+	_sStoredInitiativeBonus = nil;
 	local tImportState = ImportNPCManager.initImportState(sStats, sDesc);
 
 	-- Assume name on Line 1
@@ -39,37 +41,37 @@ function import2024(sStats, sDesc)
 
 	-- Assume size/type/alignment on Line 2
 	ImportNPCManager.importHelperSizeTypeAlignment(tImportState);
-	
+
 	-- Assume AC on Line 3, HP on Line 4, and Speed on Line 5
 	ImportNPCManager.importHelperACHPSpeed2024(tImportState);
 
-	-- Assume ability headers start on Line 6 
+	-- Assume ability headers start on Line 6
 	-- Line 6: MOD SAVE MOD SAVE MOD SAVE
 	-- Line 7: Str X +M +S {tab} Dex X +M +S {tab} Con X +M +S
 	-- Line 8: Int X +M +S {tab} Wis X +M +S {tab} Cha X +M +S
 	ImportNPCManager.importHelperAbilities2024(tImportState);
-	
+
 	-- Assume the following optional fields in the following order:
 	--		Saving throws
 	--		Skills
-	--		Damage Vulnerabilities, 
+	--		Damage Vulnerabilities,
 	--		Damage Resistances
-	--		Damage Immunities, 
+	--		Damage Immunities,
 	--		Condition Immunities
 	--		Senses
 	--		Languages
 	--		Challenge
 	ImportNPCManager.importHelperOptionalFields2024(tImportState);
-	
+
 	-- Assume NPC actions appear next with the following headers: (Assume Traits until a header found)
 	--		Traits, Actions, Bonus Actions, Reactions, Legendary Actions, Lair Actions
 	ImportNPCManager.importHelperActions(tImportState);
 
 	-- Update Description by adding the statblock text as well
 	ImportNPCManager.finalizeDescription(tImportState);
-	
+
 	ImportNPCManager.importHelperVersion(tImportState, "2024");
-	
+
 	-- Open new record window and matching campaign list
 	ImportUtilityManager.showRecord("npc", tImportState.node);
 end
@@ -83,35 +85,35 @@ function importDNDB2024(sStats, sDesc)
 
 	-- Assume size/type/alignment on Line 2
 	ImportNPCManager.importHelperSizeTypeAlignment(tImportState);
-	
+
 	-- Assume AC on Line 3, HP on Line 4, and Speed on Line 5
 	ImportNPCManager.importHelperACHPSpeed2024(tImportState);
 
 	-- Assume all abilities start on line 6 with a single line per
 	-- ability and a header of Mod Save at the start and after CON
 	ImportNPCManager.importHelperAbilitiesDNDB2024(tImportState);
-	
+
 	-- Assume the following optional fields in the following order:
 	--		Saving throws
 	--		Skills
-	--		Damage Vulnerabilities, 
+	--		Damage Vulnerabilities,
 	--		Damage Resistances
-	--		Damage Immunities, 
+	--		Damage Immunities,
 	--		Condition Immunities
 	--		Senses
 	--		Languages
 	--		Challenge
 	ImportNPCManager.importHelperOptionalFields2024(tImportState);
-	
+
 	-- Assume NPC actions appear next with the following headers: (Assume Traits until a header found)
 	--		Traits, Actions, Bonus Actions, Reactions, Legendary Actions, Lair Actions
 	ImportNPCManager.importHelperActions(tImportState);
 
 	-- Update Description by adding the statblock text as well
 	ImportNPCManager.finalizeDescription(tImportState);
-	
+
 	ImportNPCManager.importHelperVersion(tImportState,"2024");
-	
+
 	-- Open new record window and matching campaign list
 	ImportUtilityManager.showRecord("npc", tImportState.node);
 end
@@ -125,32 +127,32 @@ function import2022(sStats, sDesc)
 
 	-- Assume size/type/alignment on Line 2
 	ImportNPCManager.importHelperSizeTypeAlignment(tImportState);
-	
+
 	-- Assume AC on Line 3, HP on Line 4, and Speed on Line 5
 	ImportNPCManager.importHelperACHPSpeed2014(tImportState);
 
 	-- Assume ability headers on Line 6, and ability scores/bonuses on Line 7
 	ImportNPCManager.importHelperAbilities2014(tImportState);
-	
+
 	-- Assume the following optional fields in the following order:
 	--		Saving throws
 	--		Skills
-	--		Damage Vulnerabilities, 
+	--		Damage Vulnerabilities,
 	--		Damage Resistances
-	--		Damage Immunities, 
+	--		Damage Immunities,
 	--		Condition Immunities
 	--		Senses
 	--		Languages
 	--		Challenge
 	ImportNPCManager.importHelperOptionalFields2014(tImportState);
-	
+
 	-- Assume NPC actions appear next with the following headers: (Assume Traits until a header found)
 	--		Traits, Actions, Bonus Actions, Reactions, Legendary Actions, Lair Actions
 	ImportNPCManager.importHelperActions(tImportState);
 
 	-- Update Description by adding the statblock text as well
 	ImportNPCManager.finalizeDescription(tImportState);
-	
+
 	-- Open new record window and matching campaign list
 	ImportUtilityManager.showRecord("npc", tImportState.node);
 end
@@ -165,7 +167,7 @@ function importHelperName(tImportState)
 	ImportNPCManager.nextImportLine(tImportState);
 	DB.setValue(tImportState.node, "name", "string", tImportState.sActiveLine);
 	ImportNPCManager.addStatOutput(tImportState, string.format("<h>%s</h>", tImportState.sActiveLine));
-	
+
 	-- Token
 	ImportUtilityManager.setDefaultToken(tImportState.node);
 end
@@ -181,9 +183,9 @@ function importHelperSizeTypeAlignment(tImportState)
 	if (tImportState.sActiveLine or "") ~= "" then
 		local sLine = tImportState.sActiveLine;
 		local sAlignment = "";
-		local sTypePart = "";
 
 		-- Find the last comma and split the string
+		local sTypePart;
 		local nLastComma = sLine:match(".*()%s*,%s*.*")
 		if nLastComma then
 			sAlignment = sLine:sub(nLastComma + 1)
@@ -252,24 +254,23 @@ function importHelperACHPSpeed2024(tImportState)
 			DB.setValue(tImportState.node, "ac", "number", sAC);
 			DB.setValue(tImportState.node, "actext", "string", sACText);
 			-- Save the initiative value for later and write it out once we know the Dex modifier
-			
+
 			--DB.setValue(tImportState.node, "initiativebonus", "string", sInitiativeBonus);
 			--DB.setValue(tImportState.node, "initiativedefault", "number", tonumber(sInitiativeDefault));
-			sStoredInitiativeBonus = sInitiativeBonus;
+			_sStoredInitiativeBonus = sInitiativeBonus;
 			table.insert(tMidOutput, string.format("<b>Armor Class</b> %s %s", sAC, sACText));
 			if sInitiativeBonus ~= "" and sInitiativeDefault ~= "" then
 				table.insert(tMidOutput, string.format("<b>Initiative</b> %s (%s)", sInitiativeBonus, sInitiativeDefault));
 			end
 		end
 	end
-	
+
 	-- Example: HP 464 (32d12 + 256) or HP 5 + 10 per spell level (the steed has a number of Hit Dice [d10s] equal to the spell’s level)
 	ImportNPCManager.nextImportLine(tImportState); -- Line 4
 	if (tImportState.sActiveLine or "") ~= "" then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sHP = tWords[2] or "";
 		local sHD = table.concat(tWords, " ", 3) or "";
-		local isSummonHP = false;
 
 		-- Check for "per spell level" pattern in HP line
 		if sHD:match("per spell level") then
@@ -287,7 +288,7 @@ function importHelperACHPSpeed2024(tImportState)
 			table.insert(tMidOutput, string.format("<b>Hit Points</b> %s %s", sHP, sHD));
 		end
 	end
-	
+
 	-- Example: Speed 50 ft., swim 50 ft.
 	ImportNPCManager.nextImportLine(tImportState); -- Line 5
 	if (tImportState.sActiveLine or "") ~= "" then
@@ -321,8 +322,8 @@ function importHelperACHPSpeed2014(tImportState)
 		DB.setValue(tImportState.node, "actext", "string", sACText);
 		table.insert(tMidOutput, string.format("<b>Armor Class</b> %s %s", sAC, sACText));
 	end
-	
-	-- Example: Hit Points 464 (32d12 + 256)	
+
+	-- Example: Hit Points 464 (32d12 + 256)
 	ImportNPCManager.nextImportLine(tImportState); -- Line 4
 	if (tImportState.sActiveLine or "") ~= "" then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
@@ -330,10 +331,10 @@ function importHelperACHPSpeed2014(tImportState)
 		local sHD = table.concat(tWords, " ", 4) or "";
 
 		DB.setValue(tImportState.node, "hp", "number", sHP);
-		DB.setValue(tImportState.node, "hd", "string", sHD);	
+		DB.setValue(tImportState.node, "hd", "string", sHD);
 		table.insert(tMidOutput, string.format("<b>Hit Points</b> %s %s", sHP, sHD));
 	end
-	
+
 	-- Example: Speed 50 ft., swim 50 ft.
 	ImportNPCManager.nextImportLine(tImportState); -- Line 5
 	if (tImportState.sActiveLine or "") ~= "" then
@@ -349,7 +350,7 @@ function importHelperACHPSpeed2014(tImportState)
 	end
 end
 
-	-- Assume ability headers start on Line 6 
+	-- Assume ability headers start on Line 6
 	-- Line 6: MOD SAVE MOD SAVE MOD SAVE
 	-- Line 7: Str X +M +S {tab} Dex X +M +S {tab} Con X +M +S
 	-- Line 8: Int X +M +S {tab} Wis X +M +S {tab} Cha X +M +S
@@ -366,7 +367,7 @@ function importHelperAbilities2024(tImportState)
 
 	-- Line 7: Str X +M +S {tab} Dex X +M +S {tab} Con X +M +S
 	ImportNPCManager.nextImportLine(tImportState); -- Line 7
-	tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);	
+	local tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);
 
 	if (StringManager.trim(tAbilityWords[1] or "")):lower() == "str" then
 		sSTR = tAbilityWords[2] or "";
@@ -393,11 +394,11 @@ function importHelperAbilities2024(tImportState)
 			sCONSaveMod = tostring(tonumber(sCONSave) - tonumber(sCONBonus));
 		end
 	end
-	
+
 	-- Line 8: Int X +M +S {tab} Wis X +M +S {tab} Cha X +M +S
 	ImportNPCManager.nextImportLine(tImportState); -- Line 8
-	tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);	
-	
+	tAbilityWords = StringManager.splitWords(tImportState.sActiveLine);
+
 	if (StringManager.trim(tAbilityWords[1] or "")):lower() == "int" then
 		sINT = tAbilityWords[2] or "";
 		sINTBonus = (tAbilityWords[3] or ""):match("[+-]?%d+");
@@ -441,21 +442,19 @@ function importHelperAbilities2024(tImportState)
 	DB.setValue(tImportState.node, "abilities.wisdom.bonus", "number", sWISBonus);
 	DB.setValue(tImportState.node, "abilities.intelligence.bonus", "number", sINTBonus);
 	DB.setValue(tImportState.node, "abilities.charisma.bonus", "number", sCHABonus);
-	
+
 	DB.setValue(tImportState.node, "abilities.strength.savemodifier", "number", sSTRSaveMod);
 	DB.setValue(tImportState.node, "abilities.dexterity.savemodifier", "number", sDEXSaveMod);
 	DB.setValue(tImportState.node, "abilities.constitution.savemodifier", "number", sCONSaveMod);
 	DB.setValue(tImportState.node, "abilities.wisdom.savemodifier", "number", sWISSaveMod);
 	DB.setValue(tImportState.node, "abilities.intelligence.savemodifier", "number", sINTSaveMod);
 	DB.setValue(tImportState.node, "abilities.charisma.savemodifier", "number", sCHASaveMod);
-	
-	if sStoredInitiativeBonus and sDEXBonus then
-		local sInitiativeBonusMisc = "0"
-		
-		sInitiativeBonusMisc = tostring(tonumber(sStoredInitiativeBonus) - tonumber(sDEXBonus));
-		DB.setValue(tImportState.node, "initiative.misc", "number", sInitiativeBonusMisc);
+
+	if _sStoredInitiativeBonus and sDEXBonus then
+		sInitiativeBonusMisc = tostring(tonumber(_sStoredInitiativeBonus) - tonumber(sDEXBonus));
+		DB.setValue(tImportState.node, "initiative.misc", "number", 0);
 	end
-	
+
 	ImportNPCManager.addStatOutput(tImportState, "<table>");
 	ImportNPCManager.addStatOutput(tImportState, "<tr>");
 	ImportNPCManager.addStatOutput(tImportState, "<td colspan='2'></td><td>MOD</td><td>SAVE</td>");
@@ -477,7 +476,7 @@ function importHelperAbilities2024(tImportState)
 		ImportNPCManager.addStatOutput(tImportState, string.format("<td>%s</td>", sCONSave or ""));
 	ImportNPCManager.addStatOutput(tImportState, "</tr>");
 	ImportNPCManager.addStatOutput(tImportState, "<tr>");
-		
+
 	ImportNPCManager.addStatOutput(tImportState, string.format("<td><b>INT</b></td>"));
 		ImportNPCManager.addStatOutput(tImportState, string.format("<td><b>%s</b></td>", sINT or ""));
 		ImportNPCManager.addStatOutput(tImportState, string.format("<td>%s</td>", sINTBonus or ""));
@@ -494,7 +493,7 @@ function importHelperAbilities2024(tImportState)
 	ImportNPCManager.addStatOutput(tImportState, "</table>");
 end
 
-	-- Assume ability headers start on Line 6 
+	-- Assume ability headers start on Line 6
 	-- Line  6: Mod Save
 	-- Line  7: Str X +M +S
 	-- Line  8: Dex X +M +S
@@ -679,8 +678,8 @@ function importHelperAbilities2014(tImportState)
 	DB.setValue(tImportState.node, "abilities.constitution.bonus", "number", sCONBonus);
 	DB.setValue(tImportState.node, "abilities.wisdom.bonus", "number", sWISBonus);
 	DB.setValue(tImportState.node, "abilities.intelligence.bonus", "number", sINTBonus);
-	DB.setValue(tImportState.node, "abilities.charisma.bonus", "number", sCHABonus);	
-	
+	DB.setValue(tImportState.node, "abilities.charisma.bonus", "number", sCHABonus);
+
 	ImportNPCManager.addStatOutput(tImportState, "<table>");
 	ImportNPCManager.addStatOutput(tImportState, "<tr>");
 	ImportNPCManager.addStatOutput(tImportState, "<td><b>STR</b></td>");
@@ -701,8 +700,8 @@ function importHelperAbilities2014(tImportState)
 	ImportNPCManager.addStatOutput(tImportState, "</table>");
 end
 
--- Read in additional stat block data elements that may or may not be present. Repeat until you 
--- don't find any more pattern matches.
+-- Read in additional stat block data elements that may or may not be present.
+-- Repeat until you don't find any more pattern matches.
 function importHelperOptionalFields2024(tImportState)
 	local tSpecialOutput = {};
 	local keywordPatterns = {
@@ -726,14 +725,14 @@ function importHelperOptionalFields2024(tImportState)
 		ImportNPCManager.nextImportLine(tImportState);
 		local sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
 		if not sSimpleLine then break end
-		
+
 		local matched = false
 		for pattern, label in pairs(keywordPatterns) do
 			if sSimpleLine:match("^" .. pattern) then
 				local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 				local valueStartIndex = 2;
 				local sValue = table.concat(tWords, " ", valueStartIndex) or "";
-				
+
 				if pattern == "cr" then
 					local sCR = tWords[2] or "";
 					local sXPText = tImportState.sActiveLine:match("%(XP ([%d,]+)") or "";
@@ -742,39 +741,39 @@ function importHelperOptionalFields2024(tImportState)
 					DB.setValue(tImportState.node, "xp", "number", sXPText:gsub(",", "")); -- Remove all non-numeric characters (commas)
 					table.insert(tSpecialOutput, string.format("<b>%s</b> %s (XP %s; PB %s)", label, sCR, sXPText, sPB));
 				elseif pattern == "vulnerabilities" then
-					-- Account for when they leave off the word "damage" 
+					-- Account for when they leave off the word "damage"
 					DB.setValue(tImportState.node, "damagevulnerabilities", "string", sValue);
 					table.insert(tSpecialOutput, string.format("<b>%s</b> %s", label, sValue));
 				elseif pattern == "resistances" then
-					-- Account for when they leave off the word "damage" 
+					-- Account for when they leave off the word "damage"
 					DB.setValue(tImportState.node, "damageresistances", "string", sValue);
 					table.insert(tSpecialOutput, string.format("<b>%s</b> %s", label, sValue));
 				elseif pattern == "immunities" then
-					-- Account for when they leave off the word "damage" 
+					-- Account for when they leave off the word "damage"
 					DB.setValue(tImportState.node, "damageimmunities", "string", sValue);
 					table.insert(tSpecialOutput, string.format("<b>%s</b> %s", label, sValue));
 				else
 					DB.setValue(tImportState.node, pattern, "string", sValue);
 					table.insert(tSpecialOutput, string.format("<b>%s</b> %s", label, sValue));
 				end
-				
+
 				matched = true
 				break
 			end
 		end
 
-		if not matched then 
+		if not matched then
 			-- return back to the calling function and return the most recently read line back into the parser queue
 			ImportNPCManager.nextImportLine(tImportState, 0);
 			ImportNPCManager.addStatOutput(tImportState, string.format("<p>%s</p>", table.concat(tSpecialOutput, "&#13;")));
-			return;	
+			return;
 		end
 	end
 end
 
 -- Assume the following optional fields in the following order:
---		Saving throws, Skills, 
---		Damage Vulnerabilities, Damage Resistances, Damage Immunities, Condition Immunities, 
+--		Saving throws, Skills,
+--		Damage Vulnerabilities, Damage Resistances, Damage Immunities, Condition Immunities,
 --		Senses, Languages, Challenge
 function importHelperOptionalFields2014(tImportState)
 	local tSpecialOutput = {};
@@ -787,24 +786,24 @@ function importHelperOptionalFields2014(tImportState)
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sSavingThrows = table.concat(tWords, " ", 3) or "";
 
-		DB.setValue(tImportState.node, "savingthrows", "string", sSavingThrows);		   
+		DB.setValue(tImportState.node, "savingthrows", "string", sSavingThrows);
 		table.insert(tSpecialOutput, string.format("<b>Saving Throws</b> %s", sSavingThrows));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
 	end
-	
+
 	-- Example: Skills Insight +11, Perception +19
 	if sSimpleLine and sSimpleLine:match("^skills") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sSkills = table.concat(tWords, " ", 2) or "";
 
-		DB.setValue(tImportState.node, "skills", "string", sSkills);		   
+		DB.setValue(tImportState.node, "skills", "string", sSkills);
 		table.insert(tSpecialOutput, string.format("<b>Skills</b> %s", sSkills));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end	
+	end
 
 	-- Example: Damage Vulnerabilities cold, fire, lightning
 	if sSimpleLine and sSimpleLine:match("^damagevulnerabilities") then
@@ -816,68 +815,68 @@ function importHelperOptionalFields2014(tImportState)
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end	  
-	
+	end
+
 	-- Example: Damage Resistances cold, fire, lightning
 	if sSimpleLine and sSimpleLine:match("^damageresistances") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sDamageResistances = table.concat(tWords, " ", 3) or "";
 
-		DB.setValue(tImportState.node, "damageresistances", "string", sDamageResistances);		   
+		DB.setValue(tImportState.node, "damageresistances", "string", sDamageResistances);
 		table.insert(tSpecialOutput, string.format("<b>Damage Resistances</b> %s", sDamageResistances));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end	  
-	
+	end
+
 	-- Example: Damage Immunities poison; bludgeoning, piercing, and slashing that is nonmagical
 	if sSimpleLine and sSimpleLine:match("^damageimmunities") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sDamageImmunities = table.concat(tWords, " ", 3) or "";
 
-		DB.setValue(tImportState.node, "damageimmunities", "string", sDamageImmunities);		   
+		DB.setValue(tImportState.node, "damageimmunities", "string", sDamageImmunities);
 		table.insert(tSpecialOutput, string.format("<b>Damage Immunities</b> %s", sDamageImmunities));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end	  
+	end
 
 	-- Example: Condition Immunities poison; bludgeoning, piercing, and slashing that is nonmagical
 	if sSimpleLine and sSimpleLine:match("^conditionimmunities") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sConditionImmunities = table.concat(tWords, " ", 3) or "";
 
-		DB.setValue(tImportState.node, "conditionimmunities", "string", sConditionImmunities);		   
+		DB.setValue(tImportState.node, "conditionimmunities", "string", sConditionImmunities);
 		table.insert(tSpecialOutput, string.format("<b>Condition Immunities</b> %s", sConditionImmunities));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end   
+	end
 
 	-- Example: Senses truesight 120 ft., passive Perception 29
 	if sSimpleLine and sSimpleLine:match("^senses") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sSenses = table.concat(tWords, " ", 2) or "";
 
-		DB.setValue(tImportState.node, "senses", "string", sSenses);		   
+		DB.setValue(tImportState.node, "senses", "string", sSenses);
 		table.insert(tSpecialOutput, string.format("<b>Senses</b> %s", sSenses));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-	end  
-	
+	end
+
 	-- Example: Languages all, telepathy 120 ft.
 	if sSimpleLine and sSimpleLine:match("^languages") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
 		local sLanguages = table.concat(tWords, " ", 2) or "";
 
-		DB.setValue(tImportState.node, "languages", "string", sLanguages);		   
+		DB.setValue(tImportState.node, "languages", "string", sLanguages);
 		table.insert(tSpecialOutput, string.format("<b>Languages</b> %s", sLanguages or ""));
 
 		ImportNPCManager.nextImportLine(tImportState);
 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
 	end
-	
+
 	-- Example: Challenge 26 (90,000 XP) Proficiency Bonus +8
 	if sSimpleLine and sSimpleLine:match("^challenge") then
 		local tWords = StringManager.splitTokens(tImportState.sActiveLine);
@@ -889,16 +888,15 @@ function importHelperOptionalFields2014(tImportState)
 		table.insert(tSpecialOutput, string.format("<b>Challenge</b> %s (%s XP)", sCR, sXPText));
 
 		ImportNPCManager.nextImportLine(tImportState);
-		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
 	end
-	
+
 	ImportNPCManager.addStatOutput(tImportState, string.format("<p>%s</p>", table.concat(tSpecialOutput, "&#13;")));
 end
 
 function importHelperActions(tImportState)
 	while tImportState.sActiveLine do
- 		sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
-		
+		local sSimpleLine = StringManager.simplify(tImportState.sActiveLine);
+
 		-- Look for a section header
 		if sSimpleLine:match("^traits$") then
 			ImportNPCManager.finalizeAction(tImportState);
@@ -908,12 +906,12 @@ function importHelperActions(tImportState)
 			ImportNPCManager.finalizeAction(tImportState);
 			ImportNPCManager.setActionMode(tImportState, "bonusactions");
 			ImportNPCManager.addStatOutput(tImportState, "<h>Bonus Actions</h>");
-			
+
 		elseif sSimpleLine:match("^actions$") then
 			ImportNPCManager.finalizeAction(tImportState);
 			ImportNPCManager.setActionMode(tImportState, "actions");
 			ImportNPCManager.addStatOutput(tImportState, "<h>Actions</h>");
-			
+
 		elseif sSimpleLine:match("^reactions$") then
 			ImportNPCManager.finalizeAction(tImportState);
 			ImportNPCManager.setActionMode(tImportState, "reactions");
@@ -923,17 +921,13 @@ function importHelperActions(tImportState)
 			ImportNPCManager.finalizeAction(tImportState);
 			ImportNPCManager.setActionMode(tImportState, "legendaryactions");
 			ImportNPCManager.addStatOutput(tImportState, "<h>Legendary Actions</h>");
-			
+
 		elseif sSimpleLine:match("^lairactions$") then
 			ImportNPCManager.finalizeAction(tImportState);
 			ImportNPCManager.setActionMode(tImportState, "lairactions");
 			ImportNPCManager.addStatOutput(tImportState, "<h>Lair Actions</h>");
 
 		else
-			-- NOTE: DAD 2022-04-13 John wants us to only allow a period and not a colon. This forces an 
-			-- exact syntax but make sure that we don't inadvertantly change a : to a period because that 
-			-- is the syntax used for stuff like 3/day: Spell1, Spell2
-
 			-- Look for a feature heading. It should be proper cased and end in a period
 			-- If it is multiple words, then each word should begin with a capitalization.
 			local sHeading, sRemainder = tImportState.sActiveLine:match("([^.!]+[.!])%s(.*)")
@@ -962,7 +956,7 @@ function isActionHeading(s)
 	end
 
 	local sHeading = s;
-	
+
 	sHeading = sHeading:gsub(" of ", " Of ");
 	sHeading = sHeading:gsub(" with ", " With ");
 	sHeading = sHeading:gsub(" and ", " And ");
@@ -977,13 +971,13 @@ function isActionHeading(s)
 	sHeading = sHeading:gsub(" before ", " Before ");
 	-- handle possessive titles
 	sHeading = sHeading:gsub("\'s ", "'S ");
-	
+
 	if sHeading == StringManager.capitalizeAll(sHeading) then
 		return true;
 	elseif s:match("Recharges after") then
 		return true;
 	end
-	return false;		
+	return false;
 end
 
 function initImportState(sStatBlock, sDesc)

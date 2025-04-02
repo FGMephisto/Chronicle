@@ -196,7 +196,6 @@
 				<top parent="strength_total" anchor="top" />
 				<left parent="strength_total" anchor="right" relation="relative" offset="20" />
 			</anchored>
-			<modifiersize>mini</modifiersize>
 			<hideonvalue>0</hideonvalue>
 			<nodrag />
 			<readonly />
@@ -456,7 +455,7 @@
 		<script file="charwizard/scripts/decision.lua" />
 		<sheetdata>
 			<hsc name="decisiontype" />
-			
+
 			<anchor_listitem_left name="leftanchor">
 				<anchored offset="10,10" />
 			</anchor_listitem_left>
@@ -492,7 +491,7 @@
 			</label_listitem_center>
 
 			<ftc_charwizard_desc name="decision_desc" />
-			
+
 			<comboboxc_charwizard_decision_choice name="decision_choice" />
 			<sub_content_hidden_top name="sub_decision_choice" />
 		</sheetdata>

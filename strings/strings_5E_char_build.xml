@@ -93,7 +93,7 @@
 	<string name="char_abilities_message_passiveadd">Passive Perception adjustment %+d applied to '%s'.</string>
 	<string name="char_abilities_message_basespeedset">Base speed set to %d for '%s'.</string>
 	<string name="char_abilities_message_basespeedadj">Base speed adjusment %+d applied to '%s'.</string>
-	
+
 	<!-- Character Wizard -->
 	<string name="charwizard_error_import_missingclass">Unable to import. Unable to open Class record(s) not loaded.</string>
 	<string name="charwizard_error_import_missingsubclass">Unable to import. Unable to open Subclass record(s) not loaded.</string>
@@ -118,7 +118,10 @@
 	<string name="charwizard_message_instructions_commit">To complete your character, take the following steps.\r\r1. Review warnings (if any) and return to previous sections to resolve.\r2. Enter your character name.\r3. Review character to make sure everything looks right.\r4. Click the Save button to finalize and create Character record.</string>
 	<string name="charwizard_message_instructions_class_levelup">Choose the Character Class that you want to Level Up.\r\r1. Click the Level Up button to level up one of your existing classes; or click the Add Class button to add a new class.</string>
 	<string name="charwizard_message_instructions_commit_levelup">To complete your Character level up, take the following steps.\r\r1. Review warnings and return to previous sections to resolve.\r2. Review character to make sure everything looks right.\r3. Click the Save button to finalize Character Level Up changes.</string>
-	
+
+	<string name="charwizard_alert_species2024_background2014">You chose a 2024 Species and a Legacy Background.\r\rAdjust the MISC ability scores by increasing one score by 2 and a different one by one, or increasing three scores by one.\r\rAdditionally, if the background doesn’t include a feat, choose an Origin feat.</string>
+	<string name="charwizard_alert_species2014_background2024">You chose a Legacy Species and a 2024 Background.\r\rThe ASI for the Species will be ignored.</string>
+
 	<string name="charwizard_label_speciesselection">SPECIES</string>
 	<string name="charwizard_label_ancestryselection">ANCESTRY</string>
 	<string name="charwizard_label_changespecies">Change Species</string>

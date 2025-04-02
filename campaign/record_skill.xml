@@ -13,17 +13,16 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				self.update();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+			function onLockModeChanged(bReadOnly)
 				local tFields = { "stat", "text", };
-				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<label_content_column name="stat_label">
 				<static textres="skill_label_ability" />
 			</label_content_column>

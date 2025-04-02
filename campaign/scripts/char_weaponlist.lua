@@ -1,22 +1,22 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	DB.addHandler(getDatabaseNode(), "onChildAdded", onChildAdded);
-	DB.addHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", onProfChanged);
-	
-	onModeChanged();
+	DB.addHandler(getDatabaseNode(), "onChildAdded", self.onChildAdded);
+	DB.addHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", self.onProfChanged);
+
+	self.onModeChanged();
 end
 
 function onClose()
-	DB.removeHandler(getDatabaseNode(), "onChildAdded", onChildAdded);
-	DB.removeHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", onProfChanged);
+	DB.removeHandler(getDatabaseNode(), "onChildAdded", self.onChildAdded);
+	DB.removeHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", self.onProfChanged);
 end
 
 function onChildAdded()
-	onModeChanged();
+	self.onModeChanged();
 end
 
 function onProfChanged()
@@ -30,13 +30,13 @@ function onModeChanged()
 	for _,w in ipairs(getWindows()) do
 		w.carried.setVisible(bPrepMode);
 	end
-	
+
 	applyFilter();
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if draginfo.isType("shortcut") then
-		local sClass, sRecord = draginfo.getShortcutData();
+		local sClass,_ = draginfo.getShortcutData();
 		local nodeSource = draginfo.getDatabaseNode();
 		if RecordDataManager.isRecordTypeDisplayClass("item", sClass) and ItemManager.isWeapon(nodeSource) then
 			return ItemManager.handleAnyDrop(window.getDatabaseNode(), draginfo);

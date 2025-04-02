@@ -1,15 +1,15 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 OOB_MSGTYPE_APPLYINIT = "applyinit";
 
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit);
+	OOBManager.registerOOBMsgHandler(ActionInit.OOB_MSGTYPE_APPLYINIT, ActionInit.handleApplyInit);
 
-	ActionsManager.registerModHandler("init", modRoll);
-	ActionsManager.registerResultHandler("init", onResolve);
+	ActionsManager.registerModHandler("init", ActionInit.modRoll);
+	ActionsManager.registerResultHandler("init", ActionInit.onResolve);
 end
 
 function handleApplyInit(msgOOB)
@@ -22,10 +22,10 @@ function notifyApplyInit(rSource, nTotal)
 	if not rSource then
 		return;
 	end
-	
+
 	local msgOOB = {};
-	msgOOB.type = OOB_MSGTYPE_APPLYINIT;
-	
+	msgOOB.type = ActionInit.OOB_MSGTYPE_APPLYINIT;
+
 	msgOOB.nTotal = nTotal;
 
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
@@ -44,7 +44,7 @@ function getRoll(rActor, bSecret)
 	return rRoll;
 end
 function performRoll(draginfo, rActor, bSecretRoll)
-	local rRoll = getRoll(rActor, bSecretRoll);
+	local rRoll = ActionInit.getRoll(rActor, bSecretRoll);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 

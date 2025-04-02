@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -11,10 +11,11 @@ function update()
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
 
-	local tFields = { 
-		"damagevulnerabilities", "damageresistances", 
-		"damageimmunities", "disablestandarddamageimmunities", 
-		"conditionimmunities", "disablestandardconditionimmunities", };
+	local tFields = {
+		"damagevulnerabilities", "damageresistances",
+		"damageimmunities", "disablestandarddamageimmunities",
+		"conditionimmunities", "disablestandardconditionimmunities",
+	};
 	WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 
 	local bShowDmgImmune = not bReadOnly or (not damageimmunities.isEmpty() or not disablestandarddamageimmunities.isEmpty());

@@ -1,12 +1,12 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
 	TokenManager.addDefaultHealthFeatures(nil, {"hptotal", "hptemp", "wounds", "deathsavefail"});
-	
-	TokenManager.addEffectTagIconConditional("IF", handleIFEffectTag);
+
+	TokenManager.addEffectTagIconConditional("IF", TokenManager2.handleIFEffectTag);
 	TokenManager.addEffectTagIconSimple("IFT", "");
 	TokenManager.addEffectTagIconBonus(DataCommon.bonuscomps);
 	TokenManager.addEffectTagIconSimple(DataCommon.othercomps);

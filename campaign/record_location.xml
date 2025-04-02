@@ -29,10 +29,11 @@
 	<windowclass name="location_bastion_sublocation_entry" copy="location_sublocation_entry">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
-				super.update(bReadOnly)
-				local tFields = { "level", };
-				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				if super and super.onLockModeChanged then
+					super.onLockModeChanged(bReadOnly)
+				end
+				WindowManager.callSafeControlsSetLockMode(self, { "level", "space", }, bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -49,9 +50,12 @@
 	<windowclass name="location_main_bastionfacility">
 		<margins control="0,0,0,2" />
 		<script>
-			function update(bReadOnly)
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
 				local tFields = { "level", "prerequisite", "space", "hirelings", "order", };
-				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
 			end
 		</script>

@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -33,12 +33,12 @@ function updateEncumbranceLimit(nodeChar)
 	if not DB.isOwner(nodeChar) then
 		return;
 	end
-	
+
 	local nStat = DB.getValue(nodeChar, "abilities.strength.score", 10);
 	local nEncLimit = math.max(nStat, 0) * 5;
 
 	nEncLimit = nEncLimit * CharEncumbranceManager5E.getEncumbranceMult(nodeChar);
-	
+
 	DB.setValue(nodeChar, "encumbrance.encumbered", "number", nEncLimit);
 	DB.setValue(nodeChar, "encumbrance.encumberedheavy", "number", nEncLimit * 2);
 	DB.setValue(nodeChar, "encumbrance.max", "number", nEncLimit * 3);
@@ -55,7 +55,7 @@ function getEncumbranceMult(nodeChar)
 	elseif CharManager.hasTrait(nodeChar, CharManager.TRAIT_LITTLE_GIANT) then
 		nActorSize = nActorSize + 1;
 	end
-	
+
 	local nMult = 1; -- Both Small and Medium use a multiplier of 1
 	if nActorSize == -2 then
 		nMult = 0.5;
@@ -66,7 +66,7 @@ function getEncumbranceMult(nodeChar)
 	if CharManager.hasFeature(nodeChar, CharManager.FEATURE_ASPECT_OF_THE_BEAR) then
 		nMult = nMult * 2;
 	end
-	
+
 	return nMult;
 end
 

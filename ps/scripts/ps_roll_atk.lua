@@ -1,18 +1,18 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
-function action(draginfo)
+function action()
 	local tParty = PartyManager.getPartyActors();
 	if #tParty == 0 then
 		return true;
 	end
-	
+
 	local rAction = {};
 	rAction.label = Interface.getString("ps_message_groupatk");
 	rAction.modifier = window.bonus.getValue();
-	
+
 	ModifierManager.lock();
 	for _,v in pairs(tParty) do
 		ActionAttack.performPartySheetVsRoll(nil, v, rAction);
@@ -22,5 +22,5 @@ function action(draginfo)
 end
 
 function onButtonPress()
-	return action();
-end			
+	return self.action();
+end

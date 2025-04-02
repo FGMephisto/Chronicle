@@ -47,7 +47,7 @@
 	<string name="library_recordview_label_item_vehiclewater">Waterborne Vehicles</string>
 	<string name="library_recordview_label_item_vehiclecomponent">Vehicle Components</string>
 	<string name="library_recordview_label_item_vehiclecomponentupgrade">Vehicle Component Upgrades</string>
-	
+
 	<string name="library_recordtype_label_race">Species</string>
 	<string name="library_recordtype_single_race">Species</string>
 	<string name="library_recordtype_empty_race">&#171; New Species &#187;</string>
@@ -77,6 +77,7 @@
 	<string name="roll_msg_feature_improved_critical">IMPROVED CRITICAL</string>
 	<string name="roll_msg_feature_superior_critical">SUPERIOR CRITICAL</string>
 	<string name="roll_msg_feature_warcaster">FEAT: WAR CASTER</string>
+	<string name="roll_msg_feat_heavyarmormaster">FEAT: HEAVY ARMOR MASTER</string>
 	<string name="roll_msg_feat_healer">FEAT: HEALER</string>
 	<string name="roll_msg_feat_elvenaccuracy">FEAT: ELVEN ACCURACY</string>
 	<string name="roll_msg_feat_archery">STYLE: ARCHERY +2</string>
@@ -88,16 +89,16 @@
 	<string name="roll_msg_armor_disstealth">ARMOR STEALTH PENALTY</string>
 
 	<!-- Options -->
-	<string name="option_label_NPCD">NPC: Rolls (Variable or Fixed)</string>
+	<string name="option_label_NPCD">Combat: NPC damage rolls</string>
 	<string name="option_val_fixed">Fixed</string>
 	<string name="option_val_variable">Variable</string>
 	<string name="option_val_HRHV_fast">Healing Surges</string>
 	<string name="option_val_HRHV_slow">Slow Natural Heal</string>
 	<string name="option_val_HRAS_prof">Prof. Bonus</string>
-		
+
 	<string name="option_label_HRST">Combat: Auto death rolls</string>
 	<string name="option_label_HRNH">Combat: NPC hit points</string>
-	<string name="option_label_HRMD">Damage: Massive system shock</string>
+	<string name="option_label_HRMD">Combat: Massive system shock</string>
 	<string name="option_label_HRAS">PC: Attunement slots</string>
 	<string name="option_label_HREN">PC: Encumbrance</string>
 	<string name="option_label_HRHV">PC: Healing variants</string>
@@ -116,7 +117,7 @@
 	<string name="language_value_goblin">Goblin</string>
 	<string name="language_value_halfling">Halfling</string>
 	<string name="language_value_orc">Orc</string>
-	
+
 	<string name="language_value_abyssal">Abyssal</string>
 	<string name="language_value_celestial">Celestial</string>
 	<string name="language_value_draconic">Draconic</string>
@@ -125,7 +126,7 @@
 	<string name="language_value_primordial">Primordial</string>
 	<string name="language_value_sylvan">Sylvan</string>
 	<string name="language_value_undercommon">Undercommon</string>
-	
+
 	<string name="language_value_aquan">Aquan</string>
 	<string name="language_value_auran">Auran</string>
 	<string name="language_value_ignan">Ignan</string>
@@ -138,7 +139,7 @@
 	<!-- Combat Tracker -->
 	<string name="ct_tooltip_offense">Offense</string>
 	<string name="ct_tooltip_defense">Defense</string>
-	
+
 	<string name="ct_label_reaction">React?</string>
 	<string name="ct_tooltip_reactionon">Reaction Used</string>
 	<string name="ct_tooltip_reactionoff">Reaction Not Used</string>
@@ -201,7 +202,7 @@
 	<string name="modifier_label_DMG_CRIT">Critical</string>
 	<string name="modifier_label_DMG_MAX">Max</string>
 	<string name="modifier_label_DMG_HALF">Half</string>
-	
+
 	<!-- Import -->
 	<string name="import_item_window_title">Import - Item</string>
 	<string name="import_npc_window_title">Import - NPC</string>
@@ -226,7 +227,7 @@
 	<!-- Characters - Main -->
 	<string name="char_message_inspiration_gained">Gained Inspiration</string>
 	<string name="char_message_inspiration_used">Used Inspiration</string>
-		
+
 	<string name="char_label_inspiration">INSP</string>
 	<string name="char_tooltip_inspiration">Inspiration</string>
 	<string name="char_label_classlevel">CLASS &amp; LEVEL</string>
@@ -236,9 +237,12 @@
 	<string name="char_label_race">SPECIES</string>
 
 	<string name="char_label_stats">ABILITIES</string>
+	<string name="char_label_check_roll">Roll Ability Check</string>
 	<string name="char_label_save">SAVES</string>
+	<string name="char_label_save_roll">Roll Ability Save</string>
 
 	<string name="char_label_initiative">INIT</string>
+	<string name="char_label_initiative_roll">Roll Initiative</string>
 	<string name="char_label_speed">SPEED</string>
 	<string name="char_label_speedspecial">Special Move</string>
 	<string name="char_label_specialdef">Special Defenses</string>
@@ -258,7 +262,7 @@
 	<string name="char_label_hdused">USED</string>
 	<string name="char_tooltip_hdused">Hit Dice Used</string>
 	<string name="char_label_class_specialization">Subclass:</string>
-	
+
 	<string name="char_button_powers">POWERS</string>	
 	<string name="char_tooltip_powers">Click to open Powers</string>	
 	<string name="char_button_skills">SKILLS</string>
@@ -271,11 +275,11 @@
 	<string name="char_tooltip_notes">Click to open Notes</string>
 	<string name="char_button_actions">ACTIONS</string>
 	<string name="char_tooltip_actions">Click to open actions Data</string>
-		
+
 	<string name="char_label_addprof_armor">Armor</string>
 	<string name="char_label_addprof_weapon">Weapon</string>
 	<string name="char_label_addprof_tool">Tool</string>
-	
+
 	<string name="char_classes_title">CLASS &amp; LEVEL</string>
 	<string name="char_label_class">CLASS</string>
 	<string name="char_label_level">LEVEL</string>
@@ -284,7 +288,7 @@
 	<string name="char_tooltip_casterpactmagic">Off = Spellcasting / On = Pact Magic</string>
 	<string name="char_label_totallevel">TOTAL LEVEL</string>
 	<string name="char_label_nextlevel">NEXT LEVEL</string>
-	
+
 	<string name="char_combatcalc_title">COMBAT CALC</string>
 	<string name="char_label_initdetail">Init:</string>
 	<string name="char_label_initprof">Proficient?</string>
@@ -305,7 +309,7 @@
 	<string name="char_label_hddetail">Hit Die Roll:</string>
 	<string name="char_label_hdclass">Class</string>
 	<string name="char_label_hdstat">Stat</string>
-	
+
 	<!-- Characters - Skills -->
 	<string name="char_skills_title">ABILITIES</string>
 	<string name="char_label_skills">SKILLS</string>
@@ -314,7 +318,7 @@
 	<string name="char_label_skillstat">STAT</string>
 	<string name="char_label_skillname">NAME</string>
 	<string name="char_skills_tooltip_edit">Edit Skills</string>
-	
+
 	<!-- Character - Abilities -->
 	<string name="char_abilities_title">ABILITIES</string>
 	<string name="char_abilities_label_checks">CHECKS</string>
@@ -325,7 +329,7 @@
 	<string name="char_abilities_label_proficiencies">PROFICIENCIES</string>
 	<string name="char_abilities_label_languages">LANGUAGES</string>
 	<string name="char_abilities_tooltip_edit">Edit Abilities</string>
-	
+
 	<!-- Character - Inventory -->
 	<string name="char_label_inventory">EQUIPMENT</string>
 	<string name="char_label_itemname">NAME</string>
@@ -344,7 +348,7 @@
 	<string name="char_invmeta_title">INVENTORY META</string>
 	<string name="char_label_attunedetail">Attunement:</string>
 	<string name="char_label_attuneclass">Class</string>
-	
+
 	<!-- Character - Notes -->
 	<string name="char_notes_title">NOTES</string>
 	<string name="char_label_notes_traits">PERSONALITY TRAITS</string>
@@ -384,7 +388,7 @@
 
 	<!-- Character - Actions -->
 	<string name="char_actions_title">ACTIONS</string>
-	
+
 	<string name="char_label_weapon">WEAPONS</string>
 	<string name="char_tooltip_weapontypemelee">Melee</string>
 	<string name="char_tooltip_weapontyperanged">Ranged</string>
@@ -398,25 +402,24 @@
 	<string name="char_label_weaponproperties">Properties:</string>
 	<string name="char_label_weaponammo">Ammo</string>
 	<string name="char_button_weapondamage">Damage</string>
-	
+
 	<string name="char_weaponmeta_title">WEAPON META</string>
 	<string name="char_label_critrange">Crit on:</string>
 	<string name="char_label_critdicebonus">Extra Crit Dice:</string>
 	<string name="char_label_critmelee">Melee</string>
 	<string name="char_label_critranged">Ranged</string>
 	<string name="char_label_fightingstyle2weapon">Two Weapon Fighting Style</string>
-	
+
 	<string name="char_message_atkwithnoammo">[ATTACKING WHILE OUT OF AMMO]</string>
-		
+
 	<string name="char_label_powers">Powers</string>
 	<string name="power_label_spellslots">SPELL SLOTS</string>
 	<string name="power_label_spellcastingslots">Spellcasting</string>
 	<string name="power_label_pactmagicslots">Pact Magic</string>
-	
-	<string name="char_tooltip_actionedit">Edit Weapons and Powers</string>
+
 	<string name="char_tooltip_actionaddpower">Add Power</string>
 	<string name="char_tooltip_actionaddweapon">Add Weapon</string>
-	
+
 	<!-- Pregens -->
 	<string name="pregen_label_race">Species</string>
 	<string name="pregen_label_class">Class</string>
@@ -436,7 +439,7 @@
 	<string name="battle_tooltip_refreshcr">Refresh CR</string>
 	<string name="battle_tooltip_refreshxp">Refresh XP</string>
 	<string name="battle_error_missingnpclink">[ERROR] Link for NPC '%s' is not working. Make sure the correct modules have been opened in the Library.</string>
-	
+
 	<!-- Classes -->
 	<string name="class_value_artificer">Artificer</string>
 	<string name="class_value_barbarian">Barbarian</string>
@@ -631,7 +634,7 @@
 	<string name="npc_tooltip_spellslot7">Level 7 Spell Slots</string>
 	<string name="npc_tooltip_spellslot8">Level 8 Spell Slots</string>
 	<string name="npc_tooltip_spellslot9">Level 9 Spell Slots</string>
-	
+
 	<string name="npc_menu_parsespells">Parse NPC Spells</string>
 
 	<!-- Races -->
@@ -721,7 +724,7 @@
 	<string name="power_label_groupspells">Spells</string>
 	<string name="power_label_groupabilities">Abilities</string>
 	<string name="power_label_groupcantrips">Cantrips</string>
-	
+
 	<string name="power_groupdetail_title">Power Group</string>
 	<string name="power_label_groupname">Group Name</string>
 	<string name="power_label_grouptype">Group Type</string>
@@ -730,17 +733,17 @@
 	<string name="power_label_groupsave">Save DC</string>
 	<string name="power_label_groupuses">Uses</string>
 	<string name="power_label_groupprepared">Prepared</string>
-	
+
 	<string name="power_tooltip_prepared">Uses per day</string>
 	<string name="power_tooltip_group">Spell Class or Ability Group</string>
 	<string name="power_tooltip_toggle">Click to edit / hide details</string>
 	<string name="power_tooltip_summary">Spell or Ability Summary</string>
-	
+
 	<string name="power_tooltip_typecast">Cast</string>
 	<string name="power_tooltip_typedamage">Damage</string>
 	<string name="power_tooltip_typeheal">Heal</string>
 	<string name="power_tooltip_typeeffect">Effect</string>
-	
+
 	<string name="power_error_spellgroupnotfound">[ERROR] Unable to locate spell group to resolve spell modifiers or DCs.</string>
 	<string name="power_error_spellcastingnotfound">[ERROR] Unable to locate spellcasting trait to resolve spell modifiers or DCs.</string>
 	<string name="power_error_innatespellcastingnotfound">[ERROR] Unable to locate innate spellcasting trait to resolve spell modifiers or DCs.</string>
@@ -780,7 +783,7 @@
 	<string name="power_label_savemagic">Magic?</string>
 	<string name="power_label_onmissdamage">Damage</string>
 	<string name="power_label_onmissdamage_half">Half on Success</string>
-	
+
 	<string name="power_label_healtype">Type</string>
 	<string name="power_label_healtypenormal">HP</string>
 	<string name="power_label_healtypetemp">TEMP</string>
@@ -793,7 +796,7 @@
 	<string name="forge_item_label_clearforge">Clear Forge</string>
 	<string name="forge_ok">OK</string>
 	<string name="forge_error">Error</string>
-	
+
 	<string name="forge_item_advgear">Adventuring Gear</string>
 	<string name="forge_item_armor">Armor</string>
 	<string name="forge_item_mount">Mount</string>
@@ -810,13 +813,13 @@
 	<string name="forge_magicitem_weapon">Magic Weapon</string>
 	<string name="forge_magicitem_wondrousitem">Magic Wondrous Item</string>
 	<string name="forge_magicspell">Magic Spell</string>
-	
+
 	<string name="forge_item_empty_items">Drag and drop  a base item or a list of items here. The template(s) in the Item Templates window will be applied to each piece of equipment in this window when the Forge New Item(s) button is clicked.</string>
 	<string name="forge_item_empty_templates">Drag and drop Item Templates or a Spell to this window. The Item Template(s) or Spells in this window will be applied to each base item in the Base Item window when the Forge New Item(s) button is clicked.</string>
 	<string name="forge_item_message_success">New item forged.</string>
 	<string name="forge_item_message_incompatible">Error, please remove incompatible items.</string>
 	<string name="forge_item_message_missing">Error, please add a base item and a template before attempting to forge!</string>
-	
+
 	<!-- Library - Master Index -->
 	<string name="class_button_specialization">Subclasses</string>
 	<string name="class_button_spell_view">Spell Lists</string>

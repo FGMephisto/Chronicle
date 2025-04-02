@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -35,16 +35,19 @@ end
 function updateBitmapWidget(c, n)
 	local widget = c.findWidget("inspiration");
 	if n <= 0 then
-		if widget then 
+		if widget then
 			widget.destroy();
 		end
 	else
 		if not widget then
-			widget = c.addBitmapWidget({ 
-				name = "inspiration", 
-				icon = "charlist_inspiration", 
-				position = CHARLIST_WIDGET_POSITION, x = CHARLIST_WIDGET_X, y = CHARLIST_WIDGET_Y, 
-				w = CHARLIST_WIDGET_W, h = CHARLIST_WIDGET_H,
+			c.addBitmapWidget({
+				name = "inspiration",
+				icon = "charlist_inspiration",
+				position = CharacterListManager_Inspiration.CHARLIST_WIDGET_POSITION,
+				x = CharacterListManager_Inspiration.CHARLIST_WIDGET_X,
+				y = CharacterListManager_Inspiration.CHARLIST_WIDGET_Y,
+				w = CharacterListManager_Inspiration.CHARLIST_WIDGET_W,
+				h = CharacterListManager_Inspiration.CHARLIST_WIDGET_H,
 			});
 		end
 	end
@@ -52,15 +55,18 @@ end
 function updateTextWidget(c, n)
 	local widget = c.findWidget("inspirationtext");
 	if n <= 1 then
-		if widget then 
+		if widget then
 			widget.destroy();
 		end
 	else
 		if not widget then
 			widget = c.addTextWidget({
-				name = "inspirationtext", 
-				font = "sheetlabel", text = "", 
-				position = CHARLIST_WIDGET_POSITION, x = CHARLIST_WIDGET_X, y = CHARLIST_WIDGET_Y,
+				name = "inspirationtext",
+				font = "sheetlabel",
+				text = "",
+				position = CharacterListManager_Inspiration.CHARLIST_WIDGET_POSITION,
+				x = CharacterListManager_Inspiration.CHARLIST_WIDGET_X,
+				y = CharacterListManager_Inspiration.CHARLIST_WIDGET_Y,
 			});
 		end
 		widget.setText(n);

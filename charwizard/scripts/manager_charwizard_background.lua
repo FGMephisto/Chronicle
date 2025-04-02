@@ -42,7 +42,7 @@ function setBackgroundRecord(v)
 	end
 
 	CharWizardEquipmentManager.onEquipmentPageUpdate();
-	
+
 	CharWizardManager.updateAlerts();
 end
 function isBackground2024()
@@ -54,9 +54,8 @@ function handleBackgroundEquipmentKit2024()
 	local tBackground = CharWizardManager.getBackgroundData();
 	local nodeEquipment = DB.createChild(DB.findNode(tBackground.background), "equipmentlist");
 
-	local tWealth = {};
 	local tOptions = {};
-	for k,nodeOption in ipairs(DB.getChildList(nodeEquipment)) do
+	for _,nodeOption in ipairs(DB.getChildList(nodeEquipment)) do
 		local tItems = {};
 		local nWealth = DB.getValue(nodeOption, "wealth", 0);
 		if nWealth > 0 then
@@ -64,7 +63,7 @@ function handleBackgroundEquipmentKit2024()
 		end
 
 		tItems.items = {};
-		for k2,nodeItem in ipairs(DB.getChildList(nodeOption, "items")) do
+		for _,nodeItem in ipairs(DB.getChildList(nodeOption, "items")) do
 			local nCount = DB.getValue(nodeItem, "count", 0);
 			table.insert(tItems.items, { item = nodeItem, count = nCount });
 		end
@@ -302,7 +301,7 @@ function addBackgroundAbilityIncreases(sAbility, nMod)
 		return;
 	end
 	local tBackground = CharWizardManager.getBackgroundData();
-	
+
 	tBackground.abilityincrease = tBackground.abilityincrease or {};
 	for _,v in ipairs(tBackground.abilityincrease) do
 		if v.ability:lower() == sAbility:lower() then
@@ -401,7 +400,7 @@ function processBackground(w)
 
 	CharWizardManager.updateAlerts();
 end
-function resetBackground(w)
+function resetBackground()
 	CharWizardManager.clearBackgroundData();
 	CharWizardEquipmentManager.onEquipmentPageUpdate();
 
@@ -419,7 +418,7 @@ function resetBackground(w)
 	CharWizardManager.updateAlerts();
 end
 
-function updateBackgroundFeatures(w)
+function updateBackgroundFeatures()
 	local nodeBackground = CharWizardBackgroundManager.getBackgroundNode();
 	if not nodeBackground then
 		return;
@@ -621,7 +620,7 @@ end
 function processBackgroundDecisionASIOption(wDecision)
 	local wFeature = wDecision.windowlist.window;
 	CharWizardBackgroundManager.clearBackgroundAbilityIncreases();
-	
+
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
 		if w.decisiontype.getValue() == "asibackground" then
 			w.close();

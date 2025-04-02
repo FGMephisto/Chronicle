@@ -364,7 +364,7 @@
 			<header_content_framed_metalplate name="spellsknown_header">
 				<static textres="charwizard_header_spellsknown" />
 			</header_content_framed_metalplate>
-			
+
 			<sub_content_top name="spellcasting_filters">
 				<class>classspells_sub_spellsfilter</class>
 				<activate />
@@ -373,7 +373,7 @@
 
 			<list_content_noscroll_top name="list">
 				<class>list_entry_list_known</class>
-				<columns width="140" fillwidth="true" />
+				<columns width="140" fillwidth="true" dynamic="true" />
 				<sortby><control>name</control></sortby>
 			</list_content_noscroll_top>
 		</sheetdata>

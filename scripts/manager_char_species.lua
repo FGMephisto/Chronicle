@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -42,7 +42,7 @@ function helperResolveAncestryOnSpeciesDrop(rAdd)
 	};
 	DialogManager.requestSelectionDialog(tDialogData);
 end
-function callbackResolveAncestryOnSpeciesDrop(tSelection, rAdd, tSelectionLinks)
+function callbackResolveAncestryOnSpeciesDrop(_, rAdd, tSelectionLinks)
 	if not tSelectionLinks or (#tSelectionLinks ~= 1) then
 		CharManager.outputUserMessage("char_error_addancestry");
 		return;
@@ -99,7 +99,7 @@ function getAncestryOptions(nodeSpecies)
 		local tSpeciesFilters = {
 			{ sField = "name", sValue = sSpeciesName, bIgnoreCase = true, },
 			{ sField = "version", sValue = (bSource2024 and "2024" or ""), },
-		};		
+		};
 		RecordManager.callForEachRecordByFilter("race", tSpeciesFilters, CharSpeciesManager.helperGetSpeciesEmbeddedAncestryOption, tOptions);
 	end
 	table.sort(tOptions, function(a,b) return a.text < b.text; end);
@@ -183,7 +183,7 @@ function helperAddSpeciesMain(rAdd)
 	-- Set name and link
 	DB.setValue(rAdd.nodeChar, "race", "string", rAdd.sSourceName);
 	DB.setValue(rAdd.nodeChar, "racelink", "windowreference", "reference_race", DB.getPath(rAdd.nodeSource));
-	DB.setValue(rAdd.nodeChar, "racename", "string", sSourceName);
+	DB.setValue(rAdd.nodeChar, "racename", "string", rAdd.sSourceName);
 	DB.setValue(rAdd.nodeChar, "raceversion", "string", DB.getValue(rAdd.nodeSource, "version", ""));
 	DB.setValue(rAdd.nodeChar, "subracelink", "windowreference", "", "");
 
@@ -411,7 +411,7 @@ function helperParseSpeciesAbilityIncrease2014(s)
 			end
 		end
 	end
-	
+
 	local tAbilitySelect = {};
 	sIncrease = s:match("two different ability scores of your choice increase by (%d+)")
 	if sIncrease then
@@ -457,7 +457,7 @@ function helperAddSpeciesTraitSizeDrop2014(rAdd)
 	end
 
 	local sSize = rAdd.sSourceText:match("[Yy]our size is (%w+)");
-	CharManager.setSize(nodeChar, sSize);
+	CharManager.setSize(rAdd.nodeChar, sSize);
 end
 function helperAddSpeciesTraitSpeedDrop2014(rAdd)
 	if not CharBuildDropManager.helperBuildGetText(rAdd) then
@@ -487,7 +487,7 @@ function helperParseSpeciesSpeed2014(s)
 	if sWalkSpeed then
 		nSpeed = tonumber(sWalkSpeed) or 30;
 	end
-	
+
 	local sSwimSpeed = sSpeed:match("swimming speed of (%d+) feet");
 	if sSwimSpeed then
 		tSpecial["Swim"] = sSwimSpeed;
@@ -508,7 +508,7 @@ function helperParseSpeciesSpeed2014(s)
 	elseif sSpeed:match("you have a climbing speed equal to your walking speed") then
 		tSpecial["Climb"] = nSpeed;
 	end
-	
+
 	local sBurrowSpeed = sSpeed:match("burrowing speed of (%d+) feet");
 	if sBurrowSpeed then
 		tSpecial["Burrow"] = sBurrowSpeed;
@@ -536,8 +536,8 @@ function helperAddSpeciesTraitLanguagesDrop2014(rAdd)
 	sLanguages = sLanguages:gsub("one other language of your choice", "Choice");
 	-- EXCEPTION - Kenku - Languages - Volo
 	sLanguages = sLanguages:gsub(", but you.*$", "");
-	
-	for s in sLanguages:gmatch("([^,]+)") do 
+
+	for s in sLanguages:gmatch("([^,]+)") do
 		CharManager.addLanguage(rAdd.nodeChar, s);
 	end
 end
@@ -563,10 +563,10 @@ function applyDwarvenToughness(nodeChar, bInitialAdd)
 	if bInitialAdd then
 		nAddHP = CharManager.getLevel(nodeChar);
 	end
-	
+
 	local nHP = DB.getValue(nodeChar, "hp.total", 0);
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
-	
+
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddtrait", StringManager.capitalizeAll(CharManager.TRAIT_DWARVEN_TOUGHNESS), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

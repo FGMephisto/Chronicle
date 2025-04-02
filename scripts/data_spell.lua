@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -12,7 +12,7 @@
 --		Each damage action can have multiple clauses which can do different damage types
 --
 -- { type = "heal", [subtype = "temp", ][sTargeting = "self", ] clauses = { { dice = { "d#", ... }, bonus = #, [stat = ""] }, ... } }
---		Each heal action can have multiple clauses 
+--		Each heal action can have multiple clauses
 --		Heal actions are either direct healing or granting temporary hit points (if subtype = "temp" set)
 --		If sTargeting = "self" set, then the heal will always be applied to self instead of target.
 --
@@ -85,6 +85,9 @@ parsedata = {
 	},
 	["colorspray"] = {
 		{ type = "effect", sName = "Blinded", nDuration = 1 },
+	},
+	["comprehendlanguages"] = {
+		{ type = "effect", sName = "Comp. Lang.; LANGU: all", sTargeting = "self", nDuration = 1, sUnits = "hour" },
 	},
 	["contagion"] = {
 		{ type = "attack", range = "M", spell = true, base = "group" },
@@ -279,6 +282,9 @@ parsedata = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
 		{ type = "effect", sName = "Prone; Incapacitated; NOTE: Unable to stand up; NOTE: Save on end of round and damage; (C)", nDuration = 1, sUnits = "minute" },
 	},
+	["tongues"] = {
+		{ type = "effect", sName = "Tongues; LANG: all", nDuration = 1, sUnits = "hour" },
+	},
 	["truestrike"] = {
 		{ type = "effect", sName = "[TRGT]; ADVATK; (C)", sTargeting = "self", nDuration = 2, sApply = "roll" },
 	},
@@ -363,6 +369,9 @@ tBuildDataSpell2024 = {
 	["compelledduel"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
 		{ type = "effect", sName = "DISATK; (C)", nDuration = 1, sUnits = "minute" },
+	},
+	["comprehendlanguages"] = {
+		{ type = "effect", sName = "Comp. Lang.; LANGU: all", sTargeting = "self", nDuration = 1, sUnits = "hour" },
 	},
 	["conjureminorelementals"] = {
 		{ type = "effect", sName = "DMG: 2d8 acid; (C)", sTargeting = "self", sApply = "action", nDuration = 1 },
@@ -490,7 +499,12 @@ tBuildDataSpell2024 = {
 		{ type = "effect", sName = "Freedom of Movement; IMMUNE: Paralyzed; IMMUNE: Restrained; Swim Speed", nDuration = 1, sUnits = "hour" },
 	},
 	["gaseousform"] = {
-		{ type = "effect", sName = "Gaseous Form; Fly Speed 10; RESIST: bludgeoning, piercing, slashing; IMMUNE: Prone; ADVSAV: strength; ADVSAV: dexterity; ADVSAV: constitution", nDuration = 1, sUnits = "hour" },
+		{
+			type = "effect",
+			sName = "Gaseous Form; Fly Speed 10; RESIST: bludgeoning, piercing, slashing; IMMUNE: Prone; ADVSAV: strength; ADVSAV: dexterity; ADVSAV: constitution",
+			nDuration = 1,
+			sUnits = "hour",
+		},
 	},
 	["glibness"] = {
 		{ type = "effect", sName = "Glibness; NOTE: Charisma Checks are min 15", nDuration = 1, sUnits = "hour" },
@@ -745,7 +759,7 @@ tBuildDataSpell2024 = {
 	},
 	["sleep"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Incapacitated; NOTE: NOTE: Save on end of round (Success ends) (Failure applies Unconscious); (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Incapacitated; NOTE: Save on end of round (Success ends) (Failure applies Unconscious); (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["slow"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
@@ -817,7 +831,7 @@ tBuildDataSpell2024 = {
 		{ type = "effect", sName = "Telepathy", nDuration = 24, sUnits = "hour" },
 	},
 	["tongues"] = {
-		{ type = "effect", sName = "Tongues", nDuration = 1, sUnits = "hour" },
+		{ type = "effect", sName = "Tongues; LANG: all", nDuration = 1, sUnits = "hour" },
 	},
 	["truepolymorph"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },

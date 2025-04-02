@@ -97,7 +97,7 @@ function helperUpdateBackgroundKitItems(wEquipmentKit)
 	for _,v in ipairs(tBackgroundItems) do
 		local sName = DB.getValue(v.item, "name", "");
 		local nCount = DB.getValue(v.item, "count", 0);
-		local sItem = "";
+		local sItem;
 		if nCount > 1 then
 			sItem = ("%s %s"):format(nCount, sName);
 		else
@@ -160,8 +160,8 @@ function helperUpdateClassKitItems(wEquipmentKit)
 	local bIs2024 = CharWizardClassManager.isStartingClass2024();
 	local tItems = {};
 	for _,v in ipairs(CharWizardClassManager.getStartingKitItems()) do
-		local sName = "";
-		local nCount = 0;
+		local sName;
+		local nCount;
 		if bIs2024 then
 			sName = DB.getValue(v.item, "name", "");
 			nCount = DB.getValue(v.item, "count", 0);
@@ -169,7 +169,7 @@ function helperUpdateClassKitItems(wEquipmentKit)
 			sName = DB.getValue(v.item, "name", "");
 			nCount = v.count;
 		end
-		local sItem = "";
+		local sItem;
 		if nCount > 1 then
 			sItem = ("%s %s"):format(nCount, sName);
 		else
@@ -219,10 +219,9 @@ end
 function processKitSelection2024(w)
 	local sKitType = WindowManager.callOuterWindowFunction(w, "getKitType");
 	local tOptions = WindowManager.callOuterWindowFunction(w, "getAllRecords");
-	local tSelection = {};
 	local nChoice = 0;
 	for k,v in ipairs({ "A", "B", "C" }) do
-		local sName = w.name.getValue(); 
+		local sName = w.name.getValue();
 		if sName:match("^" .. v) then
 			nChoice = k;
 			break;
@@ -259,7 +258,7 @@ function processKitSelection2014(w)
 		tItems = CharWizardBackgroundManager.getBackgroundStartingKitItems();
 	end
 
-	local bHanded = true;
+	local bHandled = false;
 	local tFinalItems = {};
 	for _,v in ipairs(tItems) do
 		if DB.getPath(v.item) == sItemRecord then
@@ -367,7 +366,7 @@ function onWealthUpdate()
 	CharWizardEquipmentManager.updateTotalWealth();
 
 	CharWizardManager.updateAlerts();
-	
+
 	_bUpdateWealth = false;
 end
 
@@ -442,7 +441,7 @@ function onBackgroundWealthClear()
 	end
 	wEquipmentWealth.backgroundgold.setValue(0);
 end
-function onBackgroundWealthChanged(n)
+function onBackgroundWealthChanged()
 	CharWizardEquipmentManager.onWealthUpdate();
 end
 
@@ -456,7 +455,7 @@ function onClassWealthUpdate()
 
 	wEquipmentWealth.classwealth_label.setVisible(bShow);
 	wEquipmentWealth.classgold.setVisible(bShow);
-	
+
 	if not bShow then
 		wEquipmentWealth.classgold.setValue(0);
 	elseif wEquipmentWealth.classgold.getValue() == 0 then
@@ -470,7 +469,7 @@ function onClassWealthClear()
 	end
 	wEquipmentWealth.classgold.setValue(0);
 end
-function onClassWealthChanged(n)
+function onClassWealthChanged()
 	CharWizardEquipmentManager.onWealthUpdate();
 end
 
@@ -489,7 +488,7 @@ function handleWealthRoll()
 	ActionsManager.actionDirect(nil, "charwizardwealthroll", { rRoll }, {{}});
 	return true
 end
-function onWealthRoll(rSource, rTarget, rRoll)
+function onWealthRoll(rSource, _, rRoll)
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
 
@@ -556,8 +555,8 @@ function updateEditWealthAmount(sCurrency, nCurrency)
 	_bUpdateEditCurrency = true;
 	local tEquipment = CharWizardManager.getEquipmentData();
 	for _,v in pairs(tEquipment.currency or {}) do
-		if v.name == w.name.getValue() then
-			v.edit = w.amount.getValue();
+		if v.name == sCurrency then
+			v.edit = nCurrency;
 			CharWizardEquipmentManager.updateTotalWealth();
 			break;
 		end

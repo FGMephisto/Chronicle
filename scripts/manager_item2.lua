@@ -1,16 +1,16 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ItemManager.isPack = isPack;
+	ItemManager.isPack = ItemManager2.isPack;
 
-	ItemManager.isArmor = isArmor;
-	ItemManager.isShield = isShield;
-	ItemManager.isWeapon = isWeapon;
+	ItemManager.isArmor = ItemManager2.isArmor;
+	ItemManager.isShield = ItemManager2.isShield;
+	ItemManager.isWeapon = ItemManager2.isWeapon;
 
-	ItemManager.registerCleanupTransferHandler(handleItemCleanupOnTransfer);
+	ItemManager.registerCleanupTransferHandler(ItemManager2.handleItemCleanupOnTransfer);
 end
 
 function isPack(nodeItem)
@@ -49,7 +49,7 @@ function isWeapon(nodeItem)
 	return bIsWeapon;
 end
 
-function handleItemCleanupOnTransfer(rSourceItem, rTempItem, rTargetItem)
+function handleItemCleanupOnTransfer(rSourceItem, rTempItem, _)
 	if rSourceItem.sClass ~= "item" then
 		if rSourceItem.sClass == "reference_magicitem" then
 			DB.setValue(rTempItem.node, "isidentified", "number", 0);

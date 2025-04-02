@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -10,82 +10,82 @@ function onInit()
 	self.updatePowerGroups();
 
 	local node = getDatabaseNode();
-	
-	DB.addHandler(DB.getPath(node, "level"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "abilities.*.score"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.stat"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.atkstat"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.atkprof"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.atkmod"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.savestat"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.saveprof"), "onUpdate", onAbilityChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.savemod"), "onUpdate", onAbilityChanged);
 
-	DB.addHandler(DB.getPath(node, "powergroup"), "onChildAdded", onGroupListChanged);
-	DB.addHandler(DB.getPath(node, "powergroup"), "onChildDeleted", onGroupListChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.name"), "onUpdate", onGroupNameChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.castertype"), "onUpdate", onGroupTypeChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.prepared"), "onUpdate", onGroupTypeChanged);
+	DB.addHandler(DB.getPath(node, "level"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "abilities.*.score"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.stat"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.atkstat"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.atkprof"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.atkmod"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.savestat"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.saveprof"), "onUpdate", self.onAbilityChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.savemod"), "onUpdate", self.onAbilityChanged);
 
-	DB.addHandler(DB.getPath(node, "powergroup.*.uses"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.usesperiod"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots1"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots2"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots3"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots4"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots5"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots6"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots7"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots8"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powergroup.*.slots9"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powers.*.cast"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powers.*.prepared"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powermeta.*.max"), "onUpdate", onUsesChanged);
-	DB.addHandler(DB.getPath(node, "powermeta.*.used"), "onUpdate", onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup"), "onChildAdded", self.onGroupListChanged);
+	DB.addHandler(DB.getPath(node, "powergroup"), "onChildDeleted", self.onGroupListChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.name"), "onUpdate", self.onGroupNameChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.castertype"), "onUpdate", self.onGroupTypeChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.prepared"), "onUpdate", self.onGroupTypeChanged);
 
-	DB.addHandler(DB.getPath(node, "powers.*.group"), "onUpdate", onPowerGroupChanged);
-	DB.addHandler(DB.getPath(node, "powers.*.level"), "onUpdate", onPowerGroupChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.uses"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.usesperiod"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots1"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots2"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots3"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots4"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots5"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots6"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots7"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots8"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powergroup.*.slots9"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powers.*.cast"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powers.*.prepared"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powermeta.*.max"), "onUpdate", self.onUsesChanged);
+	DB.addHandler(DB.getPath(node, "powermeta.*.used"), "onUpdate", self.onUsesChanged);
+
+	DB.addHandler(DB.getPath(node, "powers.*.group"), "onUpdate", self.onPowerGroupChanged);
+	DB.addHandler(DB.getPath(node, "powers.*.level"), "onUpdate", self.onPowerGroupChanged);
 end
 function onClose()
 	local node = getDatabaseNode();
-	
-	DB.removeHandler(DB.getPath(node, "level"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "abilities.*.score"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.stat"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.atkstat"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.atkprof"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.atkmod"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.savestat"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.saveprof"), "onUpdate", onAbilityChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.savemod"), "onUpdate", onAbilityChanged);
 
-	DB.removeHandler(DB.getPath(node, "powergroup"), "onChildAdded", onGroupListChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup"), "onChildDeleted", onGroupListChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.name"), "onUpdate", onGroupNameChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.castertype"), "onUpdate", onGroupTypeChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.prepared"), "onUpdate", onGroupTypeChanged);
+	DB.removeHandler(DB.getPath(node, "level"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "abilities.*.score"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.stat"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.atkstat"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.atkprof"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.atkmod"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.savestat"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.saveprof"), "onUpdate", self.onAbilityChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.savemod"), "onUpdate", self.onAbilityChanged);
 
-	DB.removeHandler(DB.getPath(node, "powergroup.*.uses"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.usesperiod"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots1"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots2"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots3"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots4"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots5"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots6"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots7"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots8"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powergroup.*.slots9"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powers.*.cast"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powers.*.prepared"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powermeta.*.max"), "onUpdate", onUsesChanged);
-	DB.removeHandler(DB.getPath(node, "powermeta.*.used"), "onUpdate", onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup"), "onChildAdded", self.onGroupListChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup"), "onChildDeleted", self.onGroupListChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.name"), "onUpdate", self.onGroupNameChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.castertype"), "onUpdate", self.onGroupTypeChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.prepared"), "onUpdate", self.onGroupTypeChanged);
 
-	DB.removeHandler(DB.getPath(node, "powers.*.group"), "onUpdate", onPowerGroupChanged);
-	DB.removeHandler(DB.getPath(node, "powers.*.level"), "onUpdate", onPowerGroupChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.uses"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.usesperiod"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots1"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots2"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots3"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots4"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots5"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots6"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots7"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots8"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powergroup.*.slots9"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powers.*.cast"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powers.*.prepared"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powermeta.*.max"), "onUpdate", self.onUsesChanged);
+	DB.removeHandler(DB.getPath(node, "powermeta.*.used"), "onUpdate", self.onUsesChanged);
+
+	DB.removeHandler(DB.getPath(node, "powers.*.group"), "onUpdate", self.onPowerGroupChanged);
+	DB.removeHandler(DB.getPath(node, "powers.*.level"), "onUpdate", self.onPowerGroupChanged);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass, sRecord = draginfo.getShortcutData();
 		draginfo.setSlot(2);
@@ -99,7 +99,7 @@ function onModeChanged()
 	self.rebuildGroups();
 	self.updateUses();
 end
-function onEditModeChanged()
+function onLockModeChanged()
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() ~= "power_group_header" then
 			v.onDisplayChanged();
@@ -141,7 +141,7 @@ function onGroupNameChanged(nodeGroupName)
 
 	local nodeParent = DB.getParent(nodeGroupName);
 	local sNode = DB.getPath(nodeParent);
-	
+
 	local nodeGroup = nil;
 	local sOldValue = "";
 	for sGroup, vGroup in pairs(aGroups) do
@@ -151,7 +151,7 @@ function onGroupNameChanged(nodeGroupName)
 			break;
 		end
 	end
-	if not nodeGroup or sGroup == "" then
+	if not nodeGroup then
 		CharPowerManager.resumePowerGroupUpdates(nodeChar);
 		return;
 	end
@@ -164,17 +164,17 @@ function onGroupNameChanged(nodeGroupName)
 	end
 
 	CharPowerManager.resumePowerGroupUpdates(nodeChar);
-	
+
 	self.updatePowerGroups();
 end
 function onPowerListChanged()
 	self.updatePowerGroups();
 end
-function onPowerGroupChanged(node)
+function onPowerGroupChanged()
 	self.updatePowerGroups();
 end
 
-function addPower(bFocus)
+function addPower()
 	return powers.createWindow(nil, true);
 end
 function addGroupPower(sGroup, nLevel)
@@ -190,7 +190,7 @@ function updatePowerGroups()
 		return;
 	end
 	CharPowerManager.pausePowerGroupUpdates(nodeChar);
-	
+
 	self.rebuildGroups();
 
 	-- Determine all the groups accounted for by current powers
@@ -201,14 +201,14 @@ function updatePowerGroups()
 			aPowerGroups[sGroup] = true;
 		end
 	end
-	
+
 	-- Remove the groups that already exist
 	for sGroup,_ in pairs(aGroups) do
 		if aPowerGroups[sGroup] then
 			aPowerGroups[sGroup] = nil;
 		end
 	end
-	
+
 	-- For the remaining power groups, that aren't named
 	local sLowerSpellsLabel = Interface.getString("char_spell_powergroup_base"):lower();
 	for k,_ in pairs(aPowerGroups) do
@@ -221,7 +221,7 @@ function updatePowerGroups()
 			end
 		end
 	end
-	
+
 	self.rebuildGroups();
 
 	CharPowerManager.resumePowerGroupUpdates(nodeChar);
@@ -235,7 +235,7 @@ function updateHeaders()
 		return;
 	end
 	CharPowerManager.pausePowerGroupUpdates(nodeChar);
-	
+
 	-- Close all category headings
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() == "power_group_header" then
@@ -248,7 +248,7 @@ function updateHeaders()
 	local aGroupShown = {};
 	for _,nodePower in ipairs(DB.getChildList(getDatabaseNode(), "powers")) do
 		local sCategory, sGroup, nLevel = self.getWindowSortByNode(nodePower);
-		
+
 		if not aCategoryWindows[sCategory] then
 			local wh = powers.createWindowWithClass("power_group_header");
 			if wh then
@@ -258,7 +258,7 @@ function updateHeaders()
 			aGroupShown[sGroup] = true;
 		end
 	end
-	
+
 	-- Create empty category headings
 	for k,v in pairs(aGroups) do
 		if not aGroupShown[k] then
@@ -279,8 +279,9 @@ function onPowerWindowAdded(w)
 end
 function updatePowerWindowUses(nodeChar, w)
 	local sMode = DB.getValue(nodeChar, "powermode", "");
+	local bCombatMode = (sMode == "combat");
 	local bShow = true;
-	
+
 	-- Get power information
 	local sGroup = w.group.getValue();
 	local nLevel = w.level.getValue();
@@ -288,8 +289,7 @@ function updatePowerWindowUses(nodeChar, w)
 	local nodePower = w.getDatabaseNode();
 	local nCast = DB.getValue(nodePower, "cast", 0);
 	local nPrepared = DB.getValue(nodePower, "prepared", 0);
-	local sUsesPeriod = DB.getValue(nodePower, "usesperiod", "");
-	
+
 	-- Get the power group, and whether it's a caster group
 	local rGroup = aGroups[sGroup];
 	local bCaster = (rGroup and rGroup.grouptype ~= "");
@@ -313,7 +313,7 @@ function updatePowerWindowUses(nodeChar, w)
 
 	-- SPELL CLASS
 	if bCaster then
-		if sMode == "combat" then
+		if bCombatMode then
 			if nLevel > 0 then
 				if rGroup.nPrepared > 0 and nPrepared <= 0 then
 					bShow = false;
@@ -332,26 +332,24 @@ function updatePowerWindowUses(nodeChar, w)
 			else
 				bShow = true;
 			end
-		else -- "preparation" or "" (standard) mode
+		else
 			bShow = true;
 		end
-	
+
 	-- ABILITY GROUP
 	else
-		if sMode == "combat" then
+		if bCombatMode then
 			if rGroup and (nTotalCast >= nAvailable) and (nAvailable > 0) then
 				bShow = false;
 			elseif (nCast >= nPrepared) and (nPrepared > 0) then
 				bShow = false;
 			end
-		elseif sMode == "preparation" then
-			bShow = true;
 		else
 			bShow = true;
 		end
 	end
 	w.setFilter(bShow);
-	
+
 	if bCaster then
 		w.header.subwindow.prepared.setVisible(false);
 		w.header.subwindow.usesperiod.setVisible(false);
@@ -414,7 +412,7 @@ function updatePowerWindowUses(nodeChar, w)
 			end
 		end
 	end
-	
+
 	return bShow;
 end
 
@@ -424,11 +422,11 @@ function updateUses()
 		return;
 	end
 	CharPowerManager.pausePowerUsageUpdates(nodeChar);
-	
+
 	-- Prepare for lots of crunching
 	local nodeChar = getDatabaseNode();
 	local sMode = DB.getValue(nodeChar, "powermode", "");
-	
+
 	-- Add power counts, total cast and total prepared per group/slot
 	for _,v in ipairs(DB.getChildList(nodeChar, "powers")) do
 		local sGroup = DB.getValue(v, "group", "");
@@ -449,9 +447,9 @@ function updateUses()
 			end
 		end
 	end
-	
+
 	local aCasterGroupSpellsShown = {};
-	
+
 	-- Show/hide powers based on findings
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() ~= "power_group_header" then
@@ -459,7 +457,7 @@ function updateUses()
 				local sGroup = v.group.getValue();
 				local rGroup = aGroups[sGroup];
 				local bCaster = (rGroup and rGroup.grouptype ~= "");
-				
+
 				if bCaster then
 					if not aCasterGroupSpellsShown[sGroup] then
 						aCasterGroupSpellsShown[sGroup] = {};
@@ -472,17 +470,18 @@ function updateUses()
 			end
 		end
 	end
-	
+
 	-- Hide headers with no spells
+	local bCombatMode = (sMode == "combat");
 	for _,v in pairs(powers.getWindows()) do
 		if v.getClass() == "power_group_header" then
 			local sGroup = v.group.getValue();
 			local rGroup = aGroups[sGroup];
 			local bCaster = (rGroup and rGroup.grouptype ~= "");
-			
+
 			local bShow = true;
 
-			if sMode == "combat" then
+			if bCombatMode then
 				if bCaster then
 					local nLevel = v.level.getValue();
 					if not aCasterGroupSpellsShown[sGroup] or (aCasterGroupSpellsShown[sGroup][nLevel] or 0) <= 0 then
@@ -492,13 +491,13 @@ function updateUses()
 					bShow = ((rGroup.nShown or 0) > 0);
 				end
 			end
-			
+
 			v.setFilter(bShow);
 		end
 	end
-	
+
 	powers.applyFilter();
-	
+
 	CharPowerManager.resumePowerUsageUpdates(nodeChar);
 end
 
@@ -509,9 +508,9 @@ end
 function rebuildGroups()
 	aGroups = {};
 	aCharSlots = {};
-	
+
 	local nodeChar = getDatabaseNode();
-	
+
 	for _,v in ipairs(DB.getChildList(nodeChar, "powergroup")) do
 		local sGroup = DB.getValue(v, "name", "");
 		local rGroup = {};
@@ -522,20 +521,20 @@ function rebuildGroups()
 		else
 			rGroup.grouptype = DB.getValue(v, "castertype", "");
 		end
-		
+
 		if rGroup.grouptype == "memorization" then
 			rGroup.nPrepared = DB.getValue(v, "prepared", 0);
 		else
 			rGroup.nAvailable = DB.getValue(v, "uses", 0);
 		end
-		
+
 		rGroup.sUsesPeriod = DB.getValue(v, "usesperiod", "");
-		
+
 		aGroups[sGroup] = rGroup;
 	end
-	
+
 	for i = 1, PowerManager.SPELL_LEVELS do
-		aCharSlots[i] = { 
+		aCharSlots[i] = {
 			nMax = DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".max", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".max", 0),
 			nTotalCast = DB.getValue(nodeChar, "powermeta.spellslots" .. i .. ".used", 0) + DB.getValue(nodeChar, "powermeta.pactmagicslots" .. i .. ".used", 0),
 		};
@@ -545,7 +544,7 @@ end
 function getWindowSortByNode(node)
 	local sGroup = DB.getValue(node, "group", "");
 	local nLevel = DB.getValue(node, "level", 0);
-	
+
 	local sCategory = sGroup;
 	if aGroups[sGroup] and aGroups[sGroup].grouptype ~= "" then
 		sCategory = sCategory .. nLevel;
@@ -558,7 +557,7 @@ end
 function getWindowSort(w)
 	local sGroup = w.group.getValue();
 	local nLevel = w.level.getValue();
-	
+
 	local sCategory = sGroup;
 	if aGroups[sGroup] and aGroups[sGroup].grouptype ~= "" then
 		sCategory = sCategory .. nLevel;
@@ -572,7 +571,7 @@ function onSortCompare(w1, w2)
 	if vCategory1 ~= vCategory2 then
 		return vCategory1 > vCategory2;
 	end
-	
+
 	local bIsHeader1 = (w1.getClass() == "power_group_header");
 	local bIsHeader2 = (w2.getClass() == "power_group_header");
 	if bIsHeader1 then
@@ -580,7 +579,7 @@ function onSortCompare(w1, w2)
 	elseif bIsHeader2 then
 		return true;
 	end
-	
+
 	local sValue1 = DB.getValue(w1.getDatabaseNode(), "name", ""):lower();
 	local sValue2 = DB.getValue(w2.getDatabaseNode(), "name", ""):lower();
 	if sValue1 ~= sValue2 then

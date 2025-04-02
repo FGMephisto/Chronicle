@@ -1,11 +1,11 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
 	self.onSummaryChanged();
-	self.update();
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
 function onSummaryChanged()
 	local nodeRecord = getDatabaseNode();
@@ -39,21 +39,14 @@ function onSummaryChanged()
 	if #tParenOutput > 0 then
 		table.insert(tOutput, string.format("(%s)", table.concat(tParenOutput, "; ")));
 	end
-	
+
 	summary.setValue(table.concat(tOutput, " "));
 end
-function update()
-	local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-
+function onLockModeChanged(bReadOnly)
 	sub_summary_fields.setVisible(not bReadOnly);
 	summary.setVisible(bReadOnly and not summary.isEmpty());
 	divider.setVisible(WindowManager.getAnyControlVisible(self, { "sub_summary_fields", "summary", }))
 
-	WindowManager.callSafeControlUpdate(self, "castingtime", bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "range", bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "components", bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "duration", bReadOnly);
-	WindowManager.callSafeControlUpdate(self, "description", bReadOnly);
-
-	WindowManager.callSafeControlUpdate(self, "sub_automation", bReadOnly);
+	local tFields = { "castingtime", "range", "components", "duration", "description", };
+	WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 end

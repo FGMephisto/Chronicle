@@ -26,50 +26,21 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				self.update();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-
-				sessionno.setReadOnly(bReadOnly);
-				date.setReadOnly(bReadOnly);
-				dmname.setReadOnly(bReadOnly);
-
-				startxp.setReadOnly(bReadOnly);
-				startgold.setReadOnly(bReadOnly);
-				startdt.setReadOnly(bReadOnly);
-				startrenown.setReadOnly(bReadOnly);
-				earnxp.setReadOnly(bReadOnly);
-				earngold.setReadOnly(bReadOnly);
-				earndt.setReadOnly(bReadOnly);
-				earnrenown.setReadOnly(bReadOnly);
-				totalxp.setReadOnly(bReadOnly);
-				totalgold.setReadOnly(bReadOnly);
-				totaldt.setReadOnly(bReadOnly);
-				totalrenown.setReadOnly(bReadOnly);
-
-				text.setReadOnly(bReadOnly);
-				magicitem.setReadOnly(bReadOnly);
-				storyrewards.setReadOnly(bReadOnly);
-				purchases.setReadOnly(bReadOnly);
-
-				startmagic.setReadOnly(bReadOnly);
-				treasure_pt_tier2.setReadOnly(bReadOnly);
-				treasure_pt_tier3.setReadOnly(bReadOnly);
-				treasure_pt_tier4.setReadOnly(bReadOnly);
-				earnmagic.setReadOnly(bReadOnly);
-				earn_treasure_pt_tier2.setReadOnly(bReadOnly);
-				earn_treasure_pt_tier3.setReadOnly(bReadOnly);
-				earn_treasure_pt_tier4.setReadOnly(bReadOnly);
-				totalmagic.setReadOnly(bReadOnly);
-				total_treasure_pt_tier2.setReadOnly(bReadOnly);
-				total_treasure_pt_tier3.setReadOnly(bReadOnly);
-				total_treasure_pt_tier4.setReadOnly(bReadOnly);
-
-				magicitemtitle.setReadOnly(bReadOnly);
-				storyrewardstitle.setReadOnly(bReadOnly);
-				purchasestitle.setReadOnly(bReadOnly);
-
+			function onLockModeChanged(bReadOnly)
+				local tFields = {
+					"sessionno", "date", "dmname",
+					"startxp", "startgold", "startdt",  "startrenown",
+					"earnxp", "earngold", "earndt", "earnrenown",
+					"totalxp", "totalgold", "totaldt", "totalrenown",
+					"text", "magicitem", "storyrewards", "purchases",
+					"startmagic", "treasure_pt_tier2", "treasure_pt_tier3", "treasure_pt_tier4",
+					"earnmagic", "earn_treasure_pt_tier2", "earn_treasure_pt_tier3", "earn_treasure_pt_tier4",
+					"totalmagic", "total_treasure_pt_tier2", "total_treasure_pt_tier3", "total_treasure_pt_tier4",
+					"magicitemtitle", "storyrewardstitle", "purchasestitle",
+				};
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 		</script>
 		<sheetdata>

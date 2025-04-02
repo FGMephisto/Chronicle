@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -24,7 +24,7 @@ end
 function update()
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
-	
+
 	if sub_summon then
 		local bSummon = (DB.getValue(nodeRecord, "summon", 0) ~= 0);
 		if (bSummon or not bReadOnly) then
@@ -43,14 +43,14 @@ function update()
 	WindowManager.callSafeControlUpdate(self, "sub_action", bReadOnly);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if WindowManager.getReadOnlyState(getDatabaseNode()) then
 		return true;
 	end
 	if draginfo.isType("shortcut") then
 		local sClass = draginfo.getShortcutData();
 		local nodeSource = draginfo.getDatabaseNode();
-		
+
 		if sClass == "reference_spell" or sClass == "power" then
 			self.addSpellDrop(nodeSource);
 		elseif sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then

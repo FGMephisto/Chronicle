@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -7,7 +7,7 @@ function onInit()
 	self.onHealthChanged();
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if hp.getValue() > 0 then
 		local sDragType = draginfo.getType();
 		if sDragType == "attack" then

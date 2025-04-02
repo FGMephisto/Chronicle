@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -36,7 +36,7 @@ function linkPCFields()
 		type.setLink(DB.createChild(nodeChar, "race", "string"));
 		size.setLink(DB.createChild(nodeChar, "size", "string"));
 		alignment.setLink(DB.createChild(nodeChar, "alignment", "string"));
-		
+
 		strength.setLink(DB.createChild(nodeChar, "abilities.strength.score", "number"), true);
 		dexterity.setLink(DB.createChild(nodeChar, "abilities.dexterity.score", "number"), true);
 		constitution.setLink(DB.createChild(nodeChar, "abilities.constitution.score", "number"), true);

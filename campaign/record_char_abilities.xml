@@ -25,14 +25,6 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
-			<area_content_framed_groupbox_bottom name="area_controls">
-				<anchored height="20" />
-			</area_content_framed_groupbox_bottom>
-			<button_iedit name="sheet_iedit">
-				<anchored to="area_controls" position="insidetopright" offset="0,0" />
-				<edittarget>content</edittarget>
-			</button_iedit>
-
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_abilities_contents</class>
 			</sub_content_framed_groupbox>
@@ -64,6 +56,14 @@
 
 	<windowclass name="charsheet_abilities_list">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -199,14 +199,20 @@
 
 	<windowclass name="charsheet_ability_item">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
 
-			<button_listitem_idelete name="idelete">
-				<editmode>sheet_iedit</editmode>
-			</button_listitem_idelete>
-			<linkc_listitem_right name="shortcut" />
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut" />
 
 			<string_listitem_center_underline name="name">
 				<delaykeyupdate />
@@ -215,74 +221,43 @@
 	</windowclass>
 	<windowclass name="charsheet_ability_feat" copy="charsheet_ability_item">
 		<sheetdata>
-			<linkc_listitem_right name="shortcut">
+			<linkc_listitem_left name="shortcut">
 				<class>reference_feat</class>
-			</linkc_listitem_right>
+			</linkc_listitem_left>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="charsheet_ability_feature" copy="charsheet_ability_item">
-		<script>
-			function onInit()
-				if (DB.getValue(getDatabaseNode(), "choicetype", "") ~= "") or 
-						(DB.getValue(getDatabaseNode(), "prerequisite", "") ~= "") then
-					shortcut.setValue("reference_classfeaturechoice", "");
-				end
-			end
-		</script>
 		<sheetdata>
-			<linkc_listitem_right name="shortcut">
+			<linkc_listitem_left name="shortcut">
 				<class>reference_classfeature</class>
-			</linkc_listitem_right>
+				<script>
+					function onInit()
+						if (DB.getValue(window.getDatabaseNode(), "choicetype", "") ~= "") or 
+								(DB.getValue(window.getDatabaseNode(), "prerequisite", "") ~= "") then
+							setValue("reference_classfeaturechoice", "");
+						end
+					end
+				</script>
+			</linkc_listitem_left>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="charsheet_ability_featurechoice" copy="charsheet_ability_item">
 		<sheetdata>
-			<linkc_listitem_right name="shortcut">
+			<linkc_listitem_left name="shortcut">
 				<class>reference_classfeaturechoice</class>
-			</linkc_listitem_right>
+			</linkc_listitem_left>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="charsheet_ability_trait" copy="charsheet_ability_item">
 		<sheetdata>
-			<linkc_listitem_right name="shortcut">
+			<linkc_listitem_left name="shortcut">
 				<class>reference_racialtrait</class>
-			</linkc_listitem_right>
+			</linkc_listitem_left>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="charsheet_ability_proficiency" copy="charsheet_ability_item">
 		<sheetdata>
-			<linkc_listitem_right name="shortcut" merge="delete" />
-		</sheetdata>
-	</windowclass>
-	<windowclass name="char_language">
-		<margins control="0,0,0,2" />
-		<script>
-			function onDragStart(button, x, y, draginfo)
-				local sLang = name.getValue()
-				if sLang ~= "" then
-					draginfo.setType("language")
-					draginfo.setIcon("button_speak")
-					draginfo.setStringData(sLang)
-					return true
-				end
-			end
-		</script>
-		<sheetdata>
-			<anchor_listitem_left_sm />
-			<anchor_listitem_right_sm />
-
-			<button_listitem_idelete name="idelete">
-				<editmode>sheet_iedit</editmode>
-			</button_listitem_idelete>
-
-			<string_listitem_center_underline name="name">
-				<delaykeyupdate />
-				<script>
-					function onDragStart(...)
-						return window.onDragStart(...)
-					end
-				</script>
-			</string_listitem_center_underline>
+			<linkc_listitem_left name="shortcut" merge="delete" />
 		</sheetdata>
 	</windowclass>
 </root>

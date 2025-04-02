@@ -1,11 +1,11 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ActionsManager.registerModHandler("check", modRoll);
-	ActionsManager.registerResultHandler("check", onRoll);
+	ActionsManager.registerModHandler("check", ActionCheck.modRoll);
+	ActionsManager.registerResultHandler("check", ActionCheck.onRoll);
 end
 
 function getRoll(rActor, sCheck, nTargetDC, bSecret)
@@ -20,7 +20,7 @@ function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
 end
 function performPartySheetRoll(draginfo, rActor, sCheck)
 	local rRoll = ActionCheck.getRoll(rActor, sCheck);
-	
+
 	rRoll.nTarget = DB.getValue("partysheet.checkdc", 0);
 	if rRoll.nTarget == 0 then
 		rRoll.nTarget = nil;
@@ -42,14 +42,14 @@ function modRoll(rSource, rTarget, rRoll)
 	ActionsManager2.finalizeD20RollMod(rRoll);
 end
 
-function onRoll(rSource, rTarget, rRoll)
+function onRoll(rSource, _, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	if rRoll.nTarget then
 		local nTotal = ActionsManager.total(rRoll);
 		local nTargetDC = tonumber(rRoll.nTarget) or 0;
-		
+
 		rMessage.text = rMessage.text .. " [vs. DC " .. nTargetDC .. "]";
 		if nTotal >= nTargetDC then
 			rMessage.text = rMessage.text .. " [SUCCESS]";
@@ -78,7 +78,7 @@ function setupRollBuild(rRoll, rActor, sCheck, nTargetDC)
 		table.insert(rRoll.tNotifications, sAddText);
 	end
 	rRoll.nTarget = nTargetDC;
-	
+
 	return rRoll;
 end
 
@@ -125,7 +125,7 @@ function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionCheck.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionCheck.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 end
-function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
+function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
@@ -139,7 +139,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		end
 		rRoll.nEffectMod = rRoll.nEffectMod + nCheckMod;
 	end
-	
+
 	-- Get condition modifiers
 	if EffectManager5E.hasEffectCondition(rSource, "ADVCHK") then
 		rRoll.bEffects = true;
@@ -194,6 +194,18 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 			if EffectManager5E.hasEffectCondition(rSource, "Incapacitated") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
+			elseif EffectManager5E.hasEffectCondition(rSource, "Paralyzed") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			elseif EffectManager5E.hasEffectCondition(rSource, "Petrified") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			elseif EffectManager5E.hasEffectCondition(rSource, "Stunned") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			elseif EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
 			elseif EffectManager5E.hasEffectCondition(rSource, "Surprised") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
@@ -225,12 +237,12 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		end
 	end
 end
-function applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget)
+function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
 
-	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, { "EXHAUSTION" }, true);
+	local nExhaustMod,_ = EffectManager5E.getEffectsBonus(rSource, { "EXHAUSTION" }, true);
 	if OptionsManager.isOption("GAVE", "2024") then
 		if nExhaustMod > 0 then
 			rRoll.bEffects = true;
@@ -240,10 +252,10 @@ function applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget)
 		if nExhaustMod > 0 then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
-		end		
+		end
 	end
 end
-function applyReliableEffectsToRollMod(rRoll, rSource, rTarget)
+function applyReliableEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
@@ -279,7 +291,7 @@ function applyReliableEffectsToRollMod(rRoll, rSource, rTarget)
 					StringManager.simplify(Interface.getString("skill_value_deception")),
 					StringManager.simplify(Interface.getString("skill_value_persuasion")),
 				};
-				if StringManager.contains(tSilverTongueSkills, rRoll.sSkill) and ActorManager5E.hasRollFeature(nodeActor, CharManager.FEATURE_SILVER_TONGUE) then
+				if StringManager.contains(tSilverTongueSkills, rRoll.sSkill) and ActorManager5E.hasRollFeature(rSource, CharManager.FEATURE_SILVER_TONGUE) then
 					rRoll.bReliable = true;
 				end
 			end

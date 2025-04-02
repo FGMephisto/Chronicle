@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -8,7 +8,7 @@ function onInit()
 	WindowTabManager.registerTab("partysheet_host", { sName = "bastion", sTabRes = "tab_bastion", sClass = "ps_bastion", sOption = "HRBASTION" });
 
 	if Session.IsHost then
-		DB.addHandler("charsheet.*.classes", "onChildUpdate", linkPCClasses);
+		DB.addHandler("charsheet.*.classes", "onChildUpdate", PartyManager2.linkPCClasses);
 	end
 end
 
@@ -21,16 +21,16 @@ function linkPCClasses(nodeClass)
 	if not nodePS then
 		return;
 	end
-	
+
 	DB.setValue(nodePS, "classlevel", "string", CharManager.getClassSummary(nodeChar));
-	
+
 	local nHDUsed, nHDTotal = CharManager.getClassHDUsage(nodeChar);
 	DB.setValue(nodePS, "hd", "number", nHDTotal);
 	DB.setValue(nodePS, "hdused", "number", nHDUsed);
 end
 function linkPCFields(nodePS)
 	local nodeChar = PartyManager.mapPStoChar(nodePS);
-	
+
 	PartyManager.linkRecordField(nodeChar, nodePS, "name", "string");
 	PartyManager.linkRecordField(nodeChar, nodePS, "token", "token", "token");
 
@@ -40,7 +40,7 @@ function linkPCFields(nodePS)
 
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.total", "number", "hptotal");
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.wounds", "number", "wounds");
-	
+
 	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.strength.score", "number", "strength");
 	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.constitution.score", "number", "constitution");
 	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.dexterity.score", "number", "dexterity");
@@ -59,6 +59,8 @@ function linkPCFields(nodePS)
 	PartyManager.linkRecordField(nodeChar, nodePS, "defenses.special", "string", "specialdefense");
 	PartyManager.linkRecordField(nodeChar, nodePS, "perception", "number");
 	PartyManager.linkRecordField(nodeChar, nodePS, "senses", "string");
-	
-	if nodeChar then linkPCClasses(DB.getChild(nodeChar, "classes")); end
+
+	if nodeChar then
+		PartyManager2.linkPCClasses(DB.getChild(nodeChar, "classes"));
+	end
 end

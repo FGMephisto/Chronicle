@@ -1,7 +1,9 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
+
+--luacheck: globals charwizard_starting_equipment
 
 genmethod = {
 	"",
@@ -118,7 +120,6 @@ aRaceSpells = {
 	["sentinelsshield"] = true,
 	["astralfire"] = true,
 	["fairymagic"] = true,
-	["sensethreats"] = true,
 	["hexmagic"] = true,
 	["draconiclegacy"] = true,
 	["magicsight"] = true,
@@ -136,7 +137,6 @@ aRaceSpells = {
 	["cantrip"] = true,
 	["blessingofthemoonweaver"] = true,
 	["childofthewood"] = true,
-	["firbolgmagic"] = true,
 	["controlairandwater"] = true,
 	["serpentinespellcasting"] = true,
 };
@@ -316,6 +316,7 @@ SPELLS_PREPARED_2024 = {
 	["wizard"] = { 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 18, 19, 21, 22, 23, 24, 25, },
 };
 
+charwizard_starting_equipment = {};
 function onInit()
 	charwizard_starting_equipment = {
 		["anti paladin"] = {

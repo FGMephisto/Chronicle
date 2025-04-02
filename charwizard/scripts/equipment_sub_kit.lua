@@ -36,7 +36,7 @@ function setVersion(bVersion)
 end
 
 function getSortFunction()
-	return sortFunc;
+	return self.sortFunc;
 end
 function sortFunc(a, b)
 	if self.is2024() then
@@ -55,8 +55,7 @@ end
 function setData(tData, sType)
 	self.clearRecords();
 
-	for k,vItem in pairs(tData) do
-		local tItems = {};
+	for _,vItem in pairs(tData) do
 		local rRecord = {};
 		rRecord.vNode = vItem.item;
 		rRecord.sDisplayName = DB.getValue(rRecord.vNode, "name", "");
@@ -85,7 +84,7 @@ function setData2024(tData, sType)
 		for _,vItem in ipairs(vOption.items) do
 			local sName = DB.getValue(vItem.item, "name", "");
 			local nCount = DB.getValue(vItem.item, "count", 0);
-			local sItem = "";
+			local sItem;
 			if nCount > 1 then
 				sItem = ("%s %s"):format(nCount, sName);
 			else

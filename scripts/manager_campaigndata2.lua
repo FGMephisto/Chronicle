@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -75,8 +75,7 @@ function handleKitItemDrop(draginfo, nodeTarget)
 end
 
 function lookupCharData(sRecord, aRefModules)
-	local node = nil;
-	
+	local node;
 	local sPath, sModule = sRecord:match("([^@]*)@(.*)");
 	if sModule then
 		node = DB.findNode(sRecord);
@@ -94,7 +93,7 @@ function lookupCharData(sRecord, aRefModules)
 	if node then
 		return node;
 	end
-	
+
 	local sModulePath = sPath:gsub("^reference[^.]*%.", "reference.");
 	for _,v in ipairs(aRefModules) do
 		local node = DB.findNode(string.format("%s@%s", sModulePath, v));
@@ -102,7 +101,7 @@ function lookupCharData(sRecord, aRefModules)
 			return node;
 		end
 	end
-	
+
 	return node;
 end
 
@@ -134,7 +133,7 @@ function updateNPCSpells(nodeNPC)
 	if DB.isReadOnly(nodeNPC) then
 		return;
 	end
-	
+
 	if (DB.getChildCount(nodeNPC, "spells") > 0) or (DB.getChildCount(nodeNPC, "innatespells") > 0) then
 		return;
 	end
@@ -142,20 +141,20 @@ function updateNPCSpells(nodeNPC)
 	for _,v in ipairs(DB.getChildList(nodeNPC, "traits")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
-			updateNPCSpellcasting(nodeNPC, v);
+			CampaignDataManager2.updateNPCSpellcasting(nodeNPC, v);
 		elseif sTraitName:match("^innate spellcasting") then
-			updateNPCInnateSpellcasting(nodeNPC, v);
+			CampaignDataManager2.updateNPCInnateSpellcasting(nodeNPC, v);
 		end
 	end
 
 	for _,v in ipairs(DB.getChildList(nodeNPC, "actions")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
-			updateNPCActionSpellcasting(nodeNPC, v);
+			CampaignDataManager2.updateNPCActionSpellcasting(nodeNPC, v);
 		end
 	end
 end
-function updateNPCSpellcasting(nodeNPC, nodeTrait)
+function updateNPCSpellcasting(nodeNPC, _)
 	local aError = {};
 
 	local rActor = ActorManager.resolveActor(nodeNPC);
@@ -165,7 +164,7 @@ function updateNPCSpellcasting(nodeNPC, nodeTrait)
 			for i = 0,9 do
 				if aPowerGroup[i] then
 					for _,sSpell in ipairs(aPowerGroup[i]) do
-						if not updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate) then
+						if not CampaignDataManager2.updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate) then
 							table.insert(aError, sSpell);
 						end
 					end
@@ -180,20 +179,20 @@ function updateNPCSpellcasting(nodeNPC, nodeTrait)
 			end
 		end
 	end
-	
+
 	if #aError > 0 then
-		ChatManager.SystemMessage("Failed spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open."); 
-		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
+		ChatManager.SystemMessage("Failed spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open.");
+		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", "));
 	end
 end
-function resetNPCSpellcastingSlots(nodeNPC, nodeTrait)
+function resetNPCSpellcastingSlots(nodeNPC, _)
 	if not nodeNPC then
 		return;
 	end
 	if DB.isReadOnly(nodeNPC) then
 		return;
 	end
-	
+
 	for _,v in ipairs(DB.getChildList(nodeNPC, "traits")) do
 		local sTraitName = StringManager.trim(DB.getValue(v, "name", ""):lower());
 		if sTraitName:match("^spellcasting") then
@@ -213,7 +212,7 @@ function resetNPCSpellcastingSlots(nodeNPC, nodeTrait)
 		end
 	end
 end
-function updateNPCInnateSpellcasting(nodeNPC, nodeTrait)
+function updateNPCInnateSpellcasting(nodeNPC, _)
 	local aError = {};
 
 	local rActor = ActorManager.resolveActor(nodeNPC);
@@ -223,7 +222,7 @@ function updateNPCInnateSpellcasting(nodeNPC, nodeTrait)
 			for i = 0,9 do
 				if aPowerGroup[i] then
 					for _,sSpell in ipairs(aPowerGroup[i]) do
-						if not updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate, i) then
+						if not CampaignDataManager2.updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate, i) then
 							table.insert(aError, sSpell);
 						end
 					end
@@ -231,13 +230,13 @@ function updateNPCInnateSpellcasting(nodeNPC, nodeTrait)
 			end
 		end
 	end
-	
+
 	if #aError > 0 then
-		ChatManager.SystemMessage("Failed innate spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open."); 
-		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
+		ChatManager.SystemMessage("Failed innate spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open.");
+		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", "));
 	end
 end
-function updateNPCActionSpellcasting(nodeNPC, nodeTrait)
+function updateNPCActionSpellcasting(nodeNPC, _)
 	local aError = {};
 
 	local rActor = ActorManager.resolveActor(nodeNPC);
@@ -247,7 +246,7 @@ function updateNPCActionSpellcasting(nodeNPC, nodeTrait)
 			for i = 0,9 do
 				if aPowerGroup[i] then
 					for _,sSpell in ipairs(aPowerGroup[i]) do
-						if not updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate, i) then
+						if not CampaignDataManager2.updateNPCSpellHelper(sSpell, nodeNPC, aPowerGroup.bInnate, i) then
 							table.insert(aError, sSpell);
 						end
 					end
@@ -255,49 +254,24 @@ function updateNPCActionSpellcasting(nodeNPC, nodeTrait)
 			end
 		end
 	end
-	
+
 	if #aError > 0 then
-		ChatManager.SystemMessage("Failed spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open."); 
-		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", ")); 
+		ChatManager.SystemMessage("Failed spellcasting lookup on " .. #aError .. " spell(s) for (" .. DB.getValue(nodeNPC, "name", "") .. "). Make sure your spell module(s) are open.");
+		ChatManager.SystemMessage("Spell lookup failures: " .. table.concat(aError, ", "));
 	end
 end
 function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
-	local sCleaned = PowerManager.cleanNPCPowerName(sSpell):lower();
-	
-	-- See if we can find a matching node in any loaded module. If not, we're done.
-	local nodeRefSpell = nil;
-	if not nodeRefSpell then
-		for _,v in ipairs(DB.getChildList("spell")) do
-			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
-			if sCleaned == sCheckCleaned then
-				nodeRefSpell = v;
-				break;
-			end
-		end
-	end
-	if not nodeRefSpell then
-		for _,v in ipairs(DB.getChildrenGlobal("reference.spelldata")) do
-			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
-			if sCleaned == sCheckCleaned then
-				nodeRefSpell = v;
-				break;
-			end
-		end
-	end
-	if not nodeRefSpell then
-		for _,v in ipairs(DB.getChildrenGlobal("spell")) do
-			local sCheckCleaned = StringManager.trim(DB.getValue(v, "name", ""):lower());
-			if sCleaned == sCheckCleaned then
-				nodeRefSpell = v;
-				break;
-			end
-		end
-	end
-	if not nodeRefSpell then
+	local sCleaned = PowerManager.cleanNPCPowerName(sSpell);
+	local tFilters = {
+		{ sField = "name", sValue = sCleaned, bIgnoreCase = true, },
+		{ sField = "version", sValue = (OptionsManager.isOption("GAVE", "2024") and "2024" or ""), },
+	};
+	local nodeSpell = RecordManager.findRecordByFilter("spell", tFilters);
+	if not nodeSpell then
 		return false;
 	end
-	
-	addNPCSpell(nodeNPC, nodeRefSpell, bInnate, nDaily);
+
+	CampaignDataManager2.addNPCSpell(nodeNPC, nodeSpell, bInnate, nDaily);
 	return true;
 end
 function addNPCSpell(nodeNPC, nodeSpellSource, bInnate, nDaily)
@@ -308,8 +282,8 @@ function addNPCSpell(nodeNPC, nodeSpellSource, bInnate, nDaily)
 	else
 		nodeSpell = DB.createChild(DB.getPath(nodeNPC, "spells"));
 	end
-	
-	-- Add the daily use or level information to the name field 
+
+	-- Add the daily use or level information to the name field
 	local nLevel = DB.getValue(nodeSpellSource, "level", 0);
 	local sSpellName = DB.getValue(nodeSpellSource, "name", "");
 	if bInnate then
@@ -335,7 +309,7 @@ function addNPCSpell(nodeNPC, nodeSpellSource, bInnate, nDaily)
 			DB.setValue(nodeSpell, "name", "string", sSpellName .. " - Cantrip");
 		end
 	end
-	
+
 	-- Convert the multi-field spell data to a single spell description field.
 	local sDesc = "Level: " .. nLevel;
 	sDesc = sDesc .. "\rSchool: " .. DB.getValue(nodeSpellSource, "school", "");
@@ -344,7 +318,7 @@ function addNPCSpell(nodeNPC, nodeSpellSource, bInnate, nDaily)
 	sDesc = sDesc .. "\rDuration: " .. DB.getValue(nodeSpellSource, "duration", "");
 	sDesc = sDesc .. "\rRange: " .. DB.getValue(nodeSpellSource, "range", "");
 	sDesc = sDesc .. "\r";
-	
+
 	local sRefDesc = DB.getText(nodeSpellSource, "description");
 	if sRefDesc then
 		sDesc = sDesc .. "\r" .. sRefDesc;
@@ -367,7 +341,7 @@ function helperOldSubclassCopy(nodeSource)
 	local sSubclass = StringManager.trim(DB.getValue(nodeSource, "name", ""));
 	DB.setValue(nodeTarget, "name", "string", sSubclass);
 	DB.setValue(nodeTarget, "locked", "number", 1);
-	
+
 	local nodeClass = DB.getChild(nodeSource, "...");
 	local sClassName = DB.getValue(nodeClass, "name", "");
 	DB.setValue(nodeTarget, "class", "string", sClassName);
@@ -410,7 +384,7 @@ function helperOldAncestryCopy(nodeSource)
 	local nodeTarget = DB.createChild(sRootMapping);
 	DB.setValue(nodeTarget, "name", "string", DB.getValue(nodeSource, "name", ""));
 	DB.setValue(nodeTarget, "locked", "number", 1);
-	
+
 	local sSpeciesName = DB.getValue(nodeSource, "...name", "");
 	DB.setValue(nodeTarget, "race", "string", sSpeciesName);
 
@@ -425,7 +399,7 @@ function helperOldAncestryCopy(nodeSource)
 		DB.setValue(nodeTrait, "name", "string", DB.getValue(nodeSourceTrait, "name", 0));
 		DB.setValue(nodeTrait, "text", "formattedtext", DB.getValue(nodeSourceTrait, "text", ""));
 		DB.setValue(nodeTrait, "locked", "number", 1);
-		
+
 		local sSourceTraitPath = DB.getPath(nodeSourceTrait);
 		if tTraitLinks[sSourceTraitPath] then
 			tTraitLinks[sSourceTraitPath] = DB.getPath(nodeTrait);

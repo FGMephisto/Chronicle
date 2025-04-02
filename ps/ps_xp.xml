@@ -9,7 +9,9 @@
 	<windowclass name="ps_xp_partyentry" merge="join">
 		<sheetdata>
 			<string_ps name="classlevel">
-				<anchored position="insidetopleft" offset="55,35" width="285" height="20" />
+				<anchored position="insidetopleft" offset="55,35" height="20">
+					<right offset="-15" />
+				</anchored>
 				<empty textres="ps_empty_class" />
 			</string_ps>
 		</sheetdata>

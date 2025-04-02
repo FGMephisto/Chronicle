@@ -95,7 +95,7 @@ function updateOptions(tSelectedSimplifiedKeyMap)
 	for _,sOption in ipairs(self.getDataOptions()) do
 		if not tSelectedSimplifiedKeyMap[StringManager.simplify(sOption)] or (decision_choice.getValue() == sOption) then
 			decision_choice.add(sOption);
-		end 
+		end
 	end
 	if decision_choice.getValue() == "" then
 		alert.setVisible();

@@ -1,10 +1,20 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	self.setRadialOptions();
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+end
+
+function onLockModeChanged(bReadOnly)
+	local tFields = { "prof", "stat", "misc", };
+	WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+	if self.isCustom() then
+		name.setReadOnly(bReadOnly)
+	end
+	idelete.setVisible(not bReadOnly and self.isCustom());
+	idelete_spacer.setVisible(not bReadOnly and not self.isCustom());
 end
 
 function onMenuSelection(selection, subselection)
@@ -13,18 +23,12 @@ function onMenuSelection(selection, subselection)
 	end
 end
 
-function onEditModeChanged()
-	local bEditMode = WindowManager.getEditMode(windowlist, "sheet_iedit");
-	idelete.setVisible(bEditMode and self.isCustom());
-	idelete_spacer.setVisible(bEditMode and not self.isCustom());
-end
-
 -- This function is called to set the entry to non-custom or custom.
 -- Custom entries have configurable stats and editable labels.
 local _bCustom = true;
 function setCustom(state)
 	_bCustom = state;
-	
+
 	if _bCustom then
 		name.setEnabled(true);
 		name.setLine(true);
@@ -32,20 +36,9 @@ function setCustom(state)
 		name.setEnabled(false);
 		name.setLine(false);
 	end
-	
-	setRadialOptions();
 end
 function isCustom()
 	return _bCustom;
-end
-
-function setRadialOptions()
-	resetMenuItems();
-
-	if self.isCustom() then
-		registerMenuItem(Interface.getString("list_menu_deleteitem"), "delete", 6);
-		registerMenuItem(Interface.getString("list_menu_deleteconfirm"), "delete", 6, 7);
-	end
 end
 
 function openSkillLink()
@@ -55,4 +48,12 @@ function openSkillLink()
 	else
 		Interface.openWindow("ref_ability", getDatabaseNode());
 	end
+end
+
+function action(draginfo)
+	local nodeSkill = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeSkill, "...");
+	local rActor = ActorManager.resolveActor(nodeChar);
+	ActionSkill.performRoll(draginfo, rActor, nodeSkill);
+	return true;
 end

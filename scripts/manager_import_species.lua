@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -24,8 +24,8 @@ function import2022(sDesc)
 
 	-- Assume name on Line 1
 	ImportSpeciesManager.importHelperName(tImportState);
-	
-	-- Species normally start off with a descriptive text section. 
+
+	-- Species normally start off with a descriptive text section.
 	-- These lines are read in and ignored until you reach the Traits section.
 		-- Syntax:
 		-- [Species Name] Traits
@@ -65,10 +65,10 @@ function import2022(sDesc)
 
 	-- Finalize all traits
 	ImportSpeciesManager.finalizeTrait(tImportState);
-	
+
 	-- Description
 	ImportSpeciesManager.finalizeDescription(tImportState);
-	
+
 	-- Open new record window and matching campaign list
 	ImportUtilityManager.showRecord("race", tImportState.node);
 	for _,v in ipairs(tImportState.tAncestryList) do
@@ -153,7 +153,7 @@ function isTraitHeading(s)
 	end
 
 	-- look for replacements of of, and, the
-	sTestValue = StringManager.trim(s);
+	local sTestValue = StringManager.trim(s);
 	sTestValue = sTestValue:gsub(" of ", "");
 	sTestValue = sTestValue:gsub(" to ", "");
 	sTestValue = sTestValue:gsub(" from ", "");
@@ -174,7 +174,7 @@ function isTraitHeading(s)
 				-- so they can manually clean it up.
 				ChatManager.SystemMessage(s .. " was not identified as a header. Headers are either in Proper Case format or less than 4 words, with a period afterward. Words=" .. #tSplit);
 			end
-			
+
 			-- This is not a header
 			return false;
 		end
@@ -190,7 +190,7 @@ function initImportState(sDesc)
 	tImportState.sActiveLine = "";
 
 	tImportState.sDescription = sCleanDesc;
-	
+
 	tImportState.sSpeciesName = "";
 	tImportState.tSpeciesDesc = {};
 
@@ -230,7 +230,7 @@ function addDescOutput(tImportState, s)
 	end
 end
 
-function finalizeDescription(tImportState, s)
+function finalizeDescription(tImportState)
 	ImportSpeciesManager.finalizeAncestryDescription(tImportState);
 
 	local tFinalDesc = {};

@@ -6,48 +6,59 @@
 -->
 
 <root>
+	<template name="buttongroup_counter_power">
+		<genericcontrol>
+			<anchored width="10" height="20" />
+			<stateicons>
+				<on>button_checkon</on>
+				<off>button_checkoff</off>
+			</stateicons>
+			<script file="campaign/scripts/buttongroup_counter_power_5E.lua" />
+		</genericcontrol>
+	</template>
+	
 	<windowclass name="power_item_header">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
-			<anchor_poweritem_header_left name="leftanchor" />
-			<genericcontrol name="usespacer">
-				<anchored to="leftanchor" width="10" height="20">
-					<top />
-					<left anchor="right" relation="relative" />
-				</anchored>
-			</genericcontrol>
-			<genericcontrol name="blank">
-				<anchored to="leftanchor" width="20" height="20">
-					<top />
-					<left anchor="right" relation="relative" />
-				</anchored>
-				<invisible />
-			</genericcontrol>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<spacer_listitem_left name="blank">
+				<anchored width="24" />
+			</spacer_listitem_left>
 			<icon_usepower name="usepower">
 				<anchored to="leftanchor">
 					<top />
-					<left anchor="right" relation="relative" />
+					<left relation="relative" offset="2" postoffset="2" />
 				</anchored>
 				<invisible />
 			</icon_usepower>
 			<buttongroup_counter_power name="counter">
 				<anchored to="leftanchor">
 					<top />
-					<left anchor="right" relation="relative" />
+					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
 				<invisible />
 			</buttongroup_counter_power>
 			<button_checkbox name="preparedcheck" source="prepared">
 				<anchored to="leftanchor" width="20" height="20">
 					<top />
-					<left anchor="right" relation="relative" />
+					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
 				<invisible />
 			</button_checkbox>
 			<basicnumber name="prepared">
 				<anchored to="leftanchor" width="30" height="20">
 					<top />
-					<left anchor="right" relation="relative" />
+					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
 				<min>0</min>
 				<tooltip textres="power_tooltip_prepared" />
@@ -56,7 +67,7 @@
 			<cycler_power_useperiod name="usesperiod">
 				<anchored to="leftanchor">
 					<top />
-					<left anchor="right" relation="relative" offset="10" />
+					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
 				<invisible />
 			</cycler_power_useperiod>
@@ -65,7 +76,6 @@
 				<empty textres="library_recordtype_empty_spell" />
 			</string_poweritem_header_name>
 
-			<anchor_poweritem_header_right name="rightanchor" />
 			<string_poweritem_header name="group">
 				<tooltip textres="power_tooltip_group" />
 			</string_poweritem_header>
@@ -104,7 +114,7 @@
 		<script file="campaign/scripts/power_slots_cast.lua" />
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-			
+
 			<label_charframetop name="slotstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
@@ -129,7 +139,7 @@
 					<right offset="-50" />
 				</anchored>
 			</power_slots_list>
-			
+
 			<label name="pactmagicslots_label">
 				<anchored width="80">
 					<top parent="columnanchor" anchor="bottom" relation="current" offset="7" />
@@ -148,14 +158,16 @@
 	</windowclass>
 	<windowclass name="power_slots_prep">
 		<script>
-			function onEditModeChanged()
-				local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
-				parentcontrol.setVisible(bEditMode);
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				parentcontrol.setVisible(not bReadOnly);
 			end
 		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-			
+
 			<label_charframetop name="slotstitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
@@ -298,13 +310,13 @@
 			</genericcontrol>
 		</sheetdata>
 	</windowclass>
-	
+
 	<windowclass name="power_page">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/power_page.lua" />
 		<sheetdata>
 			<anchor_column name="columnanchor" />
-			
+
 			<list_powers name="powers" />
 		</sheetdata>
 	</windowclass>
@@ -314,14 +326,14 @@
 		<sheetdata>
 			<hsc name="group" />
 			<hnc name="level" />
-			
+
 			<label_charframetop name="name">
 				<bounds>10,10,-10,20</bounds>
 				<script>
 					function onClickDown()
 						return true;
 					end
-					
+
 					function onClickRelease()
 						window.onToggle();
 						return true;
@@ -330,7 +342,7 @@
 			</label_charframetop>
 
 			<button_idelete name="idelete">
-				<anchored position="insidetopright" offset="50,10" />
+				<anchored position="insidetopleft" offset="50,10" />
 				<script>
 					function onButtonPress()
 						if getValue() == 0 then
@@ -339,13 +351,13 @@
 					end
 				</script>
 			</button_idelete>
-			
+
 			<button_details name="link">
 				<anchored position="insidetopright" offset="27,10" />
 				<invisible />
 				<script>
 					local nodeGroup = nil;
-					
+
 					function setNode(node)
 						nodeGroup = node;
 						if nodeGroup then
@@ -354,7 +366,7 @@
 							setVisible(false);
 						end
 					end
-					
+
 					function onButtonPress()
 						local nodeGroup = window.getNode();
 						if nodeGroup then
@@ -399,7 +411,7 @@
 			<string_content_column name="name">
 				<delaykeyupdate />
 			</string_content_column>
-			
+
 			<label_content_column name="castertype_label">
 				<static textres="power_label_grouptype" />
 			</label_content_column>
@@ -409,7 +421,7 @@
 					<left offset="110" />
 				</anchored>
 			</button_grouptype>
-			
+
 			<line_content_top />
 
 			<label_content_column name="groupstat_label">
@@ -421,7 +433,7 @@
 					<left offset="110" />
 				</anchored>
 			</cycler_ability>
-			
+
 			<label_content_column name="groupatk_label">
 				<static textres="power_label_groupatk" />
 			</label_content_column>
@@ -504,7 +516,14 @@
 			</number_content_column>
 		</sheetdata>
 	</windowclass>
-	
+
+	<windowclass name="power_item" merge="join">
+		<sheetdata>
+			<hs name="group" />
+			<hn name="level" />
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="power_action_cast">
 		<margins control="0,0,0,2" />
 		<script>
@@ -517,7 +536,7 @@
 			end
 			function onDataChanged()
 				local nodeAction = getDatabaseNode();
-				
+
 				attackview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "atk" }));
 				saveview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "save" }));
 			end
@@ -533,7 +552,7 @@
 				<anchored to="castbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_cast" />
 			</label>
-			
+
 			<button_poweraction name="attackbutton">
 				<anchored to="castlabel" position="righthigh" offset="5,0" />
 				<icon normal="button_action_attack" pressed="button_action_attack_down" />
@@ -650,7 +669,7 @@
 			end
 			function onDataChanged()
 				local nodeAction = getDatabaseNode();
-				
+
 				local sLabel = PowerActionManagerCore.getActionText(nodeAction);
 				local sDuration = PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "duration" });
 

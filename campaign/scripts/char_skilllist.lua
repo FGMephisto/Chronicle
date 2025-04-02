@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -22,8 +22,8 @@ function constructDefaultSkills()
 	local entrymap = {};
 
 	for _,w in pairs(getWindows()) do
-		local sLabel = w.name.getValue(); 
-	
+		local sLabel = w.name.getValue();
+
 		if DataCommon.skilldata[sLabel] then
 			if not entrymap[sLabel] then
 				entrymap[sLabel] = { w };
@@ -38,7 +38,7 @@ function constructDefaultSkills()
 	-- Set properties and create missing entries for all known skills
 	for k, t in pairs(DataCommon.skilldata) do
 		local matches = entrymap[k];
-		
+
 		if not matches then
 			local w = createWindow();
 			if w then
@@ -51,7 +51,7 @@ function constructDefaultSkills()
 				matches = { w };
 			end
 		end
-		
+
 		-- Update properties
 		local bCustom = false;
 		for _, match in pairs(matches) do
@@ -68,12 +68,12 @@ function addSkillReference(nodeSource)
 	if not nodeSource then
 		return;
 	end
-	
+
 	local sName = StringManager.trim(DB.getValue(nodeSource, "name", ""));
 	if sName == "" then
 		return;
 	end
-	
+
 	local wSkill = nil;
 	for _,w in pairs(getWindows()) do
 		if StringManager.trim(w.name.getValue()) == sName then
@@ -83,7 +83,7 @@ function addSkillReference(nodeSource)
 	end
 	if not wSkill then
 		wSkill = createWindow();
-		
+
 		wSkill.name.setValue(sName);
 		if DataCommon.skilldata[sName] then
 			wSkill.stat.setStringValue(DataCommon.skilldata[sName].stat);

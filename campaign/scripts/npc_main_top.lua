@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -21,8 +21,11 @@ function onSummonDataChanged()
 	local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
 	local bSummon = bIs2024 and (DB.getValue(nodeRecord, "summon", 0) ~= 0);
 	if bSummon then
-		local nAC = DB.getValue(nodeRecord, "summon_ac_base", 0) + (DB.getValue(nodeRecord, "summon_ac_mod", 0) * DB.getValue(nodeRecord, "summon_level", 0));
-		local nHP = DB.getValue(nodeRecord, "summon_hp_base", 0) + (DB.getValue(nodeRecord, "summon_hp_mod", 0) * math.max(DB.getValue(nodeRecord, "summon_level", 0) - DB.getValue(nodeRecord, "summon_hp_mod_threshold", 0)));
+		local nAC = DB.getValue(nodeRecord, "summon_ac_base", 0) +
+				(DB.getValue(nodeRecord, "summon_ac_mod", 0) * DB.getValue(nodeRecord, "summon_level", 0));
+		local nHP = DB.getValue(nodeRecord, "summon_hp_base", 0) +
+				(DB.getValue(nodeRecord, "summon_hp_mod", 0) * math.max(DB.getValue(nodeRecord, "summon_level", 0) -
+				DB.getValue(nodeRecord, "summon_hp_mod_threshold", 0)));
 		DB.setValue(nodeRecord, "ac", "number", nAC);
 		DB.setValue(nodeRecord, "hp", "number", nHP);
 	end
@@ -76,7 +79,7 @@ function update()
 
 	sub_summary_fields.setVisible(not bReadOnly);
 	summary.setVisible(bReadOnly);
-	
+
 	WindowManager.callSafeControlUpdate(self, "ac", bReadOnly or bSummon);
 	WindowManager.callSafeControlUpdate(self, "actext", bReadOnly);
 	WindowManager.callSafeControlUpdate(self, "hp", bReadOnly or bSummon);

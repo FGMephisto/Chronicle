@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -42,7 +42,7 @@ function onHoverUpdate(x, y)
 	end
 
 	if not bParsed then
-		parseComponents();
+		self.parseComponents();
 	end
 	local nMouseIndex = getIndexAt(x, y);
 	hoverAbility = nil;
@@ -52,10 +52,10 @@ function onHoverUpdate(x, y)
 			setCursorPosition(aAbilities[i].startpos);
 			setSelectionPosition(aAbilities[i].endpos);
 
-			hoverAbility = i;			
+			hoverAbility = i;
 		end
 	end
-	
+
 	if hoverAbility then
 		setHoverCursor("hand");
 	else
@@ -65,53 +65,48 @@ end
 
 function action(draginfo, rAction)
 	local rActionCopy = UtilityManager.copyDeep(rAction);
-	return PowerManager.performAction(draginfo, getActor(), rActionCopy, window.getDatabaseNode());
+	return PowerManager.performAction(draginfo, self.getActor(), rActionCopy, window.getDatabaseNode());
 end
 
 -- Suppress default processing to support dragging
-function onClickDown(button, x, y)
+function onClickDown()
 	clickAbility = hoverAbility;
 	return true;
 end
-
 -- On mouse click, set focus, set cursor position and clear selection
-function onClickRelease(button, x, y)
+function onClickRelease(_, x, y)
 	setFocus();
-	
+
 	local n = getIndexAt(x, y);
 	setSelectionPosition(n);
 	setCursorPosition(n);
-	
+
 	return true;
 end
-
-function onDoubleClick(x, y)
+function onDoubleClick()
 	if hoverAbility then
-		action(nil, aAbilities[hoverAbility]);
+		self.action(nil, aAbilities[hoverAbility]);
 		return true;
 	end
 end
-
 function onDragStart(button, x, y, draginfo)
-	return onDrag(button, x, y, draginfo);
+	return self.onDrag(button, x, y, draginfo);
 end
-
-function onDrag(button, x, y, draginfo)
+function onDrag(_, _, _, draginfo)
 	if bDragging then
 		return true;
 	end
 
 	if clickAbility then
-		action(draginfo, aAbilities[clickAbility]);
+		self.action(draginfo, aAbilities[clickAbility]);
 		clickAbility = nil;
 		bDragging = true;
 		return true;
 	end
-	
+
 	return true;
 end
-
-function onDragEnd(dragdata)
+function onDragEnd()
 	setCursorPosition(0);
 	bDragging = false;
 end

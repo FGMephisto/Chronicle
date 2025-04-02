@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -18,7 +18,7 @@ function update()
 	WindowManager.callSafeControlUpdate(self, "sub_action", bReadOnly);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	if WindowManager.getReadOnlyState(getDatabaseNode()) then
 		return true;
 	end

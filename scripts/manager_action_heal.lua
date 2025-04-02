@@ -1,19 +1,19 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ActionsManager.registerModHandler("heal", modHeal);
-	ActionsManager.registerResultHandler("heal", onHeal);
+	ActionsManager.registerModHandler("heal", ActionHeal.modHeal);
+	ActionsManager.registerResultHandler("heal", ActionHeal.onHeal);
 end
 
-function getRoll(rActor, rAction)
+function getRoll(_, rAction)
 	local rRoll = {};
 	rRoll.sType = "heal";
 	rRoll.aDice = {};
 	rRoll.nMod = 0;
-	
+
 	-- Build description
 	rRoll.sDesc = "[HEAL";
 	if rAction.order and rAction.order > 1 then
@@ -23,14 +23,14 @@ function getRoll(rActor, rAction)
 
 	-- Save the heal clauses in the roll structure
 	rRoll.clauses = rAction.clauses;
-	
+
 	-- Add heal type to roll data
 	if rAction.subtype == "temp" then
 		rRoll.healtype = "temp";
 	else
 		rRoll.healtype = "health";
 	end
-	
+
 	-- Add the dice and modifiers, and encode ability scores used
 	for _,vClause in pairs(rRoll.clauses) do
 		DiceRollManager.addHealDice(rRoll.aDice, vClause.dice, { healtype = rRoll.healtype });
@@ -40,7 +40,7 @@ function getRoll(rActor, rAction)
 			rRoll.sDesc = rRoll.sDesc .. string.format(" [MOD: %s (%s)]", sAbility, vClause.statmult or 1);
 		end
 	end
-	
+
 	-- Encode the damage types
 	ActionHeal.encodeHealClauses(rRoll);
 
@@ -58,22 +58,22 @@ function getRoll(rActor, rAction)
 end
 
 function performRoll(draginfo, rActor, rAction)
-	local rRoll = getRoll(rActor, rAction);
-	
+	local rRoll = ActionHeal.getRoll(rActor, rAction);
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function modHeal(rSource, rTarget, rRoll)
+function modHeal(rSource, _, rRoll)
 	ActionHeal.decodeHealClauses(rRoll);
 	CombatManager2.addRightClickDiceToClauses(rRoll);
-	
+
 	local aAddDesc = {};
 	local aAddDice = {};
 	local nAddMod = 0;
-	
+
 	-- Track how many heal clauses before effects applied
 	local nPreEffectClauses = #(rRoll.clauses);
-	
+
 	if rSource then
 		local bEffects = false;
 
@@ -83,7 +83,7 @@ function modHeal(rSource, rTarget, rRoll)
 		if (nEffectCount > 0) then
 			bEffects = true;
 		end
-		
+
 		-- Apply ability modifiers
 		for sAbility, sAbilityMult in rRoll.sDesc:gmatch("%[MOD: (%w+) %((%w+)%)%]") do
 			local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, DataCommon.ability_stol[sAbility]);
@@ -96,14 +96,14 @@ function modHeal(rSource, rTarget, rRoll)
 				nAddMod = nAddMod + nBonusStat;
 			end
 		end
-		
+
 		-- If effects happened, then add note
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
 			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
-	
+
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
@@ -122,7 +122,7 @@ function modHeal(rSource, rTarget, rRoll)
 		for kClause,vClause in ipairs(rRoll.clauses) do
 			if kClause <= nPreEffectClauses then
 				local nClauseFixedMod = 0;
-				for kDie,vDie in ipairs(vClause.dice) do
+				for _,vDie in ipairs(vClause.dice) do
 					if vDie:sub(1,1) == "-" then
 						nFixedNegativeCount = nFixedNegativeCount + 1;
 						nClauseFixedMod = nClauseFixedMod - math.floor(math.ceil(tonumber(vDie:sub(3)) or 0) / 2);
@@ -141,14 +141,14 @@ function modHeal(rSource, rTarget, rRoll)
 				end
 				nFixedMod = nFixedMod + nClauseFixedMod;
 			else
-				for kDie,vDie in ipairs(vClause.dice) do
+				for _,vDie in ipairs(vClause.dice) do
 					table.insert(aFixedDice, vDie);
 				end
 			end
-			
+
 			table.insert(aFixedClauses, vClause);
 		end
-		
+
 		rRoll.clauses = aFixedClauses;
 		rRoll.aDice = aFixedDice;
 		rRoll.nMod = rRoll.nMod + nFixedMod;
@@ -157,7 +157,7 @@ end
 
 function onHeal(rSource, rTarget, rRoll)
 	ActionsManager2.handleHealerFeat(rSource, rRoll);
-	
+
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = rMessage.text:gsub(" %[MOD:[^]]*%]", "");
 	Comm.deliverChatMessage(rMessage);
@@ -186,10 +186,10 @@ function decodeHealClauses(rRoll)
 		rClause.dice, rClause.modifier = StringManager.convertStringToDice(sDice);
 		rClause.stat = sStat;
 		rClause.statmult = tonumber(sStatMult) or 1;
-		
+
 		table.insert(rRoll.clauses, rClause);
 	end
-	
+
 	-- Remove heal clause information from roll description
 	rRoll.sDesc = rRoll.sDesc:gsub(" %[CLAUSE:[^]]*%]", "");
 end

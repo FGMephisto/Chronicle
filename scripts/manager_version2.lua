@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -8,82 +8,82 @@ local rsmajorversion = 8;
 
 function onInit()
 	if Session.IsHost then
-		updateCampaign();
+		VersionManager2.updateCampaign();
 	end
 
-	DB.addEventHandler("onAuxCharLoad", onCharImport);
-	DB.addEventHandler("onImport", onImport);
-	Module.addEventHandler("onModuleLoad", onModuleLoad);
+	DB.addEventHandler("onAuxCharLoad", VersionManager2.onCharImport);
+	DB.addEventHandler("onImport", VersionManager2.onImport);
+	Module.addEventHandler("onModuleLoad", VersionManager2.onModuleLoad);
 end
 
 function onCharImport(nodePC)
 	local _, _, aMajor, _ = DB.getImportRulesetVersion();
-	updateChar(nodePC, aMajor[rsname]);
+	VersionManager2.updateChar(nodePC, aMajor[rsname]);
 end
 
 function onImport(node)
 	local aPath = StringManager.split(DB.getPath(node), ".");
 	if #aPath == 2 and aPath[1] == "charsheet" then
 		local _, _, aMajor, _ = DB.getImportRulesetVersion();
-		updateChar(node, aMajor[rsname]);
+		VersionManager2.updateChar(node, aMajor[rsname]);
 	end
 end
 
 function onModuleLoad(sModule)
 	local _, _, aMajor, _ = DB.getRulesetVersion(sModule);
-	updateModule(sModule, aMajor[rsname]);
+	VersionManager2.updateModule(sModule, aMajor[rsname]);
 end
 
 function updateChar(nodePC, nVersion)
 	if not nVersion then
 		nVersion = 0;
 	end
-	
+
 	if nVersion < rsmajorversion then
 		if nVersion < 2 then
-			migrateChar2(nodePC);
+			VersionManager2.migrateChar2(nodePC);
 		end
 		if nVersion < 5 then
-			migrateChar5(nodePC);
+			VersionManager2.migrateChar5(nodePC);
 		end
 		if nVersion < 7 then
-			migrateChar7(nodePC);
+			VersionManager2.migrateChar7(nodePC);
 		end
 		if nVersion < 8 then
-			migrateChar8(nodePC);
+			VersionManager2.migrateChar8(nodePC);
 		end
 	end
 end
 
 function updateCampaign()
-	local _, _, aMajor, aMinor = DB.getRulesetVersion();
+	local _, _, aMajor, _ = DB.getRulesetVersion();
 	local major = aMajor[rsname];
 	if not major then
 		return;
 	end
-	
+
 	if major > 0 and major < rsmajorversion then
 		ChatManager.SystemMessage("Migrating campaign database to latest data version.");
 		DB.backup();
-		
+
 		if major < 2 then
-			convertCharacters2();
+			VersionManager2.convertCharacters2();
 		end
 		if major < 4 then
-			convertPSEnc4();
+			VersionManager2.convertPSEnc4();
 		end
 		if major < 5 then
-			convertCharacters5();
+			VersionManager2.convertCharacters5();
 		end
 		if major < 6 then
-			convertEncounters6();
+			VersionManager2.convertEncounters6();
 		end
 		if major < 7 then
-			convertCharacters7();
+			VersionManager2.convertCharacters7();
 		end
 		if major < 8 then
-			convertCharacters8();
-			convertItems8();
+			VersionManager2.convertCharacters8();
+			VersionManager2.convertItems8();
 		end
 	end
 end
@@ -92,12 +92,12 @@ function updateModule(sModule, nVersion)
 	if not nVersion then
 		nVersion = 0;
 	end
-	
+
 	if nVersion < rsmajorversion then
 		local nodeRoot = DB.getRoot(sModule);
-		
+
 		if nVersion < 5 then
-			convertPregenCharacters5(nodeRoot);
+			VersionManager2.convertPregenCharacters5(nodeRoot);
 		end
 		if nVersion < 6 then
 			if sModule == "DD MM Monster Manual" then
@@ -105,11 +105,11 @@ function updateModule(sModule, nVersion)
 			end
 		end
 		if nVersion < 7 then
-			convertPregenCharacters7(nodeRoot);
+			VersionManager2.convertPregenCharacters7(nodeRoot);
 		end
 		if nVersion < 8 then
-			convertPregenCharacters8(nodeRoot);
-			convertItems8(nodeRoot);
+			VersionManager2.convertPregenCharacters8(nodeRoot);
+			VersionManager2.convertItems8(nodeRoot);
 		end
 	end
 end
@@ -138,14 +138,14 @@ end
 function convertItems8(nodeRoot)
 	if nodeRoot then
 		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "item")) do
-			migrateItem8(nodeItem, nodeRoot);
+			VersionManager2.migrateItem8(nodeItem, nodeRoot);
 		end
 		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "reference.equipmentdata")) do
-			migrateItem8(nodeItem, nodeRoot);
+			VersionManager2.migrateItem8(nodeItem, nodeRoot);
 		end
 	else
 		for _,nodeItem in ipairs(DB.getChildList("item")) do
-			migrateItem8(nodeItem);
+			VersionManager2.migrateItem8(nodeItem);
 		end
 	end
 end
@@ -174,13 +174,13 @@ end
 
 function convertPregenCharacters8(nodeRoot)
 	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		migrateChar8(nodeChar);
+		VersionManager2.migrateChar8(nodeChar);
 	end
 end
 
 function convertCharacters8()
 	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		migrateChar8(nodeChar);
+		VersionManager2.migrateChar8(nodeChar);
 	end
 end
 
@@ -214,13 +214,13 @@ end
 
 function convertPregenCharacters7(nodeRoot)
 	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		migrateChar7(nodeChar);
+		VersionManager2.migrateChar7(nodeChar);
 	end
 end
 
 function convertCharacters7()
 	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		migrateChar7(nodeChar);
+		VersionManager2.migrateChar7(nodeChar);
 	end
 end
 
@@ -236,7 +236,7 @@ end
 
 function convertEncounters6()
 	for _,nodeEnc in ipairs(DB.getChildList("battle")) do
-		migrateEncounter6(nodeEnc);
+		VersionManager2.migrateEncounter6(nodeEnc);
 	end
 end
 
@@ -263,7 +263,7 @@ function migrateChar5(nodeChar)
 			end
 		end
 	end
-	
+
 	-- If spellcasting feature added with source and level, then match the class name
 	for kClass, vSpellCastMult in pairs(aSpellCastFeatureBySource) do
 		for _,nodeClass in ipairs(DB.getChildList(nodeChar, "classes")) do
@@ -289,13 +289,13 @@ end
 
 function convertPregenCharacters5(nodeRoot)
 	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		migrateChar5(nodeChar);
+		VersionManager2.migrateChar5(nodeChar);
 	end
 end
 
 function convertCharacters5()
 	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		migrateChar5(nodeChar);
+		VersionManager2.migrateChar5(nodeChar);
 	end
 end
 
@@ -312,7 +312,7 @@ function migrateChar2(nodeChar)
 		DB.copyNode(nodeAbility, nodeNewFeature);
 	end
 	DB.deleteChild(nodeChar, "abilitylist");
-	
+
 	for _,nodeWeapon in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
 		if not DB.getChild(nodeWeapon, "damagelist") then
 			local nodeDmgList = DB.createChild(nodeWeapon, "damagelist");
@@ -323,7 +323,7 @@ function migrateChar2(nodeChar)
 					DB.setValue(nodeDmg, "stat", "string", DB.getValue(nodeWeapon, "damagestat", ""));
 					DB.setValue(nodeDmg, "bonus", "number", DB.getValue(nodeWeapon, "damagebonus", 0));
 					DB.setValue(nodeDmg, "type", "string", DB.getValue(nodeWeapon, "damagetype", ""));
-					
+
 					DB.deleteChild(nodeWeapon, "damagedice");
 					DB.deleteChild(nodeWeapon, "damagestat");
 					DB.deleteChild(nodeWeapon, "damagebonus");
@@ -332,7 +332,7 @@ function migrateChar2(nodeChar)
 			end
 		end
 	end
-	
+
 	for _,nodePower in ipairs(DB.getChildList(nodeChar, "powers")) do
 		for _,nodeAction in ipairs(DB.getChildList(nodePower, "actions")) do
 			local sType = DB.getValue(nodeAction, "type", "");
@@ -343,19 +343,19 @@ function migrateChar2(nodeChar)
 						local nodeDmg = DB.createChild(nodeDmgList);
 						if nodeDmg then
 							local sDmgType = DB.getValue(nodeAction, "dmgtype", "");
-							
+
 							DB.setValue(nodeDmg, "dice", "dice", DB.getValue(nodeAction, "dmgdice", {}));
 							DB.setValue(nodeDmg, "stat", "string", DB.getValue(nodeAction, "dmgstat", ""));
 							DB.setValue(nodeDmg, "bonus", "number", DB.getValue(nodeAction, "dmgmod", 0));
 							DB.setValue(nodeDmg, "type", "string", sDmgType);
-							
+
 							local sDmgStat2 = DB.getValue(nodeAction, "dmgstat2", "");
 							if sDmgStat2 ~= "" then
 								local nodeDmg2 = DB.createChild(nodeDmgList);
 								DB.setValue(nodeDmg2, "stat", "string", sDmgStat2);
 								DB.setValue(nodeDmg2, "type", "string", sDmgType);
 							end
-							
+
 							DB.deleteChild(nodeAction, "dmgdice");
 							DB.deleteChild(nodeAction, "dmgstat");
 							DB.deleteChild(nodeAction, "dmgstat2");
@@ -373,13 +373,13 @@ function migrateChar2(nodeChar)
 							DB.setValue(nodeHeal, "dice", "dice", DB.getValue(nodeAction, "hdice", {}));
 							DB.setValue(nodeHeal, "stat", "string", DB.getValue(nodeAction, "hstat", ""));
 							DB.setValue(nodeHeal, "bonus", "number", DB.getValue(nodeAction, "hmod", 0));
-							
+
 							local sStat2 = DB.getValue(nodeAction, "hstat2", "");
 							if sStat2 ~= "" then
 								local nodeHeal2 = DB.createChild(nodeDmgList);
 								DB.setValue(nodeHeal2, "stat", "string", sStat2);
 							end
-							
+
 							DB.deleteChild(nodeAction, "hdice");
 							DB.deleteChild(nodeAction, "hstat");
 							DB.deleteChild(nodeAction, "hstat2");
@@ -394,6 +394,6 @@ end
 
 function convertCharacters2()
 	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		migrateChar2(nodeChar);
+		VersionManager2.migrateChar2(nodeChar);
 	end
 end

@@ -13,9 +13,9 @@ function performGenRoll()
 	for _,v in pairs(DataCommon.abilities) do
 		CharWizardAbilitiesManager.setAbilityBase(v, 0);
 
-		local rRoll = { 
-			sType = "charwizardabilityroll", 
-			sDesc = "[ABILITY SCORE GENERATION] " .. StringManager.capitalize(v), 
+		local rRoll = {
+			sType = "charwizardabilityroll",
+			sDesc = "[ABILITY SCORE GENERATION] " .. StringManager.capitalize(v),
 			aDice = { expr = "4d6d1" },
 			nMod = 0,
 			sAbility = v,
@@ -23,7 +23,7 @@ function performGenRoll()
 		ActionsManager.actionDirect(nil, "charwizardabilityroll", { rRoll }, {{}});
 	end
 end
-function onGenRoll(rSource, rTarget, rRoll)
+function onGenRoll(rSource, _, rRoll)
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
 
@@ -32,7 +32,6 @@ end
 
 function setGenMethod(w)
 	local sGenMethodLower = w.cb_genmethod.getValue():lower();
-	local bNone = (sGenMethodLower == "");
 	local bStandardArray = (sGenMethodLower == "standard array");
 	local bManual = (sGenMethodLower == "dice roll/manual entry");
 	local bPointBuy = (sGenMethodLower == "point buy");
@@ -89,14 +88,14 @@ function setAbilityBase(sAbility, n)
 	local tASI = CharWizardManager.getAbilityData();
 	tASI[sAbility] = tASI[sAbility] or {};
 	tASI[sAbility].score = n;
-	
+
 	CharWizardAbilitiesManager.updateAbilities();
 end
 function setAbilityMisc(sAbility, n)
 	local tASI = CharWizardManager.getAbilityData();
 	tASI[sAbility] = tASI[sAbility] or {};
 	tASI[sAbility].misc = n;
-	
+
 	CharWizardAbilitiesManager.updateAbilities();
 end
 
@@ -127,9 +126,9 @@ function updateAbilities()
 	end
 
 	for _,sAbility in pairs(DataCommon.abilities) do
-		tASI[sAbility].total = (tASI[sAbility].score or 10) + 
-				(tASI[sAbility].background or 0) + 
-				(tASI[sAbility].species or 0) + 
+		tASI[sAbility].total = (tASI[sAbility].score or 10) +
+				(tASI[sAbility].background or 0) +
+				(tASI[sAbility].species or 0) +
 				(tASI[sAbility].asi or 0) +
 				(tASI[sAbility].misc or 0);
 		tASI[sAbility].modifier = math.floor((tASI[sAbility].total - 10) / 2);
@@ -163,9 +162,9 @@ end
 function collectASIAbilities()
 	local tClassASI = {};
 	local tClassData = CharWizardManager.getClassData();
-	for kClass,vClass in pairs(tClassData) do
-		for kFeature,vFeature in pairs(vClass.features or {}) do
-			for kLevel,vLevel in pairs(vFeature) do
+	for _,vClass in pairs(tClassData) do
+		for _,vFeature in pairs(vClass.features or {}) do
+			for _,vLevel in pairs(vFeature) do
 				for kVar, vVar in pairs(vLevel) do
 					if kVar == "abilityincrease" then
 						table.insert(tClassASI, vVar);

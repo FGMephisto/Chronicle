@@ -1,14 +1,22 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
 	self.addHandlers();
 	self.onAttuneRelatedAttributeUpdate();
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
 function onClose()
 	self.removeHandlers();
+end
+
+function onLockModeChanged(bReadOnly)
+	local tFields = { "name", "nonid_name", "weight", "idelete", };
+	WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+	-- local tFields = { "count", "location", "carried", attune", };
+	-- WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 end
 
 function addHandlers()
@@ -28,7 +36,7 @@ function onDelete(node)
 	ItemManager.onCharRemoveEvent(node);
 	self.removeHandlers();
 end
-function onAttuneRelatedAttributeUpdate(nodeAttribute)
+function onAttuneRelatedAttributeUpdate()
 	local bRequiresAttune = CharAttunementManager.doesItemAllowAttunement(getDatabaseNode());
 	attune.setVisible(bRequiresAttune);
 	attune_na.setVisible(not bRequiresAttune);

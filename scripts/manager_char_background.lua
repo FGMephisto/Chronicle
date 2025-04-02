@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -34,7 +34,7 @@ function helperAddBackgroundMain(rAdd)
 	DB.setValue(rAdd.nodeChar, "background", "string", rAdd.sSourceName);
 	DB.setValue(rAdd.nodeChar, "backgroundlink", "windowreference", rAdd.sSourceClass, DB.getPath(rAdd.nodeSource));
 	DB.setValue(rAdd.nodeChar, "backgroundversion", "string", DB.getValue(rAdd.nodeSource, "version", ""));
-		
+
 	if rAdd.bWizard then
 		if not rAdd.bSource2024 then
 			CharBackgroundManager.helperAddBackgroundFeatures2014(rAdd);
@@ -117,9 +117,9 @@ function checkBackgroundFeatureSpecialHandling(rAdd)
 		return CharBackgroundManager.helperCheckBackgroundFeatureSpecialHandling2014(rAdd);
 	end
 end
-function helperCheckBackgroundFeatureSpecialHandling2024(rAdd)
+function helperCheckBackgroundFeatureSpecialHandling2024(_)
 	return false;
 end
-function helperCheckBackgroundFeatureSpecialHandling2014(rAdd)
+function helperCheckBackgroundFeatureSpecialHandling2014(_)
 	return false;
 end

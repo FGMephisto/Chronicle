@@ -21,7 +21,7 @@ function clearRecords()
 end
 
 function getSortFunction()
-	return sortFunc;
+	return self.sortFunc;
 end
 function onSortCompare(w1, w2)
 	local tRecords = self.getAllRecords();

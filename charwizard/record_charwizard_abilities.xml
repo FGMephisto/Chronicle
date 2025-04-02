@@ -8,8 +8,6 @@
 <root>
 	<windowclass name="charwizard_sub_abilities">
 		<margins control="0,0,0,7" />
-		<script>
-		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -21,7 +19,7 @@
 				<icon>char_stats</icon>
 				<static textres="charwizard_title_abilityscores" />
 			</header_content_framed_metalplate_with_icon_top>
-			
+
 			<comboboxc name="cb_genmethod">
 				<anchored width="150" height="20">
 					<top parent="contentanchor" anchor="bottom" relation="relative" offset="10" />

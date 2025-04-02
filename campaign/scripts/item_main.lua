@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -32,7 +32,7 @@ function update()
 	description.setReadOnly(bReadOnly);
 end
 
-function onDrop(x, y, draginfo)
+function onDrop(_, _, draginfo)
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
 	if bReadOnly then

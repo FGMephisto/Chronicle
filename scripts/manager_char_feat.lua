@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -11,7 +11,7 @@ end
 function getFeatName(rAdd)
 	return DB.getValue(rAdd.nodeSource, "name", "");
 end
-function getFeatPowerGroup(rAdd)
+function getFeatPowerGroup(_)
 	return Interface.getString("char_feat_powergroup");
 end
 function getFeatSpellGroup(rAdd)
@@ -130,19 +130,19 @@ function helperCheckAbilityAdjustments2024(rAdd)
 		return;
 	end
 
-	-- PHB - Actor, Crossbow Expert, Defensive Duelist, Durable, Great Weapon Master, Keen Mind, 
-	-- PHB - Sharpshooter, Shield Master, Skulker, Slasher, 
-	-- PHB - Boon of Energy Resistance, Boon of Fortitude, Boon of Recovery, Boon of Speed, 
+	-- PHB - Actor, Crossbow Expert, Defensive Duelist, Durable, Great Weapon Master, Keen Mind,
+	-- PHB - Sharpshooter, Shield Master, Skulker, Slasher,
+	-- PHB - Boon of Energy Resistance, Boon of Fortitude, Boon of Recovery, Boon of Speed,
 	local sAbility, sAdj, sMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility then
 		CharManager.addAbilityAdjustment(rAdd.nodeChar, sAbility, tonumber(sAdj) or 1, tonumber(sMax) or 20);
 		return;
 	end
 
-	-- PHB - Athlete, Charger, Chef, Crusher, Dual Wielder, Grappler, Heavily Armored, Heavy Armor Master, 
-	-- PHB - Inspiring Leader, Lightly Armored, Mage Slayer, Martial Weapon Training, Medium Armor Master, 
+	-- PHB - Athlete, Charger, Chef, Crusher, Dual Wielder, Grappler, Heavily Armored, Heavy Armor Master,
+	-- PHB - Inspiring Leader, Lightly Armored, Mage Slayer, Martial Weapon Training, Medium Armor Master,
 	-- PHB - Moderately Armored, Observant, Polearm Master, Sentinel, Speedy, Weapon Master,
-	-- PHB - Boon of Combat Prowess, Boon of Irresistible Offense, 
+	-- PHB - Boon of Combat Prowess, Boon of Irresistible Offense,
 	local sAbility1, sAbility2, sAdj, sMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+) or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 then
 		local tOptions = { sAbility1, sAbility2, };
@@ -160,9 +160,9 @@ function helperCheckAbilityAdjustments2024(rAdd)
 		return;
 	end
 
-	-- PHB - Elemental Adept, Fey-Touched, Mounted Combatant, Ritual Caster, Shadow-Touched, Telekinetic, 
-	-- PHB - Telepathic, War Caster, 
-	-- PHB - Boon of Dimensional Travel, Boon of Fate, Boon of Spell Recall, Boon of Truesight, 
+	-- PHB - Elemental Adept, Fey-Touched, Mounted Combatant, Ritual Caster, Shadow-Touched, Telekinetic,
+	-- PHB - Telepathic, War Caster,
+	-- PHB - Boon of Dimensional Travel, Boon of Fate, Boon of Spell Recall, Boon of Truesight,
 	local sAbility1, sAbility2, sAbility3, sAdj, sMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+), (%w+), or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 then
 		local tOptions = { sAbility1, sAbility2, sAbility3, };
@@ -171,7 +171,7 @@ function helperCheckAbilityAdjustments2024(rAdd)
 		return;
 	end
 
-	-- PHB - Boon of the Night Spirit, 
+	-- PHB - Boon of the Night Spirit,
 	local sAbility1, sAbility2, sAbility3, sAbility4, sAdj, sMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+), (%w+), (%w+), or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 then
 		local tOptions = { sAbility1, sAbility2, sAbility3, sAbility4, };
@@ -180,7 +180,7 @@ function helperCheckAbilityAdjustments2024(rAdd)
 		return;
 	end
 
-	-- PHB - Skill Expert, 
+	-- PHB - Skill Expert,
 	local sAdj, sMax = rAdd.sSourceText:match("[Ii]ncrease one ability score of your choice by (%d+), to a maximum of (%d+)");
 	if sAdj then
 		local tData = { nAbilityAdj = tonumber(sAdj) or 1, nAbilityMax = tonumber(sMax) or 20, };
@@ -354,7 +354,7 @@ function helperAddFeatResilientDrop2024(rAdd)
 		return;
 	end
 	if #tAbilities == 1 then
-		CharFeatManager.helperOnResilientFeatSelect(tAbilities, { nodeChar = nodeChar, });
+		CharFeatManager.helperOnResilientFeatSelect(tAbilities, { nodeChar = rAdd.nodeChar, });
 		return;
 	end
 
@@ -405,7 +405,7 @@ function helperOnShadowTouchedFeatSelect(rAdd)
 end
 function helperAddFeatSkillExpertDrop2024(rAdd)
 	CharBuildDropManager.pickAbility(rAdd.nodeChar, nil, 1, { nAbilityAdj = 1, nAbilityMax = 20, });
-	
+
 	local tOptions = CharBuildDropManager.getSkillProficiencyOptions(rAdd.nodeChar);
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectprofs"),
@@ -474,7 +474,7 @@ function helperCheckAbilityAdjustments2014(rAdd)
 	local sAbility1, sAbility2, nAdj, sAbilityMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+) or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 and sAbility2 then
 		local tOptions = { sAbility1, sAbility2, };
-		local tData = { nAbilityAdj = tonumber(sAdj) or 1, nAbilityMax = tonumber(sMax) or 20, };
+		local tData = { nAbilityAdj = tonumber(nAdj) or 1, nAbilityMax = tonumber(sAbilityMax) or 20, };
 		CharBuildDropManager.pickAbility(rAdd.nodeChar, tOptions, 1, tData);
 		return;
 	end
@@ -483,7 +483,7 @@ function helperCheckAbilityAdjustments2014(rAdd)
 	local sAbility1, sAbility2, sAbility3, nAdj, sAbilityMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+), (%w+), or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 and sAbility2 and sAbility3 then
 		local tOptions = { sAbility1, sAbility2, sAbility3, };
-		local tData = { nAbilityAdj = tonumber(sAdj) or 1, nAbilityMax = tonumber(sMax) or 20, };
+		local tData = { nAbilityAdj = tonumber(nAdj) or 1, nAbilityMax = tonumber(sAbilityMax) or 20, };
 		CharBuildDropManager.pickAbility(rAdd.nodeChar, tOptions, 1, tData);
 		return;
 	end
@@ -492,7 +492,7 @@ function helperCheckAbilityAdjustments2014(rAdd)
 	local sAbility1, sAbility2, sAbility3, sAbility4, nAdj, sAbilityMax = rAdd.sSourceText:match("[Ii]ncrease your (%w+), (%w+), (%w+), or (%w+) score by (%d+), to a maximum of (%d+)");
 	if sAbility1 and sAbility2 and sAbility3 and sAbility4 then
 		local tOptions = { sAbility1, sAbility2, sAbility3, sAbility4, };
-		local tData = { nAbilityAdj = tonumber(sAdj) or 1, nAbilityMax = tonumber(sMax) or 20, };
+		local tData = { nAbilityAdj = tonumber(nAdj) or 1, nAbilityMax = tonumber(sAbilityMax) or 20, };
 		CharBuildDropManager.pickAbility(rAdd.nodeChar, tOptions, 1, tData);
 		return;
 	end
@@ -509,24 +509,24 @@ function helperCheckMisc2014(rAdd)
 	-- PHB - Alert
 	local sInitAdj = rAdd.sSourceText:match("gain a ([+-]?%d+) bonus to initiative");
 	if sInitAdj then
-		nInitAdj = tonumber(sInitAdj) or 0;
+		local nInitAdj = tonumber(sInitAdj) or 0;
 		if nInitAdj ~= 0 then
 			DB.setValue(rAdd.nodeChar, "initiative.misc", "number", DB.getValue(rAdd.nodeChar, "initiative.misc", 0) + nInitAdj);
 			ChatManager.SystemMessageResource("char_abilities_message_initadd", nInitAdj, DB.getValue(rAdd.nodeChar, "name", ""));
 		end
 	end
-	
+
 	-- Passive perception increase
 	-- PHB - Observant
 	local sPassiveAdj = rAdd.sSourceText:match("have a ([+-]?%d+) bonus to your passive [Ww]isdom %([Pp]erception%)");
 	if sPassiveAdj then
-		nPassiveAdj = tonumber(sPassiveAdj) or 0;
+		local nPassiveAdj = tonumber(sPassiveAdj) or 0;
 		if nPassiveAdj ~= 0 then
 			DB.setValue(rAdd.nodeChar, "perceptionmodifier", "number", DB.getValue(rAdd.nodeChar, "perceptionmodifier", 0) + nPassiveAdj);
 			ChatManager.SystemMessageResource("char_abilities_message_passiveadd", nPassiveAdj, DB.getValue(rAdd.nodeChar, "name", ""));
 		end
 	end
-	
+
 	-- Speed increase
 	-- PHB - Mobile
 	-- XGtE - Squat Nimbleness
@@ -534,7 +534,7 @@ function helperCheckMisc2014(rAdd)
 	if not sSpeedAdj then
 		sSpeedAdj = rAdd.sSourceText:match("[Ii]ncrease your walking speed by (%d+) feet");
 	end
-	nSpeedAdj = tonumber(sSpeedAdj) or 0;
+	local nSpeedAdj = tonumber(sSpeedAdj) or 0;
 	if nSpeedAdj > 0 then
 		CharManager.addSpeed(rAdd.nodeChar, nSpeedAdj);
 		ChatManager.SystemMessageResource("char_abilities_message_basespeedadj", nSpeedAdj, DB.getValue(rAdd.nodeChar, "name", ""));
@@ -546,10 +546,10 @@ function applyTough(nodeChar, bInitialAdd)
 	if bInitialAdd then
 		nAddHP = CharManager.getLevel(nodeChar) * 2;
 	end
-	
+
 	local nHP = DB.getValue(nodeChar, "hp.total", 0);
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
-	
+
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeat", StringManager.capitalizeAll(CharManager.FEAT_TOUGH), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

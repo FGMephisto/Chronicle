@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -17,7 +17,7 @@ function onInit()
 	DB.addHandler("charsheet.*.inventorylist.*", "onDelete", CharAttunementManager.onCharItemDelete);
 end
 
--- 
+--
 --  ATTUNEMENT DATA TRIGGERS
 --
 

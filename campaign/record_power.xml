@@ -19,12 +19,6 @@
 			<class>record_content_pictures</class>
 			<embed />
 		</tab>
-		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
-		</script>
 		<sheetdata>
 			<sub_content_framed_groupbox_top name="header">
 				<class>power_header</class>
@@ -42,7 +36,7 @@
 		<script file="campaign/scripts/power_main.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<sub_content_hidden_top name="sub_summary_fields">
 				<class>power_main_summary_fields</class>
 			</sub_content_hidden_top>
@@ -101,7 +95,7 @@
 					end
 				</script>
 			</string_content_columnh>
-			
+
 			<label_content_column name="ritual_label">
 				<static textres="spell_label_ritual" />
 			</label_content_column>
@@ -112,7 +106,7 @@
 					end
 				</script>
 			</button_checkbox_content_columnh>
-			
+
 			<label_content_column name="source_label">
 				<static textres="spell_label_source" />
 			</label_content_column>

@@ -5,7 +5,7 @@
 
 function createDecisions(w, tData)
 	local nPicks = tData and tData.nPicks or 1;
-	for i = 1, nPicks do
+	for _ = 1, nPicks do
 		CharWizardDecisionManager.createDecision(w, tData);
 	end
 end
@@ -123,7 +123,7 @@ function helperRefreshRecordExpertiseDecisionOptionsUpdate(wRecord, tSkillMap, t
 	if not wRecord or not tSkillMap or not tMap then
 		return;
 	end
-	
+
 	local tOptions = {};
 	for _,s in pairs(tSkillMap) do
 		table.insert(tOptions, s);
@@ -143,12 +143,38 @@ function helperRefreshRecordExpertiseDecisionOptionsUpdate(wRecord, tSkillMap, t
 	end
 end
 
+function refreshFeatureChoiceDecision()
+	local tMap = {};
+	CharWizardDecisionManager.helperCallForEachRecord(CharWizardDecisionManager.helperRefreshRecordDecisionApplyBaseMap, "featurechoice", tMap);
+	CharWizardDecisionManager.helperCallForEachRecord(CharWizardDecisionManager.helperRefreshRecordFeatureChoiceDecisionOptionsUpdate, tMap);
+end
+function helperRefreshRecordFeatureChoiceDecisionOptionsUpdate(wRecord, tMap)
+	if not wRecord or not tMap then
+		return;
+	end
+
+	local sDecisionType = "featurechoice";
+	for _,wFeature in ipairs(wRecord.list_features.getWindows()) do
+		for _,wDecision in ipairs(wFeature.list_decisions.getWindows()) do
+			if wDecision.decisiontype.getValue() == sDecisionType then
+				local sDecision = wDecision.decision_choice.getValue();
+				wDecision.updateOptions(tMap);
+				wDecision.decision_choice.setListValue(sDecision);
+			end
+		end
+	end
+end
+
 function processSkillDecision(wDecision)
 	CharWizardDecisionManager.refreshOverallDecision(wDecision.decisiontype.getValue());
 	return CharWizardDecisionManager.helperCollectFeatureDecisionChoiceMap(wDecision);
 end
 function processExpertiseDecision(wDecision)
 	CharWizardDecisionManager.refreshExpertiseDecision();
+	return CharWizardDecisionManager.helperCollectFeatureDecisionChoiceMap(wDecision);
+end
+function processFeatureChoiceDecision(wDecision)
+	CharWizardDecisionManager.refreshFeatureChoiceDecision(wDecision);
 	return CharWizardDecisionManager.helperCollectFeatureDecisionChoiceMap(wDecision);
 end
 function processArmorProfDecision(wDecision)
@@ -183,7 +209,7 @@ function helperCollectFeatureDecisionChoiceMap(wDecision)
 	return tMap;
 end
 
--- Ensure ability decision across all background/species decisions are unique 
+-- Ensure ability decision across all background/species decisions are unique
 function processAbilityDecision(wDecision)
 	local sDecisionType = wDecision.decisiontype.getValue();
 
@@ -218,7 +244,7 @@ function processAbilityDecision(wDecision)
 
 	return tAbilityMap;
 end
--- Ensure ability decision within a class feature are unique 
+-- Ensure ability decision within a class feature are unique
 function processFeatureAbilityDecision(wDecision)
 	local sDecisionType = wDecision.decisiontype.getValue();
 
@@ -269,7 +295,7 @@ function processSpellDecision(wDecision)
 			end
 		end
 	end
-	
+
 	for _,w in pairs(wDecision.windowlist.getWindows()) do
 		if (w.decisiontype.getValue() == sDecisionType) then
 			w.updateOptions(tMap);

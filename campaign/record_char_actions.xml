@@ -8,6 +8,15 @@
 <root>
 	<windowclass name="charsheet_actions">
 		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "powers_iadd", "weapons_iadd", };
+				WindowManager.callSafeControlsSetVisible(self, tFields, not bReadOnly);
+
+				content.subwindow.onModeChanged();
+			end
 			function onDrop(x, y, draginfo)
 				if content.subwindow.actions.subwindow.onDrop(x, y, draginfo) then
 					return true;
@@ -17,15 +26,6 @@
 				end
 				return false;
 			end
-			function onEditModeChanged()
-				local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
-
-				powermode_label.setVisible(not bEditMode);
-				powermode.setVisible(not bEditMode);
-				if bEditMode then
-					DB.setValue(getDatabaseNode(), "powermode", "string", "standard");
-				end
-			end
 		</script>
 		<sheetdata>
 			<anchor_content_top />
@@ -34,18 +34,14 @@
 			<area_content_framed_groupbox_bottom name="area_controls">
 				<anchored height="20" />
 			</area_content_framed_groupbox_bottom>
-			<button_iedit name="actions_iedit">
-				<anchored to="area_controls" position="insidetopright" offset="0,0" />
-				<tooltip textres="char_tooltip_actionedit" />
-			</button_iedit>
 			<buttoncontrol name="powers_iadd">
-				<anchored to="actions_iedit" position="lefthigh" offset="5,0" width="20" height="20" />
+				<anchored to="area_controls" position="insidetopright" offset="0,0" width="20" height="20" />
 				<icon normal="button_star" pressed="button_star_down" />
 				<tooltip textres="char_tooltip_actionaddpower" />
 				<script>
 					function onButtonPress()
 						window.content.subwindow.actions.subwindow.addPower(true);
-						DB.setValue(window.getDatabaseNode(), "powermode", "string", "standard");
+						DB.setValue(window.getDatabaseNode(), "powermode", "string", "");
 					end
 				</script>
 			</buttoncontrol>
@@ -88,12 +84,7 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
-				self.onEditModeChanged();
 				self.onModeChanged();
-			end
-			function onEditModeChanged()
-				spellslots_prep.subwindow.onEditModeChanged();
-				spellslots_cast.subwindow.onEditModeChanged();
 			end
 			function onModeChanged()
 				weapons.onModeChanged();
@@ -181,11 +172,14 @@
 			</sub_content_top>
 		</sheetdata>
 	</windowclass>
-	
+
 	<windowclass name="char_weaponmeta" copy="charsheethelper_base">
 		<sizelimits>
 			<minimum width="400" height="175" />
 		</sizelimits>
+		<windowmenu>
+			<nolock />
+		</windowmenu>
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
 				<prefix>char_weaponmeta_title</prefix>
@@ -240,7 +234,7 @@
 				<anchored to="critdicebonus_ranged" />
 				<static textres="char_label_critranged" />
 			</label_fieldtop>
-			
+
 			<label name="label_fightingstyle2weapon">
 				<anchored to="content_area" position="insidetopleft" offset="0,50"/>
 				<static textres="char_label_fightingstyle2weapon" />

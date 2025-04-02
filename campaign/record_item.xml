@@ -30,7 +30,7 @@
 							subwindow.update(bReadOnly, bID);
 							return;
 						end
-	
+
 						local bVehicleComponent = (sTypeKey == "vehiclecomponent");
 						if bVehicleComponent then
 							setValue("item_main_vehicle", nodeRecord);
@@ -65,12 +65,6 @@
 			<class>record_content_pictures</class>
 			<embed />
 		</tab>
-		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
-		</script>
 		<sheetdata>
 			<sub_content_framed_groupbox_top name="header">
 				<class>item_header</class>
@@ -388,28 +382,15 @@
 			end
 		</script>
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored height="0" width="0">
-					<top />
-					<right />
-				</anchored>
-			</genericcontrol>
-			<button_idelete name="idelete">
-				<anchored>
-					<top offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
-				</anchored>
-			</button_idelete>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
 
-			<stringfield name="name">
-				<anchored position="insidetopleft" offset="5,2">
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
-				</anchored>
+			<button_listitem_idelete_left name="idelete" />
+
+			<string_listitem_center_bold name="name">
 				<frame name="rowshade" offset="5,2,5,2" />
-				<font>sheetlabel</font>
-				<multilinespacing>20</multilinespacing>
 				<empty textres="npc_empty_powername" />
-			</stringfield>
+			</string_listitem_center_bold>
 
 			<basicnumber name="actions_load">
 				<anchored width="40" height="20">
@@ -468,7 +449,7 @@
 				<static textres="item_label_speed" />
 			</label_column>
 			<string_columnh name="speed" />
-			
+
 			<label_column name="carryingcapacity_label">
 				<static textres="item_label_carryingcapacity" />
 			</label_column>

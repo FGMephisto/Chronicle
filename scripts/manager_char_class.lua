@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -149,18 +149,18 @@ function helperAddClassLevel(rAdd)
 		DB.setValue(rAdd.nodeCharClass, "name", "string", rAdd.sSourceName);
 		rAdd.bNewCharClass = true;
 	end
-	
+
 	-- Any way you get here, overwrite or set the class reference link and record version with the most current
 	DB.setValue(rAdd.nodeCharClass, "shortcut", "windowreference", "reference_class", DB.getPath(rAdd.nodeSource));
 	DB.setValue(rAdd.nodeCharClass, "version", "string", DB.getValue(rAdd.nodeSource, "version", ""));
-	
+
 	-- Add basic class information
 	if rAdd.bNewCharClass then
 		DB.setValue(rAdd.nodeCharClass, "name", "string", rAdd.sSourceName);
 	end
 	DB.setValue(rAdd.nodeCharClass, "level", "number", rAdd.nCharClassLevel);
 	CharManager.refreshNextLevelXP(rAdd.nodeChar);
-	
+
 	-- Calculate total level
 	rAdd.nCharLevel = CharManager.getLevel(rAdd.nodeChar);
 
@@ -247,7 +247,7 @@ function helperAddClassProficiencies(rAdd)
 			end
 		end
 	end
-	
+
 	if rAdd.nCharLevel == 1 then
 		for _,v in ipairs(DB.getChildList(rAdd.nodeSource, "proficiencies")) do
 			local tData = { bWizard = rAdd.bWizard };
@@ -361,7 +361,7 @@ function helperAddClassGetCharSpellData(rAdd)
 		end
 	end
 
-	rAdd.nCharCasterLevel = CharClassManager.helperCalcSpellcastingLevel(rAdd.tCharClassMagicData); 
+	rAdd.nCharCasterLevel = CharClassManager.helperCalcSpellcastingLevel(rAdd.tCharClassMagicData);
 	rAdd.nCharPactMagicLevel = CharClassManager.helperCalcPactMagicLevel(rAdd.tCharClassMagicData);
 end
 function helperAddClassUpdateSpellData(rAdd)
@@ -460,7 +460,7 @@ function helperAddClassAdjustSpellSlots(rAdd)
 			DB.setValue(rAdd.nodeChar, sField, "number", math.max(DB.getValue(rAdd.nodeChar, sField, 0) + tSpellcastingSlotChange[i], 0));
 		end
 	end
-	
+
 	-- Handle Pact Magic slots
 	local nNewPactMagicLevel = CharClassManager.helperCalcPactMagicLevel(rAdd.tNewCharClassMagicData);
 	local tPactMagicSlotChange = CharClassManager.helperGetPactMagicSlotChange(rAdd.nCharPactMagicLevel, nNewPactMagicLevel);
@@ -492,10 +492,10 @@ function helperAddClassSpells(rAdd)
 			{ sField = "level", sValue = "0", },
 		};
 		local tData = {
-			sClassName = sClassSpellList, 
-			sGroup = rAdd.sSpellGroup, 
-			bWizard = rAdd.bWizard, 
-			bSource2024 = rAdd.bSource2024, 
+			sClassName = sClassSpellList,
+			sGroup = rAdd.sSpellGroup,
+			bWizard = rAdd.bWizard,
+			bSource2024 = rAdd.bSource2024,
 			sPickType = "cantrip",
 		};
 		CharBuildDropManager.pickSpellByFilter(rAdd, tSpellFilters, nNewCantrips, tData);
@@ -783,7 +783,7 @@ function helperCheckSubclass(rAdd)
 	if sSubclass ~= "" then
 		return false;
 	end
-	
+
 	-- If subclass level reached and subclass is not defined and not assigned, then get the subclass options
 	local tSubclassOptions = CharClassManager.getSubclassOptions(rAdd.nodeSource);
 	if #tSubclassOptions == 0 then
@@ -898,7 +898,7 @@ function checkClassFeatureSkipAdd(rAdd)
 
 	-- Skip if feature already exists, and is not repeatable
 	if DB.getValue(rAdd.nodeSource, "repeatable", 0) ~= 1 then
-		if CharManager.hasFeature(rAdd.nodeChar, sFeatureName) then
+		if CharManager.hasFeature(rAdd.nodeChar, rAdd.sSourceName) then
 			if (rAdd.sSourceType == "spellcasting") or (rAdd.sSourceType == "pactmagic") then
 				rAdd.sSourceName = string.format("%s (%s)", rAdd.sSourceName, rAdd.sClassName);
 				if CharManager.hasFeature(rAdd.nodeChar, rAdd.sSourceName) then
@@ -995,7 +995,7 @@ function helperCheckClassFeatureSpecialHandling2014(rAdd)
 			return true;
 		end
 	end
-	
+
 	if rAdd.sSourceType == "spellcasting" then
 		CharClassManager.helperAddClassFeatureSpellcasting(rAdd);
 	elseif rAdd.sSourceType == "pactmagic" then
@@ -1101,6 +1101,7 @@ function helperAddClassFeatureMagicalDiscoveries(rAdd)
 
 	-- Get possible Cleric, Druid and Wizard spells
 	local tOptions = {};
+	local sDisplayClass = RecordDataManager.getRecordTypeDisplayClass("spell");
 	local aMappings = LibraryData.getMappings("spell");
 	for _,vMapping in ipairs(aMappings) do
 		for _,nodeSpell in pairs(DB.getChildrenGlobal(vMapping)) do
@@ -1188,7 +1189,7 @@ function applyDraconicResilience(nodeChar)
 	local nHP = DB.getValue(nodeChar, "hp.total", 0);
 	nHP = nHP + nAddHP;
 	DB.setValue(nodeChar, "hp.total", "number", nHP);
-	
+
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeature", StringManager.capitalizeAll(CharManager.FEATURE_DRACONIC_RESILIENCE), DB.getValue(nodeChar, "name", ""), nAddHP);
 end
 function applyAttunementAdjust(nodeChar, n)

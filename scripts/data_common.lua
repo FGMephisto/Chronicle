@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -126,10 +126,10 @@ creaturesubtype = {
 	"devil",
 	"dragonborn",
 	"dwarf",
-	"elf", 
+	"elf",
 	"gith",
 	"gnoll",
-	"gnome", 
+	"gnome",
 	"goblinoid",
 	"grimlock",
 	"halfling",
@@ -157,22 +157,22 @@ conditionaltags = {
 -- Conditions supported in effect conditionals and for token widgets
 -- (Also shown in Effects window)
 conditions = {
-	"blinded", 
+	"blinded",
 	"charmed",
 	"cursed",
 	"deafened",
 	"encumbered",
-	"frightened", 
-	"grappled", 
+	"frightened",
+	"grappled",
 	"incapacitated",
 	"intoxicated",
-	"invisible", 
+	"invisible",
 	"paralyzed",
 	"petrified",
 	"poisoned",
-	"prone", 
+	"prone",
 	"restrained",
-	"stable", 
+	"stable",
 	"stunned",
 	"surprised",
 	"turned",

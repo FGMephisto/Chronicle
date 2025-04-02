@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -38,12 +38,12 @@ function updatePowerDisplay(w)
 		return;
 	end
 
-	local bEditMode = WindowManager.getEditMode(w, "actions_iedit");
-	w.header.subwindow.group.setVisible(bEditMode);
-	w.header.subwindow.actionsmini.setVisible(not bEditMode);
+	local bReadOnly = WindowManager.getWindowReadOnlyState(w);
+	w.header.subwindow.group.setVisible(not bReadOnly);
+	w.header.subwindow.actionsmini.setVisible(bReadOnly);
 end
 
-function getActionButtonIcons(node, tData)
+function getActionButtonIcons(_, tData)
 	if tData.sType == "cast" then
 		if tData.sSubRoll == "atk" then
 			return "button_action_attack", "button_action_attack_down";

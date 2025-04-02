@@ -1,7 +1,15 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
+
+function onInit()
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+end
+
+function onLockModeChanged(bReadOnly)
+	WindowManager.callSafeControlsSetLockMode(self, { "iadd", }, bReadOnly);
+end
 
 function onToggle()
 	windowlist.onHeaderToggle(self);
@@ -54,7 +62,7 @@ function setHeaderCategory(rGroup, sGroup, nLevel, bAllowDelete)
 			name.setIcon("char_abilities_orange");
 		end
 		group.setValue(sGroup);
-		setNode(rGroup.node);
+		self.setNode(rGroup.node);
 		if bAllowDelete then
 			idelete.setVisible(true);
 		end

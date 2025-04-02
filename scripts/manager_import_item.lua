@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -22,10 +22,10 @@ function import2024(sList, sDesc)
 	-- Track state information
 	local tImportList = {};
 	local tImportDescriptions = {};
-	
+
 	-- Add line break after every </h> tag
 	sDesc = sDesc:gsub("</h>", "</h>\n")
-	
+
 	-- Clean up the input lists
 	sList = sList:gsub("½", ".5");
 	local sItemList = ImportUtilityManager.cleanUpText(sList);
@@ -37,26 +37,26 @@ function import2024(sList, sDesc)
 	tImportDescriptions.nLine = 0;
 	tImportDescriptions.tLines = ImportUtilityManager.parseFormattedTextToLines(sItemDesc);
 	tImportDescriptions.sActiveLine = "";
-	
+
 	-- Read the first line of the stats to get the item type
 	ImportItemManager.nextImportLine(tImportList);
 	local sItemType = tImportList.sActiveLine;
-	
+
 	-- Read the 2nd line of the List to get the Subtype
 	ImportItemManager.nextImportLine(tImportList);
 	local sItemSubType = tImportList.sActiveLine;
-	
+
 	-- Read the 3rd line of the List to get the data columns from a pipe-delimited string
 	ImportItemManager.nextImportLine(tImportList);
 	local sColumnNames = tImportList.sActiveLine;
 	sColumnNames = (sColumnNames or ""):gsub("name", "Name");
 	local columnNames = StringManager.splitByPattern(sColumnNames, "|", true);
-	
+
 	-- Table to store the parsed data
 	local tParsedData = {};
 	while ImportItemManager.nextImportLine(tImportList) do
 		local rowValues = StringManager.splitByPattern(tImportList.sActiveLine, "|", true);
-		
+
 		-- Check if the first column value exists to use as a key
 		local key = rowValues[1];
 		if key then
@@ -72,7 +72,7 @@ function import2024(sList, sDesc)
 	local currentItemDesc = "";
 	while ImportItemManager.nextImportLine(tImportDescriptions) do
 		local line = tImportDescriptions.sActiveLine;
-		
+
 		-- Check if the line is a heading or an item name
 		if line:match("^<h>(.-)%s*%(.+%)</h>$") or line:match("^<h>(.-)</h>$") or line:match("^[^<]+$") then
 			-- If there's an active item, save its description
@@ -80,7 +80,7 @@ function import2024(sList, sDesc)
 				tParsedData[currentItemName]["description"] = currentItemDesc;
 				currentItemDesc = "";
 			end
-			
+
 			-- Extract the item name, ignoring text in parentheses
 			currentItemName = line:match("^<h>(.-)%s*%(.+%)</h>$") or line:match("^<h>(.-)</h>$") or line:match("^[^<]+$");
 			currentItemName = currentItemName:gsub("%s*%(.+%)", ""):lower();
@@ -89,36 +89,36 @@ function import2024(sList, sDesc)
 			currentItemDesc = currentItemDesc .. line .. "</p><p>\n";
 		end
 	end
-	
+
 	-- Ensure the last item description is saved
 	if currentItemName and tParsedData[currentItemName] then
 		tParsedData[currentItemName]["description"] = currentItemDesc;
 	end
-	
+
 	-- Create item records for each item
 	local sRootMapping = LibraryData.getRootMapping("item");
-	for key, value in pairs(tParsedData) do		
-		itemNode = DB.createChild(sRootMapping);
-		DB.setValue(itemNode, "type", "string", sItemType);
-		DB.setValue(itemNode, "subtype", "string", sItemSubType);
-		DB.setValue(itemNode, "rarity", "string", "common");
-		DB.setValue(itemNode, "version", "string", "2024");		
-		
+	for _,value in pairs(tParsedData) do
+		local nodeItem = DB.createChild(sRootMapping);
+		DB.setValue(nodeItem, "type", "string", sItemType);
+		DB.setValue(nodeItem, "subtype", "string", sItemSubType);
+		DB.setValue(nodeItem, "rarity", "string", "common");
+		DB.setValue(nodeItem, "version", "string", "2024");
+
 		for columnName, columnValue in pairs(value) do
 			if columnName == "weight" then
 				local numericValue = columnValue:match("%d+%.?%d*") or "0"
-				DB.setValue(itemNode, columnName, "number", numericValue);
+				DB.setValue(nodeItem, columnName, "number", numericValue);
 			elseif columnName == "ac" then
 				local numericValue = columnValue:match("%d+%.?%d*") or "0"
-				DB.setValue(itemNode, columnName, "number", numericValue);
+				DB.setValue(nodeItem, columnName, "number", numericValue);
 			elseif columnName == "bonus" then
 				local numericValue = columnValue:match("%d+%.?%d*") or "0"
-				DB.setValue(itemNode, columnName, "number", numericValue);
+				DB.setValue(nodeItem, columnName, "number", numericValue);
 			elseif columnName == "description" then
 				columnValue = ImportItemManager.closeOpenTags(columnValue)
-				itemNode.createChild("description", "formattedtext").setValue(columnValue);
+				nodeItem.createChild("description", "formattedtext").setValue(columnValue);
 			else
-				DB.setValue(itemNode, columnName, "string", StringManager.trim(columnValue));
+				DB.setValue(nodeItem, columnName, "string", StringManager.trim(columnValue));
 			end
 		end
 	end

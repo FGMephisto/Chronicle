@@ -19,7 +19,7 @@
 				<icon>char_background</icon>
 				<static textres="charwizard_title_background" />
 			</header_content_framed_metalplate_with_icon_top>
-			
+
 			<button_text name="button_changebackground">
 				<anchored position="insidetopright" offset="25,10" width="120" height="15" />
 				<state textres="charwizard_label_changebackground" />

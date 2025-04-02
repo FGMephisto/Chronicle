@@ -1,46 +1,45 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 OOB_MSGTYPE_APPLYSAVEVS = "applysavevs";
 
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYSAVEVS, handleApplySaveVs);
+	OOBManager.registerOOBMsgHandler(ActionPower.OOB_MSGTYPE_APPLYSAVEVS, ActionPower.handleApplySaveVs);
 
-	ActionsManager.registerTargetingHandler("cast", onPowerTargeting);
-	ActionsManager.registerTargetingHandler("powersave", onPowerTargeting);
-	
-	ActionsManager.registerModHandler("castsave", modCastSave);
-	ActionsManager.registerModHandler("powersave", modCastSave);
-	
-	ActionsManager.registerResultHandler("cast", onPowerCast);
-	ActionsManager.registerResultHandler("castsave", onCastSave);
-	ActionsManager.registerResultHandler("powersave", onPowerSave);
+	ActionsManager.registerTargetingHandler("cast", ActionPower.onPowerTargeting);
+	ActionsManager.registerTargetingHandler("powersave", ActionPower.onPowerTargeting);
+
+	ActionsManager.registerModHandler("castsave", ActionPower.modCastSave);
+	ActionsManager.registerModHandler("powersave", ActionPower.modCastSave);
+
+	ActionsManager.registerResultHandler("cast", ActionPower.onPowerCast);
+	ActionsManager.registerResultHandler("castsave", ActionPower.onCastSave);
+	ActionsManager.registerResultHandler("powersave", ActionPower.onPowerSave);
 end
 
 function handleApplySaveVs(msgOOB)
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
-	
-	local sSaveShort, sSaveDC = string.match(msgOOB.sDesc, "%[(%w+) DC (%d+)%]")
+
+	local sSaveShort,_ = string.match(msgOOB.sDesc, "%[(%w+) DC (%d+)%]")
 	if sSaveShort then
 		local sSave = DataCommon.ability_stol[sSaveShort];
 		if sSave then
-			ActionSave.performVsRoll(nil, rTarget, sSave, msgOOB.nDC, (tonumber(msgOOB.nSecret) == 1), rSource, msgOOB.bRemoveOnMiss, msgOOB.sDesc);
+			ActionSave.performVsRoll(nil, rTarget, sSave, msgOOB.nDC, (tonumber(msgOOB.nSecret) == 1), rSource, (tonumber(msgOOB.nRemoveOnMiss) == 1), msgOOB.sDesc);
 		end
 	end
 end
-
 function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 	if not rTarget then
 		return;
 	end
 
 	local msgOOB = {};
-	msgOOB.type = OOB_MSGTYPE_APPLYSAVEVS;
+	msgOOB.type = ActionPower.OOB_MSGTYPE_APPLYSAVEVS;
 	msgOOB.sUser = Session.UserName;
-	
+
 	if bSecret then
 		msgOOB.nSecret = 1;
 	else
@@ -52,9 +51,7 @@ function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
 
-	if bRemoveOnMiss then
-		msgOOB.bRemoveOnMiss = 1;
-	end
+	msgOOB.nRemoveOnMiss = bRemoveOnMiss and 1 or 0;
 
 	local sTargetNodeType, nodeTarget = ActorManager.getTypeAndNode(rTarget);
 	if nodeTarget and (sTargetNodeType == "pc") then
@@ -74,7 +71,7 @@ function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 			end
 		else
 			if DB.isOwner(nodeTarget) then
-				handleApplySaveVs(msgOOB);
+				ActionPower.handleApplySaveVs(msgOOB);
 				return;
 			end
 		end
@@ -83,7 +80,7 @@ function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
-function onPowerTargeting(rSource, aTargeting, rRolls)
+function onPowerTargeting(_, aTargeting, rRolls)
 	local bRemoveOnMiss = false;
 	local sOptRMMT = OptionsManager.getOption("RMMT");
 	if sOptRMMT == "on" then
@@ -97,28 +94,28 @@ function onPowerTargeting(rSource, aTargeting, rRolls)
 		end
 		bRemoveOnMiss = (#aTargets > 1);
 	end
-	
+
 	if bRemoveOnMiss then
 		for _,vRoll in ipairs(rRolls) do
-			vRoll.bRemoveOnMiss = "true";
+			vRoll.bRemoveOnMiss = true;
 		end
 	end
 
 	return aTargeting;
 end
 
-function getPowerCastRoll(rActor, rAction)
+function getPowerCastRoll(_, rAction)
 	local rRoll = {};
 	rRoll.sType = "cast";
 	rRoll.aDice = {};
 	rRoll.nMod = 0;
-	
+
 	rRoll.sDesc = "[CAST";
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
 	end
 	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
-	
+
 	return rRoll;
 end
 
@@ -127,12 +124,14 @@ function getSaveVsRoll(rActor, rAction)
 	rRoll.sType = "powersave";
 	rRoll.aDice = {};
 	rRoll.nMod = rAction.savemod or 0;
-	
+
 	rRoll.sDesc = "[SAVE VS";
 	if rAction.order and rAction.order > 1 then
 		rRoll.sDesc = rRoll.sDesc .. " #" .. rAction.order;
 	end
 	rRoll.sDesc = rRoll.sDesc .. "] " .. StringManager.capitalizeAll(rAction.label);
+
+	rRoll.sSave = rAction.save;
 
 	local tAddDesc = {};
 	local bEffects = false;
@@ -174,16 +173,18 @@ function getSaveVsRoll(rActor, rAction)
 end
 
 function performSaveVsRoll(draginfo, rActor, rAction)
-	local rRoll = getSaveVsRoll(rActor, rAction);
-	
+	local rRoll = ActionPower.getSaveVsRoll(rActor, rAction);
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function modCastSave(rSource, rTarget, rRoll)
-	if ModifierManager.getKey("DEF_SCOVER") then
-		rRoll.sDesc = rRoll.sDesc .. " [COVER -5]";
-	elseif ModifierManager.getKey("DEF_COVER") then
-		rRoll.sDesc = rRoll.sDesc .. " [COVER -2]";
+function modCastSave(_, _, rRoll)
+	if (rRoll.sSave or "") == "dexterity" then
+		if ModifierManager.getKey("DEF_SCOVER") then
+			rRoll.sDesc = rRoll.sDesc .. " [COVER +5]";
+		elseif ModifierManager.getKey("DEF_COVER") then
+			rRoll.sDesc = rRoll.sDesc .. " [COVER +2]";
+		end
 	end
 end
 
@@ -195,17 +196,17 @@ function onPowerCast(rSource, rTarget, rRoll)
 	if rTarget then
 		rMessage.text = rMessage.text .. " [at " .. ActorManager.getDisplayName(rTarget) .. "]";
 	end
-	
+
 	Comm.deliverChatMessage(rMessage);
 end
 
 function onCastSave(rSource, rTarget, rRoll)
 	if rTarget then
-		local sSaveShort, sSaveDC = rRoll.sDesc:match("%[(%w+) DC (%d+)%]")
+		local sSaveShort,_ = rRoll.sDesc:match("%[(%w+) DC (%d+)%]")
 		if sSaveShort then
 			local sSave = DataCommon.ability_stol[sSaveShort];
 			if sSave then
-				notifyApplySaveVs(rSource, rTarget, rRoll.bSecret, rRoll.sDesc, rRoll.nMod, rRoll.bRemoveOnMiss);
+				ActionPower.notifyApplySaveVs(rSource, rTarget, rRoll.bSecret, rRoll.sDesc, rRoll.nMod, rRoll.bRemoveOnMiss);
 				return true;
 			end
 		end
@@ -215,7 +216,7 @@ function onCastSave(rSource, rTarget, rRoll)
 end
 
 function onPowerSave(rSource, rTarget, rRoll)
-	if onCastSave(rSource, rTarget, rRoll) then
+	if ActionPower.onCastSave(rSource, rTarget, rRoll) then
 		return;
 	end
 

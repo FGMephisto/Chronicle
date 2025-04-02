@@ -9,22 +9,23 @@
 	<windowclass name="battle_header" merge="join">
 		<script>
 			function onInit()
-				super.onInit();
-				
+				if super and super.onInit then
+					super.onInit();
+				end
+
 				local node = getDatabaseNode();
 				if DB.getValue(node, "generated", 0) == 1 then
 					button_refreshcr.onButtonPress();
 					DB.setValue(node, "generated", "number", 0);
 				end
 			end
-			function update()
-				super.update();
-
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				cr.setReadOnly(bReadOnly);
-				exp.setReadOnly(bReadOnly);
-				button_refreshcr.setVisible(not bReadOnly);
-				button_refreshxp.setVisible(not bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				if super and super.onLockModeChanged then
+					super.onLockModeChanged(bReadOnly);
+				end
+				WindowManager.callSafeControlsSetLockMode(self, { "cr", "exp", }, bReadOnly);
+				local tButtons = { "button_refreshcr", "button_refreshxp", };
+				WindowManager.callSafeControlsSetVisible(self, tButtons, not bReadOnly);
 			end
 		</script>
 		<sheetdata>

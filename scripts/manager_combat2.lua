@@ -1,15 +1,16 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
 	CombatManager.setCustomSort(CombatManager.sortfuncDnD);
 
-	CombatManager.setCustomRoundStart(onRoundStart);
-	CombatManager.setCustomTurnStart(onTurnStart);
-	CombatManager.setCustomTurnEnd(onTurnEnd);
-	CombatManager.setCustomCombatReset(resetInit);
+	CombatManager.setCustomRoundStart(CombatManager2.onRoundStart);
+	CombatManager.setCustomTurnStart(CombatManager2.onTurnStart);
+	CombatManager.setCustomTurnEnd(CombatManager2.onTurnEnd);
+	CombatManager.setCustomCombatReset(CombatManager2.resetInit);
+	CombatManager.setCustomInitSwapPlayerAllow(CombatManager2.isInitSwapPlayerAllowed);
 
 	CombatRecordManager.addStandardVehicleCombatRecordType();
 
@@ -17,54 +18,44 @@ function onInit()
 	ActorCommonManager.setRecordTypeSpaceReachCallback("charsheet", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	ActorCommonManager.setRecordTypeSpaceReachCallback("npc", ActorCommonManager.getSpaceReachFromSizeFieldCore);
 	ActorCommonManager.setRecordTypeSpaceReachCallback("vehicle", ActorCommonManager.getSpaceReachFromSizeFieldCore);
-	CombatRecordManager.setRecordTypePostAddCallback("npc", onNPCPostAdd);
-	CombatRecordManager.setRecordTypePostAddCallback("vehicle", onVehiclePostAdd);
-end
-
-function onEffectActorEndTurn(nodeActor, nodeEffect)
-				EffectManager.removeCondition(rTarget, "Stable");
-
+	CombatRecordManager.setRecordTypePostAddCallback("npc", CombatManager2.onNPCPostAdd);
+	CombatRecordManager.setRecordTypePostAddCallback("vehicle", CombatManager2.onVehiclePostAdd);
 end
 
 --
 -- TURN FUNCTIONS
 --
 
-function onRoundStart(nCurrent)
+function onRoundStart(_)
 	if OptionsManager.isOption("HRIR", "on") then
 		CombatManager2.rollInit();
 	end
 end
-
 function onTurnStart(nodeEntry)
 	if not nodeEntry then
 		return;
 	end
-	
+
 	-- Handle beginning of turn changes
 	DB.setValue(nodeEntry, "reaction", "number", 0);
-	
+
 	-- Check for exhaustion levels for pre-2024 rules
 	if nodeEntry then
 		local sClass, sRecord = DB.getValue(nodeEntry, "link");
 		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
-			local nHP = DB.getValue(nodeEntry, "hptotal", 0);
-			local nWounds = DB.getValue(nodeEntry, "wounds", 0);
-			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
-
 			-- Get exhaustion modifiers
-			local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(nodeEntry, { "EXHAUSTION" }, true);
+			local nExhaustMod,_ = EffectManager5E.getEffectsBonus(nodeEntry, { "EXHAUSTION" }, true);
 			local bShowMsg = true;
 
 			if OptionsManager.isOption("GAVE", "2024") then
-				if nExhaustMod > 5 then 
+				if nExhaustMod > 5 then
 					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1 }, bShowMsg);
-				elseif nExhaustMod > 0 then 
+				elseif nExhaustMod > 0 then
 					local nSpeedAdjust = nExhaustMod * 5;
 					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed -" .. nSpeedAdjust .. " (info only)", nDuration = 1 }, bShowMsg);
 				end
-			else 
-				if nExhaustMod > 5 then 
+			else
+				if nExhaustMod > 5 then
 					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1 }, bShowMsg);
 				elseif nExhaustMod > 4 then
 					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1 }, bShowMsg);
@@ -76,7 +67,7 @@ function onTurnStart(nodeEntry)
 			end
 		end
 	end
-	
+
 	-- Check for death saves (based on option)
 	if OptionsManager.isOption("HRST", "on") then
 		local sClass, sRecord = DB.getValue(nodeEntry, "link");
@@ -93,7 +84,6 @@ function onTurnStart(nodeEntry)
 		end
 	end
 end
-
 function onTurnEnd(nodeEntry)
 	EffectManager.removeCondition(ActorManager.resolveActor(nodeEntry), "Surprised");
 end
@@ -108,13 +98,13 @@ function parseResistances(sResistances)
 
 	for _,v in ipairs(StringManager.split(sResistances, ";\r\n", true)) do
 		local aResistTypes = {};
-		
+
 		for _,v2 in ipairs(StringManager.split(v, ",", true)) do
 			if StringManager.isWord(v2, DataCommon.dmgtypes) then
 				table.insert(aResistTypes, v2);
 			else
 				local aResistWords = StringManager.parseWords(v2);
-				
+
 				local i = 1;
 				while aResistWords[i] do
 					if StringManager.isWord(aResistWords[i], DataCommon.dmgtypes) then
@@ -127,7 +117,7 @@ function parseResistances(sResistances)
 						table.insert(aResistTypes, "!magic");
 					elseif StringManager.isWord(aResistWords[i], "that") and StringManager.isWord(aResistWords[i+1], "aren't") then
 						i = i + 2;
-						
+
 						if StringManager.isWord(aResistWords[i], "silvered") then
 							table.insert(aResistTypes, "!silver");
 						elseif StringManager.isWord(aResistWords[i], "adamantine") then
@@ -137,7 +127,7 @@ function parseResistances(sResistances)
 							table.insert(aResistTypes, "!cold-forged iron");
 						end
 					end
-					
+
 					i = i + 1;
 				end
 			end
@@ -147,7 +137,7 @@ function parseResistances(sResistances)
 			table.insert(aResults, table.concat(aResistTypes, ", "));
 		end
 	end
-	
+
 	return aResults;
 end
 
@@ -160,7 +150,7 @@ function onNPCPostAdd(tCustom)
 	-- Fill in spells
 	CampaignDataManager2.updateNPCSpells(tCustom.nodeCT);
 	CampaignDataManager2.resetNPCSpellcastingSlots(tCustom.nodeCT);
-	
+
 	-- Set current hit points
 	local nHP = DB.getValue(tCustom.nodeRecord, "hp", 0);
 	local sOptHRNH = OptionsManager.getOption("HRNH");
@@ -176,13 +166,13 @@ function onNPCPostAdd(tCustom)
 		end
 	end
 	DB.setValue(tCustom.nodeCT, "hptotal", "number", nHP);
-	
+
 	-- Set initiative from Dexterity modifier
 	local nDex = DB.getValue(tCustom.nodeRecord, "abilities.dexterity.score", 10);
 	local nDexMod = math.floor((nDex - 10) / 2);
 	local nMiscMod = DB.getValue(tCustom.nodeRecord, "initiative.misc", 0);
 	DB.setValue(tCustom.nodeCT, "init", "number", nDexMod + nMiscMod);
-	
+
 	-- Decode traits and actions
 	local tEffects = {};
 	CombatManager2.parseNPCPowers(ActorManager.resolveActor(tCustom.nodeCT), tEffects);
@@ -251,7 +241,7 @@ function parseNPCPowerBuildEffects(nodePower, tEffects)
 	elseif sName == "regeneration" then
 		local sDesc = StringManager.trim(DB.getValue(nodePower, "desc", ""):lower());
 		local tPowerWords = StringManager.parseWords(sDesc);
-		
+
 		local sRegenAmount = nil;
 		local aRegenBlockTypes = {};
 		local i = 1;
@@ -273,11 +263,11 @@ function parseNPCPowerBuildEffects(nodePower, tEffects)
 
 					i = i + 1;
 				end
-			end 
-			
+			end
+
 			i = i + 1;
 		end
-		
+
 		if sRegenAmount then
 			local sRegen = "REGEN: " .. sRegenAmount;
 			if #aRegenBlockTypes > 0 then
@@ -322,7 +312,7 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 				end
 				table.insert(tDisplayOptions, string.format("[ATK: %+d]", v.modifier or 0));
 			end
-		
+
 		elseif v.type == "powersave" then
 			local sSaveVs = string.format("[SAVEVS: %s", v.save);
 			sSaveVs = sSaveVs .. " " .. (v.savemod or 0);
@@ -334,7 +324,7 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 			end
 			sSaveVs = sSaveVs .. "]";
 			table.insert(tDisplayOptions, sSaveVs);
-		
+
 		elseif v.type == "damage" then
 			local aDmgDisplay = {};
 			for _,vClause in ipairs(v.clauses) do
@@ -345,24 +335,24 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 				table.insert(aDmgDisplay, sDmg);
 			end
 			table.insert(tDisplayOptions, string.format("[DMG: %s]", table.concat(aDmgDisplay, " + ")));
-			
+
 		elseif v.type == "heal" then
 			local aHealDisplay = {};
 			for _,vClause in ipairs(v.clauses) do
 				local sHeal = StringManager.convertDiceToString(vClause.dice, vClause.modifier);
 				table.insert(aHealDisplay, sHeal);
 			end
-			
+
 			local sHeal = table.concat(aHealDisplay, " + ");
 			if v.subtype then
 				sHeal = sHeal .. " " .. v.subtype;
 			end
-			
+
 			table.insert(tDisplayOptions, string.format("[HEAL: %s]", sHeal));
-		
+
 		elseif v.type == "effect" then
 			table.insert(tDisplayOptions, EffectManager5E.encodeEffectForCT(v));
-		
+
 		end
 	end
 
@@ -394,15 +384,15 @@ function onVehiclePostAdd(tCustom)
 	-- Set current hit points
 	local nHP = DB.getValue(tCustom.nodeRecord, "hp", 0);
 	DB.setValue(tCustom.nodeCT, "hptotal", "number", nHP);
-	
+
 	-- Set initiative from Dexterity modifier
 	local nDex = DB.getValue(tCustom.nodeRecord, "abilities.dexterity.score", 10);
 	local nDexMod = math.floor((nDex - 10) / 2);
 	DB.setValue(tCustom.nodeCT, "init", "number", nDexMod);
-	
+
 	-- Track additional damage types and intrinsic effects
 	local tEffects = {};
-	
+
 	-- Decode traits and actions
 	local rActor = ActorManager.resolveActor(tCustom.nodeRecord);
 	for _,v in ipairs(DB.getChildList(tCustom.nodeCT, "traits")) do
@@ -410,13 +400,12 @@ function onVehiclePostAdd(tCustom)
 	end
 	for _,vComponent in ipairs(DB.getChildList(tCustom.nodeCT, "components")) do
 		DB.setValue(vComponent, "locked", "number", 1);
-		
+
 		for _,v in ipairs(DB.getChildList(vComponent, "actions")) do
 			CombatManager2.parseNPCPower(rActor, v, tEffects);
 
 			local sValue = DB.getValue(v, "value", "");
 			if sValue ~= "" then
-				local tActions = {};
 				local nLoad = DB.getValue(v, "actions_load", 0);
 				local nAim = DB.getValue(v, "actions_aim", 0);
 				local nFire = DB.getValue(v, "actions_fire", 0);
@@ -443,7 +432,7 @@ end
 
 function parseAttackLine(sLine)
 	local rPower = nil;
-	
+
 	local nIntroStart, nIntroEnd, sName = sLine:find("([^%[]*)[%[]?");
 	if nIntroStart then
 		rPower = {};
@@ -477,7 +466,7 @@ function parseAttackLine(sLine)
 
 			elseif sAbility:sub(1,7) == "SAVEVS:" and #sAbility > 7 then
 				local aWords = StringManager.parseWords(sAbility:sub(7));
-				
+
 				local rSave = {};
 				rSave.sType = "powersave";
 				rSave.nStart = nAbilityStart + 1;
@@ -501,7 +490,7 @@ function parseAttackLine(sLine)
 				rDamage.label = rPower.name;
 				rDamage.range = rPower.range;
 				rDamage.clauses = {};
-				
+
 				local tPowerWords = StringManager.parseWords(sAbility:sub(5));
 				local i = 1;
 				while tPowerWords[i] do
@@ -514,17 +503,17 @@ function parseAttackLine(sLine)
 						end
 						local aClause = {};
 						aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aDmgDiceStr));
-						
+
 						local aDmgType = {};
 						while tPowerWords[i+1] and not StringManager.isDiceString(tPowerWords[i+1]) and not StringManager.isWord(tPowerWords[i+1], {"and", "plus"}) do
 							table.insert(aDmgType, tPowerWords[i+1]);
 							i = i + 1;
 						end
 						aClause.dmgtype = table.concat(aDmgType, ",");
-						
+
 						table.insert(rDamage.clauses, aClause);
 					end
-					
+
 					i = i + 1;
 				end
 				table.insert(rPower.aAbilities, rDamage);
@@ -548,13 +537,13 @@ function parseAttackLine(sLine)
 				local aClause = {};
 				aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aHealDiceStr));
 				table.insert(rHeal.clauses, aClause);
-				
+
 				if StringManager.isWord(tPowerWords[i], "temp") then
 					rHeal.subtype = "temp";
 				end
 
 				table.insert(rPower.aAbilities, rHeal);
-				
+
 			elseif sAbility:sub(1,4) == "EFF:" and #sAbility > 4 then
 				local rEffect = EffectManager5E.decodeEffectFromCT(sAbility);
 				if rEffect then
@@ -562,12 +551,12 @@ function parseAttackLine(sLine)
 					rEffect.nEnd = nAbilityEnd;
 					table.insert(rPower.aAbilities, rEffect);
 				end
-			
+
 			elseif sAbility:sub(1,2) == "R:" and #sAbility == 3 then
 				local rUsage = {};
 				rUsage.sType = "usage";
 
-				local nUsedStart, nUsedEnd, sUsage = string.find(sLine, "%[(USED)%]", nIndex);
+				local nUsedStart, nUsedEnd, sUsage = string.find(sLine, "%[(USED)%]");
 				if nUsedStart then
 					rUsage.nStart = nUsedStart + 1;
 					rUsage.nEnd = nUsedEnd;
@@ -577,23 +566,23 @@ function parseAttackLine(sLine)
 					sUsage = sAbility;
 				end
 				table.insert(rPower.aAbilities, rUsage);
-				
+
 				rPower.sUsage = sUsage;
 				rPower.nUsageStart = rUsage.nStart;
 				rPower.nUsageEnd = rUsage.nEnd;
 			end
-			
+
 			nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nAbilityEnd + 1);
 		end
 	end
-	
+
 	return rPower;
 end
 
 function onNPCSummonPowerDataChanged(nodeRecord)
 	local rActor = ActorManager.resolveActor(nodeRecord);
 	CombatManager2.parseNPCPowers(rActor);
-	
+
 	local nodeCT = ActorManager.getCTNode(rActor);
 	if nodeCT then
 		DB.setValue(nodeCT, "hptotal", "number", DB.getValue(nodeCT, "hp", 0));
@@ -609,7 +598,7 @@ function resetInit()
 		DB.setValue(nodeCT, "initresult", "number", 0);
 		DB.setValue(nodeCT, "reaction", "number", 0);
 	end
-	CombatManager.callForEachCombatant(resetCombatantInit);
+	CombatManager.callForEachCombatant(CombatManager2.resetCombatantInit);
 end
 
 function resetHealth(nodeCT, bLong)
@@ -618,7 +607,7 @@ function resetHealth(nodeCT, bLong)
 		DB.setValue(nodeCT, "hptemp", "number", 0);
 		DB.setValue(nodeCT, "deathsavesuccess", "number", 0);
 		DB.setValue(nodeCT, "deathsavefail", "number", 0);
-		
+
 		local rActor = ActorManager.resolveActor(nodeCT);
 		EffectManager.removeCondition(rActor, "Stable");
 		EffectManager.removeCondition(rActor, "Unconscious");
@@ -637,10 +626,10 @@ function reduceExhaustion(nodeCT)
 end
 
 function clearExpiringEffects()
-	function checkEffectExpire(nodeEffect)
+	local function checkEffectExpire(nodeEffect)
 		local sLabel = DB.getValue(nodeEffect, "label", "");
 		local nDuration = DB.getValue(nodeEffect, "duration", 0);
-		
+
 		if nDuration ~= 0 or sLabel == "" then
 			DB.deleteNode(nodeEffect);
 		end
@@ -662,11 +651,23 @@ function rest(bLong)
 				bHandled = true;
 			end
 		end
-		
+
 		if not bHandled then
 			CombatManager2.resetHealth(v, bLong);
 		end
 	end
+end
+
+--
+-- INIT FUNCTIONS
+--
+
+function isInitSwapPlayerAllowed(nodeCT)
+	if not CombatManager.isOwnedPlayerCT(nodeCT) then
+		return false;
+	end
+	local _,sRecord = DB.getValue(nodeCT, "link", "", "");
+	return CharManager.hasFeat2024(DB.findNode(sRecord), CharManager.FEAT_ALERT);
 end
 
 function rollInit(sType)
@@ -684,7 +685,7 @@ function getEntryInitRecord(nodeEntry)
 
 	-- Start with the base initiative bonus
 	tInit.nMod = DB.getValue(nodeEntry, "init", 0);
-	
+
 	-- Get any effect modifiers
 	local rActor = ActorManager.resolveActor(nodeEntry);
 	local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = ActionInit.getEffectAdjustments(rActor);
@@ -732,7 +733,7 @@ function calcBattleXP(nodeBattle)
 
 	local nXP = 0;
 	for _, vNPCItem in ipairs(DB.getChildList(nodeBattle, sTargetNPCList)) do
-		local sClass, sRecord = DB.getValue(vNPCItem, "link", "", "");
+		local _,sRecord = DB.getValue(vNPCItem, "link", "", "");
 		if sRecord ~= "" then
 			local nodeNPC = DB.findNode(sRecord);
 			if nodeNPC then
@@ -743,10 +744,9 @@ function calcBattleXP(nodeBattle)
 			end
 		end
 	end
-	
+
 	DB.setValue(nodeBattle, "exp", "number", nXP);
 end
-	
 function calcBattleCR(nodeBattle)
 	CombatManager2.calcBattleXP(nodeBattle);
 
@@ -841,7 +841,6 @@ function addRightClickDiceToClauses(rRoll)
 			nOrigDamageDice = nOrigDamageDice + #vClause.dice;
 		end
 		if #rRoll.aDice > nOrigDamageDice then
-			local v = rRoll.clauses[#rRoll.clauses].dice;
 			for i = nOrigDamageDice + 1,#rRoll.aDice do
 				if type(rRoll.aDice[i]) == "table" then
 					table.insert(rRoll.clauses[1].dice, rRoll.aDice[i].type);

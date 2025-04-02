@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -14,7 +14,7 @@ function addPowerDB(nodeChar, sClass, sRecord, sGroup)
 	if not nodeChar then
 		return false;
 	end
-	
+
 	if StringManager.contains({ "reference_spell", "power", }, sClass) then
 		sGroup = CharPowerManager.resolveSpellDropPowerGroup(nodeChar, sGroup);
 	elseif StringManager.contains({ "reference_classfeature", "reference_racialtrait", "reference_feat", "ref_ability", }, sClass) then

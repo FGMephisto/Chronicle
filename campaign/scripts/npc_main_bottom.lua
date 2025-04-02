@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -17,9 +17,9 @@ function update()
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
 
 	-- NOTE: savingthrows/conditionimmunities are 2014 specific
-	local tFields = { 
+	local tFields = {
 		"savingthrows", "skills",
-		"damagevulnerabilities", "damageresistances", 
+		"damagevulnerabilities", "damageresistances",
 		"damageimmunities", "conditionimmunities",
 		"senses", "languages", "challengerating", "cr", "xp",
 	};

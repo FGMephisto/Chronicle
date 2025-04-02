@@ -105,7 +105,7 @@
 		<script>
 			function onModuleValueChanged()
 				super.onModuleValueChanged();
-				
+
 				local tAncestries = CharSpeciesManager.getAncestryOptions(shortcut.getTargetDatabaseNode());
 				if #tAncestries > 0 then
 					ancestries.closeAll();
@@ -138,7 +138,7 @@
 					<left parent="leftanchor" offset="120" />
 					<right parent="rightanchor" />
 				</anchored>
-				<columns width="150" fillwidth="true" />
+				<columns width="150" fillwidth="true" dynamic="true" />
 				<noscroll />
 				<class>list_entry_charwizard_speciesselection_ancestry</class>
 				<invisible />

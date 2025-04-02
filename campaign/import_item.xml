@@ -58,7 +58,7 @@
 				<anchored to="listdata" />
 				<target>listdata</target>
 			</scrollbar>		
-			
+
 			<simpleftc name="description">
 				<anchored to="contentarea" position="over" offset="-15,-15">
 					<left anchor="center" offset="15" />

@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -47,7 +47,7 @@ function setupD20RollMod(rRoll)
 	rRoll.tEffectDice = {};
 	rRoll.nEffectMod = 0;
 end
-function applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget)
+function applyAbilityEffectsToD20RollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
@@ -97,7 +97,7 @@ end
 
 function encodeDesktopMods(rRoll)
 	local nMod = 0;
-	
+
 	if ModifierManager.getKey("PLUS2") then
 		nMod = nMod + 2;
 	end
@@ -110,11 +110,11 @@ function encodeDesktopMods(rRoll)
 	if ModifierManager.getKey("MINUS5") then
 		nMod = nMod - 5;
 	end
-	
+
 	if nMod == 0 then
 		return;
 	end
-	
+
 	rRoll.nMod = rRoll.nMod + nMod;
 	rRoll.sDesc = rRoll.sDesc .. string.format(" [%+d]", nMod);
 end
@@ -146,6 +146,7 @@ function decodeAdvantage(rRoll)
 	local bDIS = string.match(rRoll.sDesc, "%[DIS%]");
 	if (bADV and not bDIS) or (bDIS and not bADV) then
 		if #(rRoll.aDice) > 1 then
+			local nDroppedDie;
 			if (bADV and not bDIS) then
 				if rRoll.aDice[1].result < rRoll.aDice[2].result then
 					local tTemp = rRoll.aDice[1];
@@ -211,7 +212,7 @@ function handleLuckTrait(rActor, rRoll)
 	end
 	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_trait_luck"));
 end
-function handleReliable(rActor, rRoll)
+function handleReliable(_, rRoll)
 	local bReliable = string.match(rRoll.sDesc or "", "%[" .. Interface.getString("roll_msg_feature_reliable") .. "%]");
 	if not bReliable then
 		return;
@@ -269,7 +270,7 @@ function handleElvenAccuracyFeatResolve(rRoll)
 			rRoll.aDice[3] = tTemp;
 			rRoll.aDice[3].type = "d" .. string.sub(rRoll.aDice[3].type, 2);
 		end
-		nDroppedDie = rRoll.aDice[3].result;
+		local nDroppedDie = rRoll.aDice[3].result;
 		rRoll.aDice[1].type = "g" .. string.sub(rRoll.aDice[1].type, 2);
 		rRoll.aDice[1].value = nil;
 		rRoll.aDice[3].value = nil;
@@ -289,7 +290,7 @@ function helperHandleMax(rRoll, kDie)
 	if not tDie then
 		return false;
 	end
-	local sSign, sColor, sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
+	local sSign,_,sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
 	if not sDieSides or (sSign == "-") then
 		return false;
 	end
@@ -304,7 +305,7 @@ function helperHandleMax(rRoll, kDie)
 	if nResult == tDie.result then
 		return false;
 	end
-	
+
 	tDie.result = nResult;
 	tDie.value = nil;
 	return true;
@@ -318,7 +319,7 @@ function helperHandleMinValue(rRoll, kDie, nMinValue)
 		return false;
 	end
 
-	local sSign, sColor, sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
+	local sSign,_,sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
 	if not sDieSides or (sDieSides == "F") or (sSign == "-") then
 		return false;
 	end
@@ -355,7 +356,7 @@ function helperHandleSingleReroll(rRoll, kDie, nTriggerLow)
 		return false;
 	end
 
-	local sSign, sColor, sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
+	local sSign,_,sDieSides = tDie.type:match("^([%-%+]?)([dDrRgGbBpP])([%dF]+)");
 	if not sDieSides or (sDieSides == "F") or (sSign == "-") then
 		return false;
 	end

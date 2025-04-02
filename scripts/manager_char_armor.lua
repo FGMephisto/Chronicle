@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -9,7 +9,7 @@ function addToArmorDB(nodeItem)
 		return;
 	end
 	local bIsShield = ItemManager.isShield(nodeItem);
-	
+
 	-- Determine whether to auto-equip armor
 	local bArmorAllowed = true;
 	local bShieldAllowed = true;
@@ -20,7 +20,7 @@ function addToArmorDB(nodeItem)
 	end
 	if CharManager.hasFeature(nodeChar, CharManager.FEATURE_UNARMORED_DEFENSE) then
 		bArmorAllowed = false;
-		
+
 		for _,v in ipairs(DB.getChildList(nodeChar, "classes")) do
 			local sClassName = StringManager.simplify(DB.getValue(v, "name", ""));
 			if (sClassName == CharManager.CLASS_BARBARIAN) then
@@ -58,7 +58,7 @@ function removeFromArmorDB(nodeItem)
 	if not ItemManager.isArmor(nodeItem) then
 		return;
 	end
-	
+
 	-- If this armor was worn, recalculate AC
 	if DB.getValue(nodeItem, "carried", 0) == 2 then
 		DB.setValue(nodeItem, "carried", "number", 1);
@@ -67,8 +67,8 @@ end
 
 function hasNaturalArmor(nodeChar)
 	return CharManager.hasFeat2014(nodeChar, CharManager.FEAT_DRAGON_HIDE) or
-		CharManager.hasTrait(nodeChar, CharManager.TRAIT_NATURAL_ARMOR) or 
-		CharManager.hasTrait(nodeChar, CharManager.TRAIT_ARMORED_CASING) or 
+		CharManager.hasTrait(nodeChar, CharManager.TRAIT_NATURAL_ARMOR) or
+		CharManager.hasTrait(nodeChar, CharManager.TRAIT_ARMORED_CASING) or
 		CharManager.hasTrait(nodeChar, CharManager.TRAIT_CHAMELEON_CARAPACE);
 end
 function isNaturalArmorTrait(s)
@@ -145,12 +145,12 @@ function calcItemArmorClass(nodeChar)
 	end
 
 	local bFeatMediumArmorMaster = CharManager.hasFeat(nodeChar, CharManager.FEAT_MEDIUM_ARMOR_MASTER);
-	
+
 	for _,vNode in ipairs(DB.getChildList(nodeChar, "inventorylist")) do
 		if DB.getValue(vNode, "carried", 0) == 2 then
 			if ItemManager.isArmor(vNode) then
 				local bID = LibraryData.getIDState("item", vNode, true);
-				
+
 				if ItemManager.isShield(vNode) then
 					if bID then
 						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
@@ -158,9 +158,7 @@ function calcItemArmorClass(nodeChar)
 						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0);
 					end
 				else
-					local bLightArmor = false;
 					local bMediumArmor = false;
-					local bHeavyArmor = false;
 					local sSubType = DB.getValue(vNode, "subtype", "");
 					if sSubType:lower():match("^heavy") then
 						bHeavyArmor = true;
@@ -169,13 +167,13 @@ function calcItemArmorClass(nodeChar)
 					else
 						bLightArmor = true;
 					end
-					
+
 					if bID then
 						nMainArmorTotal = nMainArmorTotal + (DB.getValue(vNode, "ac", 0) - 10) + DB.getValue(vNode, "bonus", 0);
 					else
 						nMainArmorTotal = nMainArmorTotal + (DB.getValue(vNode, "ac", 0) - 10);
 					end
-					
+
 					if sMainDexBonus ~= "no" then
 						local sItemDexBonus = DB.getValue(vNode, "dexbonus", ""):lower();
 						if sItemDexBonus:match("yes") then
@@ -199,16 +197,14 @@ function calcItemArmorClass(nodeChar)
 							sMainDexBonus = "no";
 						end
 					end
-					
+
 					local sItemStealth = DB.getValue(vNode, "stealth", ""):lower();
 					if sItemStealth == "disadvantage" then
-						if bFeatMediumArmorMaster and bMediumArmor then
-							-- NOTE: Do not apply stealth disadvantage from armor in this case
-						else
+						if not bFeatMediumArmorMaster or not bMediumArmor then
 							nMainStealthDis = 1;
 						end
 					end
-					
+
 					local nItemStrRequired = tonumber(DB.getValue(vNode, "strength", ""):match("(%d+)")) or 0;
 					if nItemStrRequired > 0 then
 						nMainStrRequired = math.max(nMainStrRequired, nItemStrRequired);
@@ -221,9 +217,9 @@ function calcItemArmorClass(nodeChar)
 	if CharManager.hasFeat2024(nodeChar, CharManager.FEAT_DEFENSE) and (nMainArmorTotal > 0) then
 		nMainArmorTotal = nMainArmorTotal + 1;
 	end
-	
+
 	nMainArmorTotal = math.max(nMainArmorTotal, nNaturalArmorTotal);
-	
+
 	DB.setValue(nodeChar, "defenses.ac.armor", "number", nMainArmorTotal);
 	DB.setValue(nodeChar, "defenses.ac.shield", "number", nMainShieldTotal);
 	DB.setValue(nodeChar, "defenses.ac.dexbonus", "string", sMainDexBonus);

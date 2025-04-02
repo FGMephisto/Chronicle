@@ -1,18 +1,18 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
 function onInit()
-	ActionsManager.registerModHandler("recovery", modRecovery);
-	ActionsManager.registerResultHandler("recovery", onRecovery);
+	ActionsManager.registerModHandler("recovery", ActionRecovery.modRecovery);
+	ActionsManager.registerResultHandler("recovery", ActionRecovery.onRecovery);
 end
 
 function performRoll(draginfo, rActor, nodeClass)
 	local rRoll = {};
 	rRoll.sType = "recovery";
 	rRoll.sClassNode = DB.getPath(nodeClass);
-	
+
 	rRoll.sDesc = "[RECOVERY]";
 	rRoll.aDice = {};
 	rRoll.nMod = 0;
@@ -21,7 +21,7 @@ function performRoll(draginfo, rActor, nodeClass)
 	if #aHDDice > 0 then
 		table.insert(rRoll.aDice, aHDDice[1]);
 	end
-	
+
 	local sAbility = "";
 	local sAbility2 = "";
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
@@ -47,15 +47,15 @@ function performRoll(draginfo, rActor, nodeClass)
 			rRoll.nMod = rRoll.nMod + ActorManager5E.getAbilityBonus(rActor, sAbility2);
 		end
 	end
-	
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function modRecovery(rSource, rTarget, rRoll)
+function modRecovery(rSource, _, rRoll)
 	local aAddDesc = {};
 	local aAddDice = {};
 	local nAddMod = 0;
-	
+
 	if rSource then
 		local bEffects = false;
 
@@ -73,7 +73,7 @@ function modRecovery(rSource, rTarget, rRoll)
 		if sModStat2 then
 			sActionStat2 = DataCommon.ability_stol[sModStat2];
 		end
-		
+
 		-- Determine ability modifiers
 		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, sActionStat);
 		if nBonusEffects > 0 then
@@ -87,14 +87,14 @@ function modRecovery(rSource, rTarget, rRoll)
 				nAddMod = nAddMod + nBonusStat2;
 			end
 		end
-		
+
 		-- If effects happened, then add note
 		if bEffects then
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
 			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
-	
+
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
@@ -109,13 +109,13 @@ function modRecovery(rSource, rTarget, rRoll)
 	rRoll.nMod = rRoll.nMod + nAddMod;
 end
 
-function onRecovery(rSource, rTarget, rRoll)
+function onRecovery(rSource, _, rRoll)
 	-- Get basic roll message and total
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	local nTotal = ActionsManager.total(rRoll);
 
 	-- Handle minimum damage
-	if nTotal < 0 and rRoll.aDice and #rRoll.aDice > 0 then
+	if nTotal < 0 and #(rRoll.aDice or {}) > 0 then
 		rMessage.text = rMessage.text .. " [MIN RECOVERY]";
 		rMessage.diemodifier = rMessage.diemodifier - nTotal;
 		nTotal = 0;
@@ -125,7 +125,6 @@ function onRecovery(rSource, rTarget, rRoll)
 		if nTotal < nDurableMin then
 			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - nTotal);
 			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - nTotal);
-			nTotal = nDurableMin;
 		else
 			rMessage.text = rMessage.text .. " [DURABLE]";
 		end
@@ -133,7 +132,7 @@ function onRecovery(rSource, rTarget, rRoll)
 
 	-- Deliver roll message
 	Comm.deliverChatMessage(rMessage);
-	
+
 	-- Apply recovery
 	if rRoll.sClassNode then
 		rMessage.text = rMessage.text .. " [NODE:" .. rRoll.sClassNode .. "]";

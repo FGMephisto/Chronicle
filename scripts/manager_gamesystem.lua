@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -35,7 +35,7 @@ targetactions = {
 	"effect"
 };
 
-currencies = { 
+currencies = {
 	{ name = "PP", weight = 0.02, value = 10 },
 	{ name = "GP", weight = 0.02, value = 1 },
 	{ name = "EP", weight = 0.02, value = 0.5 },
@@ -44,7 +44,7 @@ currencies = {
 };
 currencyDefault = "GP";
 
-function onInit()	
+function onInit()
 	CharEncumbranceManager.addStandardCalc();
 	CombatListManager.registerStandardInitSupport();
 	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
@@ -55,13 +55,13 @@ function onInit()
 	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
 	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
 
-	LocationManager.registerLocationType({ 
-		sKey = StringManager.simplify(Interface.getString("location_type_bastion")), 
-		sSub = "location_main_bastion", 
+	LocationManager.registerLocationType({
+		sKey = StringManager.simplify(Interface.getString("location_type_bastion")),
+		sSub = "location_main_bastion",
 	});
-	LocationManager.registerLocationType({ 
-		sKey = StringManager.simplify(Interface.getString("location_type_bastionfacility")), 
-		sSub = "location_main_bastionfacility", 
+	LocationManager.registerLocationType({
+		sKey = StringManager.simplify(Interface.getString("location_type_bastionfacility")),
+		sSub = "location_main_bastionfacility",
 	});
 
 	-- Languages

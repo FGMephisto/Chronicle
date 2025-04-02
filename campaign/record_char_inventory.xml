@@ -16,21 +16,13 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
-			<area_content_framed_groupbox_bottom name="area_controls">
-				<anchored height="20" />
-			</area_content_framed_groupbox_bottom>
-			<button_iedit name="sheet_iedit">
-				<anchored to="area_controls" position="insidetopright" offset="0,0" />
-				<edittarget>content</edittarget>
-			</button_iedit>
-
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_inventory_contents</class>
 			</sub_content_framed_groupbox>
 			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
-		
+
 	<windowclass name="charsheet_inventory_contents">
 		<margins control="0,0,0,2" />
 		<sheetdata>
@@ -53,6 +45,10 @@
 		<script>
 			function onInit()
 				self.updateAttunement();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "idelete_header", }, bReadOnly);
 			end
 			function onAttunementChanged()
 				self.updateAttunement();
@@ -62,7 +58,7 @@
 				local nUsed = CharAttunementManager.getUsedSlots(nodeChar);
 				local nAllowed = CharAttunementManager.getTotalSlots(nodeChar);
 				local sUsage = string.format("%d / %d", nUsed, nAllowed);
-				
+
 				attunecalc.setValue(sUsage);
 				if nUsed > nAllowed then
 					attunecalc.setColor(attunecalc.warning[1])
@@ -120,27 +116,25 @@
 
 			<anchor_list_content_label_left />
 			<anchor_list_content_label_right />
+			<spacer_list_content_idelete_label_left name="idelete_header" />
+			<spacer_list_content_link_label_left name="spacer_link" />
 			<label_list_content_number_left name="label_count">
 				<anchored width="20" />
 				<static>#</static>
 			</label_list_content_number_left>
-			<spacer_list_content_idelete_label_right name="idelete_header">
-				<editmode>sheet_iedit</editmode>
-			</spacer_list_content_idelete_label_right>
-			<spacer_list_content_link_label_right name="spacer_link" />
-			<icon_list_content_button_label_right name="label_carried">
+			<spacer_list_content_button_label_right name="label_carried">
 				<icon>char_inv_carried_header</icon>
 				<tooltip textres="char_tooltip_itemcarried" />
-			</icon_list_content_button_label_right>
+			</spacer_list_content_button_label_right>
 			<label_list_content_number_right name="label_weight">
 				<anchored width="30" />
 				<static textres="char_label_itemweight" />
 				<tooltip textres="char_tooltip_itemweight" />
 			</label_list_content_number_right>
-			<icon_list_content_button_label_right name="label_attuned">
+			<spacer_list_content_button_label_right name="label_attuned">
 				<icon>char_attuned</icon>
 				<tooltip textres="char_inventory_tooltip_attuned" />
-			</icon_list_content_button_label_right>
+			</spacer_list_content_button_label_right>
 			<label_list_content_string_noframe_right name="label_location">
 				<static textres="char_label_itemlocation" />
 			</label_list_content_string_noframe_right>
@@ -161,6 +155,10 @@
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
 
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>item</class>
+			</linkc_listitem_left>
 			<number_listitem_left name="count">
 				<anchored width="20" />
 				<tabtarget next="name" />
@@ -169,18 +167,7 @@
 				<min>0</min>
 			</number_listitem_left>
 
-			<button_listitem_idelete name="idelete">
-				<editmode>sheet_iedit</editmode>
-			</button_listitem_idelete>
-			<linkc_listitem_right name="shortcut">
-				<class>item</class>
-			</linkc_listitem_right>
-			<button_listitem_right name="carried">
-				<state icon="button_char_inv_none" tooltipres="char_tooltip_inv_none" merge="add" />
-				<state icon="button_char_inv_carried" tooltipres="char_tooltip_inv_carried" merge="add" />
-				<state icon="button_char_inv_equipped" tooltipres="char_tooltip_inv_equipped" merge="add" />
-				<default>1</default>
-			</button_listitem_right>
+			<button_listitem_carried_right name="carried" />
 			<number_listitem_right name="weight">
 				<anchored width="30" />
 				<nodrag />
@@ -189,7 +176,9 @@
 				<delaykeyupdate />
 				<tabtarget prev="location" />
 			</number_listitem_right>
-			<button_listitem_checkbox_right name="attune" />
+			<button_listitem_checkbox_right name="attune">
+				<anchored width="20" />
+			</button_listitem_checkbox_right>
 			<stringc_listitem_right_noframe_static name="attune_na">
 				<anchored width="14" />
 				<static text="-" />
@@ -221,6 +210,9 @@
 		<sizelimits>
 			<minimum width="400" height="145" />
 		</sizelimits>
+		<windowmenu>
+			<nolock />
+		</windowmenu>
 		<script>
 			function onInit()
 				OptionsManager.registerCallback("HRAS", onBaseSlotsChanged);
@@ -290,6 +282,14 @@
 
 	<windowclass name="charsheet_inventory_currencies">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -333,25 +333,24 @@
 					end
 				</script>
 			</list_content_noscroll_top>
-
-			<stringu_content_noframe_noscroll_top name="coinother">
-				<anchored>
-					<left offset="10" />
-					<right offset="-10" />
-				</anchored>
-			</stringu_content_noframe_noscroll_top>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="char_currencyitem">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+				--WindowManager.callSafeControlsSetLockMode(self, { "amount", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
 
-			<button_listitem_idelete name="idelete">
-				<editmode>sheet_iedit</editmode>
-			</button_listitem_idelete>
-
+			<button_listitem_idelete_left name="idelete" />
 			<number_dropadd_listitem_left name="amount">
 				<anchored width="50" />
 				<description field="name" />

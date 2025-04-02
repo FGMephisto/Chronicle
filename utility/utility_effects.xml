@@ -8,7 +8,7 @@
 <root>
 	<windowclass name="effectsmall" merge="join">
 		<sheetdata>
-			<button_effect_apply name="apply" insertbefore="rightanchor" />
+			<button_effect_apply name="apply" />
 
 			<button_effect_units name="unit" insertbefore="duration" />
 		</sheetdata>

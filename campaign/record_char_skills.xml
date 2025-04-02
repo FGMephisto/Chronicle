@@ -22,14 +22,6 @@
 			<anchor_content_top />
 			<anchor_content_bottom />
 
-			<area_content_framed_groupbox_bottom name="area_controls">
-				<anchored height="20" />
-			</area_content_framed_groupbox_bottom>
-			<button_iedit name="sheet_iedit">
-				<anchored to="area_controls" position="insidetopright" offset="0,0" />
-				<edittarget>content</edittarget>
-			</button_iedit>
-
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_skills_contents</class>
 			</sub_content_framed_groupbox>
@@ -39,6 +31,14 @@
 
 	<windowclass name="charsheet_skills_contents">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "idelete_header", }, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -75,14 +75,14 @@
 
 			<anchor_list_content_label_left />
 			<anchor_list_content_label_right />
-			<spacer_list_content_idelete_label_right name="idelete_header">
-				<editmode>sheet_iedit</editmode>
-			</spacer_list_content_idelete_label_right>
-			<spacer_list_content_link_label_right name="spacer_link" />
+			<spacer_list_content_idelete_label_left name="idelete_header" />
+			<spacer_list_content_link_label_left name="spacer_link" />
+			<spacer_list_content_button_label_left name="spacer_prof" />
 			<label_list_content_number_right name="label_total">
 				<anchored width="40" />
 				<static textres="char_label_skilltotal" />
 			</label_list_content_number_right>
+			<spacer_list_content_button_label_right name="spacer_roll" />
 			<spacer_list_content_label_right name="spacer">
 				<anchored width="10" />
 			</spacer_list_content_label_right>
@@ -106,22 +106,35 @@
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
 
-			<button_skillprof name="prof">
-				<tabtarget next="name" />
-			</button_skillprof>
+			<button_listitem_idelete_left name="idelete" />
+			<button_listitem_idelete_spacer_left name="idelete_spacer" />
 
-			<button_listitem_idelete name="idelete" />
-			<button_listitem_idelete_spacer name="idelete_spacer" />
-			<button_listitem_right name="shortcut">
+			<button_listitem_left name="shortcut">
 				<icon normal="button_link" pressed="button_link_down" />
 				<script>
 					function onButtonPress()
 						window.openSkillLink();
 					end
 				</script>
-			</button_listitem_right>
+			</button_listitem_left>
+
+			<button_skillprof name="prof">
+				<tabtarget next="name" />
+			</button_skillprof>
 
 			<number_charskilltotal name="total" />
+
+			<button_listitem_roll_right name="button_roll">
+				<script>
+					function onDragStart(button, x, y, draginfo)
+						return window.action(draginfo);
+					end
+					function onButtonPress()
+						return window.action();
+					end
+				</script>
+			</button_listitem_roll_right>
+
 			<spacer_listitem_right name="spacer">
 				<anchored width="10" />
 			</spacer_listitem_right>

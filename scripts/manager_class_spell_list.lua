@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -16,7 +16,7 @@ function onClose()
 	end
 end
 
--- NOTE: 
+-- NOTE:
 --		Most spell list names are simply words, with optional parentheses.
 --		The original code used a simplify function that stripped out the extra characters.
 --		However, the name keys are used to generate XML tags, so must be XML tag encoded.
@@ -72,13 +72,13 @@ end
 local _tSpellRecords = {};
 
 function addSpellRecordHandlers()
-	function addSpellHandlerHelper(sMapping)
+	local function addSpellHandlerHelper(sMapping)
 		local sPath = DB.getPath(sMapping);
 		local sChildPath = sPath .. ".*@*";
-		DB.addHandler(sChildPath, "onAdd", onSpellAdded);
-		DB.addHandler(sChildPath, "onDelete", onSpellDeleted);
-		DB.addHandler(DB.getPath(sChildPath, "name"), "onUpdate", onSpellNameChange);
-		DB.addHandler(DB.getPath(sChildPath, "source"), "onUpdate", onSpellSourceChange);
+		DB.addHandler(sChildPath, "onAdd", ClassSpellListManager.onSpellAdded);
+		DB.addHandler(sChildPath, "onDelete", ClassSpellListManager.onSpellDeleted);
+		DB.addHandler(DB.getPath(sChildPath, "name"), "onUpdate", ClassSpellListManager.onSpellNameChange);
+		DB.addHandler(DB.getPath(sChildPath, "source"), "onUpdate", ClassSpellListManager.onSpellSourceChange);
 	end
 
 	local vNodes = LibraryData.getMappings("spell");
@@ -87,13 +87,13 @@ function addSpellRecordHandlers()
 	end
 end
 function removeSpellRecordHandlers()
-	function removeSpellHandlerHelper(sMapping)
+	local function removeSpellHandlerHelper(sMapping)
 		local sPath = DB.getPath(sMapping);
 		local sChildPath = sPath .. ".*@*";
-		DB.removeHandler(sChildPath, "onAdd", onSpellAdded);
-		DB.removeHandler(sChildPath, "onDelete", onSpellDeleted);
-		DB.removeHandler(DB.getPath(sChildPath, "name"), "onUpdate", onSpellNameChange);
-		DB.removeHandler(DB.getPath(sChildPath, "source"), "onUpdate", onSpellSourceChange);
+		DB.removeHandler(sChildPath, "onAdd", ClassSpellListManager.onSpellAdded);
+		DB.removeHandler(sChildPath, "onDelete", ClassSpellListManager.onSpellDeleted);
+		DB.removeHandler(DB.getPath(sChildPath, "name"), "onUpdate", ClassSpellListManager.onSpellNameChange);
+		DB.removeHandler(DB.getPath(sChildPath, "source"), "onUpdate", ClassSpellListManager.onSpellSourceChange);
 	end
 
 	local vNodes = LibraryData.getMappings("spell");
@@ -104,7 +104,7 @@ end
 
 function rebuildSpellRecords()
 	_tSpellRecords = {};
-	RecordManager.callForEachRecord("spell", helperAddSpellRecord);
+	RecordManager.callForEachRecord("spell", ClassSpellListManager.helperAddSpellRecord);
 
 	ClassSpellListManager.onClassSpellListUpdate();
 end
@@ -130,7 +130,7 @@ end
 function helperAddSpellRecord(nodeSpell)
 	local rRecord = {};
 	rRecord.vNode = nodeSpell;
-	
+
 	ClassSpellListManager.helperUpdateSpellName(nodeSpell, rRecord);
 	ClassSpellListManager.helperUpdateSpellSources(nodeSpell, rRecord);
 
@@ -176,7 +176,7 @@ end
 local _tClassSpellListRecords = {};
 
 function addClassSpellListRecordHandlers()
-	function addClassSpellListHandlerHelper(sMapping)
+	local function addClassSpellListHandlerHelper(sMapping)
 		local sPath = DB.getPath(sMapping);
 		local sChildPath = sPath .. ".*@*";
 		DB.addHandler(sChildPath, "onAdd", ClassSpellListManager.onClassSpellListAdded);
@@ -194,7 +194,7 @@ function addClassSpellListRecordHandlers()
 	end
 end
 function removeClassSpellListRecordHandlers()
-	function removeClassSpellListHandlerHelper(sMapping)
+	local function removeClassSpellListHandlerHelper(sMapping)
 		local sPath = DB.getPath(sMapping);
 		local sChildPath = sPath .. ".*@*";
 		DB.removeHandler(sChildPath, "onAdd", ClassSpellListManager.onClassSpellListAdded);
@@ -214,7 +214,7 @@ end
 
 function rebuildClassSpellListRecords()
 	_tClassSpellListRecords = {};
-	RecordManager.callForEachRecord("class_spell_list", helperAddClassSpellListRecord);
+	RecordManager.callForEachRecord("class_spell_list", ClassSpellListManager.helperAddClassSpellListRecord);
 
 	ClassSpellListManager.onClassSpellListUpdate();
 end
@@ -245,7 +245,7 @@ end
 function helperAddClassSpellListRecord(vNode)
 	local rRecord = {};
 	rRecord.vNode = vNode;
-	
+
 	ClassSpellListManager.helperUpdateClassSpellListName(vNode, rRecord);
 	ClassSpellListManager.helperUpdateClassSpellListItems(vNode, rRecord);
 
@@ -321,7 +321,7 @@ function rebuildClassSpellLists()
 	end
 
 	-- Build information from class spell list records
-	for nodeClassSpellList, vClassSpellListRecord in pairs(_tClassSpellListRecords) do
+	for _,vClassSpellListRecord in pairs(_tClassSpellListRecords) do
 		local sClassKey = ClassSpellListManager.generateNameKey(vClassSpellListRecord.sDisplayName);
 		if not tTempClasses[sClassKey] then
 			tTempClasses[sClassKey] = { sName = vClassSpellListRecord.sDisplayName, tSpellKeySet = {} };

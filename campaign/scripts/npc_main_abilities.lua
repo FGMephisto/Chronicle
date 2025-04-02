@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -10,9 +10,9 @@ end
 function update()
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
-	local tFields = { 
-		"strength", "dexterity", "constitution", 
-		"intelligence", "wisdom", "charisma", 
+	local tFields = {
+		"strength", "dexterity", "constitution",
+		"intelligence", "wisdom", "charisma",
 	};
 	WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 
@@ -25,7 +25,7 @@ function updateVehicleAbilities(bReadOnly)
 		return;
 	end
 
-	local bShow = not bReadOnly or 
+	local bShow = not bReadOnly or
 			((strength.getValue() ~= 10) or (constitution.getValue() ~= 10) or (dexterity.getValue() ~= 10) or
 			(intelligence.getValue() ~= 0) or (wisdom.getValue() ~= 0) or (charisma.getValue() ~= 0));
 	parentcontrol.setVisible(bShow);

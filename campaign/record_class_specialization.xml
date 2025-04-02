@@ -23,12 +23,6 @@
 			<class>reference_class_specialization_main</class>
 			<embed />
 		</tab>
-		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
-		</script>
 		<sheetdata>
 			<sub_record_version name="sub_version" />
 		</sheetdata>
@@ -38,12 +32,9 @@
 	<windowclass name="reference_class_specialization_main">
 		<script>
 			function onInit()
-				self.update();
+				self.onVersionChanged();
 			end
 			function onVersionChanged()
-				self.update();
-			end
-			function update()
 				local nodeRecord = getDatabaseNode();
 				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
 				if bIs2024 then
@@ -51,7 +42,6 @@
 				else
 					sub_content.setValue("reference_class_specialization_main_2014", nodeRecord);
 				end
-				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -63,16 +53,11 @@
 		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
-				self.update();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				local tControls = {
-					"class",
-					"features",
-					"featurechoices",
-				};
-				WindowManager.callSafeControlsUpdate(self, tControls, bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "class", "features_iadd", "featurechoices_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
@@ -118,12 +103,8 @@
 			<header_content_framed_headersimple name="features_header">
 				<static textres="class_header_features"/>
 			</header_content_framed_headersimple>
-			<button_iedit name="features_iedit">
-				<anchored to="features_header" position="insidetopright" offset="2,0" />
-				<edittarget>features</edittarget>
-			</button_iedit>
 			<button_iadd name="features_iadd">
-				<anchored to="features_header" position="insidetopright" offset="22,0" />
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
 				<target>features</target>
 			</button_iadd>
 			<list_content_column name="features">
@@ -135,12 +116,8 @@
 			<header_content_framed_headersimple name="featurechoices_header">
 				<static textres="class_header_featurechoices"/>
 			</header_content_framed_headersimple>
-			<button_iedit name="featurechoices_iedit">
-				<anchored to="featurechoices_header" position="insidetopright" offset="2,0" />
-				<edittarget>featurechoices</edittarget>
-			</button_iedit>
 			<button_iadd name="featurechoices_iadd">
-				<anchored to="featurechoices_header" position="insidetopright" offset="22,0" />
+				<anchored to="featurechoices_header" position="insidetopright" offset="2,0" />
 				<target>featurechoices</target>
 			</button_iadd>
 			<list_content_column name="featurechoices">
@@ -154,12 +131,11 @@
 		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
-				self.update();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
-				WindowManager.callSafeControlUpdate(self, "class", bReadOnly);
-				WindowManager.callSafeControlUpdate(self, "list", bReadOnly);
+			function onLockModeChanged(bReadOnly)
+				local tControls = { "class", "features_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tControls, bReadOnly);
 			end
 			function onDrop(x, y, draginfo)
 				if draginfo.isType("shortcut") then
@@ -191,12 +167,8 @@
 			<header_content_framed_headersimple name="features_header">
 				<static textres="class_header_features"/>
 			</header_content_framed_headersimple>
-			<button_iedit name="features_iedit">
-				<anchored to="features_header" position="insidetopright" offset="2,0" />
-				<edittarget>features</edittarget>
-			</button_iedit>
 			<button_iadd name="features_iadd">
-				<anchored to="features_header" position="insidetopright" offset="22,0" />
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
 				<target>features</target>
 			</button_iadd>
 			<list_content_column name="features">

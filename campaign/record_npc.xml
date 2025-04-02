@@ -31,10 +31,6 @@
 			<embed />
 		</tab>
 		<script>
-			function onStateChanged()
-				super.onStateChanged();
-				sub_version.subwindow.update();
-			end
 			function onIDChanged()
 				super.onIDChanged();
 				if not Session.IsHost then
@@ -78,7 +74,7 @@
 		<script file="campaign/scripts/npc_main.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<sub_content_column name="sub_top">
 				<class>npc_combat_top_2024</class>
 			</sub_content_column>
@@ -88,11 +84,11 @@
 			<sub_content_column name="sub_abilities">
 				<class>npc_combat_abilities_2024</class>
 			</sub_content_column>
-			
+
 			<sub_content_column name="sub_bottom">
 				<class>npc_combat_bottom_2024</class>
 			</sub_content_column>
-			
+
 			<sub_content_column name="sub_action">
 				<class>npc_combat_actions</class>
 			</sub_content_column>
@@ -103,7 +99,7 @@
 		<script file="campaign/scripts/npc_main.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<sub_content_column name="sub_top">
 				<class>npc_combat_top_2014</class>
 			</sub_content_column>
@@ -111,11 +107,11 @@
 			<sub_content_column name="sub_abilities">
 				<class>npc_combat_abilities_2014</class>
 			</sub_content_column>
-			
+
 			<sub_content_column name="sub_bottom">
 				<class>npc_combat_bottom_2014</class>
 			</sub_content_column>
-			
+
 			<sub_content_column name="sub_action">
 				<class>npc_combat_actions</class>
 			</sub_content_column>
@@ -300,7 +296,7 @@
 					end
 				</script>
 			</number_content_base>
-			
+
 			<line_content_top name="divider" />
 		</sheetdata>
 	</windowclass>
@@ -326,14 +322,14 @@
 			</hn>
 
 			<anchor_content_top />
-			
+
 			<sub_content_hidden_top name="sub_summary_fields">
 				<class>npc_combat_summary_fields</class>
 			</sub_content_hidden_top>
 			<summary_content_column name="summary" />
-			
+
 			<line_content_top />
-			
+
 			<label_content_column name="ac_label">
 				<static textres="armorclass" />
 			</label_content_column>
@@ -374,14 +370,14 @@
 		<script file="campaign/scripts/npc_main_top.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<sub_content_hidden_top name="sub_summary_fields">
 				<class>npc_combat_summary_fields</class>
 			</sub_content_hidden_top>
 			<summary_content_column name="summary" />
-			
+
 			<line_content_top />
-			
+
 			<label_content_column name="ac_label">
 				<static textres="armorclass" />
 			</label_content_column>
@@ -427,7 +423,7 @@
 					end
 				</script>
 			</string_content_columnh>
-			
+
 			<label_content_column name="type_label">
 				<static textres="npc_label_type" />
 			</label_content_column>
@@ -439,7 +435,7 @@
 					end
 				</script>
 			</string_content_columnh>
-			
+
 			<label_content_column name="alignment_label">
 				<static textres="npc_label_alignment" />
 			</label_content_column>
@@ -667,7 +663,7 @@
 				<anchored to="strength" />
 				<target>strength</target>
 			</button_npcabilitysave>
-			
+
 			<number_npc_abilityscore name="dexterity" source="abilities.dexterity.score">
 				<anchored to="strength" width="40" height="30" merge="replace">
 					<top />
@@ -800,29 +796,29 @@
 		<script file="campaign/scripts/npc_main_bottom.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<label_content_column name="skills_label">
 				<static textres="npc_label_skills" />
 			</label_content_column>
 			<string_content_columnh_multiroll name="skills" >
 				<script file="campaign/scripts/npc_skill.lua" />
 			</string_content_columnh_multiroll>
-			
+
 			<label_content_column name="damagevulnerabilities_label">
 				<static textres="npc_label_vulnerabilities" />
 			</label_content_column>
 			<string_content_columnh name="damagevulnerabilities" />
-			
+
 			<label_content_column name="damageresistances_label">
 				<static textres="npc_label_resistances" />
 			</label_content_column>
 			<string_content_columnh name="damageresistances" />
-			
+
 			<label_content_column name="damageimmunities_label">
 				<static textres="npc_label_immunities" />
 			</label_content_column>
 			<string_content_columnh name="damageimmunities" />
-						
+
 			<!--
 			<label_column name="gear_label">
 				<static textres="npc_label_gear" />
@@ -836,12 +832,12 @@
 			<string_content_columnh name="senses">
 				<delaykeyupdate />
 			</string_content_columnh>
-			
+
 			<label_content_column name="languages_label">
 				<static textres="npc_label_languages" />
 			</label_content_column>
 			<string_content_columnh name="languages" />
-			
+
 			<label_content_column name="cr_label">
 				<static textres="npc_label_challenge" />
 			</label_content_column>
@@ -857,7 +853,7 @@
 					end
 				</script>
 			</string_content_column>
-			
+
 			<label name="profbonus_label">
 				<anchored to="cr">
 					<top />
@@ -873,7 +869,7 @@
 				</anchored>
 				<displaysign />
 			</numberc_static>
-			
+
 			<label_content_column_right name="xp_label">
 				<static textres="xp" />
 			</label_content_column_right>
@@ -885,55 +881,55 @@
 		<script file="campaign/scripts/npc_main_bottom.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<label_content_column name="savingthrows_label">
 				<static textres="npc_label_savingthrows" />
 			</label_content_column>
 			<string_content_columnh name="savingthrows" />
-			
+
 			<label_content_column name="skills_label">
 				<static textres="npc_label_skills" />
 			</label_content_column>
 			<string_content_columnh_multiroll name="skills" >
 				<script file="campaign/scripts/npc_skill.lua" />
 			</string_content_columnh_multiroll>
-			
+
 			<label_content_column name="damagevulnerabilities_label">
 				<static textres="npc_label_damagevulnerabilities" />
 				<tooltip textres="npc_tooltip_damagevulnerabilities" />
 			</label_content_column>
 			<string_content_columnh name="damagevulnerabilities" />
-			
+
 			<label_content_column name="damageresistances_label">
 				<static textres="npc_label_damageresistances" />
 				<tooltip textres="npc_tooltip_damageresistances" />
 			</label_content_column>
 			<string_content_columnh name="damageresistances" />
-			
+
 			<label_content_column name="damageimmunities_label">
 				<static textres="npc_label_damageimmunities" />
 				<tooltip textres="npc_tooltip_damageimmunities" />
 			</label_content_column>
 			<string_content_columnh name="damageimmunities" />
-			
+
 			<label_content_column name="conditionimmunities_label">
 				<static textres="npc_label_conditionimmunities" />
 				<tooltip textres="npc_tooltip_conditionimmunities" />
 			</label_content_column>
 			<string_content_columnh name="conditionimmunities" />
-						
+
 			<label_content_column name="senses_label">
 				<static textres="npc_label_senses" />
 			</label_content_column>
 			<string_content_columnh name="senses">
 				<delaykeyupdate />
 			</string_content_columnh>
-			
+
 			<label_content_column name="languages_label">
 				<static textres="npc_label_languages" />
 			</label_content_column>
 			<string_content_columnh name="languages" />
-			
+
 			<label_content_column name="cr_label">
 				<static textres="npc_label_challenge" />
 			</label_content_column>
@@ -949,7 +945,7 @@
 					end
 				</script>
 			</string_content_column>
-			
+
 			<label name="profbonus_label">
 				<anchored to="cr">
 					<top />
@@ -965,7 +961,7 @@
 				</anchored>
 				<displaysign />
 			</numberc_static>
-			
+
 			<label_content_column_right name="xp_label">
 				<static textres="xp" />
 			</label_content_column_right>
@@ -978,7 +974,7 @@
 		<script file="campaign/scripts/npc_main_action.lua" />
 		<sheetdata>
 			<anchor_content_top />
-			
+
 			<header_content_framed_headersimple name="traits_header">
 				<static textres="npc_header_traits"/>
 			</header_content_framed_headersimple>
@@ -994,7 +990,7 @@
 				<datasource>.traits</datasource>
 				<class>npc_power</class>
 			</list_npcactions>
-			
+
 			<header_content_framed_headersimple name="actions_header">
 				<static textres="npc_header_actions" />
 			</header_content_framed_headersimple>
@@ -1206,29 +1202,16 @@
 			end
 		</script>
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored height="0" width="0">
-					<top />
-					<right />
-				</anchored>
-			</genericcontrol>
-			<button_idelete name="idelete">
-				<anchored>
-					<top offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
-				</anchored>
-			</button_idelete>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
 
-			<stringfield name="name">
-				<anchored position="insidetopleft" offset="5,2">
-					<right parent="rightanchor" anchor="left" relation="relative" offset="-5" />
-				</anchored>
+			<button_listitem_idelete_left name="idelete" />
+
+			<string_listitem_center_bold name="name">
 				<frame name="rowshade" offset="5,2,5,2" />
-				<font>sheetlabel</font>
-				<multilinespacing>20</multilinespacing>
 				<empty textres="npc_empty_powername" />
-			</stringfield>
-			
+			</string_listitem_center_bold>
+
 			<basicstring name="desc">
 				<anchored to="name" position="belowleft" offset="0,5">
 					<right parent="" offset="-5" />
