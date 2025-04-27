@@ -1,15 +1,14 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
 --
 
--- ToDo: Change to show injuries and wounds on Token
--- Adjusted
+-- Adjusted - ToDo: Change to show injuries and wounds on Token
 function onInit()
+	-- TokenManager.addDefaultHealthFeatures(nil, {"hptotal", "hptemp", "wounds", "deathsavefail"});
 	TokenManager.addDefaultHealthFeatures(nil, {"hptotal", "injuires", "trauma", "wounds"});
-	
-	TokenManager.addEffectTagIconConditional("IF", handleIFEffectTag);
+	TokenManager.addEffectTagIconConditional("IF", TokenManager2.handleIFEffectTag);
 	TokenManager.addEffectTagIconSimple("IFT", "");
 	TokenManager.addEffectTagIconBonus(DataCommon.bonuscomps);
 	TokenManager.addEffectTagIconSimple(DataCommon.othercomps);

@@ -21,7 +21,7 @@ function update()
 		"savingthrows", "skills",
 		"damagevulnerabilities", "damageresistances",
 		"damageimmunities", "conditionimmunities",
-		"senses", "languages", "challengerating", "cr", "xp",
+		"gear", "senses", "languages", "challengerating", "cr", "xp",
 	};
 	WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
 end

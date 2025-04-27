@@ -164,7 +164,7 @@ function applySave(rSource, rOrigin, rAction, _)
 	local sAttack = "";
 	local bHalfMatch = false;
 	if rAction.sSaveDesc then
-		sAttack = rAction.sSaveDesc:match("%[SAVE VS[^]]*%] ([^[]+)") or "";
+		sAttack = ActionCore.decodeLabelText(rAction.sSaveDesc, "action_savevs_tag");
 		bHalfMatch = (rAction.sSaveDesc:match("%[HALF ON SAVE%]") ~= nil);
 	end
 	rAction.sResult = "";
@@ -223,8 +223,7 @@ end
 function setupRollBuild(rRoll, rActor, sSave)
 	local sAddText;
 	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getSave(rActor, sSave);
-	table.insert(rRoll.tNotifications, "[SAVE]");
-	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSave));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSave, }, "action_save_tag"));
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
 	end
@@ -266,10 +265,7 @@ end
 
 function setupRollMod(rRoll)
 	if rRoll.sType == "save" then
-		rRoll.sSave = rRoll.sDesc:match("%[SAVE%] (%w+)");
-		if rRoll.sSave then
-			rRoll.sSave = rRoll.sSave:lower();
-		end
+		rRoll.sSave = ActionCore.decodeLabelText(rRoll.sDesc, "action_save_tag"):lower();
 		rRoll.sAbility = rRoll.sSave;
 
 		-- Check cover for dexterity saves
@@ -596,15 +592,12 @@ function onSystemShockResultRoll(rSource, _, rRoll)
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rSource);
-	if not nodeActor then
-		return;
-	end
+	local nodeActor = ActorManager.getCreatureNode(rSource);
 	local nodeCT = ActorManager.getCTNode(rSource)
 	local nTotal = ActionsManager.total(rRoll);
 
 	if (nTotal <= 1) then
-		if sNodeType == "pc" then
+		if ActorManager.isPC(rSource) then
 			DB.setValue(nodeActor, "hp.wounds", "number", DB.getValue(nodeActor, "hp.total", 0));
 		else
 			DB.setValue(nodeActor, "wounds", "number", DB.getValue(nodeActor, "hptotal", 0));
@@ -615,7 +608,7 @@ function onSystemShockResultRoll(rSource, _, rRoll)
 		rMessage.text = rMessage.text .. " -> [DROPPED TO ZERO]";
 
 	elseif ((nTotal == 2) or (nTotal == 3)) then
-		if sNodeType == "pc" then
+		if ActorManager.isPC(rSource) then
 			DB.setValue(nodeActor, "hp.wounds", "number", DB.getValue(nodeActor, "hp.total", 0));
 		else
 			DB.setValue(nodeActor, "wounds", "number", DB.getValue(nodeActor, "hptotal", 0));
@@ -679,19 +672,23 @@ function onDeathRoll(rSource, _, rRoll)
 		local bStatusCheck = true;
 		local sOriginalStatus = ActorHealthManager.getHealthStatus(rSource);
 
-		local sSuccessField, sFailField;
-		local sSourceNodeType, nodeSource = ActorManager.getTypeAndNode(rSource);
+		local nodeSource;
+		if ActorManager.isPC(rSource) then
+			nodeSource = ActorManager.getCreatureNode(rSource);
+		else
+			nodeSource = ActorManager.getCTNode(rSource);
+		end
 		if not nodeSource then
 			return;
 		end
-		if sSourceNodeType == "pc" then
+
+		local sSuccessField, sFailField;
+		if ActorManager.isPC(rSource) then
 			sSuccessField = "hp.deathsavesuccess";
 			sFailField = "hp.deathsavefail";
-		elseif sSourceNodeType == "ct" then
+		else
 			sSuccessField = "deathsavesuccess";
 			sFailField = "deathsavefail";
-		else
-			return;
 		end
 
 		local nFirstDie = 0;
@@ -711,7 +708,13 @@ function onDeathRoll(rSource, _, rRoll)
 		elseif nFirstDie == 20 then
 			rMessage.text = rMessage.text .. " [CRITICAL SUCCESS]";
 
-			ActionDamage.applyDamage(nil, rSource, { bSecret = rRoll.bSecret, sType = "heal", sDesc = "[HEAL]", nTotal = 1 });
+			local rCritHealRoll = {
+				sType = "heal",
+				bSecret = rRoll.bSecret,
+				sDesc = string.format("[%s]", Interface.getString("action_heal_tag")),
+				nTotal = 1,
+			};
+			ActionDamage.applyDamage(nil, rSource, rCritHealRoll);
 			bStatusCheck = false;
 		elseif nTotal >= 10 then
 			rMessage.text = rMessage.text .. " [SUCCESS]";

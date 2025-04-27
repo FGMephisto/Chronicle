@@ -17,72 +17,6 @@
 		</genericcontrol>
 	</template>
 	
-	<windowclass name="power_item_header">
-		<margins control="0,0,0,2" />
-		<script>
-			function onInit()
-				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
-			end
-			function onLockModeChanged(bReadOnly)
-				WindowManager.callSafeControlsSetLockMode(self, { "name", }, bReadOnly);
-			end
-		</script>
-		<sheetdata>
-			<anchor_listitem_left_sm />
-			<anchor_listitem_right_sm />
-
-			<spacer_listitem_left name="blank">
-				<anchored width="24" />
-			</spacer_listitem_left>
-			<icon_usepower name="usepower">
-				<anchored to="leftanchor">
-					<top />
-					<left relation="relative" offset="2" postoffset="2" />
-				</anchored>
-				<invisible />
-			</icon_usepower>
-			<buttongroup_counter_power name="counter">
-				<anchored to="leftanchor">
-					<top />
-					<left relation="relative" offset="5" postoffset="5" />
-				</anchored>
-				<invisible />
-			</buttongroup_counter_power>
-			<button_checkbox name="preparedcheck" source="prepared">
-				<anchored to="leftanchor" width="20" height="20">
-					<top />
-					<left relation="relative" offset="5" postoffset="5" />
-				</anchored>
-				<invisible />
-			</button_checkbox>
-			<basicnumber name="prepared">
-				<anchored to="leftanchor" width="30" height="20">
-					<top />
-					<left relation="relative" offset="5" postoffset="5" />
-				</anchored>
-				<min>0</min>
-				<tooltip textres="power_tooltip_prepared" />
-				<invisible />
-			</basicnumber>
-			<cycler_power_useperiod name="usesperiod">
-				<anchored to="leftanchor">
-					<top />
-					<left relation="relative" offset="5" postoffset="5" />
-				</anchored>
-				<invisible />
-			</cycler_power_useperiod>
-
-			<string_poweritem_header_name name="name">
-				<empty textres="library_recordtype_empty_spell" />
-			</string_poweritem_header_name>
-
-			<string_poweritem_header name="group">
-				<tooltip textres="power_tooltip_group" />
-			</string_poweritem_header>
-			<list_poweraction_mini name="actionsmini" />
-		</sheetdata>
-	</windowclass>
-
 	<template name="power_slots_list">
 		<windowlist>
 			<class>power_slot_cast</class>
@@ -521,6 +455,71 @@
 		<sheetdata>
 			<hs name="group" />
 			<hn name="level" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_item_header">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<spacer_listitem_left name="blank">
+				<anchored width="24" />
+			</spacer_listitem_left>
+			<icon_usepower name="usepower">
+				<anchored to="leftanchor">
+					<top />
+					<left relation="relative" offset="2" postoffset="2" />
+				</anchored>
+				<invisible />
+			</icon_usepower>
+			<buttongroup_counter_power name="counter">
+				<anchored to="leftanchor">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<invisible />
+			</buttongroup_counter_power>
+			<button_checkbox name="preparedcheck" source="prepared">
+				<anchored to="leftanchor" width="20" height="20">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<invisible />
+			</button_checkbox>
+			<basicnumber name="prepared">
+				<anchored to="leftanchor" width="30" height="20">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<min>0</min>
+				<tooltip textres="power_tooltip_prepared" />
+				<invisible />
+			</basicnumber>
+			<cycler_power_useperiod name="usesperiod">
+				<anchored to="leftanchor">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<invisible />
+			</cycler_power_useperiod>
+
+			<string_poweritem_header_name name="name">
+				<empty textres="library_recordtype_empty_spell" />
+			</string_poweritem_header_name>
+
+			<string_poweritem_header name="group">
+				<tooltip textres="power_tooltip_group" />
+			</string_poweritem_header>
+			<list_poweraction_mini name="actionsmini" />
 		</sheetdata>
 	</windowclass>
 

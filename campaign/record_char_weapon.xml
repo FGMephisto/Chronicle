@@ -332,7 +332,7 @@
 	</windowclass>
 
 	<windowclass name="char_weapon_damage_entry">
-		<margins control="0,0,0,5" />
+		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />

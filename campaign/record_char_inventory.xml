@@ -109,7 +109,6 @@
 			<list_content_labeled_alternating_top name="list">
 				<datasource>.inventorylist</datasource>
 				<class>char_invitem</class>
-				<allowcreate />
 				<allowdelete />
 				<script file="campaign/scripts/char_invlist.lua" />
 			</list_content_labeled_alternating_top>
@@ -184,25 +183,25 @@
 				<static text="-" />
 				<center />
 			</stringc_listitem_right_noframe_static>
-			<string_listitem_right_text name="location">
+			<string_listitem_right_underline name="location">
 				<nodrop />
 				<delaykeyupdate merge="delete" />
 				<tabtarget next="weight" prev="nonid_name" />
 				<script file="campaign/scripts/char_invloc.lua" />
-			</string_listitem_right_text>
+			</string_listitem_right_underline>
 
-			<string_listitem_center_text name="name">
+			<string_listitem_center_underline name="name">
 				<nodrop />
 				<tabtarget next="nonid_name" prev="count" />
 				<script file="campaign/scripts/char_invname.lua" />
-			</string_listitem_center_text>
-			<string_listitem_center_text name="nonid_name">
+			</string_listitem_center_underline>
+			<string_listitem_center_underline name="nonid_name">
 				<nodrop />
 				<empty textres="library_recordtype_empty_nonid_item" />
 				<invisible />
 				<tabtarget next="location" prev="name" />
 				<script file="campaign/scripts/char_invname.lua" />
-			</string_listitem_center_text>
+			</string_listitem_center_underline>
 		</sheetdata>
 	</windowclass>
 
@@ -319,7 +318,6 @@
 				</anchored>
 				<class>char_currencyitem</class>
 				<datasource>.coins</datasource>
-				<allowdelete />
 				<columns width="150" fillwidth="true" />
 				<script>
 					function onInit()
@@ -357,9 +355,9 @@
 				<delaykeyupdate />
 			</number_dropadd_listitem_left>
 
-			<string_listitem_center_text name="name">
+			<string_listitem_center_underline name="name">
 				<nodrag />
-			</string_listitem_center_text>
+			</string_listitem_center_underline>
 		</sheetdata>
 	</windowclass>
 

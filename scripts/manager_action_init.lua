@@ -61,7 +61,7 @@ end
 --
 
 function setupRollBuild(rRoll, rActor)
-	table.insert(rRoll.tNotifications, "[INIT]");
+	table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("action_init_tag")));
 
 	-- Determine the modifier and ability to use for this roll
 	local nodeActor = ActorManager.getCreatureNode(rActor);

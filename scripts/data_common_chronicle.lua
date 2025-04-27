@@ -6,12 +6,6 @@
 
 -- Abilities (database names)
 abilities = {
-	-- "strength",
-	-- "dexterity",
-	-- "constitution",
-	-- "intelligence",
-	-- "wisdom",
-	-- "charisma"
 	"agility",
 	"animalhandling",
 	"athletics",
@@ -33,13 +27,8 @@ abilities = {
 	"will"
 };
 
+-- Abilities - Match full name to shorthand
 ability_ltos = {
-	-- ["strength"] = "STR",
-	-- ["dexterity"] = "DEX",
-	-- ["constitution"] = "CON",
-	-- ["intelligence"] = "INT",
-	-- ["wisdom"] = "WIS",
-	-- ["charisma"] = "CHA"
 	["agility"] = "AGI",
 	["animalhandling"] ="ANI",
 	["athletics"] = "ATH",
@@ -61,13 +50,8 @@ ability_ltos = {
 	["will"] = "WIL"
 };
 
+-- Abilities - Match shorthand to full name
 ability_stol = {
-	-- ["STR"] = "strength",
-	-- ["DEX"] = "dexterity",
-	-- ["CON"] = "constitution",
-	-- ["INT"] = "intelligence",
-	-- ["WIS"] = "wisdom",
-	-- ["CHA"] = "charisma"
 	["AGI"] = "agility",
 	["ANI"] = "animalhandling",
 	["ATH"] = "athletics",
@@ -87,23 +71,6 @@ ability_stol = {
 	["THI"] = "thievery",
 	["WAR"] = "warfare",
 	["WIL"] = "will"
-};
-
--- Basic class values (not display values)
-classes = {
-	-- "artificer",
-	-- "barbarian",
-	-- "bard",
-	-- "cleric",
-	-- "druid",
-	-- "fighter",
-	-- "monk",
-	-- "paladin",
-	-- "ranger",
-	-- "rogue",
-	-- "sorcerer",
-	-- "warlock",
-	-- "wizard",
 };
 
 -- Values for wound comparison
@@ -168,7 +135,7 @@ creaturetype = {
 	-- "elemental",
 	-- "fey",
 	-- "fiend",
-	-- "giant",
+	"giant",
 	"humanoid",
 	-- "monstrosity",
 	-- "ooze",
@@ -180,14 +147,14 @@ creaturesubtype = {
 	-- "living construct",
 	-- "aarakocra",
 	-- "bullywug",
-	"demon",
+	-- "demon",
 	-- "devil",
 	-- "dragonborn",
 	"dwarf",
-	"elf", 
+	"elf",
 	-- "gith",
 	-- "gnoll",
-	-- "gnome", 
+	-- "gnome",
 	-- "goblinoid",
 	-- "grimlock",
 	-- "halfling",
@@ -206,7 +173,7 @@ creaturesubtype = {
 	-- "troglodyte",
 	-- "yuan-ti",
 	-- "yugoloth",
-	"ogre"
+	"troll"
 };
 
 -- Values supported in effect conditionals
@@ -216,23 +183,24 @@ conditionaltags = {
 -- Conditions supported in effect conditionals and for token widgets
 -- (Also shown in Effects window)
 conditions = {
-	"blinded", 
+	"blinded",
 	-- "charmed",
 	-- "cursed",
 	"deafened",
 	"encumbered",
-	"frightened", 
-	"grappled", 
+	"frightened",
+	"grappled",
 	"incapacitated",
 	"intoxicated",
-	"invisible", 
+	"invisible",
 	"paralyzed",
-	"petrified",
+	-- "petrified",
 	"poisoned",
-	"prone", 
+	"prone",
 	"restrained",
-	-- "stable", 
+	"stable",
 	"stunned",
+	"surprised",
 	-- "turned",
 	"unconscious"
 };
@@ -275,10 +243,10 @@ bonuscomps = {
 	"DEF"
 };
 
--- Condition effect types for token widgets
+-- Condition effect types for token widgets, i.e. icon displayed
 condcomps = {
 	["blinded"] = "cond_blinded",
-	["charmed"] = "cond_charmed",
+	-- ["charmed"] = "cond_charmed",
 	["deafened"] = "cond_deafened",
 	["encumbered"] = "cond_encumbered",
 	["frightened"] = "cond_frightened",
@@ -290,8 +258,11 @@ condcomps = {
 	["prone"] = "cond_prone",
 	["restrained"] = "cond_restrained",
 	["stunned"] = "cond_stunned",
-	["turned"] = "cond_frightened",
+	["surprised"] = "cond_disadvantage",
+	-- ["turned"] = "cond_frightened",
 	["unconscious"] = "cond_unconscious",
+	["intoxicated"] = "cond_intoxicated",
+
 	-- Similar to conditions
 	["cover"] = "cond_cover",
 	["scover"] = "cond_cover",
@@ -366,7 +337,7 @@ rangetypes = {
 
 -- Damage types supported
 dmgtypes = {
-	-- "acid",		-- ENERGY TYPES
+	"acid",		-- ENERGY TYPES
 	"cold",
 	"fire",
 	-- "force",
@@ -379,7 +350,7 @@ dmgtypes = {
 	-- "adamantine", 	-- WEAPON PROPERTY DAMAGE TYPES
 	"bludgeoning",
 	-- "cold-forged iron",
-	-- "magic",
+	"magic",
 	"piercing",
 	-- "silver",
 	"slashing",
@@ -387,30 +358,31 @@ dmgtypes = {
 };
 
 specialdmgtypes = {
-	"critical",
+	-- "critical",
 };
 
 -- Bonus types supported in power descriptions
 bonustypes = {
 };
+
 stackablebonustypes = {
 };
 
 function onInit()
 	-- Classes
 	class_nametovalue = {
-		-- [Interface.getString("class_value_artificer")] = "artificer",
-		-- [Interface.getString("class_value_bard")] = "bard",
-		-- [Interface.getString("class_value_cleric")] = "cleric",
-		-- [Interface.getString("class_value_druid")] = "druid",
-		-- [Interface.getString("class_value_fighter")] = "fighter",
-		-- [Interface.getString("class_value_monk")] = "monk",
-		-- [Interface.getString("class_value_paladin")] = "paladin",
-		-- [Interface.getString("class_value_ranger")] = "ranger",
-		-- [Interface.getString("class_value_rogue")] = "rogue",
-		-- [Interface.getString("class_value_sorcerer")] = "sorcerer",
-		-- [Interface.getString("class_value_warlock")] = "warlock",
-		-- [Interface.getString("class_value_wizard")] = "wizard",
+		[Interface.getString("class_value_artificer")] = "artificer",
+		[Interface.getString("class_value_bard")] = "bard",
+		[Interface.getString("class_value_cleric")] = "cleric",
+		[Interface.getString("class_value_druid")] = "druid",
+		[Interface.getString("class_value_fighter")] = "fighter",
+		[Interface.getString("class_value_monk")] = "monk",
+		[Interface.getString("class_value_paladin")] = "paladin",
+		[Interface.getString("class_value_ranger")] = "ranger",
+		[Interface.getString("class_value_rogue")] = "rogue",
+		[Interface.getString("class_value_sorcerer")] = "sorcerer",
+		[Interface.getString("class_value_warlock")] = "warlock",
+		[Interface.getString("class_value_wizard")] = "wizard",
 	};
 
 	class_valuetoname = {
@@ -431,24 +403,6 @@ function onInit()
 
 	-- Skills
 	skilldata = {
-		-- [Interface.getString("skill_value_acrobatics")] = { stat = 'dexterity' },
-		-- [Interface.getString("skill_value_animalhandling")] = { stat = 'wisdom' },
-		-- [Interface.getString("skill_value_arcana")] = { stat = 'intelligence' },
-		-- [Interface.getString("skill_value_athletics")] = { stat = 'strength' },
-		-- [Interface.getString("skill_value_deception")] = { stat = 'charisma' },
-		-- [Interface.getString("skill_value_history")] = { stat = 'intelligence' },
-		-- [Interface.getString("skill_value_insight")] = { stat = 'wisdom' },
-		-- [Interface.getString("skill_value_intimidation")] = { stat = 'charisma' },
-		-- [Interface.getString("skill_value_investigation")] = { stat = 'intelligence' },
-		-- [Interface.getString("skill_value_medicine")] = { stat = 'wisdom' },
-		-- [Interface.getString("skill_value_nature")] = { stat = 'intelligence' },
-		-- [Interface.getString("skill_value_perception")] = { stat = 'wisdom' },
-		-- [Interface.getString("skill_value_performance")] = { stat = 'charisma' },
-		-- [Interface.getString("skill_value_persuasion")] = { stat = 'charisma' },
-		-- [Interface.getString("skill_value_religion")] = { stat = 'intelligence' },
-		-- [Interface.getString("skill_value_sleightofhand")] = { stat = 'dexterity' },
-		-- [Interface.getString("skill_value_stealth")] = { stat = 'dexterity', disarmorstealth = 1 },
-		-- [Interface.getString("skill_value_survival")] = { stat = 'wisdom' },
 		[Interface.getString("skill_value_acrobatics")] = { stat = "agility", disarmorstealth = 1 },
 		[Interface.getString("skill_value_act")] = { stat = "deception" },
 		[Interface.getString("skill_value_axes")] = { stat = "fighting" },
@@ -523,36 +477,8 @@ function onInit()
 		[Interface.getString("skill_value_treatinjury")] = { stat = "healing" },
 	};
 
-	skillgroups = {
-		["agility"] = { groupid = "102", icon = "button_skills_social", color = "554E6A64" },
-		["animalhandling"] = { groupid = "104", icon = "button_skills_social", color = "554E6A64" },
-		["athletics"] = { groupid = "106", icon = "button_skills_social", color = "554E6A64" },
-		["awareness"] = { groupid = "108", icon = "button_skills_social", color = "554E6A64" },
-		["cunning"] = { groupid = "110", icon = "button_skills_social", color = "554E6A64" },
-		["deception"] = { groupid = "112", icon = "button_skills_social", color = "554E6A64" },
-		["endurance"] = { groupid = "114", icon = "button_skills_social", color = "554E6A64" },
-		["fighting"] = { groupid = "116", icon = "button_skills_social", color = "554E6A64" },
-		["healing"] = { groupid = "118", icon = "button_skills_social", color = "554E6A64" },
-		["language"] = { groupid = "120", icon = "button_skills_social", color = "554E6A64" },
-		["knowledge"] = { groupid = "122", icon = "button_skills_social", color = "554E6A64" },
-		["marksmanship"] = { groupid = "124", icon = "button_skills_social", color = "554E6A64" },
-		["persuasion"] = { groupid = "126", icon = "button_skills_social", color = "554E6A64" },
-		["status"] = { groupid = "128", icon = "button_skills_social", color = "554E6A64" },
-		["stealth"] = { groupid = "130", icon = "button_skills_social", color = "554E6A64" },
-		["survival"] = { groupid = "132", icon = "button_skills_social", color = "554E6A64" },
-		["thievery"] = { groupid = "134", icon = "button_skills_social", color = "554E6A64" },
-		["warfare"] = { groupid = "136", icon = "button_skills_social", color = "554E6A64" },
-		["will"] = { groupid = "138", icon = "button_skills_social", color = "554E6A64" },
-	};
-
-	-- Party sheet drop down list data
+	-- Party sheet drop down abilities list data
 	psabilitydata = {
-		-- Interface.getString("strength"),
-		-- Interface.getString("dexterity"),
-		-- Interface.getString("constitution"),
-		-- Interface.getString("intelligence"),
-		-- Interface.getString("wisdom"),
-		-- Interface.getString("charisma"),
 		Interface.getString("agility"),
 		Interface.getString("animalhandling"),
 		Interface.getString("athletics"),
@@ -576,24 +502,6 @@ function onInit()
 
 	-- Party sheet drop down list data
 	psskilldata = {
-		-- Interface.getString("skill_value_acrobatics"),
-		-- Interface.getString("skill_value_animalhandling"),
-		-- Interface.getString("skill_value_arcana"),
-		-- Interface.getString("skill_value_athletics"),
-		-- Interface.getString("skill_value_deception"),
-		-- Interface.getString("skill_value_history"),
-		-- Interface.getString("skill_value_insight"),
-		-- Interface.getString("skill_value_intimidation"),
-		-- Interface.getString("skill_value_investigation"),
-		-- Interface.getString("skill_value_medicine"),
-		-- Interface.getString("skill_value_nature"),
-		-- Interface.getString("skill_value_perception"),
-		-- Interface.getString("skill_value_performance"),
-		-- Interface.getString("skill_value_persuasion"),
-		-- Interface.getString("skill_value_religion"),
-		-- Interface.getString("skill_value_sleightofhand"),
-		-- Interface.getString("skill_value_stealth"),
-		-- Interface.getString("skill_value_survival"),
 		Interface.getString("skill_value_acrobatics"),
 		Interface.getString("skill_value_balance"),
 		Interface.getString("skill_value_contortions"),
@@ -668,38 +576,18 @@ function onInit()
 		Interface.getString("skill_value_dedication")
 	};
 
-	--------------------------------
-	-- Added Ruleset specific data
-	--------------------------------
-	-- Abilities
-	abilitydata = {
-		[Interface.getString("abilities_value_agility")] = { group = "" },
-		[Interface.getString("abilities_value_animalhandling")] = { group = "" },
-		[Interface.getString("abilities_value_athletics")] = { group = "" },
-		[Interface.getString("abilities_value_awareness")] = { group = "" },
-		[Interface.getString("abilities_value_cunning")] = { group = "" },
-		[Interface.getString("abilities_value_deception")] = { group = "" },
-		[Interface.getString("abilities_value_endurance")] = { group = "" },
-		[Interface.getString("abilities_value_fighting")] = { group = "" },
-		[Interface.getString("abilities_value_healing")] = { group = "" },
-		[Interface.getString("abilities_value_language")] = { group = "" },
-		[Interface.getString("abilities_value_knowledge")] = { group = "" },
-		[Interface.getString("abilities_value_marksmanship")] = { group = "" },
-		[Interface.getString("abilities_value_persuasion")] = { group = "" },
-		[Interface.getString("abilities_value_status")] = { group = "" },
-		[Interface.getString("abilities_value_stealth")] = { group = "" },
-		[Interface.getString("abilities_value_survival")] = { group = "" },
-		[Interface.getString("abilities_value_thievery")] = { group = "" },
-		[Interface.getString("abilities_value_warfare")] = { group = "" },
-		[Interface.getString("abilities_value_will")] = { group = "" },
+	-- Added
+	-- Weapon grade list data
+	wpngradedata = {
+		"Common",
+		"Superior",
+		"Extraordinary",
+		"Poor"
 	};
 
-	abilitygroups = {
-
-	};
-
-	-- Weapon data
-	weaponskilldata = {
+	-- Added
+	-- Weapon skill list data
+	wpnskilldata = {
 		"None",
 		Interface.getString("skill_value_axes"),
 		Interface.getString("skill_value_bludgeons"),
@@ -716,14 +604,9 @@ function onInit()
 		Interface.getString("skill_value_thrown"),
 	};
 
-	weapongrade = {
-		"Common",
-		"Superior",
-		"Extraordinary",
-		"Poor"
-	};
-
-	weapondmgability = {
+	-- Added
+	-- Weapon damage abilities list data
+	wpndmgabilitydata = {
 		Interface.getString("agility"),
 		Interface.getString("athletics"),
 		Interface.getString("animalhandling"),

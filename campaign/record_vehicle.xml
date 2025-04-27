@@ -438,6 +438,7 @@
 					<right parent="" offset="-5" />
 				</anchored>
 				<multilinespacing>20</multilinespacing>
+				<nodragselect />
 				<script file="campaign/scripts/string_powerdesc.lua" />
 			</basicstring>
 		</sheetdata>

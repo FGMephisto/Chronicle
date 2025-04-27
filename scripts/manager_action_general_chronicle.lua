@@ -4,13 +4,18 @@
 -- File adjusted for Chronicle System
 --
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	ActionsManager.registerModHandler("dice", modRoll);
 	ActionsManager.registerResultHandler("dice", onRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: modRoll in manager_action_general")
 	rRoll.rActor = rSource
 	rRoll.nTest = #rRoll.aDice
 	rRoll.nBonus = 0
@@ -18,22 +23,20 @@ function modRoll(rSource, rTarget, rRoll)
 
 	-- Get Desktop modifications
 	ActionsManager2.encodeDesktopMods(rRoll);
-	
-	-- if #(rRoll.aDice) == 1 and rRoll.aDice[1].type == "d20" then
-		-- ActionsManager2.encodeAdvantage(rRoll);
-	-- end
 
 	-- Set maximum Bonus and Penalty Dice
 	rRoll = ActionResult.capDice(rRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
-	ActionsManager2.decodeAdvantage(rRoll);
+	-- Debug.chat("FN: onRoll in manager_action_general")
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
 end

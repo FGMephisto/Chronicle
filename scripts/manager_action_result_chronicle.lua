@@ -4,7 +4,8 @@
 -- File adjusted for Chronicle System
 --
 
--- Added
+-- ===================================================================================================================
+-- ===================================================================================================================
 function capDice(rRoll)
 	-- Debug.chat("FN: alignDice in manager_action_result")
 	rRoll.nTest = tonumber(rRoll.nTest)
@@ -49,14 +50,10 @@ function capDice(rRoll)
 	return rRoll
 end
 
--- Added
+-- ===================================================================================================================
+-- ===================================================================================================================
 function DropDice(rRoll)
 	-- Debug.chat("FN: DropDice in manager_action_result")
-	
-	-- Prevent errors if generic dices are thrown
-	if rRoll.nBonus == nil then  rRoll.nBonus = 0 end;
-	if rRoll.nPenalty == nil then  rRoll.nPenalty = 0 end;
-	
 	rRoll.nBonus = tonumber(rRoll.nBonus)
 	rRoll.nPenalty = tonumber(rRoll.nPenalty)
 	local nDiceDrop = rRoll.nBonus + rRoll.nPenalty
@@ -100,8 +97,9 @@ function DropDice(rRoll)
 	return rRoll
 end
 
--- Added
+-- ===================================================================================================================
 -- Determine degrees of success
+-- ===================================================================================================================
 function DetermineSuccessTest(rMessage, rRoll)
 	-- Debug.chat("FN: DetermineSuccessTest in manager_action_result")
 	local nTarget = tonumber(rRoll.nTarget) or 0
@@ -136,8 +134,9 @@ function DetermineSuccessTest(rMessage, rRoll)
 	return rMessage, rRoll
 end
 
--- Added
+-- ===================================================================================================================
 -- Determine degrees of attack
+-- ===================================================================================================================
 function DetermineSuccessAttack(rMessage, rRoll)
 	-- Debug.chat("FN: DetermineSuccessAttack in manager_action_result")
 	local nTarget = tonumber(rRoll.nDefenseVal) or 0
@@ -145,30 +144,44 @@ function DetermineSuccessAttack(rMessage, rRoll)
 
 	rMessage.text = rMessage.text .. " (vs. " .. Interface.getString("dc_long") .. " " .. nTarget .. ")"
 
+	-- ToDo: Make table.insert work with Interface.getString
+	-- Why use table.insert?
 	if nTotal >= nTarget then
 		if nTotal >= nTarget +15 then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("success_attack_degree_4") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("success_attack_degree_4") .. "]"")
 			table.insert(rRoll.aMessages, "[HIT (4 Degrees)]")
 			rRoll.sResult = "hit"
 			rRoll.nDoS = 4
 		elseif nTotal >= nTarget +10 then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("success_attack_degree_3") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("success_attack_degree_4") .. "]")
 			table.insert(rRoll.aMessages, "[HIT (3 Degrees)]")
 			rRoll.sResult = "hit"
 			rRoll.nDoS = 3
 		elseif nTotal >= nTarget +5 then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("success_attack_degree_2") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("success_attack_degree_4") .. "]")
 			table.insert(rRoll.aMessages, "[HIT (2 Degrees)]")
 			rRoll.sResult = "hit"
 			rRoll.nDoS = 2
 		elseif nTotal >= nTarget then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("success_attack_degree_1") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("success_attack_degree_4") .. "]")
 			table.insert(rRoll.aMessages, "[HIT (1 Degrees)]")
 			rRoll.sResult = "hit"
 			rRoll.nDoS = 1
 		end
 	else
 		if nTotal < nTarget -4 then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("failure_attack_degree_2") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("failure_attack_degree_2") .. "]")
 			table.insert(rRoll.aMessages, "[Miss]")
 			rRoll.sResult = "miss"
 			rRoll.nDoS = 1
 		elseif nTotal < nTarget then
+			-- rMessage.text = rMessage.text .. " [" .. Interface.getString("failure_attack_degree_1") .. "]"
+			-- table.insert(rRoll.aMessages, " [" .. Interface.getString("failure_attack_degree_1") .. "]")
 			table.insert(rRoll.aMessages, "[Miss]")
 			rRoll.sResult = "miss"
 			rRoll.nDoS = 1

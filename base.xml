@@ -7,7 +7,7 @@
 -->
 
 <root version="3.0" release="10" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2025-01-03) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+	<announcement text="Chronicle System ruleset (v2025-05-01) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>
@@ -19,28 +19,28 @@
 
 	<!-- Layers -->
 	<importruleset source="CoreRPG" />
-	
+
 	<!-- Tabletop settings -->
 	<includefile source="gameelements.xml" />
 
 	<!-- Graphics -->
-	<includefile source="graphics/graphics_fonts.xml" />
 	<includefile source="graphics/graphics_icons_chronicle.xml" />
 	<includefile source="graphics/graphics_buttons_chronicle.xml" />
 
 	<!-- Strings -->
-	<includefile source="strings/strings_chronicle.xml" />
+	<includefile source="strings/strings_5e.xml" />
 	<!-- <includefile source="strings/strings_5E_char_build.xml" /> -->
+	<includefile source="strings/strings_chronicle.xml" />
 
 	<!-- Desktop -->
 	<script name="Desktop5E" file="scripts/data_desktop_chronicle.lua" />
 	<script name="LibraryData5E" file="scripts/data_library_chronicle.lua" />
 	<script name="Options5E" file="scripts/data_options_chronicle.lua" />
 	<includefile source="desktop/desktop_classes_chronicle.xml" />
-	
+
 	<!-- Utility -->
 	<includefile source="utility/utility_effects.xml" />
-	
+
 	<!-- Reference -->
 	<includefile source="ref/ref_equipment_list.xml" />
 	<includefile source="ref/ref_feat_list.xml" />
@@ -67,7 +67,7 @@
 	<includefile source="campaign/record_itemtemplate.xml" />
 	<includefile source="campaign/record_location.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
-	<includefile source="campaign/record_quest_chronicle.xml" />
+	<includefile source="campaign/record_quest.xml" />
 	<includefile source="campaign/record_vehicle.xml" />
 
 	<includefile source="campaign/record_ability.xml" />
@@ -83,7 +83,7 @@
 	<includefile source="campaign/record_race.xml" />
 	<includefile source="campaign/record_race_subrace.xml" />
 	<includefile source="campaign/record_skill_chronicle.xml" />
-	
+
 	<!-- Import Windows -->
 	<!-- <includefile source="campaign/import_npc.xml" /> -->
 	<!-- <includefile source="campaign/import_race.xml" /> -->
@@ -131,6 +131,7 @@
 	<includefile source="ps/template_ps.xml" />
 	<includefile source="ps/ps_main_chronicle.xml" />
 	<includefile source="ps/ps_xp.xml" />
+	<!-- <includefile source="ps/ps_bastion.xml" /> -->
 
 	<!-- High-level scripts -->
 	<script name="DataCommon" file="scripts/data_common_chronicle.lua" />
@@ -159,6 +160,7 @@
 	<script name="CharArmorManager" file="scripts/manager_char_armor_chronicle.lua" />
 	<script name="CharAttunementManager" file="scripts/manager_char_attunement.lua" />
 	<script name="CharBackgroundManager" file="scripts/manager_char_background.lua" />
+	<!-- <script name="CharBastionManager" file="scripts/manager_char_bastion.lua" /> -->
 	<script name="CharBuildManager" file="scripts/manager_char_build.lua" />
 	<script name="CharBuildDropManager" file="scripts/manager_char_build_drop.lua" />
 	<script name="CharClassManager" file="scripts/manager_char_class.lua" />

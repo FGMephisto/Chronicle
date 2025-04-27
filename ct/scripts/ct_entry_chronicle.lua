@@ -27,7 +27,6 @@ function linkPCFields()
 	super.linkPCFields();
 
 	local nodeChar = link.getTargetDatabaseNode();
-
 	if nodeChar then
 		-- senses.setLink(DB.createChild(nodeChar, "senses", "string"), true);
 

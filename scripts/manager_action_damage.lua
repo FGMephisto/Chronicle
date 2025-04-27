@@ -347,9 +347,9 @@ function applyCriticalToModRoll(rRoll, rSource, _)
 	end
 	if nMaxSides > 0 then
 		local nCritDice = 0;
-		if rRoll.bWeapon then
-			local sSourceNodeType, nodeSource = ActorManager.getTypeAndNode(rSource);
-			if nodeSource and (sSourceNodeType == "pc") then
+		if rRoll.bWeapon and ActorManager.isPC(rSource) then
+			local nodeSource = ActorManager.getCreatureNode(rSource);
+			if nodeSource then
 				if rRoll.sRange == "R" then
 					nCritDice = DB.getValue(nodeSource, "weapon.critdicebonus.ranged", 0);
 				else
@@ -997,26 +997,31 @@ function decodeDamageText(nDamage, sDamageDesc)
 end
 
 function applyDamage(rSource, rTarget, rRoll)
-	local sTargetNodeType, nodeTarget = ActorManager.getTypeAndNode(rTarget);
+	local nodeTarget;
+	if ActorManager.isPC(rTarget) then
+		nodeTarget = ActorManager.getCreatureNode(rTarget);
+	else
+		nodeTarget = ActorManager.getCTNode(rTarget);
+	end
 	if not nodeTarget then
 		return;
 	end
 
 	-- Get health fields
 	local nTotalHP, nTempHP, nWounds, nDeathSaveSuccess, nDeathSaveFail;
-	if sTargetNodeType == "pc" then
+	if ActorManager.isPC(rTarget) then
 		nTotalHP = DB.getValue(nodeTarget, "hp.total", 0);
 		nTempHP = DB.getValue(nodeTarget, "hp.temporary", 0);
 		nWounds = DB.getValue(nodeTarget, "hp.wounds", 0);
 		nDeathSaveSuccess = DB.getValue(nodeTarget, "hp.deathsavesuccess", 0);
 		nDeathSaveFail = DB.getValue(nodeTarget, "hp.deathsavefail", 0);
-	elseif sTargetNodeType == "ct" and ActorManager.isRecordType(rTarget, "npc") then
+	elseif ActorManager.isRecordType(rTarget, "npc") then
 		nTotalHP = DB.getValue(nodeTarget, "hptotal", 0);
 		nTempHP = DB.getValue(nodeTarget, "hptemp", 0);
 		nWounds = DB.getValue(nodeTarget, "wounds", 0);
 		nDeathSaveSuccess = DB.getValue(nodeTarget, "deathsavesuccess", 0);
 		nDeathSaveFail = DB.getValue(nodeTarget, "deathsavefail", 0);
-	elseif sTargetNodeType == "ct" and ActorManager.isRecordType(rTarget, "vehicle") then
+	elseif ActorManager.isRecordType(rTarget, "vehicle") then
 		if (rRoll.sSubtargetPath or "") ~= "" then
 			nTotalHP = DB.getValue(DB.getPath(rRoll.sSubtargetPath, "hp"), 0);
 			nWounds = DB.getValue(DB.getPath(rRoll.sSubtargetPath, "wounds"), 0);
@@ -1053,7 +1058,7 @@ function applyDamage(rSource, rTarget, rRoll)
 			local nClassHDMult = 0;
 			local nClassHDUsed = 0;
 			local sClassNode = rRoll.sDesc:match("%[NODE:([^]]+)%]");
-			if (sTargetNodeType == "pc") and sClassNode then
+			if ActorManager.isPC(rTarget) and sClassNode then
 				local nodeClass = DB.findNode(sClassNode);
 				if nodeClass then
 					nClassHD = DB.getValue(nodeClass, "level", 0);
@@ -1082,7 +1087,7 @@ function applyDamage(rSource, rTarget, rRoll)
 				rDamageOutput.sVal = string.format("%01d", nWoundHealAmount);
 
 				-- Decrement HD used
-				if (sTargetNodeType == "pc") and sClassNode then
+				if ActorManager.isPC(rTarget) and sClassNode then
 					local nodeClass = DB.findNode(sClassNode);
 					if nodeClass then
 						DB.setValue(nodeClass, "hdused", "number", nClassHDUsed + 1);
@@ -1289,7 +1294,7 @@ function applyDamage(rSource, rTarget, rRoll)
 	end
 
 	-- Set health fields
-	if sTargetNodeType == "pc" then
+	if ActorManager.isPC(rTarget) then
 		DB.setValue(nodeTarget, "hp.deathsavesuccess", "number", math.min(nDeathSaveSuccess, 3));
 		DB.setValue(nodeTarget, "hp.deathsavefail", "number", math.min(nDeathSaveFail, 3));
 		DB.setValue(nodeTarget, "hp.temporary", "number", nTempHP);

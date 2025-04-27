@@ -28,14 +28,12 @@ function onInit()
 	end
 end
 
-function onClickDown(button, x, y)
+function onClickDown()
 	return true;
 end
-function onClickRelease(button, x, y)
-	if button == 1 then
-		Interface.openRadialMenu();
-		return true;
-	end
+function onClickRelease()
+	Interface.openContextMenu();
+	return true;
 end
 
 -- Adjusted

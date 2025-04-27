@@ -4,18 +4,24 @@
 -- File adjusted for Chronicle System
 --
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	ActionsManager.registerModHandler("check", modRoll);
 	ActionsManager.registerResultHandler("check", onRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function performPartySheetRoll(draginfo, rActor, sCheck)
-	local rRoll = getRoll(rActor, sCheck:lower());
-	
+	-- Debug.chat("FN: performPartySheetRoll in manager_action_check")
+	local rRoll = getRoll(rActor, sCheck);
+
 	local nTargetDC = DB.getValue("partysheet.checkdc", 0);
 
 	rRoll.nTarget = nTargetDC;
+
 	if DB.getValue("partysheet.hiderollresults", 0) == 1 then
 		rRoll.bSecret = true;
 		rRoll.bTower = true;
@@ -24,16 +30,27 @@ function performPartySheetRoll(draginfo, rActor, sCheck)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
+	-- Debug.chat("FN: performRoll in manager_action_check")
 	local rRoll = getRoll(rActor, sCheck, nTargetDC, bSecretRoll);
-	
+
+	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
+		rRoll.bSecret = true;
+	end
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
+	-- Debug.chat("FN: getRoll in manager_action_check")
+	-- Build rRoll
 	local rRoll = {};
-	rRoll.aDice = DiceRollManager.getActorDice({ }, rActor);
+	rRoll.aDice = {};
 	rRoll.bSecret = bSecretRoll or false;
 	rRoll.sCheck = sCheck;
 	rRoll.sAbility = Interface.getString(sCheck);
@@ -61,10 +78,11 @@ function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
 	return rRoll;
 end
 
---
+-- ===================================================================================================================
 -- Adjusted
---
+-- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: modRoll in manager_action_check")
 	local aAddDesc = {};
 	local aAddDice = {};
 	local nAddMod = 0;
@@ -84,129 +102,58 @@ function modRoll(rSource, rTarget, rRoll)
 	
 	-- Consider Health
 	ActionsManager2.encodeHealthMods(rSource, rRoll)
-	
-	local bADV = false;
-	local bDIS = false;
-	-- if rRoll.sDesc:match(" %[ADV%]") then
-		-- bADV = true;
-		-- rRoll.sDesc = rRoll.sDesc:gsub(" %[ADV%]", "");
-	-- end
-	-- if rRoll.sDesc:match(" %[DIS%]") then
-		-- bDIS = true;
-		-- rRoll.sDesc = rRoll.sDesc:gsub(" %[DIS%]", "");
-	-- end
 
+	-- Consider Effects
 	if rSource then
+		local aCheckFilter = {}
 		local bEffects = false;
 
-		-- Get ability used
-		-- local sActionStat = nil;
-		-- local sAbility = rRoll.sDesc:match("%[CHECK%] (%w+)");
-		-- if not sAbility then
-			-- local sSkill = rRoll.sDesc:match("%[SKILL%] (%w+)");
-			-- if sSkill then
-				-- sAbility = rRoll.sDesc:match("%[MOD:(%w+)%]");
-				-- if sAbility then
-					-- sAbility = DataCommon.ability_stol[sAbility];
-				-- else
-					-- for k, v in pairs(DataCommon.skilldata) do
-						-- if k == sSkill then
-							-- sAbility = v.stat;
-						-- end
-					-- end
-				-- end
-			-- end
-		-- end
-		-- if sAbility then
-			-- sAbility = sAbility:lower();
-		-- end
+		-- Add Ability to aCheckFilter
+		if rRoll.sCheck then
+			table.insert(aCheckFilter, rRoll.sCheck)
+		end
 
-		-- Build filter
-		local aCheckFilter = {};
-		-- if sAbility then
-			-- table.insert(aCheckFilter, sAbility);
-		-- end
+		-- Get roll effect modifiers
+		local nEffectCount
+
+		-- ToDo: Adjust Effects Bonus to handle Test/Bonus/Penalty Dice
+		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"CHECK"}, false, aCheckFilter)
 
 		-- Count effects
-		local nEffectCount;
-		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"CHECK"}, false, aCheckFilter);
 		if (nEffectCount > 0) then
 			bEffects = true;
 		end
-		
+
 		-- Get condition modifiers
 		-- ToDo: Add possible Effects
-		if EffectManager5E.hasEffectCondition(rSource, "ADVCHK") then
-			bADV = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVCHK", aCheckFilter)) > 0 then
-			bADV = true;
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "DISCHK") then
-			bDIS = true;
-			bEffects = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "DISCHK", aCheckFilter)) > 0 then
-			bDIS = true;
-			bEffects = true;
-		end
 		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
-			bDIS = true;
 			bEffects = true;
 		end
 		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
-			bDIS = true;
 			bEffects = true;
 		end
-		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
-			bDIS = true;
-			bEffects = true;
-		end
-		-- if StringManager.contains({ "strength", "dexterity", "constitution" }, sAbility) then
-			-- if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
-				-- bEffects = true;
-				-- bDIS = true;
-			-- end
-		-- end
 
-		-- Get ability modifiers
-		-- local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, sAbility);
-		-- if nBonusEffects > 0 then
-			-- bEffects = true;
-			-- nAddMod = nAddMod + nBonusStat;
-		-- end
-		
-		-- Get exhaustion modifiers
-		-- local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rSource, {"EXHAUSTION"}, true);
-		-- if nExhaustCount > 0 then
-			-- bEffects = true;
-			-- nAddMod = nAddMod - (2 * nExhaustMod);
-		-- end
-		
-		-- Check Reliable state
-		-- local bReliable = false;
-		-- if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
-			-- bEffects = true;
-			-- bReliable = true;
-		-- elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
-			-- bEffects = true;
-			-- bReliable = true;
-		-- elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLECHK", aCheckFilter)) > 0 then
-			-- bEffects = true;
-			-- bReliable = true;
-		-- end
-		-- if bReliable then
-			-- table.insert(aAddDesc, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
-		-- end
+		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
+			bEffects = true;
+		end
 
 		-- If effects happened, then add note
 		-- ToDo: Does it work?
 		if bEffects then
+			local sEffects = "";
+
+			-- ToDo: Get what the function does
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
+
+			if sMod ~= "" then
+				sEffects = "[" .. Interface.getString("effects_tag") .. " " .. sMod .. "]";
+			else
+				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
+			end
 			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
 		end
 	end
-	
+
 	-- Build description string
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
@@ -219,8 +166,11 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: onRoll in manager_action_check")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll

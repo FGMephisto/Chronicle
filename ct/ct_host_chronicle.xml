@@ -20,6 +20,7 @@
 			<spacer_ct_header_right name="spacer_buttons_header_add" insertbefore="label_init">
 				<anchored width="40" />
 			</spacer_ct_header_right>
+
 			<label_ct_header_right name="label_wounds" insertbefore="label_init">
 				<static textres="ct_label_wounds" />
 				<tooltip textres="ct_tooltip_wounds" />
@@ -38,7 +39,7 @@
 			</label_ct_header_right>
 			<label_ct_header_right name="label_hp" insertbefore="label_init">
 				<static textres="hp" />
-				<tooltip textres="ct_tooltip_hitpoints" />
+				<tooltip textres="hitpoints" />
 			</label_ct_header_right>
 		</sheetdata>
 	</windowclass>

@@ -4,22 +4,16 @@
 -- File adjusted for Chronicle System
 --
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	ActionsManager.registerModHandler("skill", modRoll);
 	ActionsManager.registerResultHandler("skill", onRoll);
 end
 
-function getNPCRoll(rActor, sSkill, nSkill)
-	local rRoll = {
-		sType = "skill",
-		aDice = DiceRollManager.getActorDice({ "d20" }, rActor),
-		sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill),
-		nMod = nSkill,
-	};
-	return rRoll;
-end
-
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	-- Debug.chat("FN: performNPCRoll in manager_action_skill")
 	-- Build rRoll
@@ -62,9 +56,14 @@ function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function performPartySheetRoll(draginfo, rActor, sSkill)
+	-- Debug.chat("FN: performPartySheetRoll in manager_action_skill")
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
+
+	-- Exit gracefully if not a PC
 	if sNodeType ~= "pc" then
 		return;
 	end
@@ -78,44 +77,49 @@ function performPartySheetRoll(draginfo, rActor, sSkill)
 			break;
 		end
 	end
-	-- if not rRoll then
-		-- rRoll = getUnlistedRoll(rActor, sSkill);
-	-- end
 
 	-- Get DC entered on Party Sheet
 	local nTargetDC = DB.getValue("partysheet.skilldc", 0);
-	-- if nTargetDC == 0 then
-		-- nTargetDC = nil;
-	-- end
-	rRoll.nTarget = nTargetDC;
+	rRoll.nTarget = nTargetDC
+
+	-- Check if roll is secret
 	if DB.getValue("partysheet.hiderollresults", 0) == 1 then
 		rRoll.bSecret = true;
 		rRoll.bTower = true;
 	end
-	
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
+	-- Debug.chat("FN: performRoll in manager_action_skill")
 	local rRoll = getRoll(rActor, nodeSkill, nTargetDC, bSecretRoll);
+
+	-- Roll hidden if host and CT is hidden
+	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
+		rRoll.bSecret = true;
+	end
+
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
 -- This function is used to build the inital rRoll record for Skill checks
 -- Adjusted
+-- ===================================================================================================================
  function getRoll(rActor, nodeSkill)
-	local tOutput = {};
 	-- Debug.chat("FN: getRoll in manager_action_skill")
 	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
 
 	-- Build rRoll
 	local rRoll = {};
-	rRoll.sType = "skill";	
-	rRoll.aDice = DiceRollManager.getActorDice({ "" }, rActor);
+	rRoll.aDice = {};
 	rRoll.sStat = DB.getValue(nodeSkill, "stat", "");
 	rRoll.sAbility = Interface.getString(rRoll.sStat);
 	rRoll.sSkill = 	DB.getValue(nodeSkill, "name", "");
-
+	rRoll.sType = "skill";
 	rRoll.nTest = ActorManager5E.getAbilityScore(rActor, rRoll.sStat);
 	rRoll.nBonus = ActorManager5E.getSkillRank(rActor, rRoll.sSkill);
 	rRoll.nPenalty = 0;
@@ -134,10 +138,12 @@ end
 	return rRoll;
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function getUnlistedRoll(rActor, sSkill)
 	local rRoll = {};
 	rRoll.sType = "skill";
-	rRoll.aDice = DiceRollManager.getActorDice({ "d20" }, rActor);
+	rRoll.aDice = { "d20" };
 	rRoll.nMod = 0;
 	
 	local nMod = 0;
@@ -153,7 +159,7 @@ function getUnlistedRoll(rActor, sSkill)
 		nMod, bADV, bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility, sSkill);
 	end
 	
-	rRoll.sDesc = "[SKILL] " .. StringManager.capitalizeAll(sSkill);
+	rRoll.sDesc = "[SKILL] " .. sSkill;
 	if sAddText and sAddText ~= "" then
 		rRoll.sDesc = rRoll.sDesc .. " " .. sAddText;
 	end
@@ -171,9 +177,12 @@ function getUnlistedRoll(rActor, sSkill)
 	return rRoll;
 end
 
+-- ===================================================================================================================
 -- This function is used to modify the Roll record for Skill checks
 -- Adjusted
+-- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
+	-- Debug.chat("FN: modRoll in manager_action_skill")
 	local aAddDesc = {};
 	local aAddDice = {};
 	local nAddMod = 0;
@@ -269,7 +278,9 @@ function modRoll(rSource, rTarget, rRoll)
 	-- return true
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
 	-- Debug.chat("FN: onRoll in manager_action_skill")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);

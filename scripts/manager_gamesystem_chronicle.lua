@@ -1,4 +1,4 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
@@ -45,34 +45,41 @@ currencies = {
 currencyDefault = "Silver";
 
 -- Adjusted
-function onInit()	
-	CharEncumbranceManager.addStandardCalc("Chronicle");
+function onInit()
+	CharEncumbranceManager.addStandardCalc("Chronicle") -- Add ruleset to supported rulesets for Encumberance calculation
 	CombatListManager.registerStandardInitSupport();
+
+	-- Add death marker manager
+	-- ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
+	-- ImageDeathMarkerManager.setEnabled(true);
+	-- ImageDeathMarkerManager.registerGetCreatureTypeFunction(ActorCommonManager.getCreatureTypeDnD);
+	-- ImageDeathMarkerManager.registerCreatureTypes(DataCommon.creaturetype);
+
 	ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
 	SoundsetManager.registerStandardSettingsCastAndAttack();
 	SoundsetManager.setRecordTypeDropCallback("spell", SoundsetManager.handleStandardSpellDrop);
 
 	VisionManager.addVisionType(Interface.getString("vision_darkvision_superior"), "darkvision");
-	VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
-	VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
+	-- VisionManager.addVisionType(Interface.getString("vision_devilsight"), "truesight");
+	-- VisionManager.addVisionType(Interface.getString("vision_devilsight_alt"), "truesight");
 
-	-- LocationManager.registerLocationType({ 
-		-- sKey = StringManager.simplify(Interface.getString("location_type_bastion")), 
-		-- sSub = "location_main_bastion", 
+	-- LocationManager.registerLocationType({
+		-- sKey = StringManager.simplify(Interface.getString("location_type_bastion")),
+		-- sSub = "location_main_bastion",
 	-- });
-	-- LocationManager.registerLocationType({ 
-		-- sKey = StringManager.simplify(Interface.getString("location_type_bastionfacility")), 
-		-- sSub = "location_main_bastionfacility", 
+	-- LocationManager.registerLocationType({
+		-- sKey = StringManager.simplify(Interface.getString("location_type_bastionfacility")),
+		-- sSub = "location_main_bastionfacility",
 	-- });
 
 	-- Languages
 	languages = {
 		-- Standard languages
 		[Interface.getString("language_value_common")] = "",
-		-- [Interface.getString("language_value_common_sign")] = "",
-		-- [Interface.getString("language_value_dwarvish")] = "Dwarven",
-		-- [Interface.getString("language_value_elvish")] = "Elven",
-		-- [Interface.getString("language_value_giant")] = "Dwarven",
+		[Interface.getString("language_value_common_sign")] = "",
+		[Interface.getString("language_value_dwarvish")] = "Dwarven",
+		[Interface.getString("language_value_elvish")] = "Elven",
+		[Interface.getString("language_value_giant")] = "Dwarven",
 		-- [Interface.getString("language_value_gnomish")] = "Dwarven",
 		-- [Interface.getString("language_value_goblin")] = "Dwarven",
 		-- [Interface.getString("language_value_halfling")] = "",
@@ -105,9 +112,9 @@ function onInit()
 	languagestandard = {
 		Interface.getString("language_value_common_sign"),
 		-- Interface.getString("language_value_draconic"),
-		-- Interface.getString("language_value_dwarvish"),
-		-- Interface.getString("language_value_elvish"),
-		-- Interface.getString("language_value_giant"),
+		Interface.getString("language_value_dwarvish"),
+		Interface.getString("language_value_elvish"),
+		Interface.getString("language_value_giant"),
 		-- Interface.getString("language_value_gnomish"),
 		-- Interface.getString("language_value_goblin"),
 		-- Interface.getString("language_value_halfling"),
@@ -122,22 +129,25 @@ function getCharSelectDetailHost(nodeChar)
 	-- if nLevel > 0 then
 		-- sValue = "Level " .. math.floor(nLevel*100)*0.01;
 	-- end
+	-- return sValue;
 	return "";
 end
 
 -- Adjusted
 function requestCharSelectDetailClient()
+	-- return "name,#level";
 	return "name";
 end
 
 -- Adjusted
 function receiveCharSelectDetailClient(vDetails)
+	-- return vDetails[1], "Level " .. math.floor(vDetails[2]*100)*0.01;
 	return vDetails, "";
 end
 
 -- Adjusted
 function getPregenCharSelectDetail(nodePregenChar)
-	-- return CharManager.getClassSummary(nodePregenChar);
+	-- return CharClassManager.getCharClassSummary(nodePregenChar);
 end
 
 -- Adjusted

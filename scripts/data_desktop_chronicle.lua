@@ -4,6 +4,7 @@
 -- File adjusted for Chronicle System
 --
 
+--luacheck: globals _tDataModuleSets _tModifierExclusionSets _tModifierWindowPresets
 function onInit()
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
 	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
@@ -13,26 +14,6 @@ function onInit()
 			Desktop.addDataModuleSet(k, v2);
 		end
 	end
-
-	-- Ask the GM if they want to use the new D&D 2024 Rules
-	if Session.IsHost then
-		if not CampaignRegistry or not CampaignRegistry.DD2024Rules then	
-			-- local sTitle = Interface.getString("record_label_version_title");
-			-- local sPrompt = Interface.getString("record_label_version_prompt");
-			-- Interface.dialogMessage(onVersionChoice, sPrompt, sTitle, "yesno");	
-			CampaignRegistry.DD2024Rules = "2024";
-		end
-	end
-end
-
-function onVersionChoice(result)
-	if result == "yes" then
-		OptionsManager.setOption("GAVE","2024");
-		CampaignRegistry.DD2024Rules = "2024";
-	else 
-		OptionsManager.setOption("GAVE","2014");
-		CampaignRegistry.DD2024Rules = "2014";
-	end
 end
 
 -- Shown in Modifiers window
@@ -40,10 +21,11 @@ end
 -- Adjusted
 _tModifierWindowPresets =
 {
-	{ 
+	{
 		sCategory = "attack",
-		tPresets = 
+		tPresets =
 		{
+			-- "ATT_OPP",
 			"ATT_AIM",
 			"ATT_HIGHGROUND",
 			"ATT_CAUTIOUS",
@@ -55,9 +37,9 @@ _tModifierWindowPresets =
 			"DEF_SPRINT",
 		},
 	},
-	{ 
+	{
 		sCategory = "damage",
-		tPresets = { 
+		tPresets = {
 			-- "DMG_CRIT",
 			-- "DMG_MAX",
 			-- "",
@@ -74,25 +56,25 @@ _tModifierExclusionSets =
 
 -- Shown in Campaign Setup window
 -- Adjusted
-_tDataModuleSets = 
+_tDataModuleSets =
 {
 	["client"] =
 	{
 		{
-			name = "Chronicle Data",
+			name = "Chronicle Ruleset Data",
 			modules =
 			{
-				{ name = "Chronicle Data", displayname = "Chronicle Data" },
+				{ name = "Chronicle Ruleset Data", displayname = "Chronicle Ruleset Data" },
 			},
 		},
 	},
 	["host"] =
 	{
 		{
-			name = "Chronicle Data",
+			name = "Chronicle Ruleset Data",
 			modules =
 			{
-				{ name = "Chronicle Data", displayname = "Chronicle Data" },
+				{ name = "Chronicle Ruleset Data", displayname = "Chronicle Ruleset Data" },
 			},
 		},
 	},

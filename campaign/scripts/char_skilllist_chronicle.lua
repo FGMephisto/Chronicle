@@ -4,8 +4,8 @@
 -- File adjusted for Chronicle System
 --
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
 	
@@ -13,8 +13,8 @@ function onInit()
 	self.constructDefaultSkills();
 end
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function addEntry(bFocus)
 	local w = createWindow();
 
@@ -27,18 +27,18 @@ function addEntry(bFocus)
 	return w;
 end
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onMenuSelection(item)
 	if item == 5 then
 		addEntry(true);
 	end
 end
 
---
--- Adjusted
+-- ===================================================================================================================
 -- Create default skill selection
---
+-- Adjusted
+-- ===================================================================================================================
 function constructDefaultSkills()
 	-- Debug.chat("FN: constructDefaultSkills in char_skilllist")
 	-- Collect existing entries
@@ -49,16 +49,16 @@ function constructDefaultSkills()
 		-- Get skill names from all existing list items
 		local sLabel = w.name.getValue();
 
-		-- Check if the technical skill name matches a skill maintained in DataCommon.lua (i.e. is not custom skill)
+		-- Check if the skill name matches a skill maintained in DataCommon.lua (i.e. is not custom skill)
 		if DataCommon.skilldata[sLabel] then
-			-- If the skill is not present on entrymap array, add the item windows instance with the skill as key
+			-- Add skill and window instance to entrymap table if the skill is not present yet else
+			-- store skill and window instance in entrymap table if the skill is already present
 			if not entrymap[sLabel] then
 				entrymap[sLabel] = { w };
 			else
-				-- If the skill is present on entrymap array, add the item windows instance to the skill
 				table.insert(entrymap[sLabel], w);
 			end
-		-- If the skill name does not match to a default skill, flag it as a custom skill
+		-- If the skill name does not match to a skill maintained in DataCommon.lua, consider item to be a custom skill
 		else
 			w.setCustom(true);
 		end
@@ -77,15 +77,13 @@ function constructDefaultSkills()
 				w.name.setValue(k);
 
 				if t.stat then
-					w.stat.setValue(t.stat);
+					w.stat.setStringValue(t.stat);
 				else
-					-- w.stat.setStringValue("");
+					w.stat.setStringValue("");
 				end
-				
-				-- Add the item windows instance to the key
 				matches = { w };
 
-				-- Re-run the dicecontrol onInit to populate Ability and Skill values to the control required
+				-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
 				w.diceframe.onInit()
 			end
 		end
@@ -111,8 +109,8 @@ function constructDefaultSkills()
 	end
 end
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function addSkillReference(nodeSource)
 	if not nodeSource then
 		return;

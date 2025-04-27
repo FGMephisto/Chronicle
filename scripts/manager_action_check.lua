@@ -69,8 +69,7 @@ end
 --
 
 function setupRollBuild(rRoll, rActor, sCheck, nTargetDC)
-	table.insert(rRoll.tNotifications, "[CHECK]");
-	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sCheck));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sCheck, }, "action_check_tag"));
 
 	local sAddText;
 	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sCheck:lower());
@@ -97,18 +96,15 @@ function setupRollMod(rRoll)
 end
 function getAbilityRollMod(rRoll)
 	if rRoll.sType == "check" then
-		rRoll.sAbility = rRoll.sDesc:match("%[CHECK%] (%w+)");
-		if rRoll.sAbility then
-			rRoll.sAbility = rRoll.sAbility:lower();
-		end
+		rRoll.sAbility = ActionCore.decodeLabelText(rRoll.sDesc, "action_check_tag"):lower();
 	elseif rRoll.sType == "init" then
 		rRoll.sAbility = "dexterity";
 	elseif rRoll.sType == "skill" then
-		rRoll.sSkill = StringManager.simplify(rRoll.sDesc:match("%[SKILL%] ([^%[]+)"));
-		if rRoll.sSkill then
-			local sAbility = StringManager.simplify(rRoll.sDesc:match("%[MOD:(%w+)%]"));
-			if sAbility and DataCommon.ability_stol[sAbility] then
-				rRoll.sAbility = DataCommon.ability_stol[sAbility];
+		rRoll.sSkill = StringManager.simplify(ActionCore.decodeLabelText(rRoll.sDesc, "action_skill_tag"));
+		if rRoll.sSkill ~= "" then
+			local sAbility = rRoll.sDesc:match("%[MOD:(%w*)%]");
+			if sAbility then
+				rRoll.sAbility = DataCommon.ability_stol[sAbility] or "";
 			else
 				for k, v in pairs(DataCommon.skilldata) do
 					if StringManager.simplify(k) == rRoll.sSkill then

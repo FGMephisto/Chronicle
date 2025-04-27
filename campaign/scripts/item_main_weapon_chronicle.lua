@@ -6,17 +6,17 @@
 
 -- ToDo: Where is this now?
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	self.update()
 	
 	-- Fill drop-down with values
-	weapon_speciality.addItems(DataCommon.weaponskilldata)
+	weapon_speciality.addItems(DataCommon.wpnskilldata)
 end
 
---
---
+-- ===================================================================================================================
+-- ===================================================================================================================
 function update(bReadOnly)
 	weapon_speciality.setReadOnly(bReadOnly)
 	weapon_training.setReadOnly(bReadOnly)

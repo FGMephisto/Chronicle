@@ -55,9 +55,11 @@
 	<windowclass name="record_version">
 		<margins control="0,0,0,2" />
 		<script>
-			function update()
-				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());				
-				version.setReadOnly(bReadOnly);
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "version", }, bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -217,7 +219,7 @@
 					action(draginfo);
 					return true;
 				end
-				
+
 				function onButtonPress()
 					action();
 					return true;
@@ -240,7 +242,7 @@
 					action(draginfo);
 					return true;
 				end
-				
+
 				function onButtonPress()
 					action();
 					return true;
@@ -411,19 +413,19 @@
 		</numberc_static>
 	</template>
 
-	<!-- Common Power Roll Templates -->
-	<template name="list_editor">
-		<windowlist name="list">
-			<anchored>
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
-				<left />
-				<right />
-			</anchored>
-			<allowcreate />
-			<allowdelete />
-			<child></child>
-			<child><backcolor>1A40301E</backcolor></child>
-			<noscroll />
-		</windowlist>
+	<!-- Added -->
+	<template name="button_toggledetail">
+		<buttoncontrol>
+			<anchored width="20" height="20" />
+			<state icon="button_details" />
+			<state icon="button_details_down" />
+			<script>
+				function onValueChanged()
+					if window.toggleDetail then
+						window.toggleDetail();
+					end
+				end
+			</script>
+		</buttoncontrol>
 	</template>
 </root>

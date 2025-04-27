@@ -17,12 +17,6 @@ function onLockModeChanged(bReadOnly)
 	idelete_spacer.setVisible(not bReadOnly and not self.isCustom());
 end
 
-function onMenuSelection(selection, subselection)
-	if selection == 6 and subselection == 7 then
-		UtilityManager.safeDeleteWindow(self);
-	end
-end
-
 -- This function is called to set the entry to non-custom or custom.
 -- Custom entries have configurable stats and editable labels.
 local _bCustom = true;

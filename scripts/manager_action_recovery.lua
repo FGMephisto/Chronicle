@@ -24,11 +24,13 @@ function performRoll(draginfo, rActor, nodeClass)
 
 	local sAbility = "";
 	local sAbility2 = "";
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
-	if nodeActor and (sNodeType == "pc") then
-		sAbility = DB.getValue(nodeActor, "hp.hdstat", "");
-		sAbility2 = DB.getValue(nodeActor, "hp.hdstat2", "");
-		rRoll.nMod = DB.getValue(nodeActor, "hp.hdmod", 0);
+	if ActorManager.isPC(rActor) then
+		local nodeActor = ActorManager.getCreatureNode(rActor);
+		if nodeActor then
+			sAbility = DB.getValue(nodeActor, "hp.hdstat", "");
+			sAbility2 = DB.getValue(nodeActor, "hp.hdstat2", "");
+			rRoll.nMod = DB.getValue(nodeActor, "hp.hdmod", 0);
+		end
 	end
 	if sAbility == "" then
 		sAbility = "constitution";

@@ -21,7 +21,7 @@
 			</basicchatwindow>
 		</sheetdata>
 	</windowclass>
-	
+
 	<!-- Adjusted -->
 	<panel name="modifierstack" merge="join">
 		<bounds>15,-100,320,57</bounds>

@@ -299,10 +299,10 @@ function setupRollBuild(rRoll, rActor, rAction)
 		end
 
 		-- Check for armor non-proficiency
-		local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
-		if nodeActor and (sNodeType == "pc") then
+		if ActorManager.isPC(rActor) then
 			if StringManager.contains({"strength", "dexterity"}, rAction.stat) then
-				if DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0 then
+				local nodeActor = ActorManager.getCreatureNode(rActor);
+				if nodeActor and (DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0) then
 					rRoll.bDIS = true;
 					table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_armor_nonprof")));
 				end
@@ -317,9 +317,9 @@ end
 function setupRollMod(rRoll)
 	ActionAttackCore.decodeRollData(rRoll);
 
-	rRoll.sAbility = rRoll.sDesc:match("%[MOD:(%w+)%]");
+	rRoll.sAbility = rRoll.sDesc:match("%[MOD:(%w*)%]");
 	if rRoll.sAbility then
-		rRoll.sAbility = DataCommon.ability_stol[rRoll.sAbility];
+		rRoll.sAbility = DataCommon.ability_stol[rRoll.sAbility] or "";
 	end
 
 	-- Check for opportunity attack

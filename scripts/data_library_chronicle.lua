@@ -4,13 +4,16 @@
 -- File adjusted for Chronicle System
 --
 
--- Adjusted
+--luacheck: globals aListViews aRecordOverrides
+--luacheck: globals getItemIsIdentified getItemAttunementValue getItemRarityValue getNPCTypeValue getSpellSourceValue
+--luacheck: globals getSpellViewGroup getSpellViewCastTime getVersionValue isItemIdentifiable sortNPCCRValues
+
 function getVersionValue(node)
 	-- return (StringManager.trim(DB.getValue(node, "version", "")) == "2024") and "2024" or "Legacy";
-	return "2024"
+	return "2024";
 end
 
-function getItemIsIdentified(vRecord, vDefault)
+function getItemIsIdentified(vRecord, _)
 	return LibraryData.getIDState("item", vRecord, true);
 end
 
@@ -96,28 +99,42 @@ end
 -- Adjusted
 aRecordOverrides = {
 	-- CoreRPG overrides
-	["quest"] = { 
-		aDataMap = { "quest", "reference.questdata" }, 
+	["charsheet"] = {
+		tOptions = {
+			bNoLock = false,
+		},
 	},
-	["image"] = { 
-		aDataMap = { "image", "reference.imagedata" }, 
+	["quest"] = {
+		aDataMap = { "quest", "reference.questdata" },
 	},
-	["npc"] = { 
-		aDataMap = { "npc", "reference.npcdata" }, 
-		-- sListDisplayClass = "masterindexitem_version",
+	["image"] = {
+		aDataMap = { "image", "reference.imagedata" },
+	},
+	["npc"] = {
+		aDataMap = { "npc", "reference.npcdata" },
+		sListDisplayClass = "masterindexitem_version",
+		-- aGMListButtons = { "button_npc_byletter", "button_npc_bycr", "button_npc_bytype" },
 		aGMListButtons = { "button_npc_byletter", "button_npc_bytype" },
-		aGMEditButtons = { "button_add_npc_import" },
+		-- aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
 		aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["CR"] = { sField = "cr", sType = "number", fSort = sortNPCCRValues },
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
 	},
-	["item"] = { 
+	["item"] = {
 		fIsIdentifiable = isItemIdentifiable,
-		aDataMap = { "item", "reference.equipmentdata", "reference.magicitemdata" }, 
-		-- sListDisplayClass = "masterindexitem_id_version",
-		aRecordDisplayClasses = { "item", "reference_magicitem", "reference_armor", "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles", "reference_vehicle" },
+		-- aDataMap = { "item", "refrence.equipmentdata", "reference.magicitemdata" },
+		aDataMap = { "item", "reference.equipmentdata" },
+		sListDisplayClass = "masterindexitem_id_version",
+		aRecordDisplayClasses = {
+			-- "item", "reference_magicitem", "reference_armor",
+			"item", "reference_armor",
+			-- "reference_weapon", "reference_equipment", "reference_mountsandotheranimals", "reference_waterbornevehicles",
+			"reference_weapon", "reference_equipment", "reference_mountsandotheranimals",
+			-- "reference_vehicle",
+		},
+		-- aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear", "button_item_template" , "button_forge_item" },
 		aGMListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
 		--aGMEditButtons = { "button_add_item_import_text" },
 		aPlayerListButtons = { "button_item_armor", "button_item_weapon", "button_item_gear" },
@@ -131,84 +148,84 @@ aRecordOverrides = {
 			-- ["Attunement?"] = { sField = "rarity", fGetValue = getItemAttunementValue },
 		},
 	},
-	["vehicle"] = {
+	-- ["vehicle"] = {
 		-- sListDisplayClass = "masterindexitem_version",
-		aCustomFilters = {
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-			["Type"] = { sField = "type" },
-		},
-	},
-	
+			-- ["Type"] = { sField = "type" },
+		-- },
+	-- },
+
 	-- New record types
-	["itemtemplate"] = { 
-		aDataMap = { "itemtemplate", "reference.magicrefitemdata" }, 
+	-- ["itemtemplate"] = {
+		-- aDataMap = { "itemtemplate", "reference.magicrefitemdata" },
 		-- sListDisplayClass = "masterindexitem_version",
-		aGMListButtons = { "button_forge_item"  };
-		tOptions = {
-			bExport = true,
-			bHidden = true,
-		},
-		aCustomFilters = {
+		-- aGMListButtons = { "button_forge_item"  };
+		-- tOptions = {
+			-- bExport = true,
+			-- bHidden = true,
+		-- },
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-			["Type"] = { sField = "type" },
-		},
-	},
-	["background"] = {
-		aDataMap = { "background", "reference.backgrounddata" }, 
+			-- ["Type"] = { sField = "type" },
+		-- },
+	-- },
+	-- ["background"] = {
+		-- aDataMap = { "background", "reference.backgrounddata" },
 		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_background", 
-		tOptions = {
-			bExport = true,
-		},
-		aCustom = {
-			tWindowMenu = { ["right"] = { "chat_output" } },
-		},
-		aCustomFilters = {
+		-- sRecordDisplayClass = "reference_background",
+		-- tOptions = {
+			-- bExport = true,
+		-- },
+		-- aCustom = {
+			-- tWindowMenu = { ["right"] = { "chat_output" } },
+		-- },
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-		},
-	},
-	["class"] = {
-		aDataMap = { "class", "reference.classdata" }, 
+		-- },
+	-- },
+	-- ["class"] = {
+		-- aDataMap = { "class", "reference.classdata" },
 		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_class", 
-		aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
-		aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
-		tOptions = {
-			bExport = true,
-		},
-		aCustom = {
-			tWindowMenu = { ["right"] = { "chat_output" } },
-		},
-		aCustomFilters = {
+		-- sRecordDisplayClass = "reference_class",
+		-- aGMListButtons = { "button_class_specialization", "button_class_spell_view" },
+		-- aPlayerListButtons = { "button_class_specialization", "button_class_spell_view" },
+		-- tOptions = {
+			-- bExport = true,
+		-- },
+		-- aCustom = {
+			-- tWindowMenu = { ["right"] = { "chat_output" } },
+		-- },
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-		},
-	},
-	["class_specialization"] = {
-		aDataMap = { "class_specialization", "reference.class_specializationdata" }, 
+		-- },
+	-- },
+	-- ["class_specialization"] = {
+		-- aDataMap = { "class_specialization", "reference.class_specializationdata" },
 		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_class_specialization", 
-		tOptions = {
-			bExport = true,
-			bHidden = true,
-		},
-		aCustomFilters = {
+		-- sRecordDisplayClass = "reference_class_specialization",
+		-- tOptions = {
+			-- bExport = true,
+			-- bHidden = true,
+		-- },
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-			["Class"] = { sField = "class" },
-		},
-	},
-	["class_spell_list"] = {
-		aDataMap = { "class_spell_list", "reference.class_spell_listdata" }, 
-		sRecordDisplayClass = "reference_class_spell_list", 
-		tOptions = {
-			bExport = true,
-			bExportListSkip = true,
-			bHidden = true,
-		},
-	},
+			-- ["Class"] = { sField = "class" },
+		-- },
+	-- },
+	-- ["class_spell_list"] = {
+		-- aDataMap = { "class_spell_list", "reference.class_spell_listdata" },
+		-- sRecordDisplayClass = "reference_class_spell_list",
+		-- tOptions = {
+			-- bExport = true,
+			-- bExportListSkip = true,
+			-- bHidden = true,
+		-- },
+	-- },
 	["feat"] = {
-		aDataMap = { "feat", "reference.featdata" }, 
-		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_feat", 
+		aDataMap = { "feat", "reference.featdata" },
+		sListDisplayClass = "masterindexitem_version",
+		sRecordDisplayClass = "reference_feat",
 		tOptions = {
 			bExport = true,
 		},
@@ -221,9 +238,9 @@ aRecordOverrides = {
 		},
 	},
 	["race"] = {
-		aDataMap = { "race", "reference.racedata" }, 
-		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_race", 
+		aDataMap = { "race", "reference.racedata" },
+		sListDisplayClass = "masterindexitem_version",
+		sRecordDisplayClass = "reference_race",
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_species_import_text" },
 		aPlayerListButtons = { "button_race_subrace" },
@@ -238,54 +255,72 @@ aRecordOverrides = {
 		},
 	},
 	["race_subrace"] = {
-		aDataMap = { "race_subrace", "reference.race_subracedata" }, 
-		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_subrace", 
+		aDataMap = { "race_subrace", "reference.race_subracedata" },
+		sListDisplayClass = "masterindexitem_version",
+		sRecordDisplayClass = "reference_subrace",
 		tOptions = {
 			bExport = true,
 			bHidden = true,
 		},
 		aCustomFilters = {
-			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
+			["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Species"] = { sField = "race" },
 		},
 	},
 	["skill"] = {
-		aDataMap = { "skill", "reference.skilldata" }, 
-		-- sListDisplayClass = "masterindexitem_version",
-		sRecordDisplayClass = "reference_skill", 
+		aDataMap = { "skill", "reference.skilldata" },
+		sListDisplayClass = "masterindexitem_version",
+		sRecordDisplayClass = "reference_skill",
 		tOptions = {
 			bExport = true,
 		},
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
-		aCustomFilters = {
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-		},
+	
+   
+			  
+												
+												
+														 
+			  
+				  
+				   
+	
+			 
+												   
+	
+					
+																	 
+																	   
+													  
+									  
+		-- },
+	
 	},
-	["spell"] = {
-		aDataMap = { "spell", "reference.spelldata" }, 
+	-- ["spell"] = {
+		-- aDataMap = { "spell", "reference.spelldata" },
 		-- sListDisplayClass = "masterindexitem_version",
-		aRecordDisplayClasses = { "power", "reference_spell" },
-		tOptions = {
-			bExport = true,
-			bPicture = true,
-		},
-		aCustom = {
-			tWindowMenu = { ["right"] = { "chat_output" } },
-		},
-		aCustomFilters = {
+		-- aRecordDisplayClasses = { "power", "reference_spell" },
+		-- tOptions = {
+			-- bExport = true,
+			-- bPicture = true,
+		-- },
+		-- aCustom = {
+			-- tWindowMenu = { ["right"] = { "chat_output" } },
+		-- },
+		-- aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			-- ["Source"] = { sField = "source", fGetValue = getSpellSourceValue },
 			-- ["Level"] = { sField = "level", sType = "number" },
-			["School"] = { sField = "school" },
-			["Ritual"] = { sField = "ritual", sType = "boolean" },
-		},
-	},
+			-- ["School"] = { sField = "school" },
+			-- ["Ritual"] = { sField = "ritual", sType = "boolean" },
+		-- },
+	-- },
 };
 
---Adjusted
 aListViews = {
 	["npc"] = {
 		["byletter"] = {
@@ -297,20 +332,30 @@ aListViews = {
 			aGroups = { { sDBField = "name", nLength = 1 } },
 			aGroupValueOrder = { },
 		},
-		["bycr"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
-			},
-			aFilters = { },
-			aGroups = { { sDBField = "cr", sPrefix = "CR" } },
-			aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2", 
-								"CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8", "CR 9" },
-		},
+			  
+			   
+																							 
+																																	 
+	 
+				  
+													 
+																   
+																				 
+	
+		-- ["bycr"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
+				-- { sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
+			-- },
+			-- aFilters = { },
+			-- aGroups = { { sDBField = "cr", sPrefix = "CR" } },
+			-- aGroupValueOrder = { "CR", "CR 0", "CR 1/8", "CR 1/4", "CR 1/2",
+								-- "CR 1", "CR 2", "CR 3", "CR 4", "CR 5", "CR 6", "CR 7", "CR 8", "CR 9" },
+		-- },
 		["bytype"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "npc_grouped_label_name", nWidth=250 },
-				-- { sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
+				{ sName = "cr", sType = "string", sHeadingRes = "npc_grouped_label_cr", sTooltipRes = "npc_grouped_tooltip_cr", bCentered=true },
 			},
 			aFilters = { },
 			aGroups = { { sDBField = "type" } },
@@ -322,13 +367,18 @@ aListViews = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
 				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", bCentered=true },
+				-- { sName = "ac", sType = "number", sHeadingRes = "item_grouped_label_ac", sTooltipRes = "item_grouped_tooltip_ac", nWidth=40, bCentered=true, nSortOrder=1 },
+				-- { sName = "dexbonus", sType = "string", sHeadingRes = "item_grouped_label_dexbonus", sTooltipRes = "item_grouped_tooltip_dexbonus", nWidth=70, bCentered=true },
+				-- { sName = "strength", sType = "string", sHeadingRes = "item_grouped_label_strength", sTooltipRes = "item_grouped_tooltip_strength", bCentered=true },
+				-- { sName = "stealth", sType = "string", sHeadingRes = "item_grouped_label_stealth", sTooltipRes = "item_grouped_tooltip_stealth", nWidth=100, bCentered=true },
+				-- { sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true }
 				{ sName = "armor_rating", sType = "number", sHeadingRes = "item_grouped_label_ar", sTooltipRes = "item_grouped_tooltip_ar", nWidth=40, bCentered=true, nSortOrder=1 },
 				{ sName = "armor_penalty", sType = "number", sHeadingRes = "item_grouped_label_ap", sTooltipRes = "item_grouped_tooltip_ap", nWidth=40, bCentered=true, nSortOrder=2 },
 				{ sName = "bulk", sType = "number", sHeadingRes = "item_grouped_label_bulk", sTooltipRes = "item_grouped_tooltip_bulk", nWidth=40, bCentered=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Armor" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Armor" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
 			aGroupValueOrder = { "Light Armor", "Medium Armor", "Heavy Armor" },
@@ -336,6 +386,10 @@ aListViews = {
 		["weapon"] = {
 			aColumns = {
 				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
+				-- { sName = "damage", sType = "string", sHeadingRes = "item_grouped_label_damage", nWidth=150, bWrapped=true },
+				-- { sName = "properties", sType = "string", sHeadingRes = "item_grouped_label_properties", nWidth=300, bWrapped=true },
+				-- { sName = "mastery", sType = "string", sHeadingRes = "item_grouped_label_mastery", nWidth=50, bWrapped=true },
+				-- { sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true },
 				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", bCentered=true },
 				{ sName = "weapon_dmg_string", sType = "string", sHeadingRes = "item_grouped_label_dmg", sTooltipRes = "item_grouped_tooltip_weapon_dmg", nWidth=120, bWrapped=true },
 				{ sName = "weapon_speciality", sType = "string", sHeadingRes = "item_grouped_label_weapon_skill", nWidth=80, bWrapped=true },
@@ -343,11 +397,12 @@ aListViews = {
 				{ sName = "bulk", sType = "number", sHeadingRes = "item_grouped_label_bulk", sTooltipRes = "item_grouped_tooltip_bulk", nWidth=40, bCentered=true },
 				{ sName = "weapon_qualities", sType = "string", sHeadingRes = "item_grouped_label_weapon_qualities", nWidth=400, bWrapped=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Weapon" }, 
-				{ sCustom = "item_isidentified" } 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Weapon" },
+				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
+			-- aGroupValueOrder = { "Simple Melee Weapons", "Simple Ranged Weapons", "Martial Weapons", "Martial Melee Weapons", "Martial Ranged Weapons" },
 			aGroupValueOrder = { "Melee Weapons", "Ranged Weapons" },
 		},
 		["gear"] = {
@@ -356,73 +411,73 @@ aListViews = {
 				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", bCentered=true },
 				{ sName = "weight", sType = "number", sHeadingRes = "item_grouped_label_weight", sTooltipRes = "item_grouped_tooltip_weight", nWidth=30, bCentered=true },
 			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Adventuring Gear|Tools" }, 
+			aFilters = {
+				{ sDBField = "type", vFilterValue = "Adventuring Gear|Tools" },
 				{ sCustom = "item_isidentified" },
 			},
 			aGroups = { { sDBField = "subtype" } },
 		},
-		["vehiclecomponent"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
-				{ sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=200, bWrapped=true },
-				{ sName = "crew", sType = "number", sHeadingRes = "item_label_crew", nWidth=40, bCentered=true },
-				{ sName = "ac", sType = "number", sHeadingRes = "ac", sTooltipRes = "armorclass", nWidth=40, bCentered=true },
-				{ sName = "damagethreshold", sType = "number", sHeadingRes = "dt", sTooltipRes = "damagethreshold", nWidth=40, bCentered=true },
-				{ sName = "hp", sType = "number", sHeadingRes = "hp", sTooltipRes = "hitpoints", bCentered=true },
-			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Vehicle Component" }, 
-				{ sCustom = "item_isidentified" } 
-			},
-			aGroups = { { sDBField = "type" } },
-			aGroupValueOrder = {},
-		},
-		["vehiclecomponentupgrade"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
-				{ sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=100, bWrapped=true },
-			},
-			aFilters = { 
-				{ sDBField = "type", vFilterValue = "Vehicle Component Upgrade" }, 
-				{ sCustom = "item_isidentified" } 
-			},
-			aGroups = { { sDBField = "type" } },
-			aGroupValueOrder = {},
-		},
-		["vehicledrawn"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
-				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
-				{ sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
-				{ sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
-			},
-			aFilters = { { sDBField = "type", vFilterValue = "Tack, Harness, And Drawn Vehicles" } },
-			aGroups = { { sDBField = "subtype" } },
-			aGroupValueOrder = { },
-		},
-		["vehiclemount"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
-				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
-				{ sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
-				{ sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
-			},
-			aFilters = { { sDBField = "type", vFilterValue = "Mounts And Other Animals" } },
-			aGroups = { { sDBField = "subtype" } },
-			aGroupValueOrder = { },
-		},
-		["vehiclewater"] = {
-			aColumns = {
-				{ sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
-				{ sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
-				{ sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
-				{ sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
-			},
-			aFilters = { { sDBField = "type", vFilterValue = "Waterborne Vehicles" } },
-			aGroups = { { sDBField = "subtype" } },
-			aGroupValueOrder = { },
-		},
+		-- ["vehiclecomponent"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
+				-- { sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=200, bWrapped=true },
+				-- { sName = "crew", sType = "number", sHeadingRes = "item_label_crew", nWidth=40, bCentered=true },
+				-- { sName = "ac", sType = "number", sHeadingRes = "ac", sTooltipRes = "armorclass", nWidth=40, bCentered=true },
+				-- { sName = "damagethreshold", sType = "number", sHeadingRes = "dt", sTooltipRes = "damagethreshold", nWidth=40, bCentered=true },
+				-- { sName = "hp", sType = "number", sHeadingRes = "hp", sTooltipRes = "hitpoints", bCentered=true },
+			-- },
+			-- aFilters = {
+				-- { sDBField = "type", vFilterValue = "Vehicle Component" },
+				-- { sCustom = "item_isidentified" },
+			-- },
+			-- aGroups = { { sDBField = "type" } },
+			-- aGroupValueOrder = {},
+		-- },
+		-- ["vehiclecomponentupgrade"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=200 },
+				-- { sName = "cost", sType = "string", sHeadingRes = "item_label_cost", nWidth=100, bWrapped=true },
+			-- },
+			-- aFilters = {
+				-- { sDBField = "type", vFilterValue = "Vehicle Component Upgrade" },
+				-- { sCustom = "item_isidentified" },
+			-- },
+			-- aGroups = { { sDBField = "type" } },
+			-- aGroupValueOrder = {},
+		-- },
+		-- ["vehicledrawn"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
+				-- { sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
+				-- { sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
+				-- { sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
+			-- },
+			-- aFilters = { { sDBField = "type", vFilterValue = "Tack, Harness, And Drawn Vehicles" } },
+			-- aGroups = { { sDBField = "subtype" } },
+			-- aGroupValueOrder = { },
+		-- },
+		-- ["vehiclemount"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
+				-- { sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
+				-- { sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
+				-- { sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
+			-- },
+			-- aFilters = { { sDBField = "type", vFilterValue = "Mounts And Other Animals" } },
+			-- aGroups = { { sDBField = "subtype" } },
+			-- aGroupValueOrder = { },
+		-- },
+		-- ["vehiclewater"] = {
+			-- aColumns = {
+				-- { sName = "name", sType = "string", sHeadingRes = "item_grouped_label_name", nWidth=150 },
+				-- { sName = "cost", sType = "string", sHeadingRes = "item_grouped_label_cost", nWidth=70, bCentered=true },
+				-- { sName = "speed", sType = "string", sHeadingRes = "item_grouped_label_speed", nWidth=60, bCentered=true },
+				-- { sName = "carryingcapacity", sType = "string", sHeadingRes = "item_grouped_label_carryingcapacity", sTooltipRes="item_grouped_tooltip_carryingcapacity", nWidth=70, bCentered=true },
+			-- },
+			-- aFilters = { { sDBField = "type", vFilterValue = "Waterborne Vehicles" } },
+			-- aGroups = { { sDBField = "subtype" } },
+			-- aGroupValueOrder = { },
+		-- },
 	},
 };
 
@@ -434,8 +489,7 @@ function onInit()
 
 	LibraryData.overrideRecordTypes(aRecordOverrides);
 	LibraryData.setRecordViews(aListViews);
-	
-	-- Remove "Classes" & "Vehicles" from the sidebar
-	LibraryData.setRecordTypeInfo("class", nil);
+
+	-- Remove "Vehicles" from the sidebar
 	LibraryData.setRecordTypeInfo("vehicle", nil);
 end

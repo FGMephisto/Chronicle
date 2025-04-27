@@ -360,8 +360,8 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 	local aPowerGroup = nil;
 	local bInnate = false;
 
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
-	if sNodeType == "pc" then
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	if ActorManager.isPC(rActor) then
 		local nodePowerGroup = nil;
 		local sGroup = DB.getValue(nodePower, "group", "");
 		for _,v in ipairs(DB.getChildList(nodeActor, "powergroup")) do
@@ -477,7 +477,7 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 	end
 
 	if not aPowerGroup and nodePower then
-		if sNodeType ~= "pc" then
+		if not ActorManager.isPC(rActor) then
 			local nodeNPCGroup = DB.getParent(nodePower);
 			if nodeNPCGroup and StringManager.isWord(nodeNPCGroup.getName, { "innatespells", "spells" }) then
 				if bInnate then

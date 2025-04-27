@@ -1,4 +1,4 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
@@ -7,9 +7,10 @@
 -- Adjusted
 function onInit()
 	-- WindowTabManager.registerTab("partysheet_host", { sName = "xp", sTabRes = "tab_xp", sClass = "ps_xp" });
+	-- WindowTabManager.registerTab("partysheet_host", { sName = "bastion", sTabRes = "tab_bastion", sClass = "ps_bastion", sOption = "HRBASTION" });
 
 	-- if Session.IsHost then
-		-- DB.addHandler("charsheet.*.classes", "onChildUpdate", linkPCClasses);
+		-- DB.addHandler("charsheet.*.classes", "onChildUpdate", PartyManager2.linkPCClasses);
 	-- end
 end
 
@@ -19,13 +20,14 @@ function linkPCClasses(nodeClass)
 		-- return;
 	-- end
 	-- local nodeChar = DB.getParent(nodeClass);
+ 
 	-- local nodePS = PartyManager.mapChartoPS(nodeChar);
 	-- if not nodePS then
 		-- return;
 	-- end
-	
+
 	-- DB.setValue(nodePS, "classlevel", "string", CharManager.getClassSummary(nodeChar));
-	
+
 	-- local nHDUsed, nHDTotal = CharManager.getClassHDUsage(nodeChar);
 	-- DB.setValue(nodePS, "hd", "number", nHDTotal);
 	-- DB.setValue(nodePS, "hdused", "number", nHDUsed);
@@ -34,7 +36,7 @@ end
 -- Adjusted
 function linkPCFields(nodePS)
 	local nodeChar = PartyManager.mapPStoChar(nodePS);
-	
+
 	PartyManager.linkRecordField(nodeChar, nodePS, "name", "string");
 	PartyManager.linkRecordField(nodeChar, nodePS, "token", "token", "token");
 
@@ -42,12 +44,19 @@ function linkPCFields(nodePS)
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "exp", "number");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "expneeded", "number");
 
+	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.endurance.score", "number", "endurance");
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.total", "number", "hptotal");
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.wounds", "number", "wounds");
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.injuries", "number", "injuries");
 	PartyManager.linkRecordField(nodeChar, nodePS, "hp.trauma", "number", "trauma");
-	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.endurance.score", "number", "endurance");
 	
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.strength.score", "number", "strength");
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.constitution.score", "number", "constitution");
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.dexterity.score", "number", "dexterity");
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.intelligence.score", "number", "intelligence");
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.wisdom.score", "number", "wisdom");
+	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.charisma.score", "number", "charisma");
+
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.strength.score", "number", "strength");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.constitution.score", "number", "constitution");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.dexterity.score", "number", "dexterity");
@@ -67,5 +76,7 @@ function linkPCFields(nodePS)
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "perception", "number");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "senses", "string");
 	
-	-- if nodeChar then linkPCClasses(DB.getChild(nodeChar, "classes")); end
+	-- if nodeChar then
+		-- PartyManager2.linkPCClasses(DB.getChild(nodeChar, "classes"));
+	-- end
 end

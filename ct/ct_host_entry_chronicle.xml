@@ -16,7 +16,7 @@
 		<script file="ct/scripts/ct_entry_chronicle.lua" />
 		<sheetdata>
 			<hs name="status" />
-			
+
 			<hsx name="type" />
 			<hsx name="size" />
 			<!-- <hsx name="alignment" /> -->
@@ -78,7 +78,6 @@
 					end
 				</script>
 			</number_ct_crosslink>
-
 			<number_ct_crosslink name="trauma" insertbefore="initresult" source="hp.trauma">
 				<anchored to="rightanchor" width="30" height="20">
 					<top />

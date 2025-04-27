@@ -120,7 +120,7 @@
 				<class>ref_adventure</class>
 			</linkc_listitem_left>
 
-			<string_listitem_center_text name="name" />
+			<string_listitem_center_underline name="name" />
 		</sheetdata>
 	</windowclass>
 </root>

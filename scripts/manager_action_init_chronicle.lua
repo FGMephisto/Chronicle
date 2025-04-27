@@ -6,6 +6,8 @@
 
 OOB_MSGTYPE_APPLYINIT = "applyinit";
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit);
 
@@ -13,23 +15,29 @@ function onInit()
 	ActionsManager.registerResultHandler("init", onResolve);
 end
 
+-- ===================================================================================================================
 -- Set Initiative result on CT
+-- ===================================================================================================================
 function handleApplyInit(msgOOB)
+	-- Debug.chat("FN: handleApplyInit in manager_action_init")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local nTotal = tonumber(msgOOB.nTotal) or 0;
 
 	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
 end
 
+-- ===================================================================================================================
 -- Communicate initiative roll to Clients
+-- ===================================================================================================================
 function notifyApplyInit(rSource, nTotal)
+	-- Debug.chat("FN notifyApplyInit in manager_action_init")
 	if not rSource then
 		return;
 	end
-	
+
 	local msgOOB = {};
 	msgOOB.type = OOB_MSGTYPE_APPLYINIT;
-	
+
 	msgOOB.nTotal = nTotal;
 
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
@@ -37,7 +45,9 @@ function notifyApplyInit(rSource, nTotal)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function getRoll(rActor, bSecretRoll)
 	-- Debug.chat("FN getRoll in manager_action_init")
 	local rRoll = {};
@@ -69,25 +79,20 @@ function getRoll(rActor, bSecretRoll)
 	return rRoll;
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function performRoll(draginfo, rActor, bSecretRoll)
+	-- Debug.chat("FN performRoll in manager_action_init")
 	local rRoll = getRoll(rActor, bSecretRoll);
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
-	local bADV = false;
-	local bDIS = false;
-	if rRoll.sDesc:match(" %[ADV%]") then
-		bADV = true;
-		rRoll.sDesc = rRoll.sDesc:gsub(" %[ADV%]", "");
-	end
-	if rRoll.sDesc:match(" %[DIS%]") then
-		bDIS = true;
-		rRoll.sDesc = rRoll.sDesc:gsub(" %[DIS%]", "");
-	end
-
+	-- Debug.chat("FN modRoll in manager_action_init")
 	local aAddDesc = {}
 	local aAddDice = {}
 	local nAddMod = 0
@@ -147,22 +152,24 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
+-- ===================================================================================================================
 -- Returns effect existence, effect dice, effect mod
 -- Adjusted
+-- ===================================================================================================================
 function getEffectAdjustments(rActor)
-	if rActor == nil then
+	-- Debug.chat("FN getEffectAdjustments in manager_action_init")
+	-- ToDo: Adjust to work with Chronicle
+	if not rActor then
 		return false, {}, 0, false, false;
 	end
 	
 	-- Determine ability used - Only agility for this ruleset
 	local sActionStat = "agility";
 	
-	-- Set up
+	-- Initialize
 	local bEffects = false;
 	local aEffectDice = {};
 	local nEffectMod = 0;
-	local bEffectADV = false;
-	local bEffectDIS = false;
 	
 	-- Determine general effect modifiers
 	local aInitDice, nInitMod, nInitCount = EffectManager5E.getEffectsBonus(rActor, {"INIT"});
@@ -178,17 +185,6 @@ function getEffectAdjustments(rActor)
 	local nAbilityMod, nAbilityEffects = ActorManager5E.getAbilityEffectsBonus(rActor, sActionStat);
 	if nAbilityEffects > 0 then
 		bEffects = true;
-		-- nEffectMod = nEffectMod + nAbilityMod;
-	end
-	
-	-- Get condition modifiers
-	if EffectManager5E.hasEffectCondition(rActor, "ADVINIT") then
-		bEffects = true;
-		bEffectADV = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "DISINIT") then
-		bEffects = true;
-		bEffectDIS = true;
 	end
 	
 	-- Ability check modifiers
@@ -202,66 +198,26 @@ function getEffectAdjustments(rActor)
 		nEffectMod = nEffectMod + nAbilityCheckMod;
 	end
 	
-	-- Dexterity check conditions
-	if EffectManager5E.hasEffectCondition(rActor, "ADVCHK") then
-		bEffects = true;
-		bEffectADV = true;
-	elseif #(EffectManager5E.getEffectsByType(rActor, "ADVCHK", aCheckFilter)) > 0 then
-		bEffects = true;
-		bEffectADV = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Invisible") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "DISCHK") then
-		bEffects = true;
-		bEffectDIS = true;
-	elseif #(EffectManager5E.getEffectsByType(rActor, "DISCHK", aCheckFilter)) > 0 then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Frightened") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Intoxicated") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Poisoned") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Encumbered") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-	if EffectManager5E.hasEffectCondition(rActor, "Incapacitated") then
-		bEffects = true;
-		bEffectDIS = true;
-	end
-
 	-- Get exhaustion modifiers
 	local nExhaustMod, nExhaustCount = EffectManager5E.getEffectsBonus(rActor, {"EXHAUSTION"}, true);
 	if nExhaustCount > 0 then
 		bEffects = true;
-		nAddMod = nAddMod - (2 * nExhaustMod);
+		if nExhaustMod >= 1 then
+		end
 	end
 	
-	return bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS;
+	return bEffects, aEffectDice, nEffectMod;
 end
 
--- Adjusted
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onResolve(rSource, rTarget, rRoll)
-	ActionsManager2.handleLuckTrait(rSource, rRoll);
-	ActionsManager2.decodeAdvantage(rRoll);
-	ActionsManager2.handleReliable(rSource, rRoll);
+	-- Debug.chat("FN onResolve in manager_action_init")
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
 	rRoll = ActionResult.DropDice(rRoll)
 
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
 	
 	local nTotal = ActionsManager.total(rRoll);

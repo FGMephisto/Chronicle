@@ -116,7 +116,7 @@ function import2024(sList, sDesc)
 				DB.setValue(nodeItem, columnName, "number", numericValue);
 			elseif columnName == "description" then
 				columnValue = ImportItemManager.closeOpenTags(columnValue)
-				nodeItem.createChild("description", "formattedtext").setValue(columnValue);
+				DB.setValue(nodeItem, "description", "formattedtext", columnValue);
 			else
 				DB.setValue(nodeItem, columnName, "string", StringManager.trim(columnValue));
 			end

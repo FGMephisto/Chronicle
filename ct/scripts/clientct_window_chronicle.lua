@@ -6,14 +6,14 @@
 
 function onInit()
 	super.onInit();
-	OptionsManager.registerCallback("SHPC", updateHealthDisplay);
-	OptionsManager.registerCallback("SHNPC", updateHealthDisplay);
+	OptionsManager.registerCallback("SHPC", self.updateHealthDisplay);
+	OptionsManager.registerCallback("SHNPC", self.updateHealthDisplay);
 	self.updateHealthDisplay();
 end
 function onClose()
 	super.onClose();
-	OptionsManager.unregisterCallback("SHPC", updateHealthDisplay);
-	OptionsManager.unregisterCallback("SHNPC", updateHealthDisplay);
+	OptionsManager.unregisterCallback("SHPC", self.updateHealthDisplay);
+	OptionsManager.unregisterCallback("SHNPC", self.updateHealthDisplay);
 end
 
 -- Adjusted
@@ -22,7 +22,7 @@ function updateHealthDisplay()
 	local sOptSHNPC = OptionsManager.getOption("SHNPC");
 	local bShowDetail = (sOptSHPC == "detailed") or (sOptSHNPC == "detailed");
 	local bShowStatus = ((sOptSHPC == "status") or (sOptSHNPC == "status")) and not bShowDetail;
-	
+
 	local w = self;
 	if sub_header then
 		w = sub_header.subwindow;
@@ -40,27 +40,27 @@ function updateHealthDisplay()
 	end
 
 	-- 3.5E
-	if w.label_nonlethal then
-		w.label_nonlethal.setVisible(bShowDetail);
-	end
+	-- if w.label_nonlethal then
+		-- w.label_nonlethal.setVisible(bShowDetail);
+	-- end
 
 	-- 4E
-	if w.label_surges then
-		w.label_surges.setVisible(bShowDetail);
-	end
+	-- if w.label_surges then
+		-- w.label_surges.setVisible(bShowDetail);
+	-- end
 
 	-- 13A
-	if w.label_recoveries then
-		w.label_recoveries.setVisible(bShowDetail);
-	end
+	-- if w.label_recoveries then
+		-- w.label_recoveries.setVisible(bShowDetail);
+	-- end
 
 	-- CoC
-	if w.label_mp then
-		w.label_mp.setVisible(bShowDetail);
-	end
-	if w.label_sp then
-		w.label_sp.setVisible(bShowDetail);
-	end
+	-- if w.label_mp then
+		-- w.label_mp.setVisible(bShowDetail);
+	-- end
+	-- if w.label_sp then
+		-- w.label_sp.setVisible(bShowDetail);
+	-- end
 
 	-- Chronicle
 	if w.label_trauma then

@@ -1,7 +1,6 @@
--- 
+--
 -- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
 -- Adjusted
@@ -14,31 +13,41 @@ function onTabletopInit()
 	-- DB.addHandler("charsheet.*.traitlist", "onChildDeleted", CharEncumbranceManager5E.onAbilityDelete);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onSizeChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "..");
 	-- CharEncumbranceManager5E.updateEncumbranceLimit(nodeChar);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onStrengthChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "....");
 	-- CharEncumbranceManager5E.updateEncumbranceLimit(nodeChar);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onAbilityFieldChange(nodeField)
 	-- local nodeChar = DB.getChild(nodeField, "....");
 	-- CharEncumbranceManager5E.updateEncumbranceLimit(nodeChar);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onAbilityDelete(nodeList)
 	-- local nodeChar = DB.getChild(nodeList, "..");
 	-- CharEncumbranceManager5E.updateEncumbranceLimit(nodeChar);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function updateEncumbranceLimit(nodeChar)
 	-- if not DB.isOwner(nodeChar) then
 		-- return;
@@ -55,7 +64,9 @@ function updateEncumbranceLimit(nodeChar)
 	-- DB.setValue(nodeChar, "encumbrance.liftpushdrag", "number", nEncLimit * 6);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function getEncumbranceMult(nodeChar)
 	-- local rActor = ActorManager.resolveActor(nodeChar);
 	-- local nActorSize = ActorCommonManager.getCreatureSizeDnD5(rActor);
@@ -82,7 +93,8 @@ function getEncumbranceMult(nodeChar)
 	-- return nMult;
 end
 
--- Added
+-- ===================================================================================================================
+-- ===================================================================================================================
 function calcItemBulk(nodeChar)
 	-- Debug.chat("FN: calcItemBulk in manager_char_encumberance")
 	local nBulkTotal = 0

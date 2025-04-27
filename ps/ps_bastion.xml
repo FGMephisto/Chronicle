@@ -29,8 +29,8 @@
 			<list_content name="list">
 				<datasource>.partyinformation</datasource>
 				<class>ps_bastion_entry</class>
-				<allowdelete />
 				<empty font="list-empty" textres="ps_emptylistother" />
+				<allowdelete />
 			</list_content>
 		</sheetdata>
 	</windowclass>

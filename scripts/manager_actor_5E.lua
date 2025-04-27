@@ -578,20 +578,20 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	local bOpportunity = sAttack:match("%[OPPORTUNITY%]");
 	local nCover = tonumber(sAttack:match("%[COVER %-(%d)%]")) or 0;
 
-	local sDefenderNodeType, nodeDefender = ActorManager.getTypeAndNode(rDefender);
+	local nodeDefender = ActorManager.getCreatureNode(rDefender);
 	if not nodeDefender then
 		return nil, 0, 0, false, false;
 	end
 
 	local nDefense;
 	local sDefenseStat = "dexterity";
-	if sDefenderNodeType == "pc" then
+	if ActorManager.isPC(rDefender) then
 		nDefense = DB.getValue(nodeDefender, "defenses.ac.total", 10);
 		sDefenseStat = DB.getValue(nodeDefender, "ac.sources.ability", "");
 		if sDefenseStat == "" then
 			sDefenseStat = "dexterity";
 		end
-	elseif StringManager.contains({ "ct", "npc", "vehicle" }, sDefenderNodeType) then
+	elseif ActorManager.isRecordType(rDefender, "npc") or ActorManager.isRecordType(rDefender, "vehicle") then
 		if (rRoll.sSubtargetPath or "") ~= "" then
 			nDefense = DB.getValue(DB.getPath(rRoll.sSubtargetPath, "ac"), 10);
 		else
@@ -626,7 +626,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 		end
 
 		local nBonusStat = ActorManager5E.getAbilityEffectsBonus(rDefender, sDefenseStat);
-		if (sDefenderNodeType == "pc") and (nBonusStat > 0) then
+		if ActorManager.isPC(rDefender) and (nBonusStat > 0) then
 			local sMaxDexBonus = DB.getValue(nodeDefender, "defenses.ac.dexbonus", "");
 			if sMaxDexBonus == "no" then
 				nBonusStat = 0;

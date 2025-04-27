@@ -4,7 +4,9 @@
 -- File adjusted for Chronicle System
 --
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onInit()
 	-- OptionsManager.registerCallback("HREN", onHRENOptionChanged);
 	-- onHRENOptionChanged();
@@ -12,12 +14,16 @@ function onInit()
 	-- updateAttunement();
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onClose()
 	-- OptionsManager.unregisterCallback("HREN", onHRENOptionChanged);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function onHRENOptionChanged()
 	-- local sOptionHREN = OptionsManager.getOption("HREN");
 	-- local bShowVariant = (sOptionHREN == "variant");
@@ -27,11 +33,15 @@ function onHRENOptionChanged()
 	-- encumbranceheavy.setVisible(bShowVariant);
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onDrop(x, y, draginfo)
 	return ItemManager.handleAnyDrop(getDatabaseNode(), draginfo);
 end
 
+-- ===================================================================================================================
 -- Adjusted
+-- ===================================================================================================================
 function updateAttunement()
 	-- local nodeChar = getDatabaseNode();
 	-- local nUsed = CharAttunementManager.getUsedSlots(nodeChar);

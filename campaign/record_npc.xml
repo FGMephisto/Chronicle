@@ -819,12 +819,10 @@
 			</label_content_column>
 			<string_content_columnh name="damageimmunities" />
 
-			<!--
-			<label_column name="gear_label">
+			<label_content_column name="gear_label">
 				<static textres="npc_label_gear" />
-			</label_column>
-			<string_columnh name="gear" />
-			-->
+			</label_content_column>
+			<string_content_columnh name="gear" />
 
 			<label_content_column name="senses_label">
 				<static textres="npc_label_senses" />
@@ -1217,6 +1215,7 @@
 					<right parent="" offset="-5" />
 				</anchored>
 				<multilinespacing>20</multilinespacing>
+				<nodragselect />
 				<script file="campaign/scripts/string_powerdesc.lua" />
 			</basicstring>
 		</sheetdata>

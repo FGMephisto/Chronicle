@@ -23,8 +23,11 @@ function performRoll(draginfo, rActor, nodeSkill, nTargetDC, bSecretRoll)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 function performPartySheetRoll(draginfo, rActor, sSkill)
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
-	if sNodeType ~= "pc" then
+	if not ActorManager.isPC(rActor) then
+		return;
+	end
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	if not nodeActor then
 		return;
 	end
 
@@ -89,10 +92,16 @@ function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
 	rRoll.nMod = rRoll.nMod + DB.getValue(nodeSkill, "misc", 0);
 
-	table.insert(rRoll.tNotifications, "[SKILL]");
-	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
-	if not DataCommon.skilldata[sSkill] and sAbility ~= "" then
-		table.insert(rRoll.tNotifications, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility]));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
+
+	if DataCommon.skilldata[sSkill] then
+		if sAbility ~= (DataCommon.skilldata[sSkill].stat or "") then
+			table.insert(rRoll.tNotifications, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility] or ""));
+		end
+	else
+		if sAbility ~= "" then
+			table.insert(rRoll.tNotifications, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility]));
+		end
 	end
 
 	local nodeChar = DB.getChild(nodeSkill, "...");
@@ -125,8 +134,8 @@ function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
 		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, rRoll.sAbility, sSkill);
 	end
 
-	table.insert(rRoll.tNotifications, "[SKILL]");
-	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
+
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
 	end
@@ -135,7 +144,6 @@ function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
 	end
 end
 function setupRollBuildFromNameNPC(rRoll, _, sSkill, nSkill)
-	table.insert(rRoll.tNotifications, "[SKILL]");
-	table.insert(rRoll.tNotifications, StringManager.capitalizeAll(sSkill));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
 	rRoll.nMod = nSkill;
 end

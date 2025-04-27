@@ -203,6 +203,17 @@ function getSkillsFromText2024(s)
 	if not s then
 		return {}, {}, 0;
 	end
+
+	-- Generic
+	local sSkill = s:match("[Pp]roficiency in the ([%w%s]+) skill");
+	if sSkill then
+		return { sSkill }, {}, 0;
+	end
+	local sSkill, sSkill2 = s:match("[Pp]roficiency in the ([%w%s]+) and ([%w%s]+) skills");
+	if sSkill and sSkill2 then
+		return { sSkill, sSkill2 }, {}, 0;
+	end
+
 	-- PHB - Species - Elf - Keen Senses
 	-- You have proficiency in the Insight, Perception, or Survival skill.
 	local sSkill1, sSkill2, sSkill3 = s:match("[Pp]roficiency in the ([%w%s]+), ([%w%s]+),? or ([%w%s]+) skill");

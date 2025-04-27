@@ -107,7 +107,7 @@
 			<anchor_listitem_right_sm />
 
 			<button_listitem_idelete_left name="idelete" />
-			<button_listitem_idelete_spacer_left name="idelete_spacer" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
 
 			<button_listitem_left name="shortcut">
 				<icon normal="button_link" pressed="button_link_down" />
@@ -149,9 +149,9 @@
 				<invisible />
 			</icon_listitem_right>
 
-			<string_listitem_center_text name="name">
+			<string_listitem_center_underline name="name">
 				<tabtarget next="stat" prev="prof" />
-			</string_listitem_center_text>
+			</string_listitem_center_underline>
 		</sheetdata>
 	</windowclass>
 </root>

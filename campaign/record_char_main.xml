@@ -1003,17 +1003,10 @@
 				<anchored width="40" />
 			</number_listitem_right>
 
-			<string_listitem_center_text name="name" />
+			<string_listitem_center_underline name="name" />
 
-			<label name="label_specialization">
-				<anchored to="name" position="belowleft" offset="0,5" height="20" />
-				<static textres="char_label_class_specialization" />
-			</label>
 			<linkfield_record name="specializationlink">
-				<anchored width="20" height="20">
-					<top parent="label_specialization" />
-					<right parent="shortcut" anchor="left" />
-				</anchored>
+				<anchored to="name" position="belowleft" offset="0,5" width="20" height="20" />
 				<description field="specialization" />
 				<hideonempty />
 				<nodrag />
@@ -1026,14 +1019,18 @@
 					end
 				</script>
 			</linkfield_record>
+			<label name="label_specialization">
+				<anchored to="specializationlink" position="righthigh" offset="5,0" height="20" />
+				<static textres="char_label_class_specialization" />
+			</label>
 			<simplestring name="specialization">
 				<anchored to="label_specialization" position="righthigh" offset="5,0" height="20">
-					<right parent="specializationlink" anchor="left" offset="-5"/>
+					<right parent="" offset="-5"/>
 				</anchored>
 				<readonly />
 			</simplestring>
 		</sheetdata>
-	</windowclass>	
+	</windowclass>
 
 	<windowclass name="charsheet_combatcalc" copy="charsheethelper_base">
 		<sizelimits>
