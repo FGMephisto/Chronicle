@@ -740,13 +740,18 @@ function getDamageResistances(rActor, rSource)
 	local tOutput = {};
 
 	if ActorManager5E.hasRollFeat2024(rActor, CharManager.FEAT_HEAVY_ARMOR_MASTER) then
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "bludgeoning", { nMod = 3 });
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "piercing", { nMod = 3 });
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "slashing", { nMod = 3 });
+		if CharArmorManager.isWearingHeavyArmor(rActor) then
+			local nProf = ActorManager5E.getAbilityBonus(rActor, "prf");
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "bludgeoning", { nMod = nProf });
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "piercing", { nMod = nProf });
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "slashing", { nMod = nProf });
+		end
 	elseif ActorManager5E.hasRollFeat2014(rActor, CharManager.FEAT_HEAVY_ARMOR_MASTER) then
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "bludgeoning", { nMod = 3, tNegatives = { "magic", }, });
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "piercing", { nMod = 3, tNegatives = { "magic", }, });
-		ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "slashing", { nMod = 3, tNegatives = { "magic", }, });
+		if CharArmorManager.isWearingHeavyArmor(rActor) then
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "bludgeoning", { nMod = 3, tNegatives = { "magic", }, });
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "piercing", { nMod = 3, tNegatives = { "magic", }, });
+			ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, "slashing", { nMod = 3, tNegatives = { "magic", }, });
+		end
 	end
 
 	local sRecordType = ActorManager.getRecordType(rActor);

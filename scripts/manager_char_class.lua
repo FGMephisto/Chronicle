@@ -1121,13 +1121,22 @@ function helperAddClassFeatureMagicalDiscoveries(rAdd)
 	end
 	table.sort(tOptions, function(a,b) return a.text < b.text; end);
 
+	local tLookup = {};
+	for _,v in ipairs(tOptions) do
+		tLookup[v.text] = v.linkrecord;
+	end
 	local tDialogData = {
 		title = Interface.getString("char_build_title_selectspells"),
 		msg = Interface.getString("char_build_message_selectspells"):format(2),
 		options = tOptions,
 		min = 2,
 		callback = CharBuildDropManager.onSpellSelect,
-		custom = { nodeChar = rAdd.nodeChar, sGroup = rAdd.sSpellGroup, bSource2024 = true, },
+		custom = {
+			nodeChar = rAdd.nodeChar,
+			sGroup = rAdd.sSpellGroup,
+			bSource2024 = true,
+			tLookup = tLookup,
+		},
 	};
 	DialogManager.requestSelectionDialog(tDialogData);
 end

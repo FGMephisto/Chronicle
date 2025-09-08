@@ -776,7 +776,7 @@ tBuildDataSpell2024 = {
 		{ type = "damage", clauses = { { dice = { "d8", }, dmgtype = "thunder" } } },
 	},
 	["spiritguardians"] = {
-		{ type = "effect", sName = "Spirit Guardians; (C)", nDuration = 10, sUnits = "minute" },
+		{ type = "effect", sName = "Spirit Guardians; (C)", sTargeting = "self" , nDuration = 10, sUnits = "minute" },
 		{ type = "effect", sName = "Speed Half; (C)", nDuration = 10, sUnits = "minute" },
 		{ type = "powersave", save = "wisdom", onmissdamage = "half", magic = true, savebase = "group" },
 		{ type = "damage", clauses = { { dice = { "d8", "d8", "d8" }, dmgtype = "radiant" } } },

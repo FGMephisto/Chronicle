@@ -12,7 +12,7 @@ function onCasterTypeChanged()
 end
 
 function updateDisplay()
-	local sCasterType = castertype.getStringValue();
+	local sCasterType = castertype.getValue();
 	local bSpells = (sCasterType == "memorization");
 
 	groupuses_label.setVisible(not bSpells);

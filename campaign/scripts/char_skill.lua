@@ -30,6 +30,7 @@ function setCustom(state)
 		name.setEnabled(false);
 		name.setLine(false);
 	end
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
 function isCustom()
 	return _bCustom;

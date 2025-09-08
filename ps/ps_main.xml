@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="ps_main_labels">
+		<sheetdata>
+			<label_list_content_base name="namelabel">
+				<anchored position="insidetopleft" offset="55,0" width="85" />
+				<static textres="ps_label_name" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="racelabel">
+				<anchored position="insidetopleft" offset="150,0" width="85" />
+				<static textres="ps_label_race" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="classlevellabel">
+				<anchored position="insidetopleft" offset="55,20" width="180" />
+				<static textres="ps_label_classlevel" />
+				<center />
+			</label_list_content_base>			
+			<label_list_content_base name="hplabel">
+				<anchored position="insidetopleft" offset="234,0" width="45" />
+				<static textres="hp" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="hdlabel">
+				<anchored position="insidetopleft" offset="234,20" width="45" />
+				<static textres="hd" />
+				<center />
+			</label_list_content_base>		
+			<label_list_content_base name="abilitieslabel">
+				<anchored position="insidetopleft" offset="279,0" width="190" />
+				<static textres="ps_label_abilities" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="strlabel">
+				<anchored to="abilitieslabel" position="belowleft" offset="0,-5" width="25" />
+				<static textres="str" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="dexlabel">
+				<anchored to="strlabel" position="righthigh" offset="8,0" width="25" />
+				<static textres="dex" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="conlabel">
+				<anchored to="dexlabel" position="righthigh" offset="8,0" width="25" />
+				<static textres="con" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="intlabel">
+				<anchored to="conlabel" position="righthigh" offset="8,0" width="25" />
+				<static textres="int" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="wislabel">
+				<anchored to="intlabel" position="righthigh" offset="8,0" width="25" />
+				<static textres="wis" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="chalabel">
+				<anchored to="wislabel" position="righthigh" offset="8,0" width="25" />
+				<static textres="cha" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="aclabel">
+				<anchored to="abilitieslabel" position="righthigh" offset="15,0" width="25" />
+				<static textres="ps_label_ac" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="perclabel">
+				<anchored to="aclabel" position="below" offset="0,-3" />
+				<static textres="ps_label_perc" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="defenseslabel">
+				<anchored to="abilitieslabel" position="righthigh" offset="10,0">
+					<right parent="" offset="-30" />
+				</anchored>
+				<static textres="ps_label_defenses" />
+				<center />
+			</label_list_content_base>
+			<label_list_content_base name="senseslabel">
+				<anchored to="defenseslabel" position="below" offset="0,-3" />
+				<static textres="ps_label_senses" />
+				<center />
+			</label_list_content_base>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_main_rolls">
+		<margins control="0,0,0,10" />
+		<script>
+			function onInit()
+				OptionsManager.registerCallback("REVL", update);
+				self.update();
+			end
+			function onClose()
+				OptionsManager.unregisterCallback("REVL", update);
+			end
+			function update()
+				hiderollresults.setVisible(OptionsManager.isOption("REVL", "on"));
+			end
+		</script>
+		<sheetdata>
+			<genericcontrol name="leftanchor">
+				<anchored position="insidetopleft" offset="0,10" width="0" height="20" />
+				<disabled />
+			</genericcontrol>
+
+			<buttonfield name="hiderollresults">
+				<anchored to="leftanchor" height="20" width="20">
+					<top />
+					<left anchor="right" relation="relative" offset="10" />
+				</anchored>
+				<frame name="fielddark" offset="10,8,10,6" />
+				<state icon="visibilityon" tooltipres="ps_tooltip_showrollon" />
+				<state icon="visibilityoff" tooltipres="ps_tooltip_showrolloff" />
+			</buttonfield>
+
+			<genericcontrol name="checkframe">
+				<anchored to="leftanchor" height="20" width="245">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<frame name="groupbox" offset="10,10,10,10" />
+			</genericcontrol>			
+			<button_roll name="checkroll">
+				<anchored to="checkframe" position="insidetopleft" offset="5,0" />
+				<script file="ps/scripts/ps_roll_check.lua" />
+			</button_roll>
+			<label name="checklabel">
+				<anchored to="checkroll" position="righthigh" offset="3,0" />
+				<static textres="ps_label_groupcheck" />
+			</label>
+			<combobox name="checkselected">
+				<anchored to="checklabel" position="righthigh" offset="10,0" width="100" height="20" />
+				<default textres="ps_default_groupability" />
+				<listdirection>down</listdirection>
+				<listmaxsize>3</listmaxsize>
+				<script>
+					function onInit()
+						super.onInit();
+						addItems(DataCommon.psabilitydata);
+					end
+				</script>
+			</combobox>
+			<label name="checkdclabel">
+				<anchored to="checkselected" position="righthigh" offset="10,0" />
+				<static textres="dc" />
+			</label>
+			<basicnumber name="checkdc">
+				<anchored to="checkdclabel" position="righthigh" offset="10,0" width="30" height="20" />
+			</basicnumber>			
+
+			<genericcontrol name="saveframe">
+				<anchored to="leftanchor" height="20" width="235">
+					<top />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<frame name="groupbox" offset="10,10,10,10" />
+			</genericcontrol>			
+			<button_roll name="saveroll">
+				<anchored to="saveframe" position="insidetopleft" offset="5,0" />
+				<script file="ps/scripts/ps_roll_save.lua" />
+			</button_roll>
+			<label name="savelabel">
+				<anchored to="saveroll" position="righthigh" offset="3,0" />
+				<static textres="ps_label_groupsave" />
+			</label>
+			<combobox name="saveselected">
+				<anchored to="savelabel" position="righthigh" offset="10,0" width="100" height="20" />
+				<listdirection>down</listdirection>
+				<listmaxsize>3</listmaxsize>
+				<default textres="ps_default_groupability" />
+				<script>
+					function onInit()
+						super.onInit();
+						addItems(DataCommon.psabilitydata);
+					end
+				</script>
+			</combobox>
+			<label name="savedclabel">
+				<anchored to="saveselected" position="righthigh" offset="10,0" />
+				<static textres="dc" />
+			</label>
+			<basicnumber name="savedc">
+				<anchored to="savedclabel" position="righthigh" offset="10,0" width="30" height="20" />
+			</basicnumber>			
+
+			<genericcontrol name="skillframe">
+				<anchored to="checkframe" position="belowleft" offset="0,15" height="20" width="245" />
+				<frame name="groupbox" offset="10,10,10,10" />
+			</genericcontrol>							
+			<button_roll name="skillroll">
+				<anchored to="skillframe" position="insidetopleft" offset="5,0" />
+				<script file="ps/scripts/ps_roll_skill.lua" />
+			</button_roll>
+			<label name="skilllabel">
+				<anchored to="skillroll" position="righthigh" offset="3,0" />
+				<static textres="ps_label_groupskill" />
+			</label>	
+			<combobox name="skillselected">
+				<anchored to="skilllabel" position="righthigh" offset="10,0" width="110" height="20" />
+				<listmaxsize>5</listmaxsize>
+				<listdirection>down</listdirection>
+				<script>
+					function onInit()
+						super.onInit();
+						addItems(DataCommon.psskilldata);
+					end
+				</script>
+			</combobox>
+			<label name="skilldclabel">
+				<anchored to="skillselected" position="righthigh" offset="10,0" />
+				<static textres="dc" />
+			</label>
+			<basicnumber name="skilldc">
+				<anchored to="skilldclabel" position="righthigh" offset="10,0" width="30" height="20" />
+			</basicnumber>			
+
+			<genericcontrol name="atkframe">
+				<anchored to="saveframe" position="belowleft" offset="0,15" height="20" width="110" />
+				<frame name="groupbox" offset="10,10,10,10" />
+			</genericcontrol>							
+			<button_roll name="atkroll">
+				<anchored to="atkframe" position="insidetopleft" offset="5,0" />
+				<script file="ps/scripts/ps_roll_atk.lua" />
+			</button_roll>
+			<label name="atklabel">
+				<anchored to="atkroll" position="righthigh" offset="3,0" />
+				<static textres="ps_label_groupatk" />
+			</label>	
+			<basicnumber name="bonus">
+				<anchored to="atklabel" position="righthigh" offset="10,0" width="30" height="20" />
+				<displaysign />
+			</basicnumber>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_mainitem">
+		<margins control="0,0,0,10" />
+		<frame>fieldlight</frame>
+		<sheetdata>
+			<hlink name="link">
+				<script>
+					function onValueChanged()
+						window.portrait.update();
+					end
+				</script>
+			</hlink>
+			<hnx name="hptotal" />
+			<hnx name="wounds" />
+			<hnx name="hd" />
+			<hnx name="hdused" />
+
+			<portrait_ps name="portrait">
+				<bounds>10,10,40,40</bounds>
+			</portrait_ps>
+
+			<string_ps name="name">
+				<anchored position="insidetopleft" offset="55,10" width="85" />
+				<empty textres="library_recordtype_empty_charsheet" />
+			</string_ps>
+			<string_ps name="race">
+				<anchored position="insidetopleft" offset="150,10" width="85" />
+			</string_ps>
+			<string_ps name="classlevel">
+				<anchored position="insidetopleft" offset="55,30" width="180" />
+			</string_ps>
+
+			<progressbar name="hpbar">
+				<anchored position="insidetopleft" offset="245,10" width="10" height="40" />
+				<source><max>hptotal</max><used>wounds</used></source>
+				<textprefix><textres>hp</textres></textprefix>
+				<healthbar />
+			</progressbar>
+			<progressbar name="hdbar">
+				<anchored position="insidetopleft" offset="258,10" width="10" height="40" />
+				<source><max>hd</max><used>hdused</used></source>
+				<textprefix><textres>hd</textres></textprefix>
+				<usagebar />
+			</progressbar>
+
+			<number_ps_ability name="strength">
+				<anchored to="hdbar">
+					<left offset="10" />
+				</anchored>
+			</number_ps_ability>			
+			<number_ps_ability name="dexterity">
+				<anchored to="strength" />
+			</number_ps_ability>			
+			<number_ps_ability name="constitution">
+				<anchored to="dexterity" />
+			</number_ps_ability>			
+			<number_ps_ability name="intelligence">
+				<anchored to="constitution" />
+			</number_ps_ability>			
+			<number_ps_ability name="wisdom">
+				<anchored to="intelligence" />
+			</number_ps_ability>		
+			<number_ps_ability name="charisma">
+				<anchored to="wisdom" />
+			</number_ps_ability>	
+			<number_ps_abilitybonus name="strbonus">
+				<anchored to="strength" />
+				<target>strength</target>
+			</number_ps_abilitybonus>
+			<number_ps_abilitybonus name="conbonus">
+				<anchored to="constitution" />
+				<target>constitution</target>
+			</number_ps_abilitybonus>
+			<number_ps_abilitybonus name="dexbonus">
+				<anchored to="dexterity" />
+				<target>dexterity</target>
+			</number_ps_abilitybonus>
+			<number_ps_abilitybonus name="intbonus">
+				<anchored to="intelligence" />
+				<target>intelligence</target>
+			</number_ps_abilitybonus>
+			<number_ps_abilitybonus name="wisbonus">
+				<anchored to="wisdom" />
+				<target>wisdom</target>
+			</number_ps_abilitybonus>
+			<number_ps_abilitybonus name="chabonus">
+				<anchored to="charisma" />
+				<target>charisma</target>
+			</number_ps_abilitybonus>			
+
+			<number_ps_defense name="ac">
+				<anchored to="charisma">
+					<left offset="15" />
+				</anchored>
+			</number_ps_defense>				
+			<number_ps_senses name="perception">
+				<anchored to="ac" position="belowleft" offset="0,1" />
+			</number_ps_senses>				
+			<string_ps name="specialdefense">
+				<anchored height="20">
+					<top parent="ac" />
+					<left parent="ac" anchor="right" offset="10" />
+					<right offset="-30" />
+				</anchored>
+				<tooltip textres="ps_tooltip_specialdef" />
+			</string_ps>
+			<string_ps name="senses">
+				<anchored to="specialdefense" position="below" offset="0,1" height="20" />
+				<tooltip textres="ps_tooltip_specialdef" />
+			</string_ps>
+
+			<button_idelete name="idelete">
+				<anchored position="insidetopright" offset="10,10" />
+				<editmode>list_iedit</editmode>
+			</button_idelete>
+		</sheetdata>
+	</windowclass>
+</root>

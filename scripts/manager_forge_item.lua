@@ -19,7 +19,7 @@ local _tItems = {};
 local _tTemplates = {};
 
 function setStatus(w, sStatusIcon, sStatus)
-	w.sub_buttons.subwindow.statusicon.setStringValue(sStatusIcon);
+	w.sub_buttons.subwindow.statusicon.setValue(sStatusIcon);
 	w.sub_buttons.subwindow.status.setValue(sStatus);
 end
 function clearStatus(w)

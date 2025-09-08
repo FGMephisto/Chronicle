@@ -44,9 +44,9 @@ function constructDefaultSkills()
 			if w then
 				w.name.setValue(k);
 				if t.stat then
-					w.stat.setStringValue(t.stat);
+					w.stat.setValue(t.stat);
 				else
-					w.stat.setStringValue("");
+					w.stat.setValue("");
 				end
 				matches = { w };
 			end
@@ -86,10 +86,10 @@ function addSkillReference(nodeSource)
 
 		wSkill.name.setValue(sName);
 		if DataCommon.skilldata[sName] then
-			wSkill.stat.setStringValue(DataCommon.skilldata[sName].stat);
+			wSkill.stat.setValue(DataCommon.skilldata[sName].stat);
 			wSkill.setCustom(false);
 		else
-			wSkill.stat.setStringValue(DB.getValue(nodeSource, "stat", ""):lower());
+			wSkill.stat.setValue(DB.getValue(nodeSource, "stat", ""):lower());
 			wSkill.setCustom(true);
 		end
 	end

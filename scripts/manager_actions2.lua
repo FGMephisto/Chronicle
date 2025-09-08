@@ -192,6 +192,15 @@ function applyGeneralRollModifiers(rRoll)
 		for i = 1, nDice do
 			ActionsManager2.helperHandleMinValue(rRoll, i, nMinValue);
 		end
+	else
+		local sMinValue, sMinDice = rRoll.sDesc:match("%[MIN (%d+) (%d+)D%]");
+		if sMinValue and sMinDice then
+			local nMinValue = tonumber(sMinValue) or 0;
+			local nMinDice = math.min(tonumber(sMinDice) or 0, #rRoll.aDice);
+			for i = 1, nMinDice do
+				ActionsManager2.helperHandleMinValue(rRoll, i, nMinValue);
+			end
+		end
 	end
 end
 

@@ -1,10 +1,9 @@
--- 
+--
 -- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
 --
 
--- Added
 function onInit()
 	if super and super.onInit then
 		super.onInit();
@@ -20,7 +19,6 @@ function onInit()
 	end
 end
 
--- Added
 function update(bReadOnly, bForceHide)
 	local bLocalShow;
 
@@ -57,7 +55,6 @@ function update(bReadOnly, bForceHide)
 	return bLocalShow;
 end
 
--- Added
 function onVisUpdate(bLocalShow, bReadOnly)
 	local sButtonName = getName() .. "_cbbutton";
 
@@ -77,7 +74,6 @@ function onVisUpdate(bLocalShow, bReadOnly)
 	end
 end
 
--- Added
 function onValueChanged()
 	update()
 	if isVisible() then

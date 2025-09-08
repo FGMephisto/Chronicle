@@ -845,7 +845,7 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 
 	-- Handle Heavy Armor Master notification
 	if bResist and bBasicDamage then
-		if ActorManager5E.hasRollFeat(rTarget, CharManager.FEAT_HEAVY_ARMOR_MASTER) then
+		if ActorManager5E.hasRollFeat(rTarget, CharManager.FEAT_HEAVY_ARMOR_MASTER) and CharArmorManager.isWearingHeavyArmor(rTarget) then
 			table.insert(rDamageOutput.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feat_heavyarmormaster")));
 		end
 	end

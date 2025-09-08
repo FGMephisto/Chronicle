@@ -11,11 +11,9 @@ function onInit()
 	ActionsManager.registerTargetingHandler("cast", ActionPower.onPowerTargeting);
 	ActionsManager.registerTargetingHandler("powersave", ActionPower.onPowerTargeting);
 
-	ActionsManager.registerModHandler("castsave", ActionPower.modCastSave);
 	ActionsManager.registerModHandler("powersave", ActionPower.modCastSave);
 
 	ActionsManager.registerResultHandler("cast", ActionPower.onPowerCast);
-	ActionsManager.registerResultHandler("castsave", ActionPower.onCastSave);
 	ActionsManager.registerResultHandler("powersave", ActionPower.onPowerSave);
 end
 

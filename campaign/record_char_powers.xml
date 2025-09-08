@@ -7,14 +7,14 @@
 
 <root>
 	<template name="buttongroup_counter_power">
-		<genericcontrol>
-			<anchored width="10" height="20" />
-			<stateicons>
-				<on>button_checkon</on>
-				<off>button_checkoff</off>
-			</stateicons>
+		<buttongroup_counter>
+			<anchored height="20" />
+			<sourcefields>
+				<prepared>prepared</prepared>
+				<cast>cast</cast>
+			</sourcefields>
 			<script file="campaign/scripts/buttongroup_counter_power_5E.lua" />
-		</genericcontrol>
+		</buttongroup_counter>
 	</template>
 	
 	<template name="power_slots_list">
@@ -34,12 +34,13 @@
 		</windowlist>
 	</template>
 	<windowclass name="power_slot_cast">
+		<margins control="0,0,0,2" />
 		<sheetdata>
 			<label name="label">
-				<anchored position="insidetopleft" />
+				<anchored position="insidetopleft" offset="0,2" />
 			</label>
 			<buttongroup_counter name="counter">
-				<anchored position="insidetopleft" offset="25,0" />
+				<anchored position="insidetopleft" offset="25,2" height="20" />
 				<maxslotperrow>5</maxslotperrow>
 			</buttongroup_counter>
 		</sheetdata>
@@ -61,14 +62,14 @@
 
 			<label name="spellslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="7" />
+					<top parent="columnanchor" anchor="bottom" relation="current" offset="3" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_spellcastingslots" />
 			</label>
 			<power_slots_list name="spellslots">
 				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="3" />
 					<left offset="90" />
 					<right offset="-50" />
 				</anchored>
@@ -76,14 +77,14 @@
 
 			<label name="pactmagicslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="7" />
+					<top parent="columnanchor" anchor="bottom" relation="current" offset="3" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_pactmagicslots" />
 			</label>
 			<power_slots_list name="pactmagicslots">
 				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="3" />
 					<left offset="90" />
 					<right offset="-50" />
 				</anchored>
@@ -113,17 +114,16 @@
 			</label_charframetop>
 
 			<label name="spellslots_label">
-				<anchored>
+				<anchored width="80">
 					<top parent="columnanchor" anchor="bottom" relation="current" offset="17" />
 					<left offset="10" />
-					<right anchor="center" offset="-120" />
 				</anchored>
 				<static textres="power_label_spellcastingslots" />
 			</label>
 			<genericcontrol name="anchor_spellslots">
 				<anchored width="0" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="17" />
-					<left anchor="center" offset="-130" />
+					<left parent="spellslots_label" anchor="right" offset="10,0" />
 				</anchored>
 				<disabled />
 			</genericcontrol>
@@ -174,17 +174,16 @@
 			</label_fieldtop>
 
 			<label name="pactmagicslots_label">
-				<anchored>
+				<anchored width="80">
 					<top parent="columnanchor" anchor="bottom" relation="current" offset="17" />
 					<left offset="10" />
-					<right anchor="center" offset="-120" />
 				</anchored>
 				<static textres="power_label_pactmagicslots" />
 			</label>
 			<genericcontrol name="anchor_pactmagicslots">
 				<anchored width="0" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="17" />
-					<left anchor="center" offset="-130" />
+					<left parent="pactmagicslots_label" anchor="right" offset="10,0" />
 				</anchored>
 				<disabled />
 			</genericcontrol>

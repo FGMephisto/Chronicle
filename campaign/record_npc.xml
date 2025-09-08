@@ -135,8 +135,8 @@
 				<anchored to="area_variables" position="insidetopleft" offset="105,7" width="30" height="20" />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonChanged");
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
 			</button_checkbox>
@@ -150,8 +150,8 @@
 				<nohide />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -170,7 +170,7 @@
 				<displaysign />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -188,7 +188,7 @@
 				<nohide />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -207,7 +207,7 @@
 				<displaysign />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonPowerDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonPowerDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -241,7 +241,7 @@
 			<number_content_columnh name="summon_ac_base">
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -253,7 +253,7 @@
 				<anchored to="summon_ac_plus_label" position="righthigh" offset="5,0" width="40" height="20" />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
 					end
 				</script>
 			</number_content_base>
@@ -268,7 +268,7 @@
 			<number_content_columnh name="summon_hp_base">
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
 					end
 				</script>
 			</number_content_columnh>
@@ -280,7 +280,7 @@
 				<anchored to="summon_hp_plus_label" position="righthigh" offset="5,0" width="40" height="20" />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
 					end
 				</script>
 			</number_content_base>
@@ -292,7 +292,7 @@
 				<anchored to="summon_hp_mod_label" position="righthigh" offset="5,0" width="40" height="20" />
 				<script>
 					function onValueChanged()
-						WindowManager.callInnerWindowFunction(UtilityManager.getTopWindow(window), "onSummonDataChanged");
+						WindowManager.callInnerWindowFunction(WindowManager.getTopWindow(window), "onSummonDataChanged");
 					end
 				</script>
 			</number_content_base>

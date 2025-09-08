@@ -22,16 +22,4 @@
 			<left offset="330" />
 		</anchored>
 	</panel>
-
-	<die name="dF" merge="delete" />
-	<die name="rF" merge="delete" />
-	<die name="gF" merge="delete" />
-	<die name="bF" merge="delete" />
-	<die name="pF" merge="delete" />
-	<die name="d4" merge="delete" />
-	<die name="d8" merge="delete" />
-	<die name="d10" merge="delete" />
-	<die name="d12" merge="delete" />
-	<die name="d20" merge="delete" />
-	<die name="d100" merge="delete" />
 </root>

@@ -225,3 +225,24 @@ function calcItemArmorClass(nodeChar)
 	DB.setValue(nodeChar, "defenses.ac.dexbonus", "string", sMainDexBonus);
 	DB.setValue(nodeChar, "defenses.ac.disstealth", "number", nMainStealthDis);
 end
+
+function isWearingHeavyArmor(rActor)
+	-- If checking on NPC, always assume true;
+	-- since we have no way to check easily without a lot of assumptions
+	if not ActorManager.isPC(rActor) then
+		return true;
+	end
+
+	local nodeChar = ActorManager.getCreatureNode(rActor);
+	for _,nodeItem in ipairs(DB.getChildList(nodeChar, "inventorylist")) do
+		if DB.getValue(nodeItem, "carried", 0) == 2 then
+			if ItemManager.isArmor(nodeItem) and not ItemManager.isShield(nodeItem) then
+				local sSubType = DB.getValue(nodeItem, "subtype", "");
+				if sSubType:lower():match("^heavy") then
+					return true;
+				end
+			end
+		end
+	end
+	return false;
+end

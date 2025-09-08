@@ -1,4 +1,4 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
@@ -6,37 +6,29 @@
 
 OOB_MSGTYPE_APPLYINIT = "applyinit";
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYINIT, handleApplyInit);
+	OOBManager.registerOOBMsgHandler(ActionInit.OOB_MSGTYPE_APPLYINIT, ActionInit.handleApplyInit);
 
-	ActionsManager.registerModHandler("init", modRoll);
-	ActionsManager.registerResultHandler("init", onResolve);
+	ActionsManager.registerModHandler("init", ActionInit.modRoll);
+	ActionsManager.registerResultHandler("init", ActionInit.onResolve);
 end
 
--- ===================================================================================================================
 -- Set Initiative result on CT
--- ===================================================================================================================
 function handleApplyInit(msgOOB)
-	-- Debug.chat("FN: handleApplyInit in manager_action_init")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local nTotal = tonumber(msgOOB.nTotal) or 0;
 
 	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
 end
 
--- ===================================================================================================================
 -- Communicate initiative roll to Clients
--- ===================================================================================================================
 function notifyApplyInit(rSource, nTotal)
-	-- Debug.chat("FN notifyApplyInit in manager_action_init")
 	if not rSource then
 		return;
 	end
 
 	local msgOOB = {};
-	msgOOB.type = OOB_MSGTYPE_APPLYINIT;
+	msgOOB.type = ActionInit.OOB_MSGTYPE_APPLYINIT;
 
 	msgOOB.nTotal = nTotal;
 
@@ -45,11 +37,12 @@ function notifyApplyInit(rSource, nTotal)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
+--
+--	ROLL BUILD/MOD/RESOLVE
+--
+
 -- Adjusted
--- ===================================================================================================================
-function getRoll(rActor, bSecretRoll)
-	-- Debug.chat("FN getRoll in manager_action_init")
+function getRoll(rActor, bSecret)
 	local rRoll = {};
 	rRoll.aDice = {};
 	rRoll.bSecret = bSecretRoll;
@@ -79,20 +72,14 @@ function getRoll(rActor, bSecretRoll)
 	return rRoll;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function performRoll(draginfo, rActor, bSecretRoll)
-	-- Debug.chat("FN performRoll in manager_action_init")
-	local rRoll = getRoll(rActor, bSecretRoll);
+	local rRoll = ActionInit.getRoll(rActor, bSecretRoll);
 	
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
-	-- Debug.chat("FN modRoll in manager_action_init")
 	local aAddDesc = {}
 	local aAddDice = {}
 	local nAddMod = 0
@@ -152,10 +139,7 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
--- ===================================================================================================================
--- Returns effect existence, effect dice, effect mod
--- Adjusted
--- ===================================================================================================================
+-- Adjusted - Returns effect existence, effect dice, effect mod
 function getEffectAdjustments(rActor)
 	-- Debug.chat("FN getEffectAdjustments in manager_action_init")
 	-- ToDo: Adjust to work with Chronicle
@@ -209,8 +193,6 @@ function getEffectAdjustments(rActor)
 	return bEffects, aEffectDice, nEffectMod;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onResolve(rSource, rTarget, rRoll)
 	-- Debug.chat("FN onResolve in manager_action_init")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
@@ -222,4 +204,46 @@ function onResolve(rSource, rTarget, rRoll)
 	
 	local nTotal = ActionsManager.total(rRoll);
 	notifyApplyInit(rSource, nTotal);
+end
+
+--
+--	ROLL BUILDING HELPERS
+--
+
+function setupRollBuild(rRoll, rActor)
+	table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("action_init_tag")));
+
+	-- Determine the modifier and ability to use for this roll
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	if nodeActor then
+		if ActorManager.isPC(rActor) then
+			rRoll.nMod = DB.getValue(nodeActor, "initiative.total", 0);
+
+			-- Check for armor non-proficiency
+			if DB.getValue(nodeActor, "defenses.ac.prof", 1) == 0 then
+				rRoll.bDIS = true;
+				table.insert(rRoll.tNotifications, Interface.getString("roll_msg_armor_nonprof"));
+			end
+		else
+			rRoll.nMod = DB.getValue(nodeActor, "init", 0);
+		end
+	end
+end
+
+--
+--	OTHER
+--
+
+-- Used in combat manager script to get initiative adjustments for automatic initiative
+-- Returns effect existence, effect dice, effect mod, effect advantage, effect disadvantage
+function getEffectAdjustments(rActor)
+	local rRoll = {
+		sType = "init",
+		bEffects = false,
+		tEffectDice = {},
+		nEffectMod = 0,
+		tCheckFilter = { "dexterity" },
+	};
+	ActionCheck.applyEffectsToRollMod(rRoll, rActor);
+	return rRoll.bEffects, rRoll.tEffectDice, rRoll.nEffectMod, rRoll.bADV, rRoll.bDIS;
 end

@@ -450,9 +450,11 @@ function importHelperAbilities2024(tImportState)
 	DB.setValue(tImportState.node, "abilities.intelligence.savemodifier", "number", sINTSaveMod);
 	DB.setValue(tImportState.node, "abilities.charisma.savemodifier", "number", sCHASaveMod);
 
-	if _sStoredInitiativeBonus and sDEXBonus then
-		sInitiativeBonusMisc = tostring(tonumber(_sStoredInitiativeBonus) - tonumber(sDEXBonus));
-		DB.setValue(tImportState.node, "initiative.misc", "number", 0);
+	local nStoredInitiativeBonus = tonumber(_sStoredInitiativeBonus)
+	local nDEXBonus = tonumber(sDEXBonus)
+	if nStoredInitiativeBonus and nDEXBonus then
+		local sInitiativeBonusMisc = tostring(nStoredInitiativeBonus - nDEXBonus);
+		DB.setValue(tImportState.node, "initiative.misc", "number", sInitiativeBonusMisc);
 	end
 
 	ImportNPCManager.addStatOutput(tImportState, "<table>");

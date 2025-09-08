@@ -593,22 +593,32 @@ function buildDamageAction(nodeChar, nodeWeapon)
 		end
 	elseif (DB.getValue(nodeWeapon, "type", 0) == 0) then
 		if rAction.clauses[1] and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_DUELING) then
-			local bOtherWeaponEquipped = false;
-			for _,node in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
-				if (node ~= nodeWeapon) and (DB.getValue(node, "carried", 0) == 2) then
-					bOtherWeaponEquipped = true;
-					break;
+			if DB.getValue(nodeWeapon, "handling", 0) == 0 then
+				local bOtherWeaponEquipped = false;
+				local _,sRecord = DB.getValue(nodeWeapon, "shortcut", "", "");
+				for _,nodeOther in ipairs(DB.getChildList(nodeChar, "weaponlist")) do
+					if (nodeOther ~= nodeWeapon) and (DB.getValue(nodeOther, "carried", 0) == 2) then
+						local _,sRecordOther = DB.getValue(nodeOther, "shortcut", "", "");
+						if ((sRecordOther or "") == "") or (sRecordOther ~= sRecord) then
+							bOtherWeaponEquipped = true;
+							break;
+						end
+					end
 				end
-			end
-			if not bOtherWeaponEquipped then
-				rAction.clauses[1].modifier = (rAction.clauses[1].modifier or 0) + 2;
-				table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_dueling")));
+				if not bOtherWeaponEquipped then
+					rAction.clauses[1].modifier = (rAction.clauses[1].modifier or 0) + 2;
+					table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_dueling")));
+				end
 			end
 		end
 		if CharManager.hasFeat2024(nodeChar, CharManager.FEAT_GREAT_WEAPON_FIGHTING) then
 			if CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_TWOHANDED) or CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_VERSATILE) then
 				table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_greatweaponfighting")));
-				table.insert(rAction.tAddText, string.format("[MIN 3]"));
+				local nWeaponDice = 0;
+				for _,tClause in ipairs(rAction.clauses) do
+					nWeaponDice = nWeaponDice + #(tClause.dice or {});
+				end
+				table.insert(rAction.tAddText, string.format("[MIN 3 %dD]", nWeaponDice));
 			end
 		end
 	end

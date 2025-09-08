@@ -134,7 +134,7 @@
 				<max>100</max>
 			</number_content_base>
 			<state_charammocounter name="ammocounter">
-				<anchored to="maxammo" height="20">
+				<anchored to="maxammo">
 					<top />
 					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
@@ -181,7 +181,7 @@
 
 	<windowclass name="char_weapon_editor" copy="charsheethelper_base">
 		<sizelimits>
-			<minimum width="380" height="350" />
+			<minimum width="400" height="450" />
 		</sizelimits>
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
@@ -223,7 +223,9 @@
 			<label_column name="properties_label">
 				<static textres="weapon_label_properties" />
 			</label_column>
-			<string_column name="properties" />
+			<string_column name="properties">
+				<delaykeyupdate />
+			</string_column>
 
 			<label_column name="mastery_label">
 				<static textres="item_label_mastery" />
@@ -304,7 +306,7 @@
 				<script>
 					function onChildWindowCreated(w)
 						if getWindowCount() == 1 then
-							w.stat.setStringValue("base");
+							w.stat.setValue("base");
 						end
 					end
 				</script>

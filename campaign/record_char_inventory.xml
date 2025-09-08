@@ -318,7 +318,7 @@
 				</anchored>
 				<class>char_currencyitem</class>
 				<datasource>.coins</datasource>
-				<columns width="150" fillwidth="true" />
+				<columns width="150" fillwidth="true" dynamic="true" />
 				<script>
 					function onInit()
 						local nodeCurrencyList = getDatabaseNode();
@@ -426,7 +426,7 @@
 			<number_static name="encumbranceheavy" source="encumbrance.encumberedheavy">
 				<anchored to="encumbranceanchor" width="60" height="20">
 					<top />
-					<left anchor="right" relation="relative" offset="15" />
+					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
 			</number_static>
 			<label_fieldtop name="encumbranceheavy_label">
@@ -436,7 +436,7 @@
 			<number_static name="encumbrancemax" source="encumbrance.max">
 				<anchored to="encumbranceanchor" width="60" height="20">
 					<top />
-					<left anchor="right" relation="relative" offset="15" />
+					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
 			</number_static>
 			<label_fieldtop name="encumbrancemax_label">
@@ -446,7 +446,7 @@
 			<number_static name="encumbrancedrag" source="encumbrance.liftpushdrag">
 				<anchored to="encumbranceanchor" width="60" height="20">
 					<top />
-					<left anchor="right" relation="relative" offset="15" />
+					<left anchor="right" relation="relative" offset="10" />
 				</anchored>
 			</number_static>
 			<label_fieldtop name="encumbrancedrag_label">

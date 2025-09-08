@@ -268,7 +268,13 @@ function updateNPCSpellHelper(sSpell, nodeNPC, bInnate, nDaily)
 	};
 	local nodeSpell = RecordManager.findRecordByFilter("spell", tFilters);
 	if not nodeSpell then
-		return false;
+		tFilters = {
+			{ sField = "name", sValue = sCleaned, bIgnoreCase = true, },
+		};
+		nodeSpell = RecordManager.findRecordByFilter("spell", tFilters);
+		if not nodeSpell then
+			return false;
+		end
 	end
 
 	CampaignDataManager2.addNPCSpell(nodeNPC, nodeSpell, bInnate, nDaily);

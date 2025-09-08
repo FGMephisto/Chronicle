@@ -7,9 +7,10 @@
 -->
 
 <root>
+<!-- Adjusted -->
 	<windowclass name="reference_feat" copy="record_window">
 		<sheetdata>
-			<sub_record_version name="sub_version" insertbefore="content" />
+			<!-- <sub_record_version name="sub_version" insertbefore="content" /> -->
 		</sheetdata>
 	</windowclass>
 	<windowclass name="reference_feat_header" copy="record_header" />
@@ -25,7 +26,7 @@
 				if bIs2024 then
 					sub_content.setValue("reference_feat_main_2024", nodeRecord);
 				else
-					sub_content.setValue("reference_feat_main_2014", nodeRecord);
+					sub_content.setValue("reference_feat_main_2024", nodeRecord);
 				end
 			end
 		</script>
@@ -35,9 +36,10 @@
 		</sheetdata>
 	</windowclass>
 
+	<!-- Adjusted -->
 	<windowclass name="reference_feat_main_2024">
 		<margins control="0,0,0,5" />
-		<script file="campaign/scripts/feat_main.lua" />
+		<script file="campaign/scripts/feat_main_chronicle.lua" />
 		<sheetdata>
 			<anchor_content_top />
 
@@ -68,17 +70,39 @@
 				</script>
 			</string_content_columnh>
 
-			<label_content_column name="level_label">
-				<static textres="level" />
+			<!-- <label_content_column name="level_label"> -->
+				<!-- <static textres="level" /> -->
+			<!-- </label_content_column> -->
+			<!-- <number_content_columnh name="level"> -->
+				<!-- <delaykeyupdate /> -->
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- WindowManager.callOuterWindowFunction(window, "onSummaryChanged"); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </number_content_columnh> -->
+
+			<label_content_column name="sub_category_label">
+				<static textres="feat_label_sub_category" />
 			</label_content_column>
-			<number_content_columnh name="level">
+			<string_content_columnh name="sub_category">
 				<delaykeyupdate />
 				<script>
 					function onValueChanged()
 						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
 					end
 				</script>
-			</number_content_columnh>
+			</string_content_columnh>
+
+			<!-- <label_column name="type_label"> -->
+				<!-- <static textres="ref_feat_type_label" /> -->
+			<!-- </label_column> -->
+			<!-- <string_columnh name="type" /> -->
+
+			<!-- <label_column name="subtype_label"> -->
+				<!-- <static textres="ref_feat_subtype_label" /> -->
+			<!-- </label_column> -->
+			<!-- <string_columnh name="subtype" /> -->
 
 			<label_content_column name="prerequisite_label">
 				<static textres="record_label_prerequisite" />
@@ -92,58 +116,23 @@
 				</script>
 			</string_content_columnh>
 
-			<label_content_column name="repeatable_label">
-				<static textres="feat_label_repeatable" />
-			</label_content_column>
-			<button_checkbox_content_columnh name="repeatable">
-				<script>
-					function onValueChanged()
-						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
-					end
-				</script>
-			</button_checkbox_content_columnh>
+			<!-- <label_column name="requirements_label"> -->
+				<!-- <static textres="ref_feat_requirements_label" /> -->
+			<!-- </label_column> -->
+			<!-- <string_columnh name="requirements" /> -->
+
+			<!-- <label_content_column name="repeatable_label"> -->
+				<!-- <static textres="feat_label_repeatable" /> -->
+			<!-- </label_content_column> -->
+			<!-- <button_checkbox_content_columnh name="repeatable"> -->
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- WindowManager.callOuterWindowFunction(window, "onSummaryChanged"); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </button_checkbox_content_columnh> -->
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="reference_feat_main_2014" copy="record_content_text" />
-	
-	<!-- =================================================================================================================== -->
-	<!-- Custom Reference Feat Main -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="ref_feat_main">
-		<margins control="0,0,0,2" />
-		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="type_label">
-				<static textres="ref_feat_type_label" />
-			</label_column>
-			<string_columnh name="type" />
-
-			<label_column name="subtype_label">
-				<static textres="ref_feat_subtype_label" />
-			</label_column>
-			<string_columnh name="subtype" />
-
-			<label_column name="requirements_label">
-				<static textres="ref_feat_requirements_label" />
-			</label_column>
-			<string_columnh name="requirements" />
-
-			<line_column name="divider1" />
-
-			<ft_columnh  name="text">
-			<anchored >
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<bottom anchor="bottom" offeset="20" />
-				<left />
-				<right offset="-15" />
-			</anchored>			
-			</ft_columnh>
-			<scrollbar>
-				<anchored to="text" />
-				<target>text</target>
-			</scrollbar>
-		</sheetdata>
-	</windowclass>
 </root>

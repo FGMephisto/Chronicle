@@ -20,7 +20,7 @@ function update()
 end
 
 function updateVehicleAbilities(bReadOnly)
-	local sRecordType = RecordDataManager.getRecordTypeFromWindow(UtilityManager.getTopWindow(self));
+	local sRecordType = RecordDataManager.getRecordTypeFromWindow(WindowManager.getTopWindow(self));
 	if sRecordType ~= "vehicle" then
 		return;
 	end

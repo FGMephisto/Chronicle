@@ -49,7 +49,6 @@
 	</windowclass>
 
 	<windowclass name="charsheet_overview" copy="charsheet_overview_base_alt">
-		<script file="campaign/scripts/char_overview.lua" />
 		<sheetdata>
 			<label_charframetop name="inspirationtitle" insertbefore="nametitle">
 				<anchored to="rightanchor" width="40" height="20">
@@ -60,14 +59,32 @@
 				<tooltip textres="char_tooltip_inspiration" />
 			</label_charframetop>
 			<buttongroup_counter name="inspiration" insertbefore="nametitle">
-				<anchored to="inspirationtitle">
+				<anchored to="inspirationtitle" height="20">
 					<top anchor="bottom" offset="5" />
 					<left anchor="center" offset="-5" />
 				</anchored>
 				<tooltip textres="char_tooltip_inspiration" />
 				<sourcefields><current>inspiration</current></sourcefields>
-				<values><maximum>3</maximum></values>
 				<script>
+					function onInit()
+						self.onHRISOptionChanged();
+						OptionsManager.registerCallback("HRIS", self.onHRISOptionChanged);
+						if super and super.onInit then
+							super.onInit();
+						end
+					end
+					function onClose()
+						if super and super.onClose then
+							super.onClose();
+						end
+						OptionsManager.unregisterCallback("HRIS", self.onHRISOptionChanged);
+					end
+					function onHRISOptionChanged()
+						local sOptHRIS = OptionsManager.getOption("HRIS");
+						local nOptHRIS = math.min(math.max(tonumber(sOptHRIS) or 1, 1), 5);
+						self.setMaxValue(nOptHRIS);
+						setAnchor("left", "inspirationtitle", "center", "absolute", -5 * nOptHRIS);
+					end
 					function adjustCounter(nAdj)
 						super.adjustCounter(nAdj);
 						CharManager.messageInspiration(window.getDatabaseNode(), nAdj);

@@ -324,3 +324,37 @@ function migrateCT8(nodeCT)
 	-- Delete old actions node
 	DB.deleteNode(DB.getPath(nodeCT, "actions"))
 end
+
+function migrateSkills9(nodeCT)
+	-- Create target node
+	nodeCT.createChild("weaponlist")
+
+	-- Get new path to weaponlist
+	nodeWeapon = DB.getPath(nodeCT, "weaponlist")
+
+	-- Get nodes for migration
+	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
+		-- Copy actions nodes to weaponlist nodes
+		DB.copyNode(nodeAction , nodeWeapon)
+	end
+	
+	-- Delete old actions node
+	DB.deleteNode(DB.getPath(nodeCT, "actions"))
+end
+
+function migrateItems9(nodeCT)
+	-- Create target node
+	nodeCT.createChild("weaponlist")
+
+	-- Get new path to weaponlist
+	nodeWeapon = DB.getPath(nodeCT, "weaponlist")
+
+	-- Get nodes for migration
+	for _, nodeAction in pairs (DB.getChildren(nodeCT, "actions")) do
+		-- Copy actions nodes to weaponlist nodes
+		DB.copyNode(nodeAction , nodeWeapon)
+	end
+	
+	-- Delete old actions node
+	DB.deleteNode(DB.getPath(nodeCT, "actions"))
+end

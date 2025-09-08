@@ -1,4 +1,4 @@
--- 
+--
 -- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
@@ -135,7 +135,8 @@ function onSourceUpdate()
 	_ctrlDiceBonusControl.setValue(ActorManager5E.getSkillRank(rActor, self.skill[1]))
 end
 
-function onVisibilityChanged() -- If the DiceControl visibility changes, push that change to all associated controls
+ -- If the DiceControl visibility changes, push that change to all associated controls
+function onVisibilityChanged()
 	local bVisibile = self.isVisible()
 
 	if _ctrlDiceTestIcon ~= nil then

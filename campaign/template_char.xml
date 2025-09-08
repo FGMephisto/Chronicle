@@ -453,6 +453,7 @@
 	</template>
 	<template name="state_charammocounter">
 		<buttongroup_counter>
+			<anchored height="20" />
 			<sourcefields>
 				<maximum>maxammo</maximum>
 				<current>ammo</current>

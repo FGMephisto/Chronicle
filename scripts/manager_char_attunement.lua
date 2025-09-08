@@ -50,7 +50,9 @@ end
 
 -- On item deletion; update character sheet display
 function onCharItemDelete(nodeItem)
-	DB.setValue(nodeItem, "attune", "number", 0);
+	if DB.isOwner(nodeItem) then
+		DB.setValue(nodeItem, "attune", "number", 0);
+	end
 end
 
 --

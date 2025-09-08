@@ -112,7 +112,7 @@ aRecordOverrides = {
 	},
 	["npc"] = {
 		aDataMap = { "npc", "reference.npcdata" },
-		sListDisplayClass = "masterindexitem_version",
+		-- sListDisplayClass = "masterindexitem_version",
 		-- aGMListButtons = { "button_npc_byletter", "button_npc_bycr", "button_npc_bytype" },
 		aGMListButtons = { "button_npc_byletter", "button_npc_bytype" },
 		-- aGMEditButtons = { "button_add_npc_import", "button_add_npc_import_text" },
@@ -126,7 +126,7 @@ aRecordOverrides = {
 		fIsIdentifiable = isItemIdentifiable,
 		-- aDataMap = { "item", "refrence.equipmentdata", "reference.magicitemdata" },
 		aDataMap = { "item", "reference.equipmentdata" },
-		sListDisplayClass = "masterindexitem_id_version",
+		-- sListDisplayClass = "masterindexitem_id_version",
 		aRecordDisplayClasses = {
 			-- "item", "reference_magicitem", "reference_armor",
 			"item", "reference_armor",
@@ -235,11 +235,12 @@ aRecordOverrides = {
 		aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Category"] = { sField = "category" },
+			["Subcategory"] = { sField = "subcategory" },
 		},
 	},
 	["race"] = {
 		aDataMap = { "race", "reference.racedata" },
-		sListDisplayClass = "masterindexitem_version",
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_race",
 		aGMListButtons = { "button_race_subrace" },
 		aGMEditButtons = { "button_add_species_import_text" },
@@ -256,20 +257,20 @@ aRecordOverrides = {
 	},
 	["race_subrace"] = {
 		aDataMap = { "race_subrace", "reference.race_subracedata" },
-		sListDisplayClass = "masterindexitem_version",
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_subrace",
 		tOptions = {
 			bExport = true,
 			bHidden = true,
 		},
 		aCustomFilters = {
-			["Version"] = { sField = "version", fGetValue = getVersionValue },
+			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
 			["Species"] = { sField = "race" },
 		},
 	},
 	["skill"] = {
 		aDataMap = { "skill", "reference.skilldata" },
-		sListDisplayClass = "masterindexitem_version",
+		-- sListDisplayClass = "masterindexitem_version",
 		sRecordDisplayClass = "reference_skill",
 		tOptions = {
 			bExport = true,
@@ -277,28 +278,9 @@ aRecordOverrides = {
 		aCustom = {
 			tWindowMenu = { ["right"] = { "chat_output" } },
 		},
-		-- aCustomFilters = {
+		aCustomFilters = {
 			-- ["Version"] = { sField = "version", fGetValue = getVersionValue },
-	
-   
-			  
-												
-												
-														 
-			  
-				  
-				   
-	
-			 
-												   
-	
-					
-																	 
-																	   
-													  
-									  
-		-- },
-	
+		},
 	},
 	-- ["spell"] = {
 		-- aDataMap = { "spell", "reference.spelldata" },
