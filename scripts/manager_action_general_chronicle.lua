@@ -4,17 +4,12 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	ActionsManager.registerModHandler("dice", modRoll);
-	ActionsManager.registerResultHandler("dice", onRoll);
+	ActionsManager.registerModHandler("dice", ActionGeneral.modRoll);
+	ActionsManager.registerResultHandler("dice", ActionGeneral.onRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function modRoll(rSource, rTarget, rRoll)
+function modRoll(rSource, rTarget, rRoll) -- Adjusted
 	-- Debug.chat("FN: modRoll in manager_action_general")
 	rRoll.rActor = rSource
 	rRoll.nTest = #rRoll.aDice
@@ -28,10 +23,7 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function onRoll(rSource, rTarget, rRoll)
+function onRoll(rSource, rTarget, rRoll) -- Adjusted
 	-- Debug.chat("FN: onRoll in manager_action_general")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 

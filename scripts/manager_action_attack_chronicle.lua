@@ -9,8 +9,6 @@ OOB_MSGTYPE_APPLYHRFC = "applyhrfc";
 
 rAction2 = {}
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYATK, handleApplyAttack);
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYHRFC, handleApplyHRFC);
@@ -20,10 +18,7 @@ function onInit()
 	ActionsManager.registerResultHandler("attack", onAttack);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function handleApplyAttack(msgOOB)
-	-- Debug.chat("FN: handleApplyAttack in manager_action_attack")
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
 
@@ -31,11 +26,7 @@ function handleApplyAttack(msgOOB)
 	ActionAttack.applyAttack(rSource, rTarget, rRoll);
 end
 
--- ===================================================================================================================
--- Communicate attack roll to Clients
--- ===================================================================================================================
 function notifyApplyAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: notifyApplyAttack in manager_action_attack")
 	if not rTarget then
 		return;
 	end
@@ -51,19 +42,11 @@ function notifyApplyAttack(rSource, rTarget, rRoll)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
--- Handle "Fumble" & "Critica Hits" messaging. (HRFC = House Rules Fumble/Crit")
--- ===================================================================================================================
 function handleApplyHRFC(msgOOB)
-	-- Debug.chat("FN: handleApplyHRFC in manager_action_attack")
 	TableManager.processTableRoll("", msgOOB.sTable);
 end
 
--- ===================================================================================================================
--- Communicate "Fumble" & "Critica Hits" to Clients
--- ===================================================================================================================
 function notifyApplyHRFC(sTable)
-	-- Debug.chat("FN: notifyapplyHRFC in manager_action_attack")
 	local msgOOB = {};
 	msgOOB.type = OOB_MSGTYPE_APPLYHRFC;
 	
@@ -72,11 +55,7 @@ function notifyApplyHRFC(sTable)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
--- Handle "Remove On Miss" setting in options
--- ===================================================================================================================
 function onTargeting(rSource, aTargeting, rRolls)
-	-- Debug.chat("FN: onTargeting in manager_action_attack")
 	local bRemoveOnMiss = false;
 	local sOptRMMT = OptionsManager.getOption("RMMT");
 	if sOptRMMT == "on" then
@@ -94,10 +73,7 @@ function onTargeting(rSource, aTargeting, rRolls)
 	return aTargeting;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function performPartySheetVsRoll(draginfo, rActor, rAction)
-	-- Debug.chat("FN: performPartySheetVsRoll in manager_action_attack")
 	local rRoll = ActionAttack.getRoll(nil, rAction);
 	
 	if DB.getValue("partysheet.hiderollresults", 0) == 1 then
@@ -108,22 +84,13 @@ function performPartySheetVsRoll(draginfo, rActor, rAction)
 	ActionsManager.actionDirect(nil, "attack", { rRoll }, { { rActor } });
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function performRoll(draginfo, rActor, rAction)
-	-- Debug.chat("FN: performRoll in manager_action_attack")
+function performRoll(draginfo, rActor, rAction) -- Adjusted
 	local rRoll = ActionAttack.getRoll(rActor, rAction);
 
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function getRoll(rActor, rAction)
-	-- Debug.chat("FN: getRoll in manager_action_attack")
-	-- Build rRoll
+function getRoll(rActor, rAction) -- Adjusted
 	local rRoll = {};
 	rRoll.aDice = {};
 	rRoll.bWeapon = rAction.bWeapon;
@@ -169,7 +136,6 @@ end
 -- This function is used to modify the Roll record for Attack checks
 -- ===================================================================================================================
 function modAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: modAttack in manager_action_attack")
 	-- Clear Critical
 	ActionAttack.clearCritState(rSource);
 
@@ -379,11 +345,7 @@ function modAttack(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll)
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function onAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: onAttack in manager_action_attack")
+function onAttack(rSource, rTarget, rRoll) -- Adjusted
 	-- Rebuild detail fields if dragging from chat window
 	if not rRoll.sRange then
 		rRoll.sRange = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]");
@@ -432,16 +394,11 @@ function onAttack(rSource, rTarget, rRoll)
 	ActionAttack.onPostAttackResolve(rSource, rTarget, rRoll, rMessage);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onPreAttackResolve(rSource, rTarget, rRoll, rMessage)
 	-- Do nothing; location to override
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onAttackResolve(rSource, rTarget, rRoll, rMessage)
-	-- Debug.chat("FN: onAttackResolve in manager_action_attack")
 	Comm.deliverChatMessage(rMessage);
 	
 	if rTarget then
