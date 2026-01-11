@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="itemtemplate" copy="record_window">
+		<minimize>minimized_item</minimize>
+		<sheetdata>
+			<sub_record_version name="sub_version" insertbefore="content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="itemtemplate_header" copy="record_header" />
+
+	<windowclass name="itemtemplate_main">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/item_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_record_nonid_notes name="sub_nonid" />
+			<sub_item_standard name="sub_standard" />
+			<sub_item_type name="sub_type" />
+
+			<ft_content_columnh_full name="description" />
+		</sheetdata>
+	</windowclass>
+</root>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<windowclass name="npc">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="525" height="640" />
+		</placement>
+		<sizelimits>
+			<minimum width="525" height="640" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_npc</minimize>
+		<tooltip field="name" />
+		<gmexport>npc</gmexport>
+		<script file="campaign/scripts/npc_chronicle.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>npc_header</class>
+			</sub_record_header>
+
+			<frame_record_content_tabbed name="contentframe" />
+
+			<!-- <subwindow_record name="main_creature"> -->
+				<!-- <class>npc_combat</class> -->
+			<!-- </subwindow_record> -->
+			
+			<ft_record name="text">
+				<anchored to="contentframe" position="over" />
+				<invisible />
+			</ft_record>
+
+			<!-- <scrollbar_record> -->
+				<!-- <target>main_creature</target> -->
+			<!-- </scrollbar_record> -->
+			
+			<scrollbar_record>
+				<target>text</target>
+			</scrollbar_record>
+
+			<!-- Added from Char -->
+			<subwindow_record name="skills">
+				<class>npcsheet_skills</class>
+			</subwindow_record>
+
+			<subwindow_record name="abilities">
+				<class>charsheet_abilities</class>
+			</subwindow_record>
+
+			<subwindow_record name="inventory">
+				<class>charsheet_inventory</class>
+			</subwindow_record>
+
+			<subwindow_record name="actions">
+				<class>charsheet_actions</class>
+			</subwindow_record>
+
+			<tabs_recordsheet name="tabs">
+				<tab>
+					<tabres>tab_skills</tabres>
+					<subwindow>skills</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_abilities</tabres>
+					<subwindow>abilities</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_inventory</tabres>
+					<subwindow>inventory</subwindow>
+				</tab>
+				<tab>
+					<tabres>tab_actions</tabres>
+					<subwindow>actions</subwindow>
+				</tab>
+
+				<tab>
+					<tabres>tab_other</tabres>
+					<subwindow>text</subwindow>
+				</tab>
+			</tabs_recordsheet>
+			
+			<resize_recordsheet />
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npc_header" merge="join">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<subwindow name="npc_header_contents">
+				<anchored height="80">
+					<top offset="40" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>npc_combat</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Adjusted -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npc_combat">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_chronicle.lua" />
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+			
+			<label_column name="nonid_name_label">
+				<static textres="npc_label_unidentified" />
+			</label_column>
+			<string_columnh name="nonid_name" />
+			
+			<label_column name="size_label">
+				<static textres="npc_label_size" />
+			</label_column>
+
+			<string_columnh name="size">
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- window.onSummaryChanged(); -->
+					<!-- end -->
+				<!-- </script> -->
+			</string_columnh>
+			
+			<label_column name="type_label">
+				<static textres="npc_label_type" />
+			</label_column>
+			<string_columnh name="type">
+				<delaykeyupdate />
+				<!-- <script> -->
+					<!-- function onValueChanged() -->
+						<!-- window.onSummaryChanged(); -->
+					<!-- end -->
+				<!-- </script> -->
+			</string_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Added - NPC Sheet Skills -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="npcsheet_skills">
+		<sheetdata>
+			<button_iedit name="skills_iedit">
+				<anchored position="insidebottomright" offset="0,10" />
+				<tooltip textres="char_skills_tooltip_edit" />
+				<edittarget>contents</edittarget>
+			</button_iedit>
+
+			<subwindow name="contents">
+				<anchored>
+					<top offset="0" />
+					<bottom offset="-35" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>charsheet_skills_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+			<scrollbar_charcontents />
+		</sheetdata>
+	</windowclass>
+</root>

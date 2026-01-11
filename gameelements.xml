@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<distance>
+		<base>1</base>
+		<diagmult>1</diagmult>
+		<suffix>y</suffix>
+	</distance>
+
+	<imagesettings>
+		<pointer defaultconeangle="5E" />
+	</imagesettings>
+
+	<linksettings>
+		<class key="reference_class_specialization" copy="class" />
+		<class key="reference_class_spell_list" copy="spell" />
+		<class key="reference_subrace" copy="race" />
+		<class key="reference_vehicle" copy="item" />
+	</linksettings>
+
+	<panel name="dicepanel" merge="join">
+		<anchored>
+			<left offset="330" />
+		</anchored>
+	</panel>
+</root>

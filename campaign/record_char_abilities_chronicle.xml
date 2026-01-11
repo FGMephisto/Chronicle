@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System.
+-->
+
+<root>
+	<windowclass name="charsheet_abilities">
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass, sRecord = draginfo.getShortcutData();
+					if StringManager.contains({ 
+							"reference_racialtrait", "reference_subracialtrait", 
+							"reference_classproficiency", "reference_classfeature", 
+							"reference_classfeaturechoice", "reference_backgroundfeature", 
+							"reference_feat", }, sClass) then
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_abilities_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_abilities_contents">
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_top name="feats">
+				<class>charsheet_abilities_feats</class>
+			</sub_content_top>
+			<!-- <sub_content_top name="features"> -->
+				<!-- <class>charsheet_abilities_features</class> -->
+			<!-- </sub_content_top> -->
+			<sub_content_top name="traits">
+				<class>charsheet_abilities_traits</class>
+			</sub_content_top>
+			<!-- <sub_content_top name="proficiencies"> -->
+				<!-- <class>charsheet_abilities_proficiencies</class> -->
+			<!-- </sub_content_top> -->
+			<sub_content_top name="languages">
+				<class>charsheet_abilities_languages</class>
+			</sub_content_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_abilities_list">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header" />
+			-->
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</label_charframetop>
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<list_content_noscroll_alternating_top name="list">
+				<anchored>
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<listheader>header</listheader>
+				<script>
+					function onListChanged()
+						if not isVisible() then
+							header.expand();
+						end
+					end
+				</script>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_abilities_feats" copy="charsheet_abilities_list">
+		<sheetdata>
+			<label_charframetop name="header">
+				<static textres="char_abilities_label_feats" />
+				<icons>char_abilities_green</icons>
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_abilities_label_feats" />
+				<icon>char_abilities_green</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.featlist</datasource>
+				<class>charsheet_ability_feat</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_abilities_features" copy="charsheet_abilities_list">
+		<sheetdata>
+			<label_charframetop name="header">
+				<static textres="char_abilities_label_features" />
+				<icons>char_abilities_red</icons>
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_abilities_label_features" />
+				<icon>char_abilities_red</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.featurelist</datasource>
+				<class>charsheet_ability_feature</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_abilities_traits" copy="charsheet_abilities_list">
+		<sheetdata>
+			<label_charframetop name="header">
+				<static textres="char_abilities_label_traits" />
+				<icons>char_abilities</icons>
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_abilities_label_traits" />
+				<icon>char_abilities</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.traitlist</datasource>
+				<class>charsheet_ability_trait</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_abilities_proficiencies" copy="charsheet_abilities_list">
+		<sheetdata>
+			<label_charframetop name="header">
+				<static textres="char_abilities_label_proficiencies" />
+				<icons>char_abilities_purple</icons>
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_abilities_label_proficiencies" />
+				<icon>char_abilities_purple</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.proficiencylist</datasource>
+				<class>charsheet_ability_proficiency</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_abilities_languages" copy="charsheet_abilities_list">
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<static textres="char_abilities_label_languages" />
+				<icons>char_abilities_blue</icons>
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_abilities_label_languages" />
+				<icon>char_abilities_blue</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.languagelist</datasource>
+				<class>char_language</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_ability_item">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut" />
+
+			<string_listitem_center_underline name="name">
+				<delaykeyupdate />
+			</string_listitem_center_underline>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_ability_feat" copy="charsheet_ability_item">
+		<sheetdata>
+			<linkc_listitem_left name="shortcut">
+				<class>reference_feat</class>
+			</linkc_listitem_left>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_ability_feature" copy="charsheet_ability_item">
+		<sheetdata>
+			<linkc_listitem_left name="shortcut">
+				<class>reference_classfeature</class>
+				<script>
+					function onInit()
+						if (DB.getValue(window.getDatabaseNode(), "choicetype", "") ~= "") or 
+								(DB.getValue(window.getDatabaseNode(), "prerequisite", "") ~= "") then
+							setValue("reference_classfeaturechoice", "");
+						end
+					end
+				</script>
+			</linkc_listitem_left>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_ability_featurechoice" copy="charsheet_ability_item">
+		<sheetdata>
+			<linkc_listitem_left name="shortcut">
+				<class>reference_classfeaturechoice</class>
+			</linkc_listitem_left>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_ability_trait" copy="charsheet_ability_item">
+		<sheetdata>
+			<linkc_listitem_left name="shortcut">
+				<class>reference_racialtrait</class>
+			</linkc_listitem_left>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_ability_proficiency" copy="charsheet_ability_item">
+		<sheetdata>
+			<linkc_listitem_left name="shortcut" merge="delete" />
+		</sheetdata>
+	</windowclass>
+</root>

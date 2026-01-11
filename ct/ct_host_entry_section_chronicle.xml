@@ -1,0 +1,1283 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- Section - Effects -->
+	<windowclass name="ct_effect" merge="join">
+		<sheetdata>
+			<button_ct_effect_apply name="apply" insertbefore="rightanchor" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- Section - Active -->
+	<!-- Adjusted -->
+	<windowclass name="ct_power">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_flat />
+			<anchor_listitem_right_flat />
+
+			<linkc_listitem_left name="shortcut">
+				<class>ct_power_detail</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center_underline_multiline name="value">
+				<nodragselect />
+				<actorpath>....</actorpath>
+				<script file="ct/scripts/ct_power.lua" />
+			</string_listitem_center_underline_multiline>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_power_detail" copy="record_window" />
+	<windowclass name="ct_power_detail_main" copy="record_context_text_base">
+		<target>desc</target>
+		<skipid />
+		<sheetdata>
+			<string_content_noframe_noscroll_top name="desc" />
+		</sheetdata>
+	</windowclass>
+
+	<!-- Section - Active -->
+	<!-- Adjusted - PC Attack -->
+	<windowclass name="ct_section_active">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_sword_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<dicecontrol_init name="init">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="5" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<actorpath></actorpath>
+			</dicecontrol_init>
+			<genericcontrol name="init_icon">
+				<anchored to="init" width="25" height="25">
+					<top offset="5" />
+					<right anchor="left" offset="0" />
+				</anchored>
+				<icon>char_init</icon>
+				<tooltip textres="char_tooltip_initiative" />
+			</genericcontrol>
+
+			<number_ct name="cd" source="defenses.ac.total">
+				<anchored to="init">
+					<top anchor="top" offset="5" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<readonly />
+			</number_ct>
+			<genericcontrol name="cd_icon">
+				<anchored to="cd" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-7" />
+				</anchored>
+				<icon>char_cd</icon>
+				<tooltip textres="char_tooltip_cd" />
+			</genericcontrol>
+
+			<number_ct name="armor" source="defenses.armor.total">
+				<anchored to="init">
+					<top anchor="top" offset="5" />
+					<left anchor="right" relation="relative" offset="38" />
+				</anchored>
+				<readonly />
+			</number_ct>
+			<genericcontrol name="armor_icon">
+				<anchored to="armor" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-3" />
+				</anchored>
+				<icon>char_armor</icon>
+				<tooltip textres="char_tooltip_armor" />
+			</genericcontrol>
+
+			<number_ct name="move" source="speed.total">
+				<anchored to="init">
+					<top anchor="top" offset="5" />
+					<left anchor="right" relation="relative" offset="38" />
+				</anchored>
+				<readonly />
+			</number_ct>
+			<genericcontrol name="move_icon">
+				<anchored to="move" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-3" />
+				</anchored>
+				<icon>char_move</icon>
+				<tooltip textres="char_tooltip_move" />
+			</genericcontrol>
+
+			<number_ct name="sprint" source="speed.sprint">
+				<anchored to="init">
+					<top anchor="top" offset="5" />
+					<left anchor="right" relation="relative" offset="47" />
+				</anchored>
+				<readonly />
+			</number_ct>
+			<genericcontrol name="sprint_icon">
+				<anchored to="sprint" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-7" />
+				</anchored>
+				<icon>char_sprint</icon>
+				<tooltip textres="char_tooltip_sprint" />
+			</genericcontrol>
+			
+			<genericcontrol name="spacer">
+				<anchored to="anchor_section" height="0">
+					<top anchor="bottom" relation="relative" />
+					<left />
+					<right />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="spacer" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Adjusted - NPC Attack -->
+	<windowclass name="ct_section_active_npc">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_sword_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<dicecontrol_init name="init">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="5" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<actorpath></actorpath>
+			</dicecontrol_init>
+			<genericcontrol name="init_icon">
+				<anchored to="init" width="25" height="25">
+					<top offset="5" />
+					<right anchor="left" offset="0" />
+				</anchored>
+				<icon>char_init</icon>
+				<tooltip textres="char_tooltip_initiative" />
+			</genericcontrol>
+
+			<number_ct name="cd" source="defenses.ac.total">
+				<anchored to="init">
+					<top anchor="top" offset="8" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+			</number_ct>
+			<genericcontrol name="cd_icon">
+				<anchored to="cd" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-7" />
+				</anchored>
+				<icon>char_cd</icon>
+				<tooltip textres="char_tooltip_cd" />
+			</genericcontrol>
+
+			<number_ct name="armor" source="defenses.armor.total">
+				<anchored to="init">
+					<top anchor="top" offset="8" />
+					<left anchor="right" relation="relative" offset="38" />
+				</anchored>
+			</number_ct>
+			<genericcontrol name="armor_icon">
+				<anchored to="armor" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-3" />
+				</anchored>
+				<icon>char_armor</icon>
+				<tooltip textres="char_tooltip_armor" />
+			</genericcontrol>
+
+			<number_ct name="move" source="speed.total">
+				<anchored to="init">
+					<top anchor="top" offset="8" />
+					<left anchor="right" relation="relative" offset="38" />
+				</anchored>
+			</number_ct>
+			<genericcontrol name="move_icon">
+				<anchored to="move" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-3" />
+				</anchored>
+				<icon>char_move</icon>
+				<tooltip textres="char_tooltip_move" />
+			</genericcontrol>
+
+			<number_ct name="sprint" source="speed.sprint">
+				<anchored to="init">
+					<top anchor="top" offset="8" />
+					<left anchor="right" relation="relative" offset="47" />
+				</anchored>
+			</number_ct>
+			<genericcontrol name="sprint_icon">
+				<anchored to="sprint" width="25" height="25">
+					<top offset="-2" />
+					<right anchor="left" offset="-7" />
+				</anchored>
+				<icon>char_sprint</icon>
+				<tooltip textres="char_tooltip_sprint" />
+			</genericcontrol>
+
+			<button_iedit name="actions_iedit">
+				<anchored position="insidetopright" offset="10,12" />
+				<tooltip textres="char_tooltip_actionedit" />
+				<edittarget>actions</edittarget>
+			</button_iedit>
+
+			<buttoncontrol name="weapons_iadd">
+				<anchored to="actions_iedit" height="20" width="20">
+					<top anchor="top" offset="0" />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<icon normal="button_weapon" pressed="button_weapon_down" />
+				<tooltip textres="char_tooltip_actionaddweapon" />
+				<script>
+					function onButtonPress()
+						window.actions.addEntry(true)
+					end
+				</script>
+			</buttoncontrol>
+
+			<list_charweapon name="actions">
+				<anchored >
+					<top parent="init_icon" anchor="bottom" relation="relative" offset="15" />
+					<left parent="init_icon" anchor="left" offset="0" />
+					<right offset="-17" />
+				</anchored>
+				<class>char_weapon</class>
+				<noscroll />
+			</list_charweapon>
+
+			<genericcontrol name="spacer">
+				<anchored to="anchor_section" height="30">
+					<top anchor="bottom" relation="relative" />
+					<left />
+					<right />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<list_ct_section_actions name="traits">
+				<datasource>.traits</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="traits_label">
+				<anchored to="traits" />
+				<static textres="ct_label_traits" />
+			</label_ct_section>
+			
+			<!-- <list_ct_section_actions name="actions"> -->
+				<!-- <datasource>.actions</datasource> -->
+			<!-- </list_ct_section_actions> -->
+			<!-- <label_ct_section name="actions_label"> -->
+				<!-- <anchored to="actions" /> -->
+				<!-- <static textres="ct_label_actions" /> -->
+			<!-- </label_ct_section> -->
+			<list_ct_section_actions name="bonusactions">
+				<datasource>.bonusactions</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="bonusactions_label">
+				<anchored to="bonusactions" />
+				<static textres="ct_label_bonusactions" />
+			</label_ct_section>
+
+			<list_ct_section_actions name="reactions">
+				<datasource>.reactions</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="reactions_label">
+				<anchored to="reactions" />
+				<static textres="ct_label_reactions" />
+			</label_ct_section>
+
+			<list_ct_section_actions name="legendaryactions">
+				<datasource>.legendaryactions</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="legendaryactions_label">
+				<anchored to="legendaryactions" />
+				<static textres="ct_label_legendaryactions" />
+			</label_ct_section>
+
+			<list_ct_section_actions name="lairactions">
+				<datasource>.lairactions</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="lairactions_label">
+				<anchored to="lairactions" />
+				<static textres="ct_label_lairactions" />
+			</label_ct_section>
+
+			<list_ct_section_actions name="innatespells">
+				<datasource>.innatespells</datasource>
+			</list_ct_section_actions>
+			<label_ct_section name="innatespells_label">
+				<anchored to="innatespells" />
+				<static textres="ct_label_innatespells" />
+			</label_ct_section>
+
+			<subwindow name="spellslots">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="3" />
+					<left offset="70" />
+					<right offset="-15" />
+				</anchored>
+			</subwindow>
+			<list_ct_section_actions name="spells">
+				<datasource>.spells</datasource>
+				<script>
+					function onListChanged()
+						super.onListChanged();
+
+						local bShow = not isEmpty();
+						if bShow then
+							window.spellslots.setValue("npc_spellslots", window.getDatabaseNode());
+						else
+							window.spellslots.setValue("", "");
+						end
+						window.spellslots.setVisible(bShow);
+					end
+				</script>
+			</list_ct_section_actions>
+			<label_ct_section name="spells_label">
+				<anchored to="spellslots" />
+				<static textres="ct_label_spells" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="spells" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Vehicle Attack - Not implemented -->
+	<windowclass name="ct_section_active_vehicle">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_sword_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<label name="reaction_label">
+				<anchored to="anchor_section" position="insidetopleft" offset="5,10"/>
+				<static textres="ct_label_reaction" />
+			</label>
+			<buttonfield name="reaction">
+				<anchored to="reaction_label" position="righthigh" offset="5,0" width="12" height="20" />
+				<state icon="button_checkoff" tooltipres="ct_tooltip_reactionoff" />
+				<state icon="button_checkon" tooltipres="ct_tooltip_reactionon" />
+			</buttonfield>
+			<label name="initlabel">
+				<anchored to="reaction" position="righthigh" offset="10,0"/>
+				<static textres="init" />
+			</label>
+			<number_ct_init name="init">
+				<anchored to="initlabel" position="righthigh" offset="10,0" />
+			</number_ct_init>
+			<label name="aclabel">
+				<anchored to="init" position="righthigh" offset="15,0"/>
+				<static textres="ac" />
+			</label>
+			<number_ct name="ac">
+				<anchored to="aclabel" position="righthigh" offset="10,0" />
+				<description textres="armorclass" />
+			</number_ct>
+			<label name="damagethresholdlabel">
+				<anchored to="ac" position="righthigh" offset="15,0"/>
+				<static textres="dt" />
+			</label>
+			<number_ct name="damagethreshold">
+				<anchored to="damagethresholdlabel" position="righthigh" offset="10,0" />
+				<description textres="damagethreshold" />
+			</number_ct>
+			<label name="speedlabel">
+				<anchored to="damagethreshold" position="righthigh" offset="15,0"/>
+				<static textres="ct_label_speed" />
+			</label>
+			<string_ct name="speed">
+				<anchored to="speedlabel" position="righthigh" offset="5,0" height="20">
+					<right parent="anchor_section" offset="-15" />
+				</anchored>
+			</string_ct>
+
+			<genericcontrol name="spacer">
+				<anchored to="anchor_section" height="30">
+					<top anchor="bottom" relation="relative" />
+					<left />
+					<right />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<list_ct_section_labeled name="traits">
+				<datasource>.traits</datasource>
+				<class>ct_power</class>
+				<hideonempty />
+			</list_ct_section_labeled>
+			<label_ct_section name="traits_label">
+				<anchored to="traits" />
+				<static textres="ct_label_traits" />
+			</label_ct_section>
+
+			<list_ct_section_labeled name="components">
+				<datasource>.components</datasource>
+				<class>ct_section_active_vehicle_component</class>
+				<hideonempty />
+			</list_ct_section_labeled>
+			<label_ct_section name="components_label">
+				<anchored to="components" />
+				<static textres="ct_label_components" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="components" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Vehicle Attack Component - Not implemented -->
+	<windowclass name="ct_section_active_vehicle_component">
+		<margins control="0,0,0,2" />
+		<script file="ct/scripts/ct_entry_active_vehicle_component.lua" />
+		<sheetdata>
+			<hs name="status" />
+
+			<anchor_ct_subsection name="anchor_section" />
+
+			<linkcontrol name="shortcut">
+				<anchored to="anchor_section" position="insidetopleft" offset="5,2" width="20" height="20" />
+				<class>item</class>
+			</linkcontrol>
+
+			<genericcontrol name="rightanchor">
+				<anchored to="anchor_section" position="insidetopright" offset="5,2" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
+
+			<basicnumber name="wounds">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						window.onHealthChanged();
+					end
+				</script>
+			</basicnumber>
+			<label name="wounds_label">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<static textres="ct_label_wounds" />
+				<tooltip textres="ct_tooltip_wounds" />
+			</label>
+			<basicnumber name="hp">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						window.onHealthChanged();
+					end
+				</script>
+			</basicnumber>
+			<label name="hp_label">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<static textres="hp" />
+				<tooltip textres="hitpoints" />
+			</label>
+			<basicnumber name="damagethreshold">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+			</basicnumber>
+			<label name="damagethreshold_label">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<static textres="dt" />
+				<tooltip textres="damagethreshold" />
+			</label>
+			<basicnumber name="ac">
+				<anchored to="rightanchor" width="25" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-15" />
+				</anchored>
+			</basicnumber>
+			<label name="ac_label">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<static textres="ac" />
+				<tooltip textres="armorclass" />
+			</label>
+
+			<stringu name="name">
+				<anchored to="anchor_section" position="insidetopleft" offset="30,2">
+					<top anchor="bottom" relation="relative" offset="2" />
+					<left offset="30" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</stringu>
+
+			<list_ct_section_labeled name="actions">
+				<datasource>.actions</datasource>
+				<class>ct_section_active_vehicle_component_action</class>
+				<hideonempty />
+			</list_ct_section_labeled>
+			<label_ct_section name="actions_label">
+				<anchored to="actions" />
+				<static textres="ct_label_actions" />
+			</label_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Vehicle Attack Component Action - Not implemented -->
+	<windowclass name="ct_section_active_vehicle_component_action">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_flat />
+			<anchor_listitem_right_flat />
+
+			<string_listitem_center_underline_multiline name="value">
+				<nodragselect />
+				<actorpath>......</actorpath>
+				<script file="ct/scripts/ct_power.lua" />
+			</string_listitem_center_underline_multiline>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Section - Defense -->
+	<!-- Adjusted - PC Defense -->
+	<windowclass name="ct_section_defense">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<!-- Abilities -->
+			<number_ct_ability name="agility" source="abilities.agility.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>agility</target>
+			</number_ct_ability>
+			<label name="agility_label">
+				<anchored to="agility" position="lefthigh" offset="7,0" />
+				<static textres="AGI" />
+			</label>
+
+			<number_ct_ability name="animalhandling" source="abilities.animalhandling.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>animalhandling</target>
+			</number_ct_ability>
+			<label name="animalhandling_label">
+				<anchored to="animalhandling" position="lefthigh" offset="7,0" />
+				<static textres="ANI" />
+			</label>
+
+			<number_ct_ability name="athletics" source="abilities.athletics.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>athletics</target>
+			</number_ct_ability>
+			<label name="athletics_label">
+				<anchored to="athletics" position="lefthigh" offset="7,0" />
+				<static textres="ATH" />
+			</label>
+
+			<number_ct_ability name="awareness" source="abilities.awareness.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>awareness</target>
+			</number_ct_ability>
+			<label name="awareness_label">
+				<anchored to="awareness" position="lefthigh" offset="7,0" />
+				<static textres="AWA" />
+			</label>
+
+			<number_ct_ability name="cunning" source="abilities.cunning.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>cunning</target>
+			</number_ct_ability>
+			<label name="cunning_label">
+				<anchored to="cunning" position="lefthigh" offset="7,0" />
+				<static textres="CUN" />
+			</label>
+
+			<number_ct_ability name="endurance" source="abilities.endurance.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>endurance</target>
+			</number_ct_ability>
+			<label name="endurance_label">
+				<anchored to="endurance" position="lefthigh" offset="7,0" />
+				<static textres="END" />
+			</label>
+
+			<number_ct_ability name="fighting" source="abilities.fighting.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>fighting</target>
+			</number_ct_ability>
+			<label name="fighting_label">
+				<anchored to="fighting" position="lefthigh" offset="7,0" />
+				<static textres="FIG" />
+			</label>
+
+			<number_ct_ability name="marksmanship" source="abilities.marksmanship.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>marksmanship</target>
+			</number_ct_ability>
+			<label name="marksmanship_label">
+				<anchored to="marksmanship" position="lefthigh" offset="7,0" />
+				<static textres="MAR" />
+			</label>
+
+			<number_ct_ability name="warfare" source="abilities.warfare.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>warfare</target>
+			</number_ct_ability>
+			<label name="warfare_label">
+				<anchored to="warfare" position="lefthigh" offset="7,0" />
+				<static textres="WAR" />
+			</label>
+
+			<number_ct_ability name="will" source="abilities.will.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>will</target>
+			</number_ct_ability>
+			<label name="will_label">
+				<anchored to="will" position="lefthigh" offset="7,0" />
+				<static textres="WIL" />
+			</label>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="agility" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Adjusted - NPC Defense -->
+	<windowclass name="ct_section_defense_npc">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("ct_section_defense_npc_2024", nodeRecord);
+				else
+					sub_content.setValue("ct_section_defense_npc_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<hs name="version">
+				<script>
+					function onValueChanged()
+						window.onVersionChanged();
+					end
+				</script>
+			</hs>
+
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_npc_2024">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<!-- Abilities -->
+			<number_ct_ability name="agility" source="abilities.agility.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>agility</target>
+			</number_ct_ability>
+			<label name="agility_label">
+				<anchored to="agility" position="lefthigh" offset="7,0" />
+				<static textres="AGI" />
+			</label>
+
+			<number_ct_ability name="animalhandling" source="abilities.animalhandling.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>animalhandling</target>
+			</number_ct_ability>
+			<label name="animalhandling_label">
+				<anchored to="animalhandling" position="lefthigh" offset="7,0" />
+				<static textres="ANI" />
+			</label>
+
+			<number_ct_ability name="athletics" source="abilities.athletics.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>athletics</target>
+			</number_ct_ability>
+			<label name="athletics_label">
+				<anchored to="athletics" position="lefthigh" offset="7,0" />
+				<static textres="ATH" />
+			</label>
+
+			<number_ct_ability name="awareness" source="abilities.awareness.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>awareness</target>
+			</number_ct_ability>
+			<label name="awareness_label">
+				<anchored to="awareness" position="lefthigh" offset="7,0" />
+				<static textres="AWA" />
+			</label>
+
+			<number_ct_ability name="cunning" source="abilities.cunning.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>cunning</target>
+			</number_ct_ability>
+			<label name="cunning_label">
+				<anchored to="cunning" position="lefthigh" offset="7,0" />
+				<static textres="CUN" />
+			</label>
+
+			<number_ct_ability name="endurance" source="abilities.endurance.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>endurance</target>
+			</number_ct_ability>
+			<label name="endurance_label">
+				<anchored to="endurance" position="lefthigh" offset="7,0" />
+				<static textres="END" />
+			</label>
+
+			<number_ct_ability name="fighting" source="abilities.fighting.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>fighting</target>
+			</number_ct_ability>
+			<label name="fighting_label">
+				<anchored to="fighting" position="lefthigh" offset="7,0" />
+				<static textres="FIG" />
+			</label>
+
+			<number_ct_ability name="marksmanship" source="abilities.marksmanship.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>marksmanship</target>
+			</number_ct_ability>
+			<label name="marksmanship_label">
+				<anchored to="marksmanship" position="lefthigh" offset="7,0" />
+				<static textres="MAR" />
+			</label>
+
+			<number_ct_ability name="warfare" source="abilities.warfare.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>warfare</target>
+			</number_ct_ability>
+			<label name="warfare_label">
+				<anchored to="warfare" position="lefthigh" offset="7,0" />
+				<static textres="WAR" />
+			</label>
+
+			<number_ct_ability name="will" source="abilities.will.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>will</target>
+			</number_ct_ability>
+			<label name="will_label">
+				<anchored to="will" position="lefthigh" offset="7,0" />
+				<static textres="WIL" />
+			</label>
+
+			<!-- <string_ct_section_labeled name="damagevulnerabilities" /> -->
+			<!-- <label_ct_section name="damagevulnerabilities_label"> -->
+				<!-- <anchored to="damagevulnerabilities" /> -->
+				<!-- <static textres="ct_label_vulnerabilities" /> -->
+				<!-- <tooltip textres="ct_tooltip_vulnerabilities" /> -->
+			<!-- </label_ct_section> -->
+			<!-- <string_ct_section_labeled name="damageresistances" /> -->
+			<!-- <label_ct_section name="damageresistances_label"> -->
+				<!-- <anchored to="damageresistances" /> -->
+				<!-- <static textres="ct_label_resistances" /> -->
+				<!-- <tooltip textres="ct_tooltip_resistances" /> -->
+			<!-- </label_ct_section> -->
+			<!-- <string_ct_section_labeled name="damageimmunities" /> -->
+			<!-- <label_ct_section name="damageimmunities_label"> -->
+				<!-- <anchored to="damageimmunities" /> -->
+				<!-- <static textres="ct_label_immunities" /> -->
+				<!-- <tooltip textres="ct_tooltip_immunities" /> -->
+			<!-- </label_ct_section> -->
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="agility" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_npc_2014">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<!-- Abilities -->
+			<number_ct_ability name="agility" source="abilities.agility.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>agility</target>
+			</number_ct_ability>
+			<label name="agility_label">
+				<anchored to="agility" position="lefthigh" offset="7,0" />
+				<static textres="AGI" />
+			</label>
+
+			<number_ct_ability name="animalhandling" source="abilities.animalhandling.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>animalhandling</target>
+			</number_ct_ability>
+			<label name="animalhandling_label">
+				<anchored to="animalhandling" position="lefthigh" offset="7,0" />
+				<static textres="ANI" />
+			</label>
+
+			<number_ct_ability name="athletics" source="abilities.athletics.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>athletics</target>
+			</number_ct_ability>
+			<label name="athletics_label">
+				<anchored to="athletics" position="lefthigh" offset="7,0" />
+				<static textres="ATH" />
+			</label>
+
+			<number_ct_ability name="awareness" source="abilities.awareness.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>awareness</target>
+			</number_ct_ability>
+			<label name="awareness_label">
+				<anchored to="awareness" position="lefthigh" offset="7,0" />
+				<static textres="AWA" />
+			</label>
+
+			<number_ct_ability name="cunning" source="abilities.cunning.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>cunning</target>
+			</number_ct_ability>
+			<label name="cunning_label">
+				<anchored to="cunning" position="lefthigh" offset="7,0" />
+				<static textres="CUN" />
+			</label>
+
+			<number_ct_ability name="endurance" source="abilities.endurance.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>endurance</target>
+			</number_ct_ability>
+			<label name="endurance_label">
+				<anchored to="endurance" position="lefthigh" offset="7,0" />
+				<static textres="END" />
+			</label>
+
+			<number_ct_ability name="fighting" source="abilities.fighting.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>fighting</target>
+			</number_ct_ability>
+			<label name="fighting_label">
+				<anchored to="fighting" position="lefthigh" offset="7,0" />
+				<static textres="FIG" />
+			</label>
+
+			<number_ct_ability name="marksmanship" source="abilities.marksmanship.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>marksmanship</target>
+			</number_ct_ability>
+			<label name="marksmanship_label">
+				<anchored to="marksmanship" position="lefthigh" offset="7,0" />
+				<static textres="MAR" />
+			</label>
+
+			<number_ct_ability name="warfare" source="abilities.warfare.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>warfare</target>
+			</number_ct_ability>
+			<label name="warfare_label">
+				<anchored to="warfare" position="lefthigh" offset="7,0" />
+				<static textres="WAR" />
+			</label>
+
+			<number_ct_ability name="will" source="abilities.will.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="40" />
+				</anchored>
+				<target>will</target>
+			</number_ct_ability>
+			<label name="will_label">
+				<anchored to="will" position="lefthigh" offset="7,0" />
+				<static textres="WIL" />
+			</label>
+
+			<!-- <string_ct_section_labeled name="damagevulnerabilities" /> -->
+			<!-- <label_ct_section name="damagevulnerabilities_label"> -->
+				<!-- <anchored to="damagevulnerabilities" /> -->
+				<!-- <static textres="ct_label_damagevulnerabilities" /> -->
+				<!-- <tooltip textres="ct_tooltip_damagevulnerabilities" /> -->
+			<!-- </label_ct_section> -->
+			<!-- <string_ct_section_labeled name="damageresistances" /> -->
+			<!-- <label_ct_section name="damageresistances_label"> -->
+				<!-- <anchored to="damageresistances" /> -->
+				<!-- <static textres="ct_label_damageresistances" /> -->
+				<!-- <tooltip textres="ct_tooltip_damageresistances" /> -->
+			<!-- </label_ct_section> -->
+			<!-- <string_ct_section_labeled name="damageimmunities" /> -->
+			<!-- <label_ct_section name="damageimmunities_label"> -->
+				<!-- <anchored to="damageimmunities" /> -->
+				<!-- <static textres="ct_label_damageimmunities" /> -->
+				<!-- <tooltip textres="ct_tooltip_damageimmunities" /> -->
+			<!-- </label_ct_section> -->
+			<!-- <string_ct_section_labeled name="conditionimmunities" /> -->
+			<!-- <label_ct_section name="conditionimmunities_label"> -->
+				<!-- <anchored to="conditionimmunities" /> -->
+				<!-- <static textres="ct_label_conditionimmunities" /> -->
+				<!-- <tooltip textres="ct_tooltip_conditionimmunities" /> -->
+			<!-- </label_ct_section> -->
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="agility" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Vehicle Defense - Not implemented -->
+	<windowclass name="ct_section_defense_vehicle">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("ct_section_defense_vehicle_2024", nodeRecord);
+				else
+					sub_content.setValue("ct_section_defense_vehicle_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<hs name="version">
+				<script>
+					function onValueChanged()
+						window.onVersionChanged();
+					end
+				</script>
+			</hs>
+
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_vehicle_2024">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<number_ct_ability name="strength" source="abilities.strength.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>strength</target>
+			</number_ct_ability>
+			<label_ct_ability name="strength_label">
+				<anchored to="strength" />
+				<static textres="str" />
+			</label_ct_ability>
+			<number_ct_ability name="dexterity" source="abilities.dexterity.score">
+				<anchored to="strength" position="righthigh" offset="50,0" />
+				<target>dexterity</target>
+			</number_ct_ability>
+			<label_ct_ability name="dexterity_label">
+				<anchored to="dexterity" />
+				<static textres="dex" />
+			</label_ct_ability>
+			<number_ct_ability name="constitution" source="abilities.constitution.score">
+				<anchored to="dexterity" position="righthigh" offset="50,0" />
+				<target>constitution</target>
+			</number_ct_ability>
+			<label_ct_ability name="constitution_label">
+				<anchored to="constitution" />
+				<static textres="con" />
+			</label_ct_ability>
+			<number_ct_ability name="intelligence" source="abilities.intelligence.score">
+				<anchored to="constitution" position="righthigh" offset="50,0" />
+				<target>intelligence</target>
+			</number_ct_ability>
+			<label_ct_ability name="intelligence_label">
+				<anchored to="intelligence" />
+				<static textres="int" />
+			</label_ct_ability>
+			<number_ct_ability name="wisdom" source="abilities.wisdom.score">
+				<anchored to="intelligence" position="righthigh" offset="50,0" />
+				<target>wisdom</target>
+			</number_ct_ability>
+			<label_ct_ability name="wisdom_label">
+				<anchored to="wisdom" />
+				<static textres="wis" />
+			</label_ct_ability>
+			<number_ct_ability name="charisma" source="abilities.charisma.score">
+				<anchored to="wisdom" position="righthigh" offset="50,0" />
+				<target>charisma</target>
+			</number_ct_ability>
+			<label_ct_ability name="charisma_label">
+				<anchored to="charisma" />
+				<static textres="cha" />
+			</label_ct_ability>
+
+			<string_ct_section_labeled name="damagevulnerabilities" />
+			<label_ct_section name="damagevulnerabilities_label">
+				<anchored to="damagevulnerabilities" />
+				<static textres="ct_label_vulnerabilities" />
+				<tooltip textres="ct_tooltip_vulnerabilities" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageresistances" />
+			<label_ct_section name="damageresistances_label">
+				<anchored to="damageresistances" />
+				<static textres="ct_label_resistances" />
+				<tooltip textres="ct_tooltip_resistances" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageimmunities" />
+			<label_ct_section name="damageimmunities_label">
+				<anchored to="damageimmunities" />
+				<static textres="ct_label_immunities" />
+				<tooltip textres="ct_tooltip_immunities" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="damageimmunities" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ct_section_defense_vehicle_2014">
+		<sheetdata>
+			<icon_ct_section name="icon_section">
+				<icon>button_fist_down</icon>
+			</icon_ct_section>
+
+			<anchor_ct_section name="anchor_section" />
+
+			<number_ct_ability name="strength" source="abilities.strength.score">
+				<anchored to="anchor_section">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left parent="icon_section" anchor="right" offset="40" />
+				</anchored>
+				<target>strength</target>
+			</number_ct_ability>
+			<label_ct_ability name="strength_label">
+				<anchored to="strength" />
+				<static textres="str" />
+			</label_ct_ability>
+			<number_ct_ability name="dexterity" source="abilities.dexterity.score">
+				<anchored to="strength" position="righthigh" offset="50,0" />
+				<target>dexterity</target>
+			</number_ct_ability>
+			<label_ct_ability name="dexterity_label">
+				<anchored to="dexterity" />
+				<static textres="dex" />
+			</label_ct_ability>
+			<number_ct_ability name="constitution" source="abilities.constitution.score">
+				<anchored to="dexterity" position="righthigh" offset="50,0" />
+				<target>constitution</target>
+			</number_ct_ability>
+			<label_ct_ability name="constitution_label">
+				<anchored to="constitution" />
+				<static textres="con" />
+			</label_ct_ability>
+			<number_ct_ability name="intelligence" source="abilities.intelligence.score">
+				<anchored to="constitution" position="righthigh" offset="50,0" />
+				<target>intelligence</target>
+			</number_ct_ability>
+			<label_ct_ability name="intelligence_label">
+				<anchored to="intelligence" />
+				<static textres="int" />
+			</label_ct_ability>
+			<number_ct_ability name="wisdom" source="abilities.wisdom.score">
+				<anchored to="intelligence" position="righthigh" offset="50,0" />
+				<target>wisdom</target>
+			</number_ct_ability>
+			<label_ct_ability name="wisdom_label">
+				<anchored to="wisdom" />
+				<static textres="wis" />
+			</label_ct_ability>
+			<number_ct_ability name="charisma" source="abilities.charisma.score">
+				<anchored to="wisdom" position="righthigh" offset="50,0" />
+				<target>charisma</target>
+			</number_ct_ability>
+			<label_ct_ability name="charisma_label">
+				<anchored to="charisma" />
+				<static textres="cha" />
+			</label_ct_ability>
+
+			<string_ct_section_labeled name="damagevulnerabilities" />
+			<label_ct_section name="damagevulnerabilities_label">
+				<anchored to="damagevulnerabilities" />
+				<static textres="ct_label_damagevulnerabilities" />
+				<tooltip textres="ct_tooltip_damagevulnerabilities" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageresistances" />
+			<label_ct_section name="damageresistances_label">
+				<anchored to="damageresistances" />
+				<static textres="ct_label_damageresistances" />
+				<tooltip textres="ct_tooltip_damageresistances" />
+			</label_ct_section>
+			<string_ct_section_labeled name="damageimmunities" />
+			<label_ct_section name="damageimmunities_label">
+				<anchored to="damageimmunities" />
+				<static textres="ct_label_damageimmunities" />
+				<tooltip textres="ct_tooltip_damageimmunities" />
+			</label_ct_section>
+			<string_ct_section_labeled name="conditionimmunities" />
+			<label_ct_section name="conditionimmunities_label">
+				<anchored to="conditionimmunities" />
+				<static textres="ct_label_conditionimmunities" />
+				<tooltip textres="ct_tooltip_conditionimmunities" />
+			</label_ct_section>
+
+			<frame_ct_section name="frame_section">
+				<anchored>
+					<left parent="icon_section" anchor="right" offset="0" />
+					<bottom parent="conditionimmunities" offset="10" />
+				</anchored>
+			</frame_ct_section>
+		</sheetdata>
+	</windowclass>
+</root>

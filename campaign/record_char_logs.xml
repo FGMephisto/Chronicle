@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet_logs" copy="charsheethelper_base">
+		<sizelimits>
+			<minimum width="400" height="500" />
+		</sizelimits>
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass, sRecord = draginfo.getShortcutData();
+					if sClass == "ref_adventure" then
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>tab_log</prefix>
+			</windowtitlebar_charsheethelper>
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_logs_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_logs_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "faction", "dci", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate name="details_header" />
+			<area_content_top name="details">
+				<anchored height="20" />
+			</area_content_top>
+			<stringu name="faction">
+				<anchored to="details" position="insidetopleft" offset="10,0" height="20">
+					<right anchor="center" offset="-5" />
+				</anchored>
+			</stringu>
+			<label_charfieldtop>
+				<anchored to="faction" offset="0,5" />
+				<static textres="char_label_faction" />
+			</label_charfieldtop>
+			<stringu name="dci">
+				<anchored to="details" position="insidetopright" offset="10,0" height="20">
+					<left anchor="center" offset="5" />
+				</anchored>
+			</stringu>
+			<label_charfieldtop>
+				<anchored to="dci" offset="0,5" />
+				<static textres="char_label_dci" />
+			</label_charfieldtop>
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<icons>char_notes</icons>
+				<static textres="char_logs_label_adventures" />
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<static textres="char_logs_label_adventures" />
+				<icon>char_notes</icon>
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<list_content_noscroll_alternating_top name="list">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<datasource>.adventurelist</datasource>
+				<class>char_log_item</class>
+				<sortby><control>name</control></sortby>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_log_item">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>ref_adventure</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center_underline name="name" />
+		</sheetdata>
+	</windowclass>
+</root>

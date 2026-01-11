@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- Adjusted -->
+	<windowclass name="ct_entry" merge="join">
+		<margins control="0,0,0,5" />
+		<sizelimits>
+			<minimum height="50" />
+		</sizelimits>
+		<script file="ct/scripts/ct_entry_chronicle.lua" />
+		<sheetdata>
+			<hs name="status" />
+
+			<hsx name="type" />
+			<hsx name="size" />
+			<!-- <hsx name="alignment" /> -->
+			<!-- <hnx name="deathsavesuccess" /> -->
+			<!-- <hnx name="deathsavefail"> -->
+				<!-- <script> -->
+					<!-- function update() window.onHealthChanged(); end -->
+				<!-- </script> -->
+			<!-- </hnx> -->
+
+			<hnx name="init" />
+			<hnx name="init_skill_misc" source="skilllist.quickness.misc" />
+			<hnx name="move" source="speed.total" />
+			<hnx name="sprint" source="speed.sprint" />
+			<hnx name="cd" source="defenses.ac.total" />
+			<hnx name="armor" source="defenses.armor.total" />
+
+			<!-- <hnx name="strength" source="abilities.strength.score" /> -->
+			<!-- <hnx name="dexterity" source="abilities.dexterity.score" /> -->
+			<!-- <hnx name="constitution" source="abilities.constitution.score" /> -->
+			<!-- <hnx name="intelligence" source="abilities.intelligence.score" /> -->
+			<!-- <hnx name="wisdom" source="abilities.wisdom.score" /> -->
+			<!-- <hnx name="charisma" source="abilities.charisma.score" /> -->
+			<hnx name="agility" source="abilities.agility.score" />
+			<hnx name="animalhandling" source="abilities.animalhandling.score" />
+			<hnx name="athletics" source="abilities.athletics.score" />
+			<hnx name="awareness" source="abilities.awareness.score" />
+			<hnx name="cunning" source="abilities.cunning.score" />
+			<hnx name="endurance" source="abilities.endurance.score" />
+			<hnx name="fighting" source="abilities.fighting.score" />
+			<hnx name="marksmanship" source="abilities.marksmanship.score" />
+			<hnx name="warfare" source="abilities.warfare.score" />
+			<hnx name="will" source="abilities.will.score" />
+
+			<button_ct_section_defense name="button_section_defense" insertbefore="button_section_space" />
+			<button_ct_section_active name="button_section_active" insertbefore="button_section_space" />
+
+			<number_ct_crosslink name="wounds" insertbefore="initresult" source="hp.wounds">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<min value="0" />
+				<hideonvalue value="0" />
+				<tabtarget prev="initresult" next="trauma" />
+				<script>
+					function handleDrop(draginfo)
+						if draginfo.getType() == "number" then
+							local node = window.getDatabaseNode();
+							local rActor = ActorManager.resolveActor(node);
+							local rRoll = { sDesc = draginfo.getDescription(), nTotal = draginfo.getNumberData() };
+							rRoll.bSecret = CombatManager.isCTHidden(node);
+							ActionDamage.applyDamage(nil, rActor, rRoll);
+						end
+					end
+
+					function update()
+						window.onHealthChanged();
+					end
+				</script>
+			</number_ct_crosslink>
+			<number_ct_crosslink name="trauma" insertbefore="initresult" source="hp.trauma">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<tabtarget prev="wounds" next="injuries" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="injuries" insertbefore="initresult" source="hp.injuries">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<tabtarget prev="trauma" next="fatigue" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="fatigue" insertbefore="initresult" source="hp.fatigue">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<tabtarget prev="injuries" next="hptotal" />
+			</number_ct_crosslink>
+
+			<number_ct_crosslink name="hptotal" insertbefore="initresult" source="hp.total">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
+				</anchored>
+				<tabtarget prev="fatigue" next="initresult" />
+				<script>
+					function update()
+						window.onHealthChanged();
+					end
+				</script>
+			</number_ct_crosslink>
+
+			<sub_ct_section name="sub_active" insertbefore="sub_effects" />
+			<sub_ct_section name="sub_defense" insertbefore="sub_effects" />
+		</sheetdata>
+	</windowclass>
+</root>

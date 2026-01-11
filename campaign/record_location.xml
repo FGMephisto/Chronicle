@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="location_main_bastion" copy="location_main_default">
+		<sheetdata>
+			<header_content_framed_headersimple name="sublocations_header">
+				<static textres="location_header_bastionfacilities" />
+			</header_content_framed_headersimple>
+			<list_content_column name="sublocations">
+				<class>location_bastion_sublocation_entry</class>
+				<script>
+					function addEntry()
+						local w = createWindow(nil, true);
+						local node = w.getDatabaseNode();
+						DB.setValue(node, "type", "string", Interface.getString("location_type_bastionfacility"));
+						DB.setValue(node, "name", "string", Interface.getString("location_header_bastionfacility_name_simple"));
+						DB.setValue(node, "level", "number", 5);
+						DB.setValue(node, "space", "string", Interface.getString("location_header_bastionfacility_space_cramped"));
+					end
+				</script>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="location_bastion_sublocation_entry" copy="location_sublocation_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onLockModeChanged(bReadOnly)
+				if super and super.onLockModeChanged then
+					super.onLockModeChanged(bReadOnly)
+				end
+				WindowManager.callSafeControlsSetLockMode(self, { "level", "space", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<number_listitem_left name="level" insertbefore="name">
+				<tooltip textres="location_label_level" />
+			</number_listitem_left>
+			<string_listitem_left name="space" insertbefore="name">
+				<anchored width="60" />
+				<tooltip textres="location_label_space" />
+			</string_listitem_left>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="location_main_bastionfacility">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "level", "prerequisite", "space", "hirelings", "order", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+				parentcontrol.setVisible(WindowManager.getAnyControlVisible(self, tFields));
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="level_label">
+				<static textres="location_label_level" />
+			</label_content_column>
+			<number_content_columnh name="level" />
+
+			<label_content_column name="prerequisite_label">
+				<static textres="location_label_prerequisite" />
+			</label_content_column>
+			<string_content_columnh name="prerequisite" />
+
+			<label_content_column name="space_label">
+				<static textres="location_label_space" />
+			</label_content_column>
+			<string_content_columnh name="space" />
+
+			<label_content_column name="hirelings_label">
+				<static textres="location_label_hirelings" />
+			</label_content_column>
+			<string_content_columnh name="hirelings" />
+
+			<label_content_column name="order_label">
+				<static textres="location_label_order" />
+			</label_content_column>
+			<string_content_columnh name="order" />
+		</sheetdata>
+	</windowclass>
+</root>

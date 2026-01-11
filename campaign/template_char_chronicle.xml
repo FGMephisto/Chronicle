@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<template name="number_chartotal">
+		<number_modifier_framed>
+			<showemptywidget />
+		</number_modifier_framed>
+	</template>
+
+	<!-- Adjusted -->
+	<template name="cycler_ability">
+		<button_stringcycler>
+			<parameters>
+				<defaultlabelres mergerule="replace">dash</defaultlabelres>
+				<labelsres>AGI|ANI|ATH|AWA|CUN|DEC|END|FIG|HEA|LAN|KNO|MAR|PER|STA|STE|SUR|THI|WAR|WIL</labelsres>
+				<values>agility|animalhandling|athletics|awareness|cunning|deception|endurance|fighting|healing|language|knowledge|marksmanship|persuasion|status|stealth|survival|thievery|warfare|will</values>
+			</parameters>
+		</button_stringcycler>
+	</template>
+	<template name="cycler_abilitybase">
+		<cycler_ability>
+			<parameters>
+				<defaultlabelres mergerule="replace">base</defaultlabelres>
+			</parameters>
+		</cycler_ability>
+	</template>
+
+	<template name="button_iadd_recordtype">
+		<button_iadd_base>
+			<script>
+				function onButtonPress()
+					RecordManager.openRecordIndex(recordtype[1])
+				end
+			</script>
+		</button_iadd_base>
+	</template>
+	<template name="number_charlevel">
+		<number_static>
+			<script>
+				function onInit()
+					self.update();
+					local node = window.getDatabaseNode();
+					DB.addHandler(DB.getPath(node, "classes.*.level"), "onUpdate", self.update);
+					DB.addHandler(DB.getPath(node, "classes"), "onChildDeleted", self.update);
+				end
+				function onClose()
+					local node = window.getDatabaseNode();
+					DB.removeHandler(DB.getPath(node, "classes.*.level"), "onUpdate", self.update);
+					DB.removeHandler(DB.getPath(node, "classes"), "onChildDeleted", self.update);
+				end
+				function update()
+					local nLevel = 0;
+					for _,v in ipairs(DB.getChildList(window.getDatabaseNode(), "classes")) do
+						nLevel = nLevel + DB.getValue(v, "level", 0);
+					end
+					setValue(nLevel);
+				end
+			</script>
+		</number_static>
+	</template>
+	<template name="stringc_charclasslevel">
+		<stringcu>
+			<anchored height="20" />
+			<readonly />
+			<script>
+				function onInit()
+					update();
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "classes"), "onChildUpdate", update);
+				end
+				function onClose()
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "classes"), "onChildUpdate", update);
+				end
+				function update()
+					setValue(CharManager.getClassSummary(window.getDatabaseNode()));
+				end
+				function onClickDown(button, x, y)
+					return true;
+				end
+				function onClickRelease(button, x, y)
+					Interface.openWindow("charsheet_classes", window.getDatabaseNode());
+				end
+			</script>
+		</stringcu>
+	</template>
+	<template name="button_charclasslevel">
+		<button_details>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("charsheet_classes", window.getDatabaseNode());
+				end
+			</script>
+		</button_details>
+	</template>
+	
+	<!-- Adjusted -->
+	<template name="number_charabilityscore">
+		<number_abilityscore>
+			<anchored to="statstitle" width="40" height="30">
+				<top anchor="bottom" relation="relative" offset="18" />
+				<left anchor="center" offset="-30" />
+			</anchored>
+			<script>
+				function onDragStart(button, x, y, draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onCheckAction", draginfo, self.target[1]);
+				end
+				-- function onButtonPress()
+					-- return WindowManager.callOuterWindowFunction(window, "onCheckAction", nil, self.target[1]);
+				-- end
+			</script>
+			<rollable />
+		</number_abilityscore>
+	</template>
+	<template name="button_charabilitycheck">
+		<button_roll_light>
+			<anchored position="righthigh" offset="5,5" width="20" height="20" />
+			<tooltip textres="char_label_check_roll" />
+			<script>
+				function onDragStart(button, x, y, draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onCheckAction", draginfo, self.target[1]);
+				end
+				function onButtonPress()
+					return WindowManager.callOuterWindowFunction(window, "onCheckAction", nil, self.target[1]);
+				end
+			</script>
+		</button_roll_light>
+	</template>
+	<template name="label_chardefense">
+		<label_fieldtop>
+			<anchored offset="-4,-6" />
+			<frame name="abilityscore" />
+			<font>sheetlabelmini</font>
+		</label_fieldtop>
+	</template>
+	
+	<!-- Adjusted -->
+	<template name="number_charabilitysave">
+		<number_chartotal>
+			<anchored to="savestitle" width="40" height="30">
+				<top anchor="bottom" relation="relative" offset="18" />
+				<left anchor="center" offset="-30" />
+			</anchored>
+			<displaysign />
+			<script>
+				function onInit()
+					self.addSourceWithOp("abilities." .. target[1] .. ".bonus", "+");
+					self.addSource("abilities." .. target[1] .. ".saveprof");
+					self.addSource("profbonus");
+					super.onInit();
+				end
+				function onSourceUpdate()
+					local nValue = self.calculateSources();
+					local node = window.getDatabaseNode();
+					if DB.getValue(node, "abilities." .. target[1] .. ".saveprof", 0) == 1 then
+						nValue = nValue + DB.getValue(node, "profbonus", 0);
+					end
+					setValue(nValue);
+				end
+				function onDragStart(button, x, y, draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onSaveAction", draginfo, self.target[1]);
+				end
+			</script>
+		</number_chartotal>
+	</template>
+	<template name="button_charabilitysave">
+		<button_roll_light>
+			<anchored position="righthigh" offset="5,5" width="20" height="20" />
+			<tooltip textres="char_label_save_roll" />
+			<script>
+				function onDragStart(button, x, y, draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onSaveAction", draginfo, self.target[1]);
+				end
+				function onButtonPress()
+					return WindowManager.callOuterWindowFunction(window, "onSaveAction", nil, self.target[1]);
+				end
+			</script>
+		</button_roll_light>
+	</template>
+	<template name="button_charcombatcalc">
+		<button_details>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("charsheet_combatcalc", window.getDatabaseNode());
+				end
+			</script>
+		</button_details>
+	</template>
+	
+	<!-- Adjusted -->
+	<template name="number_charmain_skill_passive">
+		<number_chartotal>
+			<anchored width="30" height="20" />
+			<script>
+				local nodeSkill = nil;
+
+				function onInit()
+					local nodeChar = window.getDatabaseNode();
+					local sSkill = Interface.getString(skill[1]);
+
+					for _,vSkill in ipairs(DB.getChildList(nodeChar, "skilllist")) do
+						if DB.getValue(vSkill, "name", "") == sSkill then
+							nodeSkill = vSkill;
+						end
+					end
+					if not nodeSkill and DataCommon.skilldata[sSkill] then
+						local t = DataCommon.skilldata[sSkill];
+						local nodeSkillList = DB.createChild(nodeChar, "skilllist");
+						nodeSkill = DB.createChild(nodeSkillList);
+
+						DB.setValue(nodeSkill, "name", "string", sSkill);
+						DB.setValue(nodeSkill, "stat", "string", t.stat or "");
+					end
+
+					if nodeSkill then
+						DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
+						DB.addHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
+						DB.addHandler(nodeSkill, "onChildUpdate", onSourceUpdate);
+						super.hasSources = true;
+					end
+
+					super.onInit();
+				end
+
+				function onClose()
+					if nodeSkill then
+						local nodeChar = window.getDatabaseNode();
+						DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
+						DB.removeHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
+						DB.removeHandler(nodeSkill, "onChildUpdate", onSourceUpdate);
+					end
+				end
+
+				function onSourceUpdate()
+					local nValue = 10 + calculateSources() + DB.getValue(nodeSkill, "misc", 0);
+
+					local nodeChar = window.getDatabaseNode();
+
+					local sAbility = DB.getValue(nodeSkill, "stat", "");
+					if sAbility ~= "" then
+						local nScore = DB.getValue(nodeChar, "abilities." .. sAbility .. ".score", 0)
+						nValue = nValue + math.floor((nScore - 10) / 2);
+					end
+
+					local nProf = DB.getValue(nodeSkill, "prof", 0);
+					if nProf == 1 then
+						nValue = nValue + DB.getValue(nodeChar, "profbonus", 0);
+					elseif nProf == 2 then
+						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 0));
+					elseif nProf == 3 then
+						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
+					end
+
+					setValue(nValue);
+				end
+			</script>
+		</number_chartotal>
+	</template>
+	<template name="button_charhealthcalc">
+		<button_details>
+			<script>
+				function onButtonPress()
+					Interface.openWindow("charsheet_healthcalc", window.getDatabaseNode());
+				end
+			</script>
+		</button_details>
+	</template>
+
+	<template name="button_prof">
+		<buttonfield>
+			<state icon="button_prof" tooltipres="char_tooltip_prof_off" />
+			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" />
+		</buttonfield>
+	</template>
+	<template name="button_initprof">
+		<button_prof>
+			<anchored position="insidebottomright" offset="-7,-5" width="12" height="12" />
+		</button_prof>
+	</template>
+	<template name="button_saveprof">
+		<button_prof>
+			<anchored position="insidebottomright" offset="-6,-2" width="12" height="12" />
+		</button_prof>
+	</template>
+	<template name="button_armorprof">
+		<button_prof>
+			<anchored position="insidebottomright" offset="-4,0" width="12" height="12" />
+			<default>1</default>
+		</button_prof>
+	</template>
+
+	<!-- Adjusted -->
+	<template name="number_chartotalac">
+		<number_chartotal>
+			<description textres="combatdef" />
+			<font>reference-b-large</font>
+			<modifierfield>defenses.ac.temporary</modifierfield>
+			<source><name>abilities.agility.score</name><op>+</op></source>
+			<source><name>abilities.athletics.score</name><op>+</op></source>
+			<source><name>abilities.awareness.score</name><op>+</op></source>
+			<source><name>defenses.ac.bonus</name><op>+</op></source>
+			<source><name>defenses.ac.misc</name><op>+</op></source>
+			<script>
+				function onInit()
+					super.onInit();
+					-- DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities"), "onChildUpdate", onSourceUpdate);
+				end
+
+				function onClose()
+					-- DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities"), "onChildUpdate", onSourceUpdate);
+				end
+
+				function onSourceUpdate()
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+
+					local nDexBonus = ActorManager5E.getAbilityBonus(rActor, "dexterity");
+					local sDexBonus = self.getSourceValue("defenses.ac.dexbonus");
+					if sDexBonus == "max2" then
+						nDexBonus = math.min(nDexBonus, 2);
+					elseif sDexBonus == "max3" then
+						nDexBonus = math.min(nDexBonus, 3);
+					elseif sDexBonus == "no" then
+						nDexBonus = 0;
+					end
+
+					local nStatBonus2 = 0;
+					local sStat2 = self.getSourceValue("defenses.ac.stat2");
+					if sStat2 ~= "" then
+						nStatBonus2 = ActorManager5E.getAbilityBonus(rActor, sStat2);
+					end
+
+					setValue(10 + calculateSources() + nDexBonus + nStatBonus2);
+				end
+			</script>
+		</number_chartotal>
+	</template>
+
+	<!-- Adjusted - ToDo: Adjust to Trauma? -->
+	<template name="number_charwounds">
+		<basicnumber>
+			<!-- <min value="0" /> -->
+			<!-- <hideonvalue value="0" /> -->
+			<script>
+				function onInit()
+					if super.onInit then
+						super.onInit();
+					end
+
+					-- OptionsManager.registerCallback("WNDC", onValueChanged);
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onValueChanged);
+					onValueChanged();
+				end
+
+				function onClose()
+					-- OptionsManager.unregisterCallback("WNDC", onValueChanged);
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "abilities.endurance.score"), "onUpdate", onValueChanged);
+				end
+
+				function onDrop(x, y, draginfo)
+					if draginfo.getType() == "number" then
+						local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+						local rRoll = { sDesc = draginfo.getDescription(), nTotal = draginfo.getNumberData() };
+						ActionDamage.applyDamage(nil, rActor, rRoll);
+					end
+					return true;
+				end
+
+				function onValueChanged()
+					if window.onHealthChanged then
+						window.onHealthChanged();
+					end
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode())
+					setValue(ActorManager5E.getAbilityScore(rActor, "endurance")*3);
+				end
+			</script>
+		</basicnumber>
+	</template>
+	
+	<!-- Adjusted -->
+	<template name="number_charinit">
+		<number_chartotal>
+			<font>reference-b-large</font>
+			<displaysign />
+			<modifierfield>initiative.temporary</modifierfield>
+			<source><name>initiative.misc</name><op>+</op></source>
+			<source><name>abilities.dexterity.bonus</name><op>+</op></source>
+			<script>
+				function onInit()
+					self.addSource("initiative.prof");
+					super.onInit();
+				end
+				function onSourceUpdate()
+					local nValue = self.calculateSources();
+					local node = window.getDatabaseNode();
+					if DB.getValue(node, "initiative.prof", 0) == 1 then
+						nValue = nValue + DB.getValue(node, "profbonus", 2);
+					end
+					setValue(nValue);
+				end
+				function onDragStart(button, x, y, draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onInitAction", draginfo);
+				end
+
+				function action(draginfo)
+					return WindowManager.callOuterWindowFunction(window, "onInitAction", draginfo);
+				end
+
+				function onDoubleClick(x,y)
+					return WindowManager.callOuterWindowFunction(window, "onInitAction", draginfo);
+				end
+			</script>
+		</number_chartotal>
+	</template>
+	
+	<!-- Adjusted -->
+	<template name="number_charspeed">
+		<number_chartotal>
+			<font>reference-b-large</font>
+			<modifierfield>speed.temporary</modifierfield>
+			<description textres="char_tooltip_speed" />
+			<source><name>speed.base</name><op>+</op></source>
+			<source><name>speed.bonus</name><op>+</op></source>
+			<source><name>speed.misc</name><op>+</op></source>
+			<source><name>encumbrance.bulkhalved</name><op>-</op></source>
+			<min>1</min>
+			<script>
+				function onInit()
+					super.onInit()
+					local nodeActor = window.getDatabaseNode()
+					DB.addHandler(DB.getPath(nodeActor, "abilities.athletics.score"), "onUpdate", onSourceUpdate)
+					DB.addHandler(DB.getPath(nodeActor, "skilllist"), "onChildUpdate", onSourceUpdate)
+					onSourceUpdate()
+				end
+
+				function onClose()
+					local nodeActor = window.getDatabaseNode()
+					DB.removeHandler(DB.getPath(nodeActor, "abilities.athletics.score"), "onUpdate", onSourceUpdate)
+					DB.removeHandler(DB.getPath(nodeActor, "skilllist"), "onChildUpdate", onSourceUpdate)
+				end
+
+				function onSourceUpdate()
+					local nodeActor = window.getDatabaseNode()
+					local rActor = ActorManager.resolveActor(nodeActor)
+					local nAthletics = ActorManager5E.getAbilityScore(rActor, "athletics")
+					local nRunBonus = math.floor(ActorManager5E.getSkillRank(rActor, "run")/2)
+					local nBaseSpeed = 4
+					local nSprintFactor = 4
+
+					-- Check for lowered base speed
+					if nAthletics == 1 and nRunBonus == 0 then
+						nBaseSpeed = 3
+					elseif nAthletics == 1 and nRunBonus > 0 then
+						nBaseSpeed = 4
+						nRunBonus = nRunBonus -1
+					end
+
+					-- Set Base Speed
+					DB.setValue(nodeActor, "speed.base", "number", nBaseSpeed)
+
+					-- Set Run Bonus
+					DB.setValue(nodeActor, "speed.bonus", "number", nRunBonus)
+
+					-- Set calculated value
+					setValue(calculateSources())
+				end
+			</script>
+		</number_chartotal>
+	</template>
+
+	<template name="number_charskill">
+		<number_listitem_right>
+			<anchored width="40" />
+			<delaykeyupdate />
+			<hideonvalue>0</hideonvalue>
+			<nodrag />
+			<displaysign />
+		</number_listitem_right>
+	</template>
+	<template name="number_charskilltotal">
+		<number_listitem_linked_right>
+			<anchored width="40" />
+			<displaysign />
+			<nodrag />
+			<script file="campaign/scripts/char_skill_total.lua" />
+		</number_listitem_linked_right>
+	</template>
+	<template name="button_skillprof">
+		<button_listitem_left>
+			<state icon="button_prof" tooltipres="char_tooltip_prof_off" merge="add" />
+			<state icon="button_prof_down" tooltipres="char_tooltip_prof_on" merge="add" />
+			<state icon="button_prof_double" tooltipres="char_tooltip_prof_double" merge="add" />
+			<state icon="button_prof_half" tooltipres="char_tooltip_prof_half" merge="add" />
+		</button_listitem_left>
+	</template>
+	<template name="cycler_charskillability">
+		<stringcycler_listitem_right name="stat">
+			<anchored width="30" />
+			<parameters>
+				<defaultlabelres mergerule="replace">dash</defaultlabelres>
+				<labelsres>str|dex|con|int|wis|cha</labelsres>
+				<values>strength|dexterity|constitution|intelligence|wisdom|charisma</values>
+			</parameters>
+		</stringcycler_listitem_right>
+	</template>
+
+	<template name="string_charinv_attunecalc">
+		<stringcontrol>
+			<font>subwindowsmalltitle</font>
+			<warning>FF2020</warning>
+		</stringcontrol>
+	</template>
+
+	<!-- Adjusted -->
+	<template name="state_charweapontype">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_melee" tooltipres="char_tooltip_weapontypemelee" />
+			<state icon="char_weapon_ranged" tooltipres="char_tooltip_weapontyperanged" />
+			<state icon="char_weapon_thrown" tooltipres="char_tooltip_weapontypethrown" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 2 then
+						nState = 2
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+
+	<!-- Adjusted -->
+	<template name="state_charweaponhand">
+		<buttonfield>
+			<anchored width="30" height="30" />
+			<state icon="char_weapon_hand1" tooltipres="char_tooltip_weaponhand1" />
+			<state icon="char_weapon_hand2" tooltipres="char_tooltip_weaponhand2" />
+			<state icon="char_weapon_handoff" tooltipres="char_tooltip_weaponhandoff" />
+			<state icon="char_weapon_handoff_defense" tooltipres="char_tooltip_weaponhandoff_defense" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 3 then
+						nState = 3
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+	<template name="state_charammocounter">
+		<buttongroup_counter>
+			<sourcefields>
+				<maximum>maxammo</maximum>
+				<current>ammo</current>
+			</sourcefields>
+		</buttongroup_counter>
+	</template>
+
+	<!-- Added - Button Degrees of Sucess -->
+	<template name="button_dos">
+		<buttonfield>
+			<state icon="button_success_degree_1" />
+			<state icon="button_success_degree_2" />
+			<state icon="button_success_degree_3" />
+			<state icon="button_success_degree_4" />
+			<script>
+				function onWheel(notches)
+					nState = self.getValue()
+
+					if notches &gt; 0 then
+						nState = nState + 1
+					elseif notches &lt; 0 then
+						nState = nState	-1
+					end
+
+					if nState &lt; 0 then 
+						nState = 0
+					elseif nState &gt; 3 then
+						nState = 3
+					end
+
+					self.setValue(nState)
+					return true
+				end
+			</script>
+		</buttonfield>
+	</template>
+	
+	<!-- Added - Ability score combined with filter for skills -->
+	<template name="number_charabilityscore_filter">
+		<number_abilityscore>
+			<anchored width="40" height="30" />
+			<rollable />
+			<script>
+				function onClickDown()
+					window.parentcontrol.window.contents.subwindow.filter_ability.setValue(target[1])
+				end
+			</script>
+		</number_abilityscore>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_charinjuries">
+		<basicnumber>
+			<min value="0" />
+		</basicnumber>
+	</template>
+
+	<!-- Added -->
+	<template name="number_charsprint">
+		<number_chartotal>
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>sprint.temporary</modifierfield>
+			<description textres="char_tooltip_sprint" />
+			<source><name>speed.base</name><op>+</op></source>
+			<source><name>speed.bonus</name><op>+</op></source>
+			<source><name>speed.misc</name><op>+</op></source>
+			<source><name>speed.temporary</name><op>+</op></source>
+			<source><name>encumbrance.bulkhalved</name><op>-</op></source>
+			<min>4</min>
+			<script>
+				function onInit()
+					super.onInit()
+					DB.addHandler(DB.getPath(window.getDatabaseNode(), "speed.sprintfactor"), "onUpdate", onSourceUpdate)
+				end
+				
+				function onClose()
+					DB.removeHandler(DB.getPath(window.getDatabaseNode(), "speed.sprintfactor"), "onUpdate", onSourceUpdate)
+				end
+				
+				function onSourceUpdate()
+					local nodeChar = window.getDatabaseNode()
+					local nSprintFactor = DB.getValue(nodeChar, "speed.sprintfactor", 4)
+					local nBulk = DB.getValue(nodeChar, "encumbrance.bulk", 0)
+					setValue(calculateSources() * nSprintFactor - nBulk)
+				end
+			</script>
+		</number_chartotal>
+	</template>
+
+	<!-- Added -->
+	<template name="number_chartrauma">
+		<basicnumber>
+			<min value="0" />
+		</basicnumber>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_chartotalar">
+		<number_chartotal>
+			<description textres="armor" />
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>defenses.armor.temporary</modifierfield>
+			<source><name>defenses.armor.rating</name><op>+</op></source>
+			<source><name>defenses.armor.misc</name><op>+</op></source>
+		</number_chartotal>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_chartotalic">
+		<number_chartotal>
+			<description textres="intriguedef" />
+			<font>reference-b-large</font>
+			<modifiersize>mini</modifiersize>
+			<modifierfield>defenses.ic.temporary</modifierfield>
+			<source><name>abilities.awareness.score</name><op>+</op></source>
+			<source><name>abilities.cunning.score</name><op>+</op></source>
+			<source><name>abilities.status.score</name><op>+</op></source>
+			<source><name>defenses.ic.misc</name><op>+</op></source>
+		</number_chartotal>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_chartotaldp">
+		<number_linked>
+			<description textres="char_label_dp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.dp.base</name><op>+</op></source>
+			<source><name>destiny.dp.awarded</name><op>+</op></source>
+			<source><name>destiny.dp.invested</name><op>-</op></source>
+			<source><name>destiny.dp.burned</name><op>-</op></source>
+			<source><name>destiny.dp.spent</name><op>-</op></source>
+		</number_linked>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_chartotalsp">
+		<number_linked>
+			<description textres="char_label_sp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.sp.awarded</name><op>+</op></source>
+			<source><name>destiny.sp.invested</name><op>-</op></source>
+			<source><name>destiny.sp.burned</name><op>-</op></source>
+		</number_linked>
+	</template>
+	
+	<!-- Added -->
+	<template name="number_chartotalxp">
+		<number_linked>
+			<description textres="char_label_xp" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<source><name>destiny.xp.awarded</name><op>+</op></source>
+			<source><name>destiny.xp.invested</name><op>-</op></source>
+			<source><name>destiny.xp.burned</name><op>-</op></source>
+		</number_linked>
+	</template>
+
+	<!-- Added -->
+	<template name="number_readonly">
+		<basicnumber>
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<readonly />
+		</basicnumber>
+	</template>
+</root>

@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="char_weapon">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/char_weapon.lua" />
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+			<anchor_listitem_top />
+
+			<!-- Left side -->
+			<button_listitem_idelete_left name="idelete" />
+			<link_listitem_left name="shortcut" />
+			<button_listitem_carried_left name="carried" />
+			<state_charweapontype name="type">
+				<anchored to="leftanchor" width="20" height="20">
+					<top />
+					<left relation="relative" offset="0" postoffset="0" />
+				</anchored>
+			</state_charweapontype>
+			<state_charweaponhand name="handling">
+				<anchored to="leftanchor" width="20" height="20">
+					<top />
+					<left relation="relative" offset="0" postoffset="0" />
+				</anchored>
+			</state_charweaponhand>
+
+			<!-- Right side -->
+			<buttonc_listitem_right name="activatedetail">
+				<icon normal="button_details" pressed="button_details_down" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("char_weapon_editor", window.getDatabaseNode());
+					end
+				</script>
+			</buttonc_listitem_right>
+
+			<stringc_listitem_right_static name="damageview">
+				<anchored width="100" height="-1">
+					<top parent="contentanchor" relation="relative" offset="0" postoffset="0" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<script>
+					function onDragStart(_, _, _, draginfo)
+						return window.onDamageAction(draginfo);
+					end
+				</script>
+			</stringc_listitem_right_static>
+			<buttonc_listitem_right name="button_damage">
+				<icon normal="button_action_damage" pressed="button_action_damage_down" />
+				<script>
+					function onButtonPress()
+						window.onDamageAction();
+					end
+					function onDragStart(button, _, _, draginfo)
+						return window.onDamageAction(draginfo);
+					end
+				</script>
+			</buttonc_listitem_right>
+			<stringc_listitem_right_static name="attackview">
+				<anchored width="20" />
+				<center />
+				<script>
+					function onDragStart(_, _, _, draginfo)
+						return window.onAttackAction(draginfo);
+					end
+				</script>
+			</stringc_listitem_right_static>
+			<buttonc_listitem_right name="button_attack">
+				<icon normal="button_action_attack" pressed="button_action_attack_down" />
+				<script>
+					function onButtonPress()
+						window.onAttackAction();
+					end
+					function onDragStart(_, _, _, draginfo)
+						return window.onAttackAction(draginfo);
+					end
+				</script>
+			</buttonc_listitem_right>
+
+			<!-- Center -->
+			<string_listitem_center_underline name="name" />
+
+			<!-- Sections -->
+			<sub_content_column name="sub_mastery">
+				<anchored>
+					<left parent="" offset="20" />
+				</anchored>
+			</sub_content_column>
+			<sub_content_column name="sub_ranged">
+				<anchored>
+					<left parent="" offset="20" />
+				</anchored>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="char_weapon_ranged">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				--local tFields = { "maxammo", };
+				--WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<!-- Spacer to prevent ammo counter clipping -->
+			<spacer_content_top>
+				<anchored height="2" />
+			</spacer_content_top>
+
+			<area_content_top name="area_details">
+				<anchored height="20" />
+			</area_content_top>
+
+			<label name="label_ammo">
+				<anchored to="area_details" position="insidetopleft" offset="0,0" />
+				<static textres="char_label_weaponammo" />
+			</label>
+			<number_content_base name="maxammo">
+				<anchored to="label_ammo" position="righthigh" offset="10,0" width="40" />
+				<frame name="fielddark" offset="5,5,5,5" />
+				<min>0</min>
+				<max>100</max>
+			</number_content_base>
+			<state_charammocounter name="ammocounter">
+				<anchored to="maxammo">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+			</state_charammocounter>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="char_weapon_mastery">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "mastery", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+			function openMasteryLink()
+				Interface.openWindow("referencemanualpage", "reference.refmanualdata.id-00637@WOTC50PHB");
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="mastery_label">
+				<static textres="item_label_mastery" />
+			</label_content_column>
+			<string_content_column name="mastery">
+				<anchored>
+					<left offset="130" />
+				</anchored>
+				<frame name="fielddark" offset="10,5,10,5" />
+			</string_content_column>
+			<buttoncontrol name="link_mastery">
+				<anchored to="mastery" position="lefthigh" offset="10,0" width="20" height="20" />
+				<icon normal="button_link" pressed="button_link_down" />
+				<script>
+					function onButtonPress()
+						window.openMasteryLink();
+					end
+				</script>
+			</buttoncontrol>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_weapon_editor" copy="charsheethelper_base">
+		<sizelimits>
+			<minimum width="400" height="450" />
+		</sizelimits>
+		<sheetdata>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>weapon_title</prefix>
+			</windowtitlebar_charsheethelper>
+
+			<sub_content_framed_groupbox name="main">
+				<class>char_weapon_editor_main</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content_main />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="char_weapon_editor_main">
+		<script>
+			function onDrop(x, y, draginfo)
+				local sDragType = draginfo.getType();
+
+				if sDragType == "dice" then
+					local w = list.createWindow();
+					for _, vDie in ipairs(draginfo.getDiceData()) do
+						w.dice.addDie(vDie.type);
+					end
+					return true;
+				elseif sDragType == "number" then
+					local w = list.createWindow();
+					w.bonus.setValue(draginfo.getNumberData());
+					return true;
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="name_label">
+				<static textres="weapon_label_name" />
+			</label_column>
+			<string_column name="name" />
+
+			<label_column name="properties_label">
+				<static textres="weapon_label_properties" />
+			</label_column>
+			<string_column name="properties">
+				<delaykeyupdate />
+			</string_column>
+
+			<label_column name="mastery_label">
+				<static textres="item_label_mastery" />
+			</label_column>
+			<string_columnh name="mastery">
+				<anchored>
+					<left offset="117" />
+				</anchored>
+				<delaykeyupdate />
+			</string_columnh>
+			<button_checkbox name="masteryknown">
+				<anchored to="mastery" position="lefthigh" offset="5,0" width="20" height="20" />
+				<script>
+					function onValueChanged()
+						CharWeaponManager.onWeaponMasteryChanged(window.getDatabaseNode());
+					end
+				</script>
+			</button_checkbox>
+
+			<header_column name="header_attack">
+				<static textres="weapon_header_attack" />
+				<center />
+			</header_column>
+
+			<cycler_abilitybase name="attackstat">
+				<anchored width="40" height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+			</cycler_abilitybase>
+			<label_fieldtop>
+				<anchored to="attackstat" />
+				<static textres="weapon_label_atkstat" />
+			</label_fieldtop>
+			<label name="label_atkplus">
+				<anchored to="attackstat" position="righthigh" offset="5,0" width="10" />
+				<static>+</static>
+				<center />
+			</label>
+			<basicnumber name="attackbonus">
+				<anchored to="label_atkplus" position="righthigh" offset="5,0" width="35" height="20" />
+				<hideonvalue>0</hideonvalue>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="attackbonus" />
+				<static textres="weapon_label_atkbonus" />
+			</label_fieldtop>
+			<label name="label_atkplus2">
+				<anchored to="attackbonus" position="righthigh" offset="5,0" width="10" />
+				<static>+</static>
+				<center />
+			</label>
+			<button_prof name="prof">
+				<anchored to="label_atkplus2" position="righthigh" offset="0,0" height="20" width="20" />
+				<default>1</default>
+			</button_prof>
+			<label_fieldtop>
+				<anchored to="prof" />
+				<static textres="weapon_label_atkprof" />
+			</label_fieldtop>
+
+			<header_column name="header_damage">
+				<static textres="weapon_header_damage" />
+				<center />
+			</header_column>
+			<button_iedit name="list_iedit">
+				<anchored to="header_damage" position="insidetopright" offset="-5,0" />
+				<edittarget>list</edittarget>
+			</button_iedit>
+			<button_iadd name="list_iadd">
+				<anchored to="list_iedit" position="lefthigh" offset="5,0" />
+			</button_iadd>
+
+			<list_editor name="list">
+				<datasource>.damagelist</datasource>
+				<class>char_weapon_damage_entry</class>
+				<childfocus>type</childfocus>
+				<script>
+					function onChildWindowCreated(w)
+						if getWindowCount() == 1 then
+							w.stat.setValue("base");
+						end
+					end
+				</script>
+			</list_editor>
+
+			<label_fieldtop>
+				<anchored to="list" position="aboveleft" offset="5,1" width="60" />
+				<static textres="weapon_label_dmgdice" />
+			</label_fieldtop>
+			<label_fieldtop>
+				<anchored to="list" position="aboveleft" offset="85,1" width="80" />
+				<static textres="weapon_label_dmgstat" />
+			</label_fieldtop>
+			<label_fieldtop>
+				<anchored to="list" position="aboveleft" offset="185,1" width="35" />
+				<static textres="weapon_label_dmgbonus" />
+			</label_fieldtop>
+			<label_fieldtop>
+				<anchored to="list" position="aboveright" offset="5,1">
+					<left offset="230" />
+				</anchored>
+				<static textres="weapon_label_dmgtype" />
+			</label_fieldtop>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_weapon_damage_entry">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete_left>
+
+			<dice_listitem_left name="dice">
+				<anchored width="60" />
+			</dice_listitem_left>
+			<label_listitem_left name="label_plus">
+				<static>+</static>
+			</label_listitem_left>
+			<number_listitem_left name="statmult">
+				<anchored width="20" />
+				<default>1</default>
+				<min>0</min>
+				<hideonvalue>1</hideonvalue>
+				<tooltip textres="power_tooltip_statmult" />
+			</number_listitem_left>
+			<label_listitem_left name="label_statmultx">
+				<static>x</static>
+			</label_listitem_left>
+			<cycler_listitem_power_left name="stat" />
+			<label_listitem_left name="label_plus2">
+				<static>+</static>
+			</label_listitem_left>
+			<number_listitem_left name="bonus">
+				<anchored width="35" />
+				<hideonvalue>0</hideonvalue>
+			</number_listitem_left>
+			
+			<string_listitem_center_underline name="type" />
+		</sheetdata>
+	</windowclass>
+</root>

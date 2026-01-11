@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_class_specialization" copy="record_window_tabbed">
+		<sizelimits>
+			<minimum width="500" height="500" />
+			<dynamic />
+		</sizelimits>
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_class_specialization_main</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_header" copy="record_header" />
+
+	<windowclass name="reference_class_specialization_main">
+		<script>
+			function onInit()
+				self.onVersionChanged();
+			end
+			function onVersionChanged()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_class_specialization_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_class_specialization_main_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_main_2024">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "class", "features_iadd", "featurechoices_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					elseif sClass == "reference_classfeaturechoice" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = featurechoices.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), ""));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+								DB.setValue(node, "choicetype", "string", DB.getValue(DB.getPath(sRecord, "choicetype"), ""));
+								DB.setValue(node, "prerequisite", "string", DB.getValue(DB.getPath(sRecord, "prerequisite"), ""));
+							end
+							return true;
+						end
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="class_label">
+				<static textres="class_specialization_label_class" />
+			</label_content_column>
+			<string_content_columnh name="class" />
+
+			<header_content_framed_headersimple name="features_header">
+				<static textres="class_header_features"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="features_iadd">
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<target>features</target>
+			</button_iadd>
+			<list_content_column name="features">
+				<datasource>.features</datasource>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
+
+			<header_content_framed_headersimple name="featurechoices_header">
+				<static textres="class_header_featurechoices"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="featurechoices_iadd">
+				<anchored to="featurechoices_header" position="insidetopright" offset="2,0" />
+				<target>featurechoices</target>
+			</button_iadd>
+			<list_content_column name="featurechoices">
+				<datasource>.featurechoices</datasource>
+				<class>reference_classfeaturechoice_listitem</class>
+				<sortby><field>choicetype</field><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_class_specialization_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tControls = { "class", "features_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tControls, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "reference_classfeature" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = features.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+								DB.setValue(node, "text", "formattedtext", DB.getValue(DB.getPath(sRecord, "text"), ""));
+							end
+							return true;
+						end
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="class_label">
+				<static textres="class_specialization_label_class" />
+			</label_content_column>
+			<string_content_columnh name="class" />
+
+			<header_content_framed_headersimple name="features_header">
+				<static textres="class_header_features"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="features_iadd">
+				<anchored to="features_header" position="insidetopright" offset="2,0" />
+				<target>features</target>
+			</button_iadd>
+			<list_content_column name="features">
+				<datasource>.features</datasource>
+				<class>reference_classfeature_listitem</class>
+				<sortby><field>level</field><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Legacy embedded class specializations -->
+	<windowclass name="reference_classability" copy="reference_class_specialization" />
+	<windowclass name="reference_classability_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_class_specialization</name_emptyres>
+	</windowclass>
+</root>

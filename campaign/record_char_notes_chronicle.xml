@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Charsheet Notes -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_notes">
+		<sheetdata>
+
+			<subwindow name="contents">
+				<anchored>
+					<top offset="0" />
+					<bottom offset="-30" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>charsheet_notes_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+
+			<scrollbar_charcontents />
+
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- Notes - Content -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_notes_contents">
+		<margins control="0,0,0,2" />
+
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<!-- =================================================================================================================== -->
+			<!-- Details -->
+			<!-- =================================================================================================================== -->
+			<metalplate name="detailstitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+			</metalplate>
+
+			<!-- =================================================================================================================== -->
+			<stringu name="ancestry">
+				<anchored to="detailstitle" position="insidetopleft" offset="0,25" width="70" height="20" />
+				<center />
+			</stringu>
+
+			<label_charfieldtop>
+				<anchored to="ancestry" offset="0,5" />
+				<static textres="char_label_ancestry" />
+			</label_charfieldtop>
+
+			<!-- =================================================================================================================== -->
+			<stringu name="gender">
+				<anchored to="ancestry" position="righthigh" offset="15,0" width="70" height="20" />
+				<center />
+			</stringu>
+
+			<label_charfieldtop>
+				<anchored to="gender" offset="0,5" />
+				<static textres="char_label_gender" />
+			</label_charfieldtop>
+
+			<!-- =================================================================================================================== -->
+			<stringu name="age">
+				<anchored to="gender" position="righthigh" offset="15,0" width="70" height="20" />
+				<center />
+			</stringu>
+
+			<label_charfieldtop>
+				<anchored to="age" offset="0,5" />
+				<static textres="char_label_age" />
+			</label_charfieldtop>
+
+			<!-- =================================================================================================================== -->
+			<stringu name="height">
+				<anchored to="age" position="righthigh" offset="15,0" width="70" height="20" />
+				<center />
+			</stringu>
+
+			<label_charfieldtop>
+				<anchored to="height" offset="0,5" />
+				<static textres="char_label_height" />
+			</label_charfieldtop>
+
+			<!-- =================================================================================================================== -->
+			<stringu name="size">
+				<anchored to="height" position="righthigh" offset="15,0" width="70" height="20" />
+				<center />
+			</stringu>
+
+			<label_charfieldtop>
+				<anchored to="size" offset="0,5" />
+				<static textres="char_label_size" />
+			</label_charfieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- XP & Destiny & Sorcery -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="destinytitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="35" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_notes_destiny" />
+			</label_charframetop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Destiny Points -->
+			<!-- =================================================================================================================== -->
+			<label name="label_dpdetail">
+				<anchored width="100">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+				<static textres="char_label_dp" />
+			</label>
+
+			<number_chartotaldp name="dpremaining" source="destiny.dp.remaining">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_chartotaldp>
+			<label_fieldtop>
+				<anchored to="dpremaining" />
+				<static textres="char_label_dp_available" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_dpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>=</static>
+				<center />
+			</label>
+
+			<basicnumber name="dpbase" source="destiny.dp.base">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="dpbase" />
+				<static textres="char_label_dp_base" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_dpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>+</static>
+				<center />
+			</label>
+
+			<number_dropadd name="dpawarded" source="destiny.dp.awarded">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="dpawarded" />
+				<static textres="char_label_dp_awarded" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_dpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_dropadd name="dpinvested" source="destiny.dp.invested">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="dpinvested" />
+				<static textres="char_label_dp_invested" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_dpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_dropadd name="dpburned" source="destiny.dp.burned">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="dpburned" />
+				<static textres="char_label_dp_burned" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_dpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_dropadd name="dpspent" source="destiny.dp.spent">
+				<anchored to="label_dpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="dpspent" />
+				<static textres="char_label_dp_spent" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Sorcery Points -->
+			<!-- =================================================================================================================== -->
+			<label name="label_spdetail">
+				<anchored width="100">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+				<static textres="char_label_sp" />
+			</label>
+
+			<number_chartotalsp name="spremaining" source="destiny.sp.remaining">
+				<anchored to="label_spdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_chartotalsp>
+			<label_fieldtop>
+				<anchored to="spremaining" />
+				<static textres="char_label_sp_available" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_spdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>=</static>
+				<center />
+			</label>
+
+			<number_dropadd name="spawarded" source="destiny.sp.awarded">
+				<anchored to="label_spdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="spawarded" />
+				<static textres="char_label_sp_awarded" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_spdetail" width="7">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<center />
+				<static>-</static>
+			</label>
+
+			<number_dropadd name="spinvested" source="destiny.sp.invested">
+				<anchored to="label_spdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="spinvested" />
+				<static textres="char_label_sp_invested" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_spdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_dropadd name="spburned" source="destiny.sp.burned">
+				<anchored to="label_spdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="spburned" />
+				<static textres="char_label_sp_burned" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Experiance Points -->
+			<!-- =================================================================================================================== -->
+			<label name="label_xpdetail">
+				<anchored width="100">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
+					<left offset="5" />
+				</anchored>
+				<static textres="char_label_xp" />
+			</label>
+
+			<number_chartotalxp name="xpremaining" source="destiny.xp.remaining">
+				<anchored to="label_xpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<readonly />
+			</number_chartotalxp>
+			<label_fieldtop>
+				<anchored to="xpremaining" />
+				<static textres="char_label_xp_available" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_xpdetail">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>=</static>
+				<center />
+			</label>
+
+			<number_dropadd name="xpawarded" source="destiny.xp.awarded">
+				<anchored to="label_xpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="xpawarded" />
+				<static textres="char_label_xp_awarded" />
+			</label_fieldtop>
+
+			<label>
+				<anchored to="label_xpdetail" width="7">
+					<top anchor="top" offset="2" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+				<static>-</static>
+				<center />
+			</label>
+
+			<number_dropadd name="xpinvested" source="destiny.xp.invested">
+				<anchored to="label_xpdetail" width="45" height="20">
+					<top anchor="top" />
+					<left anchor="right" relation="relative" offset="5" />
+				</anchored>
+			</number_dropadd>
+			<label_fieldtop>
+				<anchored to="xpinvested" />
+				<static textres="char_label_xp_invested" />
+			</label_fieldtop>
+
+			<!-- =================================================================================================================== -->
+			<!-- Appearance -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="appearancetitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_appearance" />
+			</label_charframetop>
+
+			<stringu name="appearance">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</stringu>
+
+			<!-- =================================================================================================================== -->
+			<!-- Notes -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="notestitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_notes" />
+			</label_charframetop>
+
+			<stringu name="notes">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</stringu>
+
+			<!-- =================================================================================================================== -->
+			<!-- Allies & Enemies -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="alliestitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_allies" />
+			</label_charframetop>
+
+			<stringu name="allies">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</stringu>
+
+			<!-- =================================================================================================================== -->
+			<!-- Personal History -->
+			<!-- =================================================================================================================== -->
+			<label_charframetop name="historytitle">
+				<anchored height="20">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<static textres="char_label_history" />
+			</label_charframetop>
+
+			<stringu name="history">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="5" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+			</stringu>
+		</sheetdata>
+	</windowclass>
+</root>

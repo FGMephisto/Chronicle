@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+  File adjusted for Chronicle System
+-->
+
+<root>
+	<!-- =================================================================================================================== -->
+	<!-- Charsheet Skills -->
+	<!-- =================================================================================================================== -->
+	<windowclass name="charsheet_skills">
+		<sheetdata>
+			<button_iedit name="skills_iedit">
+				<anchored position="insidebottomright" offset="0,10" />
+				<tooltip textres="char_skills_tooltip_edit" />
+				<edittarget>contents</edittarget>
+			</button_iedit>
+
+			<subwindow name="contents">
+				<anchored>
+					<top offset="0" />
+					<bottom offset="-35" />
+					<left offset="0" />
+					<right offset="-15" />
+				</anchored>
+				<class>charsheet_skills_contents</class>
+				<activate />
+				<fastinit />
+			</subwindow>
+			<scrollbar_charcontents />
+		</sheetdata>
+	</windowclass>
+
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->	
+ 	<windowclass name="charsheet_skills_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					if sClass == "reference_skill" then
+						skills.addSkillReference(draginfo.getDatabaseNode());
+					end
+					return true;
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+		<!-- =================================================================================================================== -->
+		<!-- Header Frame -->
+		<!-- =================================================================================================================== -->
+			<label_charframetop name="stats_title">
+				<bounds>15,10,-10,20</bounds>
+				<!-- <anchored width="95" height="20"> -->
+					<!-- <top parent="columnanchor" anchor="bottom" offset="15" /> -->
+					<!-- <left offset="15" /> -->
+				<!-- </anchored> -->
+				<icons>char_senses</icons>
+				<static textres="char_label_abilities" />
+			</label_charframetop>
+
+		<!-- =================================================================================================================== -->
+		<!-- Abilities -->
+		<!-- =================================================================================================================== -->
+			<!-- Abilities - Row 1 -->
+			<number_charabilityscore_filter name="agility" source="abilities.agility.score">
+				<anchored to="stats_title" >
+					<top anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+				</anchored>
+				<target>agility</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="agility" />
+				<static textres="AGI" />
+				<tooltip textres="char_skills_tooltip_agility" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="animalhandling" source="abilities.animalhandling.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>animalhandling</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="animalhandling" />
+				<static textres="ANI" />
+				<tooltip textres="char_skills_tooltip_animalhandling" />
+			</label_abilityscore>
+		
+			<number_charabilityscore_filter name="athletics" source="abilities.athletics.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>athletics</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="athletics" />
+				<static textres="ATH" />
+				<tooltip textres="char_skills_tooltip_athletics" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="awareness" source="abilities.awareness.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>awareness</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="awareness" />
+				<static textres="AWA" />
+				<tooltip textres="char_skills_tooltip_awareness" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="cunning" source="abilities.cunning.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>cunning</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="cunning" />
+				<static textres="CUN" />
+				<tooltip textres="char_skills_tooltip_cunning" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="deception" source="abilities.deception.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>deception</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="deception" />
+				<static textres="DEC" />
+				<tooltip textres="char_skills_tooltip_deception" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="endurance" source="abilities.endurance.score">
+				<anchored to="agility">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>endurance</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="endurance" />
+				<static textres="END" />
+				<tooltip textres="char_skills_tooltip_endurance" />
+			</label_abilityscore>
+
+			<!-- Button - Clear Filter Value -->
+			<label name="clearfilter">
+				<anchored to="agility" width="40" height="30">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<font>sheetlabelmini</font>
+				<frame name="fielddark" offset="7,5,7,5" />
+				<static textres="char_label_clearfilter" />
+				<stateframe>
+					<hover name="fieldfocus" offset="7,5,7,5" />
+				</stateframe>
+				<script>
+					function onClickDown()
+						window.parentcontrol.window.contents.subwindow.filter_ability.setValue("")
+					end
+				</script>
+			</label>
+			<label_abilityscore>
+				<anchored to="clearfilter" />
+				<static textres="char_label_clearfilter_short" />
+				<tooltip textres="char_skills_tooltip_clearfilter" />
+			</label_abilityscore>
+
+			<!-- Abilities - Row 2 -->
+			<number_charabilityscore_filter name="fighting" source="abilities.fighting.score">
+				<anchored to="stats_title">
+					<top anchor="bottom" relation="relative" offset="15" />
+					<left offset="15" />
+				</anchored>
+				<target>fighting</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="fighting" />
+				<static textres="FIG" />
+				<tooltip textres="char_skills_tooltip_fighting" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="healing" source="abilities.healing.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>healing</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="healing" />
+				<static textres="HEA" />
+				<tooltip textres="char_skills_tooltip_healing" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="knowledge" source="abilities.knowledge.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>knowledge</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="knowledge" />
+				<static textres="KNO" />
+				<tooltip textres="char_skills_tooltip_knowledge" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="language" source="abilities.language.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>language</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="language" />
+				<static textres="LAN" />
+				<tooltip textres="char_skills_tooltip_language" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="marksmanship" source="abilities.marksmanship.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>marksmanship</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="marksmanship" />
+				<static textres="MAR" />
+				<tooltip textres="char_skills_tooltip_marksmanship" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="persuasion" source="abilities.persuasion.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>persuasion</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="persuasion" />
+				<static textres="PER" />
+				<tooltip textres="char_skills_tooltip_persuasion" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="status" source="abilities.status.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>status</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="status" />
+				<static textres="STA" />
+				<tooltip textres="char_skills_tooltip_status" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="stealth" source="abilities.stealth.score">
+				<anchored to="fighting">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>stealth</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="stealth" />
+				<static textres="STE" />
+				<tooltip textres="char_skills_tooltip_stealth" />
+			</label_abilityscore>
+
+			<!-- Abilities - Row 3 -->
+			<number_charabilityscore_filter name="survival" source="abilities.survival.score">
+				<anchored to="stats_title">
+					<top anchor="bottom" relation="relative" offset="15" />
+					<left parent="knowledge" anchor="left" />
+				</anchored>
+				<target>survival</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="survival" />
+				<static textres="SUR" />
+				<tooltip textres="char_skills_tooltip_survival" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="thievery" source="abilities.thievery.score">
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>thievery</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="thievery" />
+				<static textres="THI" />
+				<tooltip textres="char_skills_tooltip_thievery" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="warfare" source="abilities.warfare.score">
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>warfare</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="warfare" />
+				<static textres="WAR" />
+				<tooltip textres="char_skills_tooltip_warfare" />
+			</label_abilityscore>
+
+			<number_charabilityscore_filter name="will" source="abilities.will.score">
+				<anchored to="survival">
+					<top anchor="top" offset="0" />
+					<left anchor="right" relation="relative" offset="15" />
+				</anchored>
+				<target>will</target>
+			</number_charabilityscore_filter>
+			<label_abilityscore>
+				<anchored to="will" />
+				<static textres="WIL" />
+				<tooltip textres="char_skills_tooltip_will" />
+			</label_abilityscore>
+
+		<!-- =================================================================================================================== -->
+		<!-- Header Frame -->
+		<!-- =================================================================================================================== -->
+			<label_charframetop name="skillstitle">
+				<anchored to="stats_title" height="20">
+					<top anchor="bottom" relation="relative" offset="7" />
+					<left />
+					<right />
+				</anchored>
+				<icons>char_abilities_purple</icons>
+				<static textres="char_label_skills" />
+			</label_charframetop>
+
+		<!-- =================================================================================================================== -->
+		<!-- Filter Control - Invisible -->
+		<!-- =================================================================================================================== -->
+			<hsc name="filter_ability" />
+
+		<!-- =================================================================================================================== -->
+		<!-- Skill List Header -->
+		<!-- =================================================================================================================== -->
+			<genericcontrol name="rightanchor">
+				<anchored width="0" height="20">
+					<top parent="skillstitle" anchor="bottom" relation="relative" offset="4" />
+					<right offset="-15" />
+				</anchored>
+			</genericcontrol>
+
+			<genericcontrol name="shortcut_header">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-3" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<label name="total_label">
+				<anchored to="rightanchor" width="40">
+					<top />
+					<right anchor="left" relation="relative" offset="-16" />
+				</anchored>
+				<center />
+				<static textres="char_label_skilltotal" />
+			</label>
+
+			<label name="misc_label">
+				<anchored to="rightanchor" width="40">
+					<top />
+					<right anchor="left" relation="relative" offset="-13" />
+				</anchored>
+				<center />
+				<static textres="char_label_skillmisc" />
+			</label>
+
+			<label name="stat_label">
+				<anchored to="rightanchor" width="40">
+					<top />
+					<right anchor="left" relation="relative" offset="-3" />
+				</anchored>
+				<center />
+				<static textres="char_label_skillstat" />
+			</label>
+
+			<label name="name_label">
+				<anchored>
+					<top parent="rightanchor" />
+					<left offset="35" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-17" />
+				</anchored>
+				<static textres="char_label_skillname" />
+				<center />
+			</label>
+
+			<button_iadd name="skills_iadd">
+				<anchored to="skillstitle" position="insidetopright" offset="0,0" />
+				<target>skills</target>
+			</button_iadd>
+
+			<!-- =================================================================================================================== -->
+			<!-- Skills List -->
+			<!-- =================================================================================================================== -->
+			<windowlist name="skills">
+				<anchored to="skillstitle">
+					<top parent="skillstitle" anchor="bottom" relation="relative" offset="0" />
+					<left offset="-5" />
+					<right offset="-5" />
+					<bottom parent="" anchor="bottom" offset="0" />
+				</anchored>
+				<datasource>.skilllist</datasource>
+				<class>skill_item</class>
+				<sortby><control>name</control></sortby>
+				<filter control="filter_ability" />
+				<filteron control="stat_filter" />
+				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
+			</windowlist>
+			<scrollbar>
+				<anchored to="skills" offset="-5,-10" />
+				<target>skills</target>
+			</scrollbar>
+		</sheetdata>
+	</windowclass>
+	
+	<!-- =================================================================================================================== -->
+	<!-- Skill List Item -->
+	<!-- =================================================================================================================== -->	
+	<windowclass name="skill_item">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_skill_chronicle.lua" />
+		<sheetdata>
+			<genericcontrol name="rightanchor">
+				<anchored position="insidetopright" offset="0,2" height="0" width="0" />
+			</genericcontrol>
+
+			<buttoncontrol name="shortcut">
+				<anchored to="rightanchor" width="20" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-2" />
+				</anchored>
+				<icon normal="button_link" pressed="button_link_down" />
+				<script>
+					function onButtonPress()
+						window.openSkillLink();
+					end
+				</script>
+			</buttoncontrol>
+
+			<button_idelete name="idelete">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" offset="-2" />
+				</anchored>
+				<editmode>skills_iedit</editmode>
+			</button_idelete>
+
+			<!-- =================================================================================================================== -->
+			<!-- Dice Field -->
+			<!-- =================================================================================================================== -->
+			<dicecontrol name="diceframe">
+				<anchored to="rightanchor">
+					<top offset="-6" />
+					<right anchor="left" relation="relative" offset="-7" />
+				</anchored>
+				<stat></stat>
+				<skill></skill>
+				<actorpath>...</actorpath>
+				<script>
+					function onInit()
+						local nodeSkill = window.getDatabaseNode()
+						self.stat[1] = DB.getValue(nodeSkill, "stat", "")
+						self.skill[1] = DB.getValue(nodeSkill, "name", "")
+						super.onInit()
+					end
+				</script>
+			</dicecontrol>
+
+			<!-- =================================================================================================================== -->
+			<number_charskill name="misc">
+				<anchored>
+					<top offset="2" />
+					<right parent="rightanchor" anchor="left" relation="relative" offset="-7" />
+				</anchored>
+				<tabtarget prev="stat" />
+				<script>
+					function onValueChanged()
+						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
+						window.diceframe.onInit()
+					end
+				</script>
+			</number_charskill>
+
+			<cycler_ability name="stat">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-12" />
+				</anchored>
+				<tabtarget next="misc" prev="name" />
+				<script>
+					function onValueChanged()
+						sAbility = DB.getValue(window.getDatabaseNode(), "stat", "")
+						-- Set "stat_filter" so the skill will show/hide on filter set
+						window.stat_filter.setValue(sAbility)
+						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
+						window.diceframe.onInit()
+					end
+				</script>
+			</cycler_ability>
+
+			<hsc name="stat_filter">
+				<script>
+					function onInit()
+						setValue(DB.getValue(window.getDatabaseNode(), "stat", ""))
+					end
+				</script>
+			</hsc>
+
+			<genericcontrol name="armorwidget">
+				<anchored to="rightanchor" width="8" height="9">
+					<top offset="5" />
+					<right anchor="left" relation="relative" offset="-5" />
+				</anchored>
+				<icon>char_armorcheck</icon>
+				<invisible />
+			</genericcontrol>
+			
+			<string_textlistitem name="name">
+				<anchored to="rightanchor">
+					<top />
+					<left parent="" offset="15" />
+					<right anchor="left" relation="relative" offset="-7" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<tabtarget next="stat" />
+			</string_textlistitem>
+		</sheetdata>
+	</windowclass>
+</root>

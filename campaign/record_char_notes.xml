@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet_notes">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_framed_groupbox_bottom name="footer">
+				<class>charsheet_notes_footer</class>
+			</sub_content_framed_groupbox_bottom>
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_notes_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_notes_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "personalitytraits", "ideals", "bonds", "flaws", "appearance", "notes", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_top name="details">
+				<class>charsheet_notes_details</class>
+			</sub_content_top>
+
+			<header_content_framed_metalplate name="personalitytraits_header">
+				<static textres="char_label_notes_traits" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="personalitytraits">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+
+			<header_content_framed_metalplate name="ideals_header">
+				<static textres="char_label_notes_ideals" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="ideals">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+
+			<header_content_framed_metalplate name="bonds_header">
+				<static textres="char_label_notes_bonds" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="bonds">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+
+			<header_content_framed_metalplate name="flaws_header">
+				<static textres="char_label_notes_flaws" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="flaws">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+
+			<header_content_framed_metalplate name="appearance_header">
+				<static textres="char_label_appearance" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="appearance">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+
+			<header_content_framed_metalplate name="notes_header">
+				<static textres="char_label_notes" />
+			</header_content_framed_metalplate>
+			<stringu_content_noframe_noscroll_top name="notes">
+				<anchored>
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</stringu_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="charsheet_notes_details">
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "gender", "age", "height", "weight", "size", "alignment", "deity", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_metalplate name="details_header" />
+			<area_content_top name="details">
+				<anchored height="20" />
+			</area_content_top>
+			<stringu name="gender">
+				<anchored to="details" position="insidetopleft" offset="10,0" width="70" height="20" />
+			</stringu>
+			<stringu name="age">
+				<anchored to="gender" position="righthigh" offset="5,0" width="70" height="20" />
+			</stringu>
+			<stringu name="height">
+				<anchored to="age" position="righthigh" offset="5,0" width="70" height="20" />
+			</stringu>
+			<stringu name="weight">
+				<anchored to="height" position="righthigh" offset="5,0" width="70" height="20" />
+			</stringu>
+			<stringu name="size">
+				<anchored to="weight" position="righthigh" offset="5,0" width="70" height="20" />
+				<delaykeyupdate />
+			</stringu>
+			<label_charfieldtop>
+				<anchored to="gender" offset="0,5" />
+				<static textres="char_label_gender" />
+			</label_charfieldtop>
+			<label_charfieldtop>
+				<anchored to="age" offset="0,5" />
+				<static textres="char_label_age" />
+			</label_charfieldtop>
+			<label_charfieldtop>
+				<anchored to="height" offset="0,5" />
+				<static textres="char_label_height" />
+			</label_charfieldtop>
+			<label_charfieldtop>
+				<anchored to="weight" offset="0,5" />
+				<static textres="char_label_weight" />
+			</label_charfieldtop>
+			<label_charfieldtop>
+				<anchored to="size" offset="0,5" />
+				<static textres="char_label_size" />
+			</label_charfieldtop>
+
+			<header_content_framed_metalplate name="details_header2" />
+			<area_content_top name="details2">
+				<anchored height="20" />
+			</area_content_top>
+			<stringu name="alignment">
+				<anchored to="details2" position="insidetopleft" offset="10,0" height="20">
+					<right anchor="center" offset="-5" />
+				</anchored>
+			</stringu>
+			<label_charfieldtop>
+				<anchored to="alignment" offset="0,5" />
+				<static textres="char_label_alignment" />
+			</label_charfieldtop>
+			<stringu name="deity">
+				<anchored to="details2" position="insidetopright" offset="10,0" height="20">
+					<left anchor="center" offset="5" />
+				</anchored>
+			</stringu>
+			<label_charfieldtop>
+				<anchored to="deity" offset="0,5" />
+				<static textres="char_label_deity" />
+			</label_charfieldtop>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_notes_footer">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onBastionOptionChanged();
+			end
+			function onBastionOptionChanged()
+				local bShow = OptionsManager.isOption("HRBASTION", "on");
+				WindowManager.callSafeControlsSetVisible(self, { "button_bastion", }, bShow);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<button_text name="button_logs">
+				<anchored position="insidetopleft" offset="5,5" width="60" height="20" />
+				<state textres="tab_log" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("charsheet_logs", window.getDatabaseNode());
+					end
+				</script>
+			</button_text>
+			<button_text name="button_bastion">
+				<anchored position="insidetopright" offset="5,5" width="60" height="20" />
+				<state textres="bastion" />
+				<script>
+					function onButtonPress()
+						local nodeBastion = self.getBastionNode();
+						if nodeBastion then
+							Interface.openWindow("location", nodeBastion);
+						end
+					end
+					function getBastionNode()
+						local nodeChar = window.getDatabaseNode();
+						local sPath = DB.getPath(nodeChar, "bastion");
+						local nodeBastion = DB.findNode(sPath);
+						if not nodeBastion then
+							nodeBastion = DB.createNode(DB.getPath(nodeChar, "bastion"));
+							DB.setValue(nodeBastion, "name", "string", string.format("%s %s", DB.getValue(nodeChar, "name", ""), Interface.getString("bastion")));
+							DB.setValue(nodeBastion, "type", "string", Interface.getString("bastion"));
+						end
+						return nodeBastion;
+					end
+				</script>
+			</button_text>
+		</sheetdata>
+	</windowclass>
+</root>

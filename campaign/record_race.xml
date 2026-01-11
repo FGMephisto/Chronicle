@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_race" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_race_main</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_race_header" copy="record_header" />
+
+	<windowclass name="reference_race_main">
+		<script>
+			function onInit()
+				self.onVersionChanged();
+			end
+			function onVersionChanged()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_race_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_race_main_2014", nodeRecord);
+				end
+			end
+			function onDrop(x, y, draginfo)
+				if WindowManager.getReadOnlyState(getDatabaseNode()) then
+					return true;
+				end
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					local nodeSource = draginfo.getDatabaseNode();
+
+					if sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
+						self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+					end
+					return true;
+				end
+			end
+			function addTrait(sName, sText)
+				local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "traits"));
+				if nodeTrait then
+					DB.setValue(nodeTrait, "name", "string", sName);
+					DB.setValue(nodeTrait, "text", "formattedtext", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_race_main_2024">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "type", "size", "speed", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="type_label">
+				<static textres="race_label_type" />
+			</label_content_column>
+			<string_content_columnh name="type" />
+
+			<label_content_column name="size_label">
+				<static textres="race_label_size" />
+			</label_content_column>
+			<string_content_columnh name="size" />
+
+			<label_content_column name="speed_label">
+				<static textres="race_label_speed" />
+			</label_content_column>
+			<string_content_columnh name="speed" />
+
+			<header_content_framed_headersimple name="list_header">
+				<static textres="race_header_traits"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.traits</datasource>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_race_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "ignoresubrace", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+
+				local bHideOld = (DB.getChildCount(getDatabaseNode(), "subraces") &lt;= 0);
+				WindowManager.callSafeControlUpdate(self, "subraces", bReadOnly, bHideOld);
+				WindowManager.callSafeControlSetLockMode(self, "subraces_iadd", bReadOnly or bHideOld);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="ignoresubrace_label">
+				<static textres="race_label_ignoresubrace" />
+			</label_content_column>
+			<button_checkbox_content_columnh name="ignoresubrace" />
+
+			<header_content_framed_headersimple name="subraces_header">
+				<static textres="race_header_subraces"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="subraces_iadd">
+				<anchored to="subraces_header" position="insidetopright" offset="2,0" />
+				<target>subraces</target>
+			</button_iadd>
+			<list_content_column name="subraces">
+				<datasource>.subraces</datasource>
+				<class>reference_subrace_listitem</class>
+			</list_content_column>
+
+			<header_content_framed_headersimple name="list_header">
+				<static textres="race_header_traits"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.traits</datasource>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_racialtrait_listitem">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "name", "idelete", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>reference_racialtrait</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_racialtrait" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_subrace_listitem">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "name", "idelete", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>reference_subrace</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_race_subrace" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_racialtrait" copy="record_window_text" />
+	<windowclass name="reference_racialtrait_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_racialtrait</name_emptyres>
+	</windowclass>
+</root>

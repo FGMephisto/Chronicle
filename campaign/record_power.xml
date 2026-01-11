@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="power" copy="record_window_tabbed">
+		<tab>
+			<name>main</name>
+			<resource>tab_main</resource>
+			<class>power_main</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_content_framed_groupbox_top name="header">
+				<class>power_header</class>
+			</sub_content_framed_groupbox_top>
+
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_header" copy="record_header" />
+
+	<windowclass name="reference_spell" copy="power" />
+
+	<windowclass name="power_main">
+		<margins control="0,0,0,5" />
+		<script file="campaign/scripts/power_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>power_main_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+
+			<line_content_top name="divider" />
+
+			<label_content_column name="castingtime_label">
+				<static textres="spell_label_castingtime" />
+			</label_content_column>
+			<string_content_columnh name="castingtime" />
+
+			<label_content_column name="range_label">
+				<static textres="spell_label_range" />
+			</label_content_column>
+			<string_content_columnh name="range" />
+
+			<label_content_column name="components_label">
+				<static textres="spell_label_components" />
+			</label_content_column>
+			<string_content_columnh name="components" />
+
+			<label_content_column name="duration_label">
+				<static textres="spell_label_duration" />
+			</label_content_column>
+			<string_content_columnh name="duration" />
+
+			<ft_content_columnh_full name="description" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_main_summary_fields">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="level_label">
+				<static textres="level" />
+			</label_content_column>
+			<number_content_columnh name="level">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</number_content_columnh>
+
+			<label_content_column name="school_label">
+				<static textres="spell_label_school" />
+			</label_content_column>
+			<string_content_columnh name="school">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<label_content_column name="ritual_label">
+				<static textres="spell_label_ritual" />
+			</label_content_column>
+			<button_checkbox_content_columnh name="ritual">
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</button_checkbox_content_columnh>
+
+			<label_content_column name="source_label">
+				<static textres="spell_label_source" />
+			</label_content_column>
+			<string_content_columnh name="source">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+		</sheetdata>
+	</windowclass>
+</root>

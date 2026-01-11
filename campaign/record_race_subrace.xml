@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_subrace" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_subrace_main</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_subrace_header" copy="record_header" />
+
+	<windowclass name="reference_subrace_main">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "race", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if WindowManager.getReadOnlyState(getDatabaseNode()) then
+					return true;
+				end
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					local nodeSource = draginfo.getDatabaseNode();
+
+					if sClass == "reference_racialtrait" or sClass == "reference_subracialtrait" then
+						self.addTrait(DB.getValue(nodeSource, "name", ""), DB.getText(nodeSource, "text", ""));
+					end
+					return true;
+				end
+			end
+			function addTrait(sName, sText)
+				local nodeTrait = DB.createChild(DB.getPath(getDatabaseNode(), "traits"));
+				if nodeTrait then
+					DB.setValue(nodeTrait, "name", "string", sName);
+					DB.setValue(nodeTrait, "text", "formattedtext", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="race_label">
+				<static textres="race_subrace_label_race" />
+			</label_content_column>
+			<string_content_columnh name="race" />
+
+			<header_content_framed_headersimple name="list_header">
+				<static textres="race_header_traits"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.traits</datasource>
+				<class>reference_racialtrait_listitem</class>
+				<sortby><field>name</field></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Legacy embedded subraces -->
+	<windowclass name="reference_subracialtrait" copy="record_window_text" />
+	<windowclass name="reference_subracialtrait_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_subracialtrait</name_emptyres>
+	</windowclass>
+</root>

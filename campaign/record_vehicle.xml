@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="vehicle" copy="record_window_tabbed">
+		<sizelimits>
+			<minimum width="500" height="400" />
+		</sizelimits>
+		<minimize>minimized_item</minimize>
+		<tab>
+			<name>main</name>
+			<resource>tab_main</resource>
+			<class>vehicle_combat</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>notes</name>
+			<resource>tab_notes</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
+		<script>
+			function onIDChanged()
+				super.onIDChanged();
+				if not Session.IsHost then
+					local bID = LibraryData.getIDState("npc", getDatabaseNode(), true);
+					tabs.setVisible(bID);
+				end
+			end
+		</script>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_combat">
+		<script>
+			function onInit()
+				self.update();
+			end
+			function onVersionChanged()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("vehicle_combat_2024", nodeRecord);
+				else
+					sub_content.setValue("vehicle_combat_2014", nodeRecord);
+				end
+				WindowManager.callSafeControlUpdate(self, "sub_content", bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_column name="sub_standard">
+				<class>vehicle_combat_standard</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_top">
+				<class>vehicle_combat_top</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2024</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_bottom">
+				<class>vehicle_combat_bottom_2024</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_action">
+				<class>vehicle_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<sub_content_column name="sub_standard">
+				<class>vehicle_combat_standard</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_top">
+				<class>vehicle_combat_top</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities_2014</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_bottom">
+				<class>vehicle_combat_bottom_2014</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_action">
+				<class>vehicle_combat_actions</class>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_combat_standard">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.update();
+			end
+			function update()
+				local nodeRecord = getDatabaseNode();
+				local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
+				local tFields = { "type", "size", "cost", "crew", "cargo", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly);
+			end
+		</script>
+		<script file="campaign/scripts/vehicle_main_top.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="type_label">
+				<static textres="npc_label_type" />
+			</label_content_column>
+			<string_content_column name="type" />
+
+			<label_content_column name="size_label">
+				<static textres="npc_label_size" />
+			</label_content_column>
+			<string_content_columnh name="size" />
+
+			<label_content_column name="cost_label">
+				<static textres="vehicle_label_cost" />
+			</label_content_column>
+			<string_content_columnh name="cost" />
+
+			<label_content_column name="crew_label">
+				<static textres="vehicle_label_crew" />
+			</label_content_column>
+			<string_content_columnh name="crew" />
+
+			<label_content_column name="cargo_label">
+				<static textres="vehicle_label_cargo" />
+			</label_content_column>
+			<string_content_columnh name="cargo" />
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_top">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_top.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="ac_label">
+				<static textres="armorclass" />
+			</label_content_column>
+			<number_content_column name="ac" />
+			<string_content_column_remainder name="actext">
+				<anchored to="ac" />
+			</string_content_column_remainder>
+
+			<label_content_column name="hp_label">
+				<static textres="hitpoints" />
+			</label_content_column>
+			<number_content_columnh name="hp" />
+
+			<label_content_column name="damagethreshold_label">
+				<static textres="vehicle_label_damagethreshold" />
+				<tooltip textres="vehicle_tooltip_damagethreshold" />
+			</label_content_column>
+			<number_content_column name="damagethreshold" />
+
+			<label_content_column_right name="mishapthreshold_label">
+				<anchored to="damagethreshold" />
+				<static textres="vehicle_label_mishapthreshold" />
+				<tooltip textres="vehicle_tooltip_mishapthreshold" />
+			</label_content_column_right>
+			<number_content_column_right name="mishapthreshold">
+				<anchored to="damagethreshold" />
+			</number_content_column_right>
+
+			<label_content_column name="speed_label">
+				<static textres="npc_label_speed" />
+			</label_content_column>
+			<string_content_columnh name="speed" />
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_combat_bottom_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_column name="damageimmunities">
+				<anchored>
+					<right offset="-25" />
+				</anchored>
+			</string_content_column>
+			<button_checkbox name="disablestandarddamageimmunities">
+				<anchored to="damageimmunities" position="righthigh" offset="5,0" width="20" height="20" />
+				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
+			</button_checkbox>
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_bottom_2014">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_column name="damageimmunities">
+				<anchored>
+					<right offset="-25" />
+				</anchored>
+			</string_content_column>
+			<button_checkbox name="disablestandarddamageimmunities">
+				<anchored to="damageimmunities" position="righthigh" offset="5,0" width="20" height="20" />
+				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
+			</button_checkbox>
+
+			<label_content_column name="conditionimmunities_label">
+				<static textres="npc_label_conditionimmunities" />
+				<tooltip textres="npc_tooltip_conditionimmunities" />
+			</label_content_column>
+			<string_content_column name="conditionimmunities">
+				<anchored>
+					<right offset="-25" />
+				</anchored>
+			</string_content_column>
+			<button_checkbox name="disablestandardconditionimmunities">
+				<anchored to="conditionimmunities" position="righthigh" offset="5,0" width="20" height="20" />
+				<tooltip textres="vehicle_tooltip_disablestandardimmunities" />
+			</button_checkbox>
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="vehicle_combat_actions">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/vehicle_main_action.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="traits_header">
+				<static textres="npc_header_traits"/>
+			</header_content_framed_headersimple>
+			<button_iedit name="traits_iedit">
+				<anchored to="traits_header" position="righthigh" offset="-20,0" />
+				<target>traits</target>
+			</button_iedit>
+			<button_iadd name="traits_iadd">
+				<anchored to="traits_iedit" position="lefthigh" offset="5,0" />
+				<target>traits</target>
+			</button_iadd>
+			<list_npcactions name="traits">
+				<datasource>.traits</datasource>
+				<class>npc_power</class>
+			</list_npcactions>
+
+			<header_content_framed_headersimple name="components_header">
+				<static textres="vehicle_header_components" />
+			</header_content_framed_headersimple>
+			<button_iedit name="components_iedit">
+				<anchored to="components_header" position="righthigh" offset="-20,0" />
+				<target>components</target>
+			</button_iedit>
+			<button_iadd name="components_iadd">
+				<anchored to="components_iedit" position="lefthigh" offset="5,0" />
+				<target>components</target>
+			</button_iadd>
+			<list_npcactions name="components">
+				<datasource>.components</datasource>
+				<class>vehicle_combat_component</class>
+				<script>
+					function onChildWindowCreated(w)
+						DB.setValue(w.getDatabaseNode(), "type", "string", "Vehicle Component");
+					end
+				</script>
+			</list_npcactions>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_component">
+		<margins control="0,0,0,2" />
+		<script>
+			function update(bReadOnly)
+				name.setReadOnly(bReadOnly);
+				actions.update(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete">
+				<editmode>components_iedit</editmode>
+			</button_listitem_idelete_left>
+			<linkc_listitem_left name="shortcut">
+				<class>item</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center name="name">
+				<anchored>
+					<top parent="contentanchor" relation="relative" offset="2" postoffset="2" />
+				</anchored>
+				<font>sheetlabel</font>
+			</string_listitem_center>
+
+			<list_npcactions name="actions">
+				<anchored>
+					<left offset="30" />
+				</anchored>
+				<datasource>.actions</datasource>
+				<class>vehicle_combat_component_action_entry</class>
+			</list_npcactions>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="vehicle_combat_component_action_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				updateLAFActions();
+			end
+			function updateLAFActions()
+				local nLoadActions = actions_load.getValue();
+				local nAimActions = actions_aim.getValue();
+				local nFireActions = actions_fire.getValue();
+
+				if nLoadActions == 0 and nAimActions == 0 and nFireActions == 0 then
+					summary_laf_actions.setValue("");
+					summary_laf_actions.setVisible(false);
+				else
+					local sSummaryActions = string.format("Actions: %d/%d/%d", nLoadActions, nAimActions, nFireActions);
+					summary_laf_actions.setValue(sSummaryActions);
+					summary_laf_actions.setVisible(true);
+				end
+			end
+
+			function update(bReadOnly)
+				name.setReadOnly(bReadOnly);
+				desc.setReadOnly(bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<hn name="actions_load">
+				<script>
+					function onValueChanged()
+						window.updateLAFActions();
+					end
+				</script>
+			</hn>
+			<hn name="actions_aim">
+				<script>
+					function onValueChanged()
+						window.updateLAFActions();
+					end
+				</script>
+			</hn>
+			<hn name="actions_fire">
+				<script>
+					function onValueChanged()
+						window.updateLAFActions();
+					end
+				</script>
+			</hn>
+
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+
+			<stringc_listitem_right_noframe_static name="summary_laf_actions">
+				<frame name="rowshade" offset="5,2,5,2" />
+				<tooltip textres="vehicle_tooltip_actions_summary" />
+			</stringc_listitem_right_noframe_static>
+
+			<string_listitem_center name="name">
+				<frame name="rowshade" offset="5,2,5,2" />
+				<empty textres="npc_empty_powername" />
+			</string_listitem_center>
+
+			<basicstring name="desc">
+				<anchored to="name" position="belowleft" offset="0,5">
+					<right parent="" offset="-5" />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<nodragselect />
+				<script file="campaign/scripts/string_powerdesc.lua" />
+			</basicstring>
+		</sheetdata>
+	</windowclass>
+</root>

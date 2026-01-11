@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_background" copy="record_window_tabbed">
+		<tab>
+			<name>notes</name>
+			<resource>tab_main</resource>
+			<class>record_content_text</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>main</name>
+			<resource>tab_other</resource>
+			<class>reference_background_main</class>
+			<embed />
+		</tab>
+		<sheetdata>
+			<sub_record_version name="sub_version" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_background_header" copy="record_header" />
+
+	<windowclass name="reference_background_main">
+		<script>
+			function onInit()
+				self.onVersionChanged();
+			end
+			function onVersionChanged()
+				local nodeRecord = getDatabaseNode();
+				local bIs2024 = (DB.getValue(nodeRecord, "version", "") == "2024");
+				if bIs2024 then
+					sub_content.setValue("reference_background_main_2024", nodeRecord);
+				else
+					sub_content.setValue("reference_background_main_2014", nodeRecord);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<sub_content_column name="sub_content" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_background_main_2024">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				local node = getDatabaseNode();
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.wealth"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.items.*.name"), "onUpdate", updateEquipmentString);
+				DB.addHandler(DB.getPath(node, "equipmentlist.*.items.*.count"), "onUpdate", updateEquipmentString);
+
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+				self.updateEquipmentString();
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "abilities", "feat", "skill", "tool", "list_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+				WindowManager.callSafeControlsSetVisible(self, { "equipment", }, bReadOnly);
+				WindowManager.callSafeControlsSetVisible(self, { "list", }, not bReadOnly);
+			end
+			function updateEquipmentString()
+				local node = getDatabaseNode();
+				local aChoiceLetters = { "A", "B", "C" };
+				local tOptions = {};
+				local tOptionsList = DB.getChildList(node, "equipmentlist");
+				for k,v in ipairs(tOptionsList) do
+					local tItems = {};
+					local sOption = ("(%s)"):format(aChoiceLetters[k]);
+					if k > 1 then
+						if k == #tOptionsList then
+							sOption = ("; or (%s)"):format(aChoiceLetters[k]);
+						else
+							sOption = ("; (%s)"):format(aChoiceLetters[k]);
+						end
+					end
+					local tItemsList = DB.getChildList(v, "items");
+					for k2,v2 in ipairs(tItemsList) do
+						local sName = DB.getValue(v2, "name", "");
+						local nCount = DB.getValue(v2, "count", 0);
+						local sItem = "";
+						if nCount > 1 then
+							sItem = ("%s %s"):format(nCount, sName);
+						else
+							sItem = ("%s"):format(sName);
+						end
+						table.insert(tItems, sItem);
+					end
+					local nWealth = DB.getValue(v, "wealth", 0);
+					if nWealth > 0 then
+						table.insert(tItems, ("%s GP"):format(nWealth));
+					end
+
+					table.insert(tOptions, ("%s %s"):format(sOption, table.concat(tItems, ", ")));
+				end
+
+				if #tOptions > 0 then
+					local sText = "Choose %s:";
+					if #tOptions == 2 then
+						sText = sText:format("A or B");
+					elseif #tOptions == 3 then
+						sText = sText:format("A, B, or C");
+					end
+
+					sText = ("%s %s"):format(sText, table.concat(tOptions, " "));
+					DB.setValue(node, "equipment", "string", sText);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="abilities_label">
+				<static textres="background_label_abilities" />
+			</label_content_column>
+			<string_content_columnh name="abilities" />
+
+			<label_content_column name="feat_label">
+				<static textres="background_label_feat" />
+			</label_content_column>
+			<string_content_columnh name="feat" />
+
+			<label_content_column name="skill_label">
+				<static textres="background_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="skill" />
+
+			<label_content_column name="tool_label">
+				<static textres="background_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="tool" />
+
+			<label_content_column name="equipment_label">
+				<static textres="background_label_equipment" />
+			</label_content_column>
+			<string_content_columnh name="equipment">
+				<readonly />
+			</string_content_columnh>
+
+			<header_content_framed_headersimple name="list_header">
+				<static textres="background_label_equipment" />
+			</header_content_framed_headersimple>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.equipmentlist</datasource>
+				<class>equipment_option_entry</class>
+				<script>
+					function onListChanged()
+						for k,v in ipairs(self.getWindows()) do
+							v.option.setValue("Option " .. StringManager.convertNumberToAlpha(k));
+						end
+						window.updateEquipmentString();
+					end
+				</script>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="equipment_option_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "items_iadd", "wealth", "idelete", }, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					return CampaignDataManager2.handleKitItemDrop(draginfo, items.getDatabaseNode());
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<genericcontrol name="frame_header">
+				<anchored height="23">
+					<left />
+					<top />
+					<right />
+				</anchored>
+				<frame name="rowshade" offset="5,2,5,2" />
+			</genericcontrol>
+			<button_listitem_idelete_left name="idelete" />
+
+			<button_iadd name="items_iadd">
+				<anchored to="rightanchor" >
+					<top />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<target>items</target>
+			</button_iadd>
+
+			<stringc_listitem_center_noframe_static name="option">
+				<font name="sheetlabel" />
+			</stringc_listitem_center_noframe_static>
+			<list_content_column name="items">
+				<anchored to="option">
+					<right parent="" />
+				</anchored>
+				<datasource>.items</datasource>
+				<class>equipment_item_entry</class>
+			</list_content_column>
+
+			<label_content_column name="wealth_label">
+				<anchored to="option">
+					<left offset="17" />
+				</anchored>
+				<static>GP</static>
+			</label_content_column>
+			<number_content_columnh name="wealth">
+				<anchored to="option">
+					<left offset="55" />
+				</anchored>
+				<nodrag />
+			</number_content_columnh>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="equipment_item_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "count", "name", "idelete", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>item</class>
+			</linkc_listitem_left>
+			<number_listitem_left name="count">
+				<min>1</min>
+				<default>1</default>
+				<nodrag />
+			</number_listitem_left>
+
+			<string_listitem_center name="name">
+				<delaykeyupdate />
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_background_main_2014">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "skill", "languages", "tool", "equipment", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="skill_label">
+				<static textres="background_label_skills" />
+			</label_content_column>
+			<string_content_columnh name="skill" />
+
+			<label_content_column name="languages_label">
+				<static textres="background_label_languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
+
+			<label_content_column name="tool_label">
+				<static textres="background_label_tools" />
+			</label_content_column>
+			<string_content_columnh name="tool" />
+
+			<label_content_column name="equipment_label">
+				<static textres="background_label_equipment" />
+			</label_content_column>
+			<string_content_columnh name="equipment" />
+
+			<header_content_framed_headersimple name="list_header">
+				<static textres="background_header_features"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="list_iadd">
+				<anchored to="list_header" position="insidetopright" offset="2,0" />
+			</button_iadd>
+			<list_content_column name="list">
+				<datasource>.features</datasource>
+				<class>reference_backgroundfeature_listitem</class>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="reference_backgroundfeature_listitem">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "name", "idelete", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm name="leftanchor" />
+			<anchor_listitem_right_sm name="rightanchor" />
+
+			<button_listitem_idelete_left name="idelete" />
+			<linkc_listitem_left name="shortcut">
+				<class>reference_backgroundfeature</class>
+			</linkc_listitem_left>
+
+			<string_listitem_center name="name">
+				<empty textres="library_recordtype_empty_backgroundfeature" />
+				<font>sheetlabel</font>
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="reference_backgroundfeature" copy="record_window_text" />
+	<windowclass name="reference_backgroundfeature_header" copy="record_header">
+		<name_emptyres>library_recordtype_empty_backgroundfeature</name_emptyres>
+	</windowclass>
+</root>
