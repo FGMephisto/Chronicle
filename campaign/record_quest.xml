@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="quest_main" merge="join">
+		<script>
+			function onLockModeChanged(bReadOnly)
+				if super.onLockModeChanged then
+					super.onLockModeChanged(bReadOnly);
+				end
+				WindowManager.callSafeControlsSetLockMode(self, { "cr", "xp", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<label_column name="cr_label" insertbefore="description_header">
+				<static textres="cr" />
+			</label_column>
+			<string_column_left name="cr" insertbefore="description_header">
+				<anchored width="40">
+					<left parent="cr_label" anchor="right" offset="15" />
+				</anchored>
+				<frame name="fielddark" offset="7,5,7,5" merge="replace" />
+				<font>sheetnumber</font>
+				<center />
+			</string_column_left>
+
+			<label_column_right name="xp_label" insertbefore="description_header">
+				<anchored to="cr" />
+				<static textres="xp" />
+			</label_column_right>
+			<number_column_right name="xp" insertbefore="description_header">
+				<anchored to="cr" />
+			</number_column_right>
+		</sheetdata>
+	</windowclass>
+</root>

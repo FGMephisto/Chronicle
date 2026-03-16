@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet_skills">
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass = draginfo.getShortcutData();
+					if sClass == "reference_skill" then
+						content.subwindow.list.addSkillReference(draginfo.getDatabaseNode());
+					end
+					return true;
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_skills_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_skills_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "idelete_header", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>char_abilities_purple</icons>
+				<static textres="char_label_skills" />
+			</label_charframetop>
+			<!--
+			<header_content_framed_metalplate_with_icon_top name="header">
+				<icon>char_abilities_purple</icon>
+				<static textres="char_label_skills" />
+			</header_content_framed_metalplate_with_icon_top>
+			-->
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<list_content_labeled_alternating_top name="list">
+				<anchored>
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.skilllist</datasource>
+				<class>char_skill_item</class>
+				<sortby><control>name</control></sortby>
+				<script file="campaign/scripts/char_skilllist.lua" />
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_idelete_label_left name="idelete_header" />
+			<spacer_list_content_link_label_left name="spacer_link" />
+			<spacer_list_content_button_label_left name="spacer_prof" />
+			<label_list_content_number_right name="label_total">
+				<anchored width="40" />
+				<static textres="char_label_skilltotal" />
+			</label_list_content_number_right>
+			<spacer_list_content_button_label_right name="spacer_roll" />
+			<spacer_list_content_label_right name="spacer">
+				<anchored width="10" />
+			</spacer_list_content_label_right>
+			<label_list_content_number_right name="label_misc">
+				<anchored width="40" />
+				<static textres="char_label_skillmisc" />
+			</label_list_content_number_right>
+			<label_list_content_string_right name="label_stat">
+				<anchored width="30" />
+				<static textres="char_label_skillstat" />
+			</label_list_content_string_right>
+			<label_list_content_noframe name="label_name">
+				<static textres="char_label_skillname" />
+			</label_list_content_noframe>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="char_skill_item">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_skill.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+
+			<button_listitem_left name="shortcut">
+				<icon normal="button_link" pressed="button_link_down" />
+				<script>
+					function onButtonPress()
+						window.openSkillLink();
+					end
+				</script>
+			</button_listitem_left>
+
+			<button_skillprof name="prof">
+				<tabtarget next="name" />
+			</button_skillprof>
+
+			<number_charskilltotal name="total" />
+
+			<button_listitem_roll_right name="button_roll">
+				<script>
+					function onDragStart(button, x, y, draginfo)
+						return window.action(draginfo);
+					end
+					function onButtonPress()
+						return window.action();
+					end
+				</script>
+			</button_listitem_roll_right>
+
+			<spacer_listitem_right name="spacer">
+				<anchored width="10" />
+			</spacer_listitem_right>
+			<number_charskill name="misc">
+				<tabtarget prev="stat" />
+			</number_charskill>
+			<cycler_charskillability name="stat">
+				<tabtarget next="misc" prev="name" />
+			</cycler_charskillability>
+			<icon_listitem_right name="armorwidget">
+				<icon>char_armorcheck</icon>
+				<invisible />
+			</icon_listitem_right>
+
+			<string_listitem_center_underline name="name">
+				<tabtarget next="stat" prev="prof" />
+			</string_listitem_center_underline>
+		</sheetdata>
+	</windowclass>
+</root>

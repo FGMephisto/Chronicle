@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="ref_ability" copy="record_window_text">
+		<windowmenu>
+			<right>chat_output</right>
+		</windowmenu>
+	</windowclass>
+	<windowclass name="ref_ability_header" copy="record_header">
+		<sheetdata>
+			<icon_record_header_type name="recordtype">
+				<script>
+					function getRecordType()
+						local sList = DB.getName(DB.getParent(window.getDatabaseNode()));
+						if sList == "skilllist" then
+							return "skill";
+						elseif sList == "proficiencylist" then
+							return "";
+						elseif sList == "featlist" then
+							return "feat";
+						elseif sList == "featurelist" then
+							return "";
+						elseif sList == "traitlist" then
+							return "";
+						end
+						return "";
+					end
+				</script>
+			</icon_record_header_type>
+		</sheetdata>
+	</windowclass>
+</root>

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="ps_bastion">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_buttons_groupbox_bottom name="sub_buttons">
+				<class>ps_bastion_buttons</class>
+			</sub_content_buttons_groupbox_bottom>
+
+			<sub_content_framed_groupbox name="sub_content">
+				<class>ps_bastion_content</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_bastion_content">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<list_content name="list">
+				<datasource>.partyinformation</datasource>
+				<class>ps_bastion_entry</class>
+				<empty font="list-empty" textres="ps_emptylistother" />
+				<allowdelete />
+			</list_content>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_bastion_entry">
+		<margins control="0,0,0,10"/>
+		<script file="ps/scripts/ps_bastion_entry.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<hlink name="link">
+				<script>
+					function onValueChanged()
+						window.onLinkChanged();
+					end
+				</script>
+			</hlink>
+
+			<portrait_ps name="portrait">
+				<anchored position="insidetopleft" offset="5,5" width="40" height="40"/>
+			</portrait_ps>
+
+			<sub_content_framed_groupbox_top name="sub_bastion">
+				<anchored>
+					<left parent="portrait" anchor="right" offset="20"/>
+				</anchored>
+			</sub_content_framed_groupbox_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_bastion_entry_contents">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="bastion_header">
+				<static textres="ps_label_bastion" />
+			</header_content_framed_headersimple>
+			<linkcontrol_record name="link">
+				<anchored to="bastion_header" position="insidetopleft" offset="0,0" width="20" height="20" />
+				<class>location</class>
+				<readonly />
+			</linkcontrol_record>
+
+			<list_content_alternating_top name="sublocations">
+				<datasource>.sublocations</datasource>
+				<class>ps_bastion_facility_entry</class>
+				<readonly />
+			</list_content_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_bastion_facility_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onDrop(x, y, draginfo)
+				return CharBastionManager.onPartyFacilityDrop(getDatabaseNode(), draginfo);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<linkc_listitem_left name="shortcut">
+				<class>location</class>
+				<readonly />
+			</linkc_listitem_left>
+			<button_listitem_text_right_sm name="button_bastion_clearorder">
+				<state textres="button_clear" />
+				<tooltip textres="ps_tooltip_bastion_facility_order_clear" />
+				<gmvisibleonly />
+				<script>
+					function onButtonPress()
+						CharBastionManager.clearFacilityOrder(window.getDatabaseNode());
+					end
+				</script>
+			</button_listitem_text_right_sm>
+			<number_listitem_right name="duration" />
+			<string_listitem_right_static name="order">
+				<anchored width="100" />
+				<font>sheetlabel</font>
+				<empty textres="ps_label_bastion_facility_order_none" />
+				<center />
+				<readonly />
+			</string_listitem_right_static>
+
+			<string_listitem_center name="name">
+				<readonly />
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<template name="ps_bastion_order_button">
+		<button_text>
+			<anchored to="label_orders" width="80">
+				<top />
+				<left relation="relative" offset="5" postoffset="5" />
+			</anchored>
+			<tooltip textres="ps_tooltip_bastion_facility_order" />
+			<script>
+				function onInit()
+					if order then
+						local sOrder = Interface.getString("ps_label_bastion_facility_order_" .. order[1]);
+						setText(sOrder);
+					end
+				end
+				function onDragStart(button,x,y,draginfo)
+					return CharBastionManager.onOrderButtonDrag(draginfo, order and order[1]);
+				end
+			</script>
+		</button_text>
+	</template>
+	<windowclass name="ps_bastion_buttons">
+		<sheetdata>
+			<!-- RIGHT aligned -->
+			<button_icon name="button_bastion_turn">
+				<anchored position="insidetopright" offset="5,5" />
+				<icon normal="button_toolbar_skip_next" />
+				<tintable />
+				<tooltip textres="ps_tooltip_bastion_advance" />
+				<gmvisibleonly />
+				<script>
+					function onButtonPress()
+						CharBastionManager.advanceTurn();
+					end
+				</script>
+			</button_icon>
+			<button_toggledetail name="button_bastion_log">
+				<anchored position="insidetopright" offset="35,5" />
+				<tooltip textres="ps_tooltip_bastion_log" />
+				<gmvisibleonly />
+				<script>
+					function onButtonPress()
+						CharBastionManager.openBastionLog();
+					end
+				</script>
+			</button_toggledetail>
+
+			<!-- LEFT aligned -->
+			<label name="label_orders">
+				<anchored position="insidetopleft" offset="5,5" height="20" />
+				<static textres="ps_label_bastion_facility_order" />
+				<tooltip textres="ps_tooltip_bastion_facility_order" />
+			</label>
+			<ps_bastion_order_button>
+				<order>craft</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>empower</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>harvest</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>maintain</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>recruit</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>research</order>
+			</ps_bastion_order_button>
+			<ps_bastion_order_button>
+				<order>trade</order>
+			</ps_bastion_order_button>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_bastion_log">
+		<frame>utilitybox</frame>
+		<placement>
+			<nosave />
+		</placement>
+		<sizelimits>
+			<minimum width="500" height="400"/>
+			<dynamic/>
+		</sizelimits>
+		<sheetdata>
+			<windowtitlebar_utilitybox name="title" />
+			<windowmenubar_utilitybox name="menubar" />
+
+			<anchor_content_utilitybox_top />
+			<anchor_content_utilitybox_bottom />
+
+			<sub_content_framed_groupbox_bottom name="sub_controls">
+				<anchored height="30" />
+				<class>ps_bastion_log_controls</class>
+			</sub_content_framed_groupbox_bottom>
+
+			<ft_content_framed_groupbox name="text">
+				<readonly />
+			</ft_content_framed_groupbox>
+			<scrollbar_content_text />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_bastion_log_controls">
+		<sheetdata>
+			<button_text name="button_clear">
+				<anchored position="insidetopleft" offset="5,5" width="60" />
+				<state textres="clear" />
+				<tooltip textres="ps_tooltip_bastion_log_clear" />
+				<script>
+					function onButtonPress()
+						CharBastionManager.clearBastionLog();
+					end
+				</script>
+			</button_text>
+			<button_refresh name="button_resetturn">
+				<anchored position="insidetopright" offset="5,5" />
+				<tooltip textres="ps_tooltip_bastion_log_turn_reset"/>
+				<script>
+					function onButtonPress()
+						CharBastionManager.resetBastionTurns();
+					end
+				</script>
+			</button_refresh>
+			<basicnumber name="turn">
+				<anchored to="button_resetturn" position="lefthigh" offset="10,0" width="40" height="20" />
+			</basicnumber>
+			<label name="turn_label">
+				<anchored to="turn" position="lefthigh" offset="10,0" />
+				<static textres="ps_label_bastion_log_turn" />
+			</label>
+		</sheetdata>
+	</windowclass>
+</root>

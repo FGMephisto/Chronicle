@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="ps_xp_partyentry" merge="join">
+		<sheetdata>
+			<string_ps name="classlevel">
+				<anchored position="insidetopleft" offset="55,35" height="20">
+					<right offset="-15" />
+				</anchored>
+				<empty textres="ps_empty_class" />
+			</string_ps>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_xp_battles" merge="join">
+		<sheetdata>
+			<label_list_content_string_right name="label_cr" insertbefore="label_name">
+				<anchored width="30" />
+				<static textres="cr" />
+				<center />
+			</label_list_content_string_right>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_xp_battleentry" merge="join">
+		<sheetdata>
+			<string_listitem_right_static name="cr" insertbefore="name">
+				<anchored width="30" />
+				<center />
+			</string_listitem_right_static>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_xp_quests" merge="join">
+		<sheetdata>
+			<label_list_content_string_right name="label_cr" insertbefore="label_name">
+				<anchored width="30" />
+				<static textres="cr" />
+				<center />
+			</label_list_content_string_right>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ps_xp_questentry" merge="join">
+		<sheetdata>
+			<string_listitem_right_static name="cr" insertbefore="name">
+				<anchored width="30" />
+				<center />
+			</string_listitem_right_static>
+		</sheetdata>
+	</windowclass>
+</root>

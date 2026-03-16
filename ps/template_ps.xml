@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<template name="number_ps_ability">
+		<number_ps_linked>
+			<anchored width="25" height="20">
+				<top parent="" offset="10" />
+				<left anchor="right" offset="8" />
+			</anchored>
+		</number_ps_linked>
+	</template>
+	<template name="number_ps_abilitybonus">
+		<number_ps_linked>
+			<anchored width="25" height="20">
+				<top anchor="bottom" offset="1" />
+				<left />
+			</anchored>
+			<gmrollable2 />
+			<displaysign />
+			<script>
+				function onInit()
+					super.onInit();
+					if not Session.IsHost then
+						setEnabled(false);
+					end
+				end
+
+				function action(draginfo)
+					if not Session.IsHost then
+						return false;
+					end
+
+					local rActor = ActorManager.resolveActor(window.link.getTargetDatabaseNode());
+					if Input.isShiftPressed() then
+						ActionSave.performPartySheetRoll(draginfo, rActor, target[1]);
+					else
+						ActionCheck.performPartySheetRoll(draginfo, rActor, target[1]);
+					end
+					return true;
+				end
+				function onDragStart(button, x, y, draginfo)
+					return action(draginfo);
+				end
+				function onDoubleClick(x,y)
+					return action();
+				end
+			</script>
+		</number_ps_linked>
+	</template>
+	<template name="number_ps_defense">
+		<number_ps_linked>
+			<anchored width="25" height="20">
+				<top />
+				<left anchor="right" offset="8" />
+			</anchored>
+		</number_ps_linked>
+	</template>
+	<template name="number_ps_senses">
+		<number_ps_linked>
+			<anchored width="25" height="20" />
+		</number_ps_linked>
+	</template>
+</root>

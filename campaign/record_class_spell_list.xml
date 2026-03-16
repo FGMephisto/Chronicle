@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="reference_class_spell_list" copy="record_window" />
+	<windowclass name="reference_class_spell_list_header" copy="record_header" />
+
+	<windowclass name="reference_class_spell_list_main">
+		<margins control="0,0,0,7" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "spells_iadd", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass,sRecord = draginfo.getShortcutData();
+					if sClass == "power" then
+						local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+						if not bReadOnly then
+							local w = spells.createWindow();
+							if w then
+								local node = w.getDatabaseNode();
+								DB.setValue(node, "name", "string", DB.getValue(DB.getPath(sRecord, "name"), 0));
+								DB.setValue(node, "level", "number", DB.getValue(DB.getPath(sRecord, "level"), 0));
+							end
+							return true;
+						end
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="spells_header">
+				<static textres="class_spell_list_header_spells"/>
+			</header_content_framed_headersimple>
+			<button_iadd name="spells_iadd">
+				<anchored to="spells_header" position="righthigh" offset="-20,0" />
+				<target>spells</target>
+			</button_iadd>
+			<list_content_column name="spells">
+				<datasource>.spells</datasource>
+				<class>ref_class_spell</class>
+				<sortby><control>level</control><control>name</control></sortby>
+			</list_content_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="ref_class_spell">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "level", "name", "idelete", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<number_listitem_left name="level">
+				<anchored width="20" />
+			</number_listitem_left>
+
+			<string_listitem_center name="name">
+				<font>sheetlabel</font>
+				<empty textres="library_recordtype_empty_spell" />
+				<delaykeyupdate />
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+</root>
