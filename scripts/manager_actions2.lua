@@ -3,6 +3,13 @@
 -- attribution and copyright information.
 --
 
+function onInit()
+	GameManager.setMultiKeyFunction("onActionPostModRoll", "", ActionsManager2.onActionPostModRoll);
+end
+function onActionPostModRoll(_, _, rRoll)
+	ActionsManager2.encodeDesktopMods(rRoll);
+end
+
 function setupD20RollBuild(sType, rActor, bSecret)
 	return {
 		sType = sType,
@@ -29,39 +36,15 @@ function applyAbilityEffectsToD20RollMod(rRoll, rSource, _)
 		return;
 	end
 
-	local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, rRoll.sAbility);
-	if nBonusEffects > 0 then
-		rRoll.bEffects = true;
-		rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat;
-	end
+	local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rSource, rRoll.sAbility);
+	ActionCore.applyModRollEffect(rRoll, nil, nBonusStat, nBonusEffects);
 end
 function finalizeEffectsToD20RollMod(rRoll)
-	if rRoll.bEffects then
-		for _,v in ipairs(rRoll.tEffectDice) do
-			if v:sub(1,1) == "-" then
-				table.insert(rRoll.aDice, "-p" .. v:sub(3));
-			else
-				table.insert(rRoll.aDice, "p" .. v:sub(2));
-			end
-		end
-		rRoll.nMod = rRoll.nMod + rRoll.nEffectMod;
-		local sMod = StringManager.convertDiceToString(rRoll.tEffectDice, rRoll.nEffectMod, true);
-		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(sMod));
-	end
 	if rRoll.bReliable then
 		table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
 	end
 end
 function finalizeD20RollMod(rRoll)
-	if #(rRoll.tNotifications) > 0 then
-		rRoll.sDesc = rRoll.sDesc .. "\r" .. table.concat(rRoll.tNotifications, "\r");
-	end
-
-	rRoll.tNotifications = nil;
-	rRoll.bEffects = nil;
-	rRoll.tEffectDice = nil;
-	rRoll.nEffectMod = nil;
-
 	ActionsManager2.encodeDesktopMods(rRoll);
 	ActionD20.encodeAdvantage(rRoll);
 end

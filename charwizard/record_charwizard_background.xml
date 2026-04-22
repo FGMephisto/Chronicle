@@ -15,10 +15,10 @@
 				<class>charwizard_background_instructions</class>
 			</sub_content_top>
 
-			<header_content_framed_metalplate_with_icon_top name="background_select_header">
+			<header_content_framed_metalplate_icon name="background_select_header">
 				<icon>char_background</icon>
 				<static textres="charwizard_title_background" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 
 			<button_text name="button_changebackground">
 				<anchored position="insidetopright" offset="25,10" width="120" height="15" />

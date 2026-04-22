@@ -70,10 +70,10 @@
 				<static textres="char_logs_label_adventures" />
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_logs_label_adventures" />
 				<icon>char_notes</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<button_iedit name="list_iedit">
 				<anchored to="header" position="insidetopright" offset="5,0" />

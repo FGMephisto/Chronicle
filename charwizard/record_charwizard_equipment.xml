@@ -45,10 +45,10 @@
 		<sheetdata>
 			<anchor_content_top />
 
-			<header_content_framed_metalplate_with_icon_top name="select_header">
+			<header_content_framed_metalplate_icon name="select_header">
 				<icon>char_inventory</icon>
 				<static textres="charwizard_title_equipment" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 
 			<header_content_framed_metalplate name="currentinventory_header">
 				<static textres="charwizard_label_equipment_wealth" />

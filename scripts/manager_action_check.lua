@@ -40,6 +40,7 @@ function modRoll(rSource, rTarget, rRoll)
 	ActionsManager2.finalizeEffectsToD20RollMod(rRoll);
 	ActionCheck.finalizeRollMod(rRoll);
 	ActionsManager2.finalizeD20RollMod(rRoll);
+	return true;
 end
 
 function onRoll(rSource, _, rRoll)
@@ -125,17 +126,10 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
-	local tSrcCheckEffData = { tFilter = rRoll.tCheckFilter, };
+	local tSrcEffData = { tFilter = rRoll.tCheckFilter, };
 
 	-- Get roll effect modifiers
-	local tCheckDice, nCheckMod, nCheckEffect = EffectManager.getBonusDiceMod(rSource, "CHECK", tSrcCheckEffData);
-	if (nCheckEffect > 0) then
-		rRoll.bEffects = true;
-		for _,vDie in ipairs(tCheckDice) do
-			table.insert(rRoll.tEffectDice, vDie);
-		end
-		rRoll.nEffectMod = rRoll.nEffectMod + nCheckMod;
-	end
+	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "CHECK", tSrcEffData);
 
 	-- Get condition modifiers
 	if EffectManager.hasTextOrTag(rSource, "ADVCHK", tSrcEffData) then
@@ -145,36 +139,29 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if EffectManager.hasTextOrTag(rSource, "DISCHK", tSrcEffData) then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Frightened") then
+	elseif EffectManager.hasCondition(rSource, "Frightened") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Intoxicated") then
+	elseif EffectManager.hasCondition(rSource, "Intoxicated") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Poisoned") then
+	elseif EffectManager.hasCondition(rSource, "Poisoned") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
 	elseif StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
-		if EffectManager.hasText(rSource, "Encumbered") then
+		if EffectManager.hasCondition(rSource, "Encumbered") then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		end
 	end
 
 	if rRoll.sType == "init" then
-		local tInitDice, nInitMod, nInitEffect = EffectManager.getBonusDiceMod(rSource, "INIT");
-		if (nInitEffect > 0) then
-			rRoll.bEffects = true;
-			for _,vDie in ipairs(tInitDice) do
-				table.insert(rRoll.tEffectDice, vDie);
-			end
-			rRoll.nEffectMod = rRoll.nEffectMod + nInitMod;
-		end
+		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "INIT");
 
 		if EffectManager.hasText(rSource, "ADVINIT") then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
-		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager.hasText(rSource, "Invisible") then
+		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager.hasCondition(rSource, "Invisible") then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
 		end
@@ -182,22 +169,22 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		elseif OptionsManager.isOption("GAVE", "2024") then
-			if EffectManager.hasText(rSource, "Incapacitated") then
+			if EffectManager.hasCondition(rSource, "Incapacitated") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager.hasText(rSource, "Paralyzed") then
+			elseif EffectManager.hasCondition(rSource, "Paralyzed") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager.hasText(rSource, "Petrified") then
+			elseif EffectManager.hasCondition(rSource, "Petrified") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager.hasText(rSource, "Stunned") then
+			elseif EffectManager.hasCondition(rSource, "Stunned") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager.hasText(rSource, "Unconscious") then
+			elseif EffectManager.hasCondition(rSource, "Unconscious") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager.hasText(rSource, "Surprised") then
+			elseif EffectManager.hasCondition(rSource, "Surprised") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
 			end
@@ -205,14 +192,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	elseif rRoll.sType == "skill" then
 		local tSrcSkillEffData = { tFilter = rRoll.tSkillFilter, };
 
-		local tSkillDice, nSkillMod, nSkillEffect = EffectManager.getBonusDiceMod(rSource, "SKILL", tSrcSkillEffData);
-		if (nSkillEffect > 0) then
-			rRoll.bEffects = true;
-			for _,vDie in ipairs(tSkillDice) do
-				table.insert(rRoll.tEffectDice, vDie);
-			end
-			rRoll.nEffectMod = rRoll.nEffectMod + nSkillMod;
-		end
+		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "SKILL", tSrcSkillEffData);
 
 		if EffectManager.hasTextOrTag(rSource, "ADVSKILL", tSrcSkillEffData) then
 			rRoll.bEffects = true;

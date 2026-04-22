@@ -6,7 +6,7 @@
 -->
 
 <root version="3.0" release="9" logo="logo.png">
-	<announcement text="Dungeons and Dragons (5E) ruleset (2026-04-21)\rCopyright 2026 Smiteworks USA, LLC" font="emotefont" icon="rulesetlogo_CoreRPG" />
+	<announcement text="Dungeons and Dragons (5E) ruleset (2026-04-28)\rCopyright 2026 Smiteworks USA, LLC" font="emotefont" icon="rulesetlogo_CoreRPG" />
 
 	<!-- Attributes -->
 	<description>
@@ -171,7 +171,6 @@
 	<script name="ActionAttack" file="scripts/manager_action_attack.lua" />
 	<script name="ActionCheck" file="scripts/manager_action_check.lua" />
 	<script name="ActionDamage" file="scripts/manager_action_damage.lua" />
-	<script name="ActionHeal" file="scripts/manager_action_heal.lua" />
 	<script name="ActionInit" file="scripts/manager_action_init.lua" />
 	<script name="ActionPower" file="scripts/manager_action_power.lua" />
 	<script name="ActionRecharge" file="scripts/manager_action_recharge.lua" />

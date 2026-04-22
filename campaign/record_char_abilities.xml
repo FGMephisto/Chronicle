@@ -68,7 +68,7 @@
 			<anchor_content_top />
 
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header" />
+			<header_content_framed_metalplate_icon name="header" />
 			-->
 			<label_charframetop name="header">
 				<anchored to="contentanchor" height="20">
@@ -106,10 +106,10 @@
 				<icons>char_abilities_green</icons>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_feats" />
 				<icon>char_abilities_green</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.featlist</datasource>
@@ -125,10 +125,10 @@
 				<icons>char_abilities_red</icons>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_features" />
 				<icon>char_abilities_red</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.featurelist</datasource>
@@ -144,10 +144,10 @@
 				<icons>char_abilities</icons>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_traits" />
 				<icon>char_abilities</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.traitlist</datasource>
@@ -163,10 +163,10 @@
 				<icons>char_abilities_purple</icons>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_proficiencies" />
 				<icon>char_abilities_purple</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.proficiencylist</datasource>
@@ -184,10 +184,10 @@
 				<icons>char_abilities_blue</icons>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_languages" />
 				<icon>char_abilities_blue</icon>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.languagelist</datasource>

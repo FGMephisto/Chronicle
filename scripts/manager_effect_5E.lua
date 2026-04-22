@@ -53,7 +53,7 @@ function applySave(rActor, tCompData)
 	end
 
 	local tSaveDesc = {};
-	local sLabel = DB.getValue(tCompData.node, "label", "");
+	local sLabel = EffectVarManager.getEffectVarFromNode(tCompData.node, "sName", "");
 	local tComps = EffectManager.parseEffect(sLabel);
 	table.insert(tSaveDesc, string.format("[EFFECT: %s]", tComps[1] or ""));
 	if bMagic then

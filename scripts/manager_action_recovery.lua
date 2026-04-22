@@ -78,13 +78,13 @@ function modRecovery(rSource, _, rRoll)
 		end
 
 		-- Determine ability modifiers
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, sActionStat);
+		local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rSource, sActionStat);
 		if nBonusEffects > 0 then
 			bEffects = true;
 			nAddMod = nAddMod + nBonusStat;
 		end
 		if sActionStat2 then
-			local nBonusStat2, nBonusEffects2 = ActorManager5E.getAbilityEffectsBonus(rSource, sActionStat2);
+			local nBonusStat2, nBonusEffects2 = ActorManagerD20.getAbilityEffectsBonus(rSource, sActionStat2);
 			if nBonusEffects2 > 0 then
 				bEffects = true;
 				nAddMod = nAddMod + nBonusStat2;
@@ -99,35 +99,27 @@ function modRecovery(rSource, _, rRoll)
 	end
 
 	if #aAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
+		rRoll.sDesc = rRoll.sDesc .. "\r" .. table.concat(aAddDesc, "\r");
 	end
-	ActionsManager2.encodeDesktopMods(rRoll);
-	for _,vDie in ipairs(aAddDice) do
-		if vDie:sub(1,1) == "-" then
-			table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
-		else
-			table.insert(rRoll.aDice, "p" .. vDie:sub(2));
-		end
-	end
+	DiceRollManager.addRollEffectDice(rSource, rRoll, aAddDice);
 	rRoll.nMod = rRoll.nMod + nAddMod;
 end
 
 function onRecovery(rSource, _, rRoll)
 	-- Get basic roll message and total
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	local nTotal = ActionsManager.total(rRoll);
 
 	-- Handle minimum damage
-	if nTotal < 0 and #(rRoll.aDice or {}) > 0 then
+	if rRoll.nTotal < 0 and #(rRoll.aDice or {}) > 0 then
 		rMessage.text = rMessage.text .. " [MIN RECOVERY]";
-		rMessage.diemodifier = rMessage.diemodifier - nTotal;
-		nTotal = 0;
+		rMessage.diemodifier = rMessage.diemodifier - rRoll.nTotal;
+		rRoll.nTotal = 0;
 	end
 	if ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_DURABLE) then
 		local nDurableMin = math.max(ActorManager5E.getAbilityBonus(rSource, "constitution"), 1) * 2;
-		if nTotal < nDurableMin then
-			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - nTotal);
-			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - nTotal);
+		if rRoll.nTotal < nDurableMin then
+			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - rRoll.nTotal);
+			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - rRoll.nTotal);
 		else
 			rMessage.text = rMessage.text .. " [DURABLE]";
 		end
@@ -140,7 +132,6 @@ function onRecovery(rSource, _, rRoll)
 	if rRoll.sClassNode then
 		rMessage.text = rMessage.text .. " [NODE:" .. rRoll.sClassNode .. "]";
 	end
-	rRoll.nTotal = ActionsManager.total(rRoll);
 	rRoll.sDesc = rMessage.text;
 	ActionDamageD20.notifyApplyDamage(nil, rSource, rRoll);
 end

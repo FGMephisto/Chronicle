@@ -9,6 +9,7 @@ tStandardVehicleConditionImmunities = { "blinded", "charmed", "deafened", "frigh
 tStandardVehicleDamageImmunities = { "poison", "psychic" };
 
 function onInit()
+	GameManager.setFunction("onActorGetAbilityScore", ActorManager5E.getAbilityScore);
 	GameManager.setFunction("onActorGetBonus", ActorManager5E.getBonus);
 	GameManager.setFunction("onActorGetEffectsBonus", ActorManager5E.getEffectsBonus);
 	GameManager.setFunction("onActorGetHealthStatus", ActorManager5E.getWoundPercent);
@@ -59,45 +60,6 @@ end
 --	ABILITY SCORES
 --
 
-function getAbilityEffectsBonus(rActor, sAbility)
-	if not rActor or ((sAbility or "") == "") then
-		return 0, 0;
-	end
-
-	local bNegativeOnly = (sAbility:sub(1,1) == "-");
-	if bNegativeOnly then
-		sAbility = sAbility:sub(2);
-	end
-
-	local sAbilityEffect = DataCommon.ability_ltos[sAbility];
-	if not sAbilityEffect then
-		return 0, 0;
-	end
-
-	local nAbilityMod, nAbilityEffects = EffectManager.getBonusMod(rActor, sAbilityEffect);
-
-	local nAbilityScore = ActorManager5E.getAbilityScore(rActor, sAbility);
-	if nAbilityScore > 0 then
-		local nAffectedScore = math.max(nAbilityScore + nAbilityMod, 0);
-
-		local nCurrentBonus = math.floor((nAbilityScore - 10) / 2);
-		local nAffectedBonus = math.floor((nAffectedScore - 10) / 2);
-
-		nAbilityMod = nAffectedBonus - nCurrentBonus;
-	else
-		if nAbilityMod > 0 then
-			nAbilityMod = math.floor(nAbilityMod / 2);
-		else
-			nAbilityMod = math.ceil(nAbilityMod / 2);
-		end
-	end
-
-	if bNegativeOnly and (nAbilityMod > 0) then
-		nAbilityMod = 0;
-	end
-
-	return nAbilityMod, nAbilityEffects;
-end
 function getAbilityScore(rActor, sAbility)
 	if not sAbility then
 		return -1;
@@ -443,10 +405,10 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 	local bDIS = false;
 	local bProne = false;
 
-	local bDefenderFrozen = EffectManager.hasText(rDefender, "Paralyzed") or
-			EffectManager.hasText(rDefender, "Petrified") or
-			EffectManager.hasText(rDefender, "Stunned") or
-			EffectManager.hasText(rDefender, "Unconscious");
+	local bDefenderFrozen = EffectManager.hasCondition(rDefender, "Paralyzed") or
+			EffectManager.hasCondition(rDefender, "Petrified") or
+			EffectManager.hasCondition(rDefender, "Stunned") or
+			EffectManager.hasCondition(rDefender, "Unconscious");
 	local tAttEffData = { rTarget = rDefender, bTargetedOnly = true, tFilter = tAttackFilter, };
 	local tDefEffData = { rTarget = rAttacker, tFilter = tAttackFilter, };
 
@@ -460,9 +422,9 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 		bADV = true;
 	elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) then
 		bADV = true;
-	elseif EffectManager.hasText(rDefender, "Blinded", tDefEffData) then
+	elseif EffectManager.hasCondition(rDefender, "Blinded") then
 		bADV = true;
-	elseif EffectManager.hasText(rDefender, "Restrained", tDefEffData) then
+	elseif EffectManager.hasCondition(rDefender, "Restrained") then
 		bADV = true;
 	end
 
@@ -481,8 +443,8 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 	end
 	if EffectManager.hasText(rDefender, "Dodge", tDefEffData) and
 			not (bDefenderFrozen or
-			EffectManager.hasText(rDefender, "Grappled", tDefEffData) or
-			EffectManager.hasText(rDefender, "Restrained", tDefEffData)) then
+			EffectManager.hasCondition(rDefender, "Grappled") or
+			EffectManager.hasCondition(rDefender, "Restrained")) then
 		bDIS = true;
 	end
 
@@ -543,7 +505,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 		
 		local nBonusAC = EffectManager.getBonusMod(rDefender, "AC", tDefEffData);
 
-		local nBonusStat = ActorManager5E.getAbilityEffectsBonus(rDefender, sDefenseStat);
+		local nBonusStat = ActorManagerD20.getAbilityEffectsBonus(rDefender, sDefenseStat);
 		if ActorManager.isPC(rDefender) and (nBonusStat > 0) then
 			local sMaxDexBonus = DB.getValue(nodeDefender, "defenses.ac.dexbonus", "");
 			if sMaxDexBonus == "no" then
@@ -555,10 +517,10 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			end
 		end
 
-		local bDefenderFrozen = EffectManager.hasText(rDefender, "Paralyzed") or
-				EffectManager.hasText(rDefender, "Petrified") or
-				EffectManager.hasText(rDefender, "Stunned") or
-				EffectManager.hasText(rDefender, "Unconscious");
+		local bDefenderFrozen = EffectManager.hasCondition(rDefender, "Paralyzed") or
+				EffectManager.hasCondition(rDefender, "Petrified") or
+				EffectManager.hasCondition(rDefender, "Stunned") or
+				EffectManager.hasCondition(rDefender, "Unconscious");
 
 		if EffectManager.hasText(rAttacker, "ADVATK", tAttEffData) then
 			bADV = true;
@@ -568,7 +530,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			bADV = true;
 		elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) then
 			bADV = true;
-		elseif EffectManager.hasText(rDefender, "Restrained", tDefEffData) then
+		elseif EffectManager.hasCondition(rDefender, "Restrained") then
 			bADV = true;
 		end
 
@@ -624,7 +586,7 @@ function getEffectsBonus(rActor, sKey, ...)
 		sKey = DataCommon.ability_stol[sKey:upper()] or sKey:lower();
 	end
 	if StringManager.contains(DataCommon.abilities, sKey) then
-		return ActorManager5E.getAbilityEffectsBonus(rActor, sKey, ...);
+		return ActorManagerD20.getAbilityEffectsBonus(rActor, sKey, ...);
 	end
 	return 0, 0;
 end
@@ -1161,7 +1123,7 @@ function helperGetDamageVulnResistImmuneEffect(tOutput, sEffectTag, rActor, rSou
 		};
 
 		for _,s in pairs(rEffect.remainder) do
-			if StringManager.startsWith(s, "!") or StringManager.startsWith(s, "~") then
+			if StringManager.startsWith(s, "!") then
 				if ActionCore.isDamageType(s:sub(2)) then
 					table.insert(tData.tNegatives, s:sub(2));
 				end
@@ -1169,7 +1131,7 @@ function helperGetDamageVulnResistImmuneEffect(tOutput, sEffectTag, rActor, rSou
 		end
 
 		for _,s in pairs(rEffect.remainder) do
-			if (s ~= "") and not StringManager.startsWith(s, "!") and not StringManager.startsWith(s, "~") then
+			if (s ~= "") and not StringManager.startsWith(s, "!") then
 				if ActionCore.isDamageType(s) or (s == "all") then
 					ActorManager5E.helperGetDamageVulnResistImmuneAdd(tOutput, s, tData);
 				end

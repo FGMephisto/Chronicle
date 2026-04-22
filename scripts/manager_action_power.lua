@@ -8,8 +8,8 @@ OOB_MSGTYPE_APPLYSAVEVS = "applysavevs";
 function onInit()
 	OOBManager.registerOOBMsgHandler(ActionPower.OOB_MSGTYPE_APPLYSAVEVS, ActionPower.handleApplySaveVs);
 
-	ActionsManager.registerTargetingHandler("cast", ActionPower.onPowerTargeting);
-	ActionsManager.registerTargetingHandler("powersave", ActionPower.onPowerTargeting);
+	ActionsManager.registerTargetingHandler("cast", ActionCore.onTargeting);
+	ActionsManager.registerTargetingHandler("powersave", ActionCore.onTargeting);
 
 	ActionsManager.registerModHandler("powersave", ActionPower.modCastSave);
 
@@ -51,55 +51,12 @@ function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 
 	msgOOB.nRemoveOnMiss = bRemoveOnMiss and 1 or 0;
 
-	if ActorManager.isPC(rTarget) then
-		local nodeTarget = ActorManager.getCreatureNode(rTarget);
-		if Session.IsHost then
-			local sOwner = DB.getOwner(nodeTarget);
-			if (sOwner or "") ~= "" then
-				for _,vUser in ipairs(User.getActiveUsers()) do
-					if vUser == sOwner then
-						for _,vIdentity in ipairs(User.getActiveIdentities(vUser)) do
-							if DB.getName(nodeTarget) == vIdentity then
-								Comm.deliverOOBMessage(msgOOB, sOwner);
-								return;
-							end
-						end
-					end
-				end
-			end
-		else
-			if DB.isOwner(nodeTarget) then
-				ActionPower.handleApplySaveVs(msgOOB);
-				return;
-			end
-		end
+	if not Session.IsHost and ActorManager.isPC(rTarget) and ActorManager.isOwner(rTarget) then
+		ActionPower.handleApplySaveVs(msgOOB);
+		return;
 	end
 
 	Comm.deliverOOBMessage(msgOOB, "");
-end
-
-function onPowerTargeting(_, aTargeting, rRolls)
-	local bRemoveOnMiss = false;
-	local sOptRMMT = OptionsManager.getOption("RMMT");
-	if sOptRMMT == "on" then
-		bRemoveOnMiss = true;
-	elseif sOptRMMT == "multi" then
-		local aTargets = {};
-		for _,vTargetGroup in ipairs(aTargeting) do
-			for _,vTarget in ipairs(vTargetGroup) do
-				table.insert(aTargets, vTarget);
-			end
-		end
-		bRemoveOnMiss = (#aTargets > 1);
-	end
-
-	if bRemoveOnMiss then
-		for _,vRoll in ipairs(rRolls) do
-			vRoll.bRemoveOnMiss = true;
-		end
-	end
-
-	return aTargeting;
 end
 
 function getPowerCastRoll(_, rAction)
@@ -128,7 +85,7 @@ function getSaveVsRoll(rActor, rAction)
 	local nAddMod = 0;
 
 	if DataCommon.ability_ltos[rAction.save] then
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rActor, rAction.savestat);
+		local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rActor, rAction.savestat);
 		if nBonusEffects > 0 then
 			bEffects = true;
 			nAddMod = nAddMod + nBonusStat;
@@ -150,7 +107,7 @@ function getSaveVsRoll(rActor, rAction)
 	end
 
 	if #tAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(tAddDesc, " ");
+		rRoll.sDesc = rRoll.sDesc .. "\r" .. table.concat(tAddDesc, "\r");
 	end
 
 	rRoll.nMod = rRoll.nMod + nAddMod;
@@ -176,6 +133,7 @@ function modCastSave(_, _, rRoll)
 			rRoll.sDesc = rRoll.sDesc .. " [COVER +2]";
 		end
 	end
+	return true;
 end
 
 function onPowerCast(rSource, rTarget, rRoll)

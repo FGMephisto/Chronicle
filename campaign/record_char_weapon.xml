@@ -169,7 +169,7 @@
 			</string_content_column>
 			<buttoncontrol name="link_mastery">
 				<anchored to="mastery" position="lefthigh" offset="10,0" width="20" height="20" />
-				<icon normal="button_link" pressed="button_link_down" />
+				<icon normal="button_link" />
 				<script>
 					function onButtonPress()
 						window.openMasteryLink();

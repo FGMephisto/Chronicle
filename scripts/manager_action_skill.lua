@@ -4,8 +4,8 @@
 --
 
 function onInit()
-	ActionsManager.registerModHandler("skill", ActionSkill.modRoll);
-	ActionsManager.registerResultHandler("skill", ActionSkill.onRoll);
+	ActionsManager.registerModHandler("skill", ActionCheck.modRoll);
+	ActionsManager.registerResultHandler("skill", ActionCheck.onRoll);
 end
 
 --
@@ -70,14 +70,6 @@ end
 function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	local rRoll = ActionSkill.getNPCRoll(rActor, sSkill, nSkill);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
-end
-
-function modRoll(rSource, rTarget, rRoll)
-	ActionCheck.modRoll(rSource, rTarget, rRoll);
-end
-
-function onRoll(rSource, rTarget, rRoll)
-	ActionCheck.onRoll(rSource, rTarget, rRoll);
 end
 
 --

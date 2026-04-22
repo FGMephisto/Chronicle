@@ -4,8 +4,8 @@
 --
 
 function onInit()
-	GameManager.setFunction("onDamagePostGetRoll", ActionDamage.onPostGetRoll);
-	GameManager.setFunction("onDamagePostModRoll", ActionDamage.onPostModRoll);
+	GameManager.setMultiKeyFunction("onActionPostGetRoll", "damage", ActionDamage.onPostGetRoll);
+
 	GameManager.setMultiKeyFunction("onHealthApplyType", "recovery", ActionDamage.applyRecovery);
 	GameManager.setFunction("onHealthPostApply", ActionDamage.onPostApply);
 
@@ -23,7 +23,6 @@ end
 --	GET ROLL
 --
 
--- Add auto target handling
 function onPostGetRoll(rActor, rAction, rRoll)
 	ActionDamage.applyCritMetaToRoll(rActor, rAction, rRoll);
 end
@@ -46,14 +45,6 @@ function applyCritMetaToRoll(rActor, rAction, rRoll)
 	if nCritDice > 0 then
 		rRoll.clauses[1].nExtraCritDice = nCritDice;
 	end
-end
-
---
---	MOD ROLL
---
-
-function onPostModRoll(rSource, rTarget, rRoll)
-	ActionsManager2.encodeDesktopMods(rRoll);
 end
 
 --

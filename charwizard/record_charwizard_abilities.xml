@@ -15,10 +15,10 @@
 				<class>charwizard_abilities_instructions</class>
 			</sub_content_top>
 
-			<header_content_framed_metalplate_with_icon_top name="abilities_select_header">
+			<header_content_framed_metalplate_icon name="abilities_select_header">
 				<icon>char_stats</icon>
 				<static textres="charwizard_title_abilityscores" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 
 			<comboboxc name="cb_genmethod">
 				<anchored width="150" height="20">

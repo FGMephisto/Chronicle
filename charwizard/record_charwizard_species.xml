@@ -16,11 +16,11 @@
 				<class>charwizard_species_instructions</class>
 			</sub_content_top>
 
-			<header_content_framed_metalplate_with_icon_top name="ancestry_selection_header">
+			<header_content_framed_metalplate_icon name="ancestry_selection_header">
 				<static textres="charwizard_label_ancestryselection" />
 				<icon>char_abilities</icon>
 				<invisible />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 
 			<list_content_top name="ancestry_selection_list">
 				<class>list_entry_charwizard_ancestryselection</class>
@@ -28,10 +28,10 @@
 				<invisible />
 			</list_content_top>
 
-			<header_content_framed_metalplate_with_icon_top name="species_select_header">
+			<header_content_framed_metalplate_icon name="species_select_header">
 				<icon>char_race</icon>
 				<static textres="charwizard_label_speciesselection" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			<button_text name="button_changespecies">
 				<anchored to="species_select_header" position="insidetopleft" offset="45,0" width="100" height="20" />
 				<state textres="charwizard_label_changespecies" />

@@ -56,10 +56,10 @@
 		<sheetdata>
 			<anchor_content_top />
 
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<icon>button_alert</icon>
 				<static textres="charwizard_label_warnings" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			<list_content_noscroll_top name="list">
 				<class>charwizard_commit_warning_entry</class>
 			</list_content_noscroll_top>
@@ -120,10 +120,10 @@
 		<sheetdata>
 			<anchor_content_top />
 
-			<header_content_framed_metalplate_with_icon_top name="summary_label">
+			<header_content_framed_metalplate_icon name="summary_label">
 				<icon>char_notes</icon>
 				<static textres="charwizard_title_summary" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 
 			<label_content_column name="name_label">
 				<anchored>

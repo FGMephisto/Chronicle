@@ -10,7 +10,7 @@ function onInit()
 	OOBManager.registerOOBMsgHandler(ActionAttack.OOB_MSGTYPE_APPLYATK, ActionAttack.handleApplyAttack);
 	OOBManager.registerOOBMsgHandler(ActionAttack.OOB_MSGTYPE_APPLYHRFC, ActionAttack.handleApplyHRFC);
 
-	ActionsManager.registerTargetingHandler("attack", ActionAttack.onTargeting);
+	ActionsManager.registerTargetingHandler("attack", ActionCore.onTargeting);
 	ActionsManager.registerModHandler("attack", ActionAttack.modAttack);
 	ActionsManager.registerResultHandler("attack", ActionAttack.onAttack);
 end
@@ -45,24 +45,6 @@ function notifyApplyHRFC(sTable)
 	msgOOB.sTable = sTable;
 
 	Comm.deliverOOBMessage(msgOOB, "");
-end
-
-function onTargeting(_, aTargeting, rRolls)
-	local bRemoveOnMiss = false;
-	local sOptRMMT = OptionsManager.getOption("RMMT");
-	if sOptRMMT == "on" then
-		bRemoveOnMiss = true;
-	elseif sOptRMMT == "multi" then
-		bRemoveOnMiss = (#aTargeting > 1);
-	end
-
-	if bRemoveOnMiss then
-		for _,vRoll in ipairs(rRolls) do
-			vRoll.bRemoveOnMiss = true;
-		end
-	end
-
-	return aTargeting;
 end
 
 --
@@ -108,19 +90,20 @@ function onAttack(rSource, rTarget, rRoll)
 
 	ActionAttack.setupAttackResolve(rRoll, rSource, rTarget);
 
+	GameManager.callEventFunctions("onAttackPreResolve", rSource, rTarget, rRoll);
+	ActionAttack.onPreAttackResolve(rSource, rTarget, rRoll);
+
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = rMessage.text:gsub(" %[MOD:[^]]*%]", "");
 	if not rTarget and (#(rRoll.aMessages) > 0) then
 		rMessage.text = rMessage.text .. "\r" .. table.concat(rRoll.aMessages, "\r");
 	end
-
-	ActionAttack.onPreAttackResolve(rSource, rTarget, rRoll, rMessage);
 	ActionAttack.onAttackResolve(rSource, rTarget, rRoll, rMessage);
-	ActionAttack.onPostAttackResolve(rSource, rTarget, rRoll, rMessage);
 
+	ActionAttack.onPostAttackResolve(rSource, rTarget, rRoll);
 	GameManager.callEventFunctions("onAttackPostResolve", rSource, rTarget, rRoll);
 end
--- onPreAttackResolve(rSource, rTarget, rRoll, rMessage)
+-- onPreAttackResolve(rSource, rTarget, rRoll)
 function onPreAttackResolve()
 	-- Do nothing; location to override
 end
@@ -145,8 +128,8 @@ function onAttackResolve(rSource, rTarget, rRoll, rMessage)
 		end
 	end
 end
--- onPostAttackResolve(rSource, rTarget, rRoll, rMessage)
-function onPostAttackResolve(_, _, rRoll, _)
+-- onPostAttackResolve(rSource, rTarget, rRoll)
+function onPostAttackResolve(_, _, rRoll)
 	-- HANDLE FUMBLE/CRIT HOUSE RULES
 	local sOptionHRFC = OptionsManager.getOption("HRFC");
 	if rRoll.sResult == "fumble" and ((sOptionHRFC == "both") or (sOptionHRFC == "fumble")) then
@@ -163,10 +146,8 @@ function setupAttackResolve(rRoll, rSource, rTarget)
 	ActionAttack.checkAttackResult(rRoll);
 end
 function decodeAttackRoll(rRoll)
-	rRoll.nTotal = ActionsManager.total(rRoll);
-	rRoll.aMessages = {};
-
 	ActionAttackCore.decodeRollData(rRoll);
+	rRoll.aMessages = {};
 end
 function checkAttackDefense(rRoll, rSource, rTarget)
 	rRoll.nDefenseVal, rRoll.nAtkEffectsBonus, rRoll.nDefEffectsBonus = ActorManager5E.getDefenseValue(rSource, rTarget, rRoll);
@@ -324,24 +305,8 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tAttackFilter, };
 
 	-- Get roll effect modifiers
-	local tAttackDice, nAttackMod, nAttackEffect = EffectManager.getBonusDiceMod(rSource, "ATK", tSrcEffData);
-	if nAttackEffect > 0 then
-		rRoll.bEffects = true;
-		for _,vDie in ipairs(tAttackDice) do
-			table.insert(rRoll.tEffectDice, vDie);
-		end
-		rRoll.nEffectMod = rRoll.nEffectMod + nAttackMod;
-	end
-	if rTarget then
-		tAttackDice, nAttackMod, nAttackEffect = EffectManager.getBonusDiceMod(rTarget, "@ATK", tTrgtEffData);
-		if nAttackEffect > 0 then
-			rRoll.bEffects = true;
-			for _,vDie in ipairs(tAttackDice) do
-				table.insert(rRoll.tEffectDice, vDie);
-			end
-			rRoll.nEffectMod = rRoll.nEffectMod + nAttackMod;
-		end
-	end
+	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "ATK", tSrcEffData);
+	ActionCore.applyModRollEffectBonusDiceMod(rTarget, rRoll, "@ATK", tTrgtEffData);
 
 	-- Get condition modifiers
 	if EffectManager.hasTextOrTag(rSource, "ADVATK", tSrcEffData) then
@@ -353,7 +318,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	elseif EffectManager.hasTextOrTag(rTarget, "GRANTADVATK", tTrgtEffData) then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
-	elseif EffectManager.hasText(rSource, "Invisible") then
+	elseif EffectManager.hasCondition(rSource, "Invisible") then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
 	end
@@ -367,33 +332,33 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	elseif EffectManager.hasTextOrTag(rTarget, "GRANTDISATK", tTrgtEffData) then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Blinded") then
+	elseif EffectManager.hasCondition(rSource, "Blinded") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Encumbered") then
+	elseif EffectManager.hasCondition(rSource, "Encumbered") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Frightened") then
+	elseif EffectManager.hasCondition(rSource, "Frightened") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Intoxicated") then
+	elseif EffectManager.hasCondition(rSource, "Intoxicated") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Poisoned") then
+	elseif EffectManager.hasCondition(rSource, "Poisoned") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Prone") then
+	elseif EffectManager.hasCondition(rSource, "Prone") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager.hasText(rSource, "Restrained") then
+	elseif EffectManager.hasCondition(rSource, "Restrained") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
 	end
 
-	local bFrozen = EffectManager.hasText(rSource, "Paralyzed") or
-			EffectManager.hasText(rSource, "Petrified") or
-			EffectManager.hasText(rSource, "Stunned") or
-			EffectManager.hasText(rSource, "Unconscious");
+	local bFrozen = EffectManager.hasCondition(rSource, "Paralyzed") or
+			EffectManager.hasCondition(rSource, "Petrified") or
+			EffectManager.hasCondition(rSource, "Stunned") or
+			EffectManager.hasCondition(rSource, "Unconscious");
 	if bFrozen then
 		rRoll.bEffects = true;
 	end

@@ -43,7 +43,7 @@ function onRecharge(rSource, _, rRoll)
 	-- If target effect found, then check for recharge
 	if nodeTargetEffect then
 		-- Check the effect components
-		local sEffectName = DB.getValue(nodeTargetEffect, "label", "");
+		local sEffectName = EffectVarManager.getEffectVarFromNode(nodeTargetEffect, "sName", "");
 		local aEffectComps = EffectManager.parseEffect(sEffectName);
 		local nRecharge = nil;
 		local sRecharge = "";
