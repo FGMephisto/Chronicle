@@ -9,6 +9,7 @@ function onInit()
 	GameManager.setMultiKeyFunction("onHealthApplyType", "recovery", ActionDamage.applyRecovery);
 	GameManager.setFunction("onHealthPostApply", ActionDamage.onPostApply);
 
+	GameManager.setOption("atktype", "5E");
 	GameManager.setOption("critical", "5E");
 	GameManager.setOption("deathsave", "5E");
 	GameManager.setOption("dmgmishap", "5E");

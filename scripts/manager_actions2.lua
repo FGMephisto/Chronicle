@@ -39,13 +39,37 @@ function applyAbilityEffectsToD20RollMod(rRoll, rSource, _)
 	local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rSource, rRoll.sAbility);
 	ActionCore.applyModRollEffect(rRoll, nil, nBonusStat, nBonusEffects);
 end
+function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
+	if not rSource then
+		return;
+	end
+
+	local nExhaustMod = EffectManager.getBonusMod(rSource, "EXHAUSTION");
+	if OptionsManager.isOption("GAVE", "2024") then
+		if nExhaustMod > 0 then
+			rRoll.bEffects = true;
+			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
+		end
+	else
+		if StringManager.contains({ "attack", "save", "death", "death_auto", "concentration", "systemshock", }, rRoll.sType) then
+			if nExhaustMod > 2 then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			end
+		elseif rRoll.sType == "check" then
+			if nExhaustMod > 0 then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			end
+		end
+	end
+end
 function finalizeEffectsToD20RollMod(rRoll)
 	if rRoll.bReliable then
 		table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_reliable")));
 	end
 end
 function finalizeD20RollMod(rRoll)
-	ActionsManager2.encodeDesktopMods(rRoll);
 	ActionD20.encodeAdvantage(rRoll);
 end
 

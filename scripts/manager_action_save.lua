@@ -277,11 +277,19 @@ function setupRollMod(rRoll)
 	if rRoll.sSave then
 		table.insert(rRoll.tSaveFilter, rRoll.sSave);
 	end
+
+	-- Pull ADV/DIS from Save Vs information
+	if (rRoll.sSaveDesc or ""):match("%[ADV%]") then
+		rRoll.bADV = true;
+	end
+	if (rRoll.sSaveDesc or ""):match("%[DIS%]") then
+		rRoll.bDIS = true;
+	end
 end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
 	ActionSave.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
-	ActionSave.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
+	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionSave.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 end
 function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
@@ -405,24 +413,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		elseif ActorManager5E.hasFeature(rSource, CharManager.FEATURE_ELDRITCH_INVOCATION_ELDRITCH_MIND) then
 			rRoll.bADV = true;
 			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("roll_msg_feature_eldritchinvocationeldritchmind")));
-		end
-	end
-end
-function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
-	if not rSource then
-		return;
-	end
-
-	local nExhaustMod = EffectManager.getBonusMod(rSource, "EXHAUSTION");
-	if OptionsManager.isOption("GAVE", "2024") then
-		if nExhaustMod > 0 then
-			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
-		end
-	else
-		if nExhaustMod > 2 then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
 		end
 	end
 end
@@ -780,30 +770,20 @@ function onConcentrationRollResolve(rSource, rRoll, rMessage)
 	end
 end
 
-function hasConcentrationEffects(rSource)
-	return #(ActionSave.getConcentrationEffects(rSource)) > 0;
+function hasConcentrationEffects(rActor)
+	return #(ActionSave.getConcentrationEffects(rActor)) > 0;
 end
-function getConcentrationEffects(rSource)
+function getConcentrationEffects(rActor)
 	local aEffects = {};
 
-	local nodeCTSource = ActorManager.getCTNode(rSource);
-	if nodeCTSource then
-		local sCTNodeSource = DB.getPath(nodeCTSource);
-		for _,nodeCT in pairs(CombatManager.getCombatantNodes()) do
-			local sCTNode = DB.getPath(nodeCT);
-			for _,nodeEffect in ipairs(DB.getChildList(nodeCT, "effects")) do
-				local bSourceMatch = false;
-				local sEffectCTSource = DB.getValue(nodeEffect, "source_name", "");
-				if sEffectCTSource == sCTNodeSource then
-					bSourceMatch = true;
-				elseif (sCTNode == sCTNodeSource) and (sEffectCTSource == "") then
-					bSourceMatch = true;
-				end
-				if bSourceMatch then
-					local sLabel = EffectVarManager.getEffectVarFromNode(nodeEffect, "sName", "");
-					if sLabel:match("%([cC]%)") then
-						table.insert(aEffects, { nodeCT = nodeCT, nodeEffect = nodeEffect });
-					end
+	for _,nodeCT in pairs(CombatManager.getCombatantNodes()) do
+		local rEffectActor = ActorManager.resolveActor(nodeCT);
+		for _,nodeEffect in ipairs(DB.getChildList(nodeCT, "effects")) do
+			local rEffectSourceActor = EffectManager.getSourceActor(nodeEffect) or rEffectActor;
+			if ActorManager.isEqual(rActor, rEffectSourceActor) then
+				local sLabel = EffectVarManager.getEffectVarFromNode(nodeEffect, "sName", "");
+				if sLabel:match("%([cC]%)") then
+					table.insert(aEffects, { nodeCT = nodeCT, nodeEffect = nodeEffect });
 				end
 			end
 		end
@@ -831,18 +811,19 @@ function applyConcentrationRoll(rSource, rRoll)
 
 		if rRoll.nTotal >= rRoll.nTarget then
 			rRoll.sDesc = rRoll.sDesc .. " [SUCCESS]";
+			rRoll.sResult = "success";
 		else
 			rRoll.sDesc = rRoll.sDesc .. " [FAILURE]";
+			rRoll.sResult = "failure";
+			-- On failed concentration check, remove all effects with the same source creature
+			ActionSave.expireConcentrationEffects(rSource);
 		end
 	end
 	
 	ActionCore.applyMessage(rSource, nil, rRoll, tApplyData);
 
-	if rRoll.nTotal >= rRoll.nTarget then
-		rRoll.sResult = "success";
-	else
-		rRoll.sResult = "failure";
-		-- On failed concentration check, remove all effects with the same source creature
+	-- On failed concentration check, remove all effects with the same source creature
+	if rRoll.sResult == "failure" then
 		ActionSave.expireConcentrationEffects(rSource);
 	end
 

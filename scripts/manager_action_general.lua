@@ -12,6 +12,7 @@ function modRoll(_, _, rRoll)
 	if #(rRoll.aDice) == 1 and rRoll.aDice[1].type == "d20" then
 		ActionD20.encodeAdvantage(rRoll);
 	end
+	return true;
 end
 
 function onRoll(rSource, rRoll)

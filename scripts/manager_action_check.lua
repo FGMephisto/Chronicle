@@ -119,7 +119,7 @@ end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
 	ActionCheck.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
-	ActionCheck.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
+	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionCheck.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 end
 function applyStandardEffectsToRollMod(rRoll, rSource, _)
@@ -199,24 +199,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 			rRoll.bADV = true;
 		end
 		if EffectManager.hasTextOrTag(rSource, "DISSKILL", tSrcSkillEffData) then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		end
-	end
-end
-function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
-	if not rSource then
-		return;
-	end
-
-	local nExhaustMod = EffectManager.getBonusMod(rSource, "EXHAUSTION");
-	if OptionsManager.isOption("GAVE", "2024") then
-		if nExhaustMod > 0 then
-			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
-		end
-	else
-		if nExhaustMod > 0 then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		end

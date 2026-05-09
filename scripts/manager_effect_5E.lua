@@ -38,18 +38,19 @@ function applySave(rActor, tCompData)
 	if (tCompData.mod or 0) == 0 then
 		return;
 	end
-	local s = tCompData.sRemainder;
-	if (s or "") == "" then
+
+	local sSave = tCompData.sRemainder:match("^%w+");
+	if (sSave or "") == "" then
 		return;
 	end
-	local bMagic = false;
-	if s:match("%(M%)") then
-		bMagic = true;
-		s = StringManager.trim(s:gsub("%(M%)", ""));
-	end
-	local sSave = DataCommon.ability_stol[s:upper()] or s;
+	sSave = DataCommon.ability_stol[sSave:upper()] or sSave;
 	if not StringManager.contains(DataCommon.abilities, sSave:lower()) then
 		return;
+	end
+
+	local bMagic = false;
+	if tCompData.sRemainder:match("%(M%)") then
+		bMagic = true;
 	end
 
 	local tSaveDesc = {};

@@ -157,7 +157,7 @@ function checkAttackDefense(rRoll, rSource, rTarget)
 	end
 	if rRoll.nDefEffectsBonus ~= 0 then
 		rRoll.nDefenseVal = rRoll.nDefenseVal + rRoll.nDefEffectsBonus;
-		table.insert(rRoll.aMessages, string.format("[%s %+d]", Interface.getString("effects_def_tag"), rRoll.nDefEffectsBonus));
+		table.insert(rRoll.aMessages, EffectManager.buildDefEffectOutput(rRoll.nDefEffectsBonus));
 	end
 end
 function checkAttackResult(rRoll)
@@ -172,7 +172,6 @@ function checkAttackResult(rRoll)
 		rRoll.nFirstDie = rRoll.aDice[1].result or 0;
 	end
 	if rRoll.nFirstDie >= nCritThreshold then
-		rRoll.bSpecial = true;
 		rRoll.sResult = "crit";
 		table.insert(rRoll.aMessages, "[CRITICAL HIT]");
 	elseif rRoll.nFirstDie == 1 then
@@ -215,6 +214,7 @@ function setupRollBuild(rRoll, rActor, rAction)
 	rRoll.nOrder = rAction.order;
 	rRoll.nMod = rAction.modifier or 0;
 	rRoll.bWeapon = rAction.bWeapon;
+	rRoll.bSpell = rAction.bSpell;
 	rRoll.bADV = rAction.bADV or false;
 	rRoll.bDIS = rAction.bDIS or false;
 
@@ -280,20 +280,12 @@ function setupRollMod(rRoll)
 	end
 
 	-- Build attack filter
-	rRoll.tAttackFilter = {};
-	if rRoll.sRange == "M" then
-		table.insert(rRoll.tAttackFilter, "melee");
-	elseif rRoll.sRange == "R" then
-		table.insert(rRoll.tAttackFilter, "ranged");
-	end
-	if rRoll.bOpportunity then
-		table.insert(rRoll.tAttackFilter, "opportunity");
-	end
+	rRoll.tAttackFilter = ActionCore.buildEffectFilter(rRoll);
 end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
-	ActionAttack.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
+	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyDefenderEffectsToRollMod(rRoll, rSource, rTarget);
 end
@@ -364,7 +356,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	end
 
 	-- Handle crit range effects
-	local tCritRange = EffectManager.getCompsDataByTag(rSource, "CRIT", { rTarget = rTarget, tFilter = rRoll.tAttackFilter, });
+	local tCritRange = EffectManager.getCompsDataByTag(rSource, "CRIT", tSrcEffData);
 	if #tCritRange > 0 then
 		rRoll.nCritThreshold = 20;
 		for _,v in ipairs(tCritRange) do
@@ -383,24 +375,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 					rRoll.sDesc = rRoll.sDesc ..  " [CRIT " .. rRoll.nCritThreshold .. "]";
 				end
 			end
-		end
-	end
-end
-function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
-	if not rSource then
-		return;
-	end
-
-	local nExhaustMod = EffectManager.getBonusMod(rSource, "EXHAUSTION");
-	if OptionsManager.isOption("GAVE", "2024") then
-		if nExhaustMod > 0 then
-			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
-		end
-	else
-		if nExhaustMod > 2 then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
 		end
 	end
 end

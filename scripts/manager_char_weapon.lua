@@ -97,7 +97,7 @@ function addToWeaponDB(nodeItem)
 			table.insert(aDamageTypes, aWords[i]);
 			i = i + 1;
 		end
-		if bMagic then
+		if bMagic and SetManager.overlaps({ "bludgeoning", "piercing", "slashing", }, aDamageTypes) then
 			table.insert(aDamageTypes, "magic");
 		end
 
@@ -569,6 +569,9 @@ function buildDamageAction(nodeChar, nodeWeapon)
 
 	-- Check for reroll property
 	local nPropReroll = CharWeaponManager.getPropertyNumber(nodeWeapon, CharWeaponManager.WEAPON_PROP_REROLL);
+	if (nPropReroll or 0) > 0 then
+		table.insert(rAction.tAddText, string.format("[REROLL %d]", nPropReroll));
+	end
 
 	-- Build damage clauses
 	local sBaseAbility = CharWeaponManager.getDamageBaseAbility(nodeChar, nodeWeapon);

@@ -253,6 +253,12 @@ othercomps = {
 	["GRANTADVATK"] = "cond_disadvantage",
 };
 
+-- Attack types supported
+atktypes = {
+	"spell",
+	"weapon"
+};
+
 -- Range types supported
 rangetypes = {
 	"melee",

@@ -615,7 +615,7 @@ function getDamageAbsorbEffects(sEffectTag, rActor, rSource, rRoll, tApplyData)
 		local nodeActor = ActorManager.getCreatureNode(rActor);
 		if nodeActor then
 			for _,v in ipairs(DB.getChildList(nodeActor, "traits")) do
-				local sName = DB.getValue(nodeActor, "name", ""):lower();
+				local sName = DB.getValue(v, "name", ""):lower();
 				if sName:match("absorption$") then
 					local sType = sName:match("^([^ ]+) ");
 					if sType and ActionCore.isDamageType(sType) then
@@ -776,7 +776,7 @@ function getConditionImmunities(rActor, rSource)
 	local sActorType = ActorManager.getRecordType(rActor);
 	if (sActorType == "npc") or (sActorType == "vehicle") then
 		local tActorImmune = ActorManager5E.getNonPCActorConditionImmunitiesHelper(rActor);
-		for _,v in ipairs(tActorImmune) do
+		for _,s in ipairs(tActorImmune) do
 			if not StringManager.contains(tResults, s) then
 				table.insert(tResults, s);
 			end
@@ -835,19 +835,21 @@ end
 
 function rest(rActor, sRestType)
 	if ActorManager.isPC(rActor) then
-		ActorManager5E.restPC(rActor, sRestType);
-	else
-		if not ActorCommonManager.restDefault(rActor, sRestType) then
-			return;
-		end
-		if sRestType == "long" then
-			ActorManager5E.reduceExhaustion(rActor);
-		end
+		return ActorManager5E.restPC(rActor, sRestType);
 	end
+
+	if not ActorCommonManager.restDefault(rActor, sRestType) then
+		return false;
+	end
+
+	if sRestType == "long" then
+		ActorManager5E.reduceExhaustion(rActor);
+	end
+	return true;
 end
 function restPC(rActor, sRestType)
 	if not ActorManager.checkRest(rActor, sRestType) then
-		return;
+		return false;
 	end
 
 	ActorManager5E.resetHealthPC(rActor, sRestType);
@@ -864,6 +866,7 @@ function restPC(rActor, sRestType)
 			end
 		end
 	end
+	return true;
 end
 function resetHealthPC(rActor, sRestType)
 	local bResetWounds = false;
