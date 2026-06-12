@@ -460,6 +460,7 @@
 			</basicnumber>
 			<stringcycler_editor_poweraction_effect_units name="durunit" />
 			<button_editor_poweraction_effect_expiration name="expiration" />
+			<button_editor_poweraction_effect_initsource name="initsource" />
 
 			<header_column name="header_other">
 				<static textres="power_header_effect_other" />
@@ -475,11 +476,6 @@
 				<static textres="power_label_effect_apply" />
 			</label_column>
 			<stringcycler_column_poweraction_effect_apply name="apply" />
-			
-			<label_column name="initsource_label">
-				<static textres="power_label_effect_initsource" />
-			</label_column>
-			<stringcycler_column_poweraction_effect_initsource name="initsource" />
 		</sheetdata>
 	</windowclass>
 </root>
