@@ -7,8 +7,57 @@ function onInit()
 	EffectManager.registerStandardDescriptorGroups();
 	EffectManagerD20.registerStandardConditionals();
 
+	GameManager.setFunction("onEffectPreAdd", EffectManager5E.onEffectPreAdd);
+
 	GameManager.setFunction("onActorStartTurn", EffectManager5E.onActorStartTurn);
 	GameManager.setFunction("onActorEndTurn", EffectManager5E.onActorEndTurn);
+end
+
+--
+--	ACTION HANDLING
+--
+
+function onEffectPreAdd(rActor, rEffect)
+	if not EffectManager.onEffectPreAddDefault(rActor, rEffect) then
+		return false;
+	end
+
+	if not EffectManager5E.onEffectExhuastPreAdd(rActor, rEffect) then
+		return false;
+	end
+
+	return true;
+end
+local _bIsConsolidating = false;
+function onEffectExhuastPreAdd(rActor, rEffect)
+	if _bIsConsolidating then
+		return true;
+	end
+	_bIsConsolidating = true;
+
+	local nAdd = 0;
+	local tEffectComps = {};
+	for _,sComp in ipairs(EffectManager.parseEffect(rEffect.sName)) do
+		local tCompData = EffectManager.parseEffectCompSimple(sComp);
+		if tCompData.type:lower() == "exhaustion" then
+			nAdd = nAdd + tCompData.mod;
+		elseif tCompData.original:lower() == "exhaustion" then
+			nAdd = nAdd + 1;
+		else
+			table.insert(tEffectComps, sComp);
+		end
+	end
+
+	if nAdd > 0 then
+		ActorManager5E.setExhaustionLevel(rActor, ActorManager5E.getExhaustionLevel(rActor) + nAdd);
+	end
+	_bIsConsolidating = false;
+
+	if #tEffectComps == 0 then
+		return false;
+	end
+	rEffect.sName = EffectManager.rebuildParsedEffect(tEffectComps);
+	return true;
 end
 
 --
@@ -175,7 +224,7 @@ function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
 					break;
 				end
 			elseif sSizeCheck then
-				if not ActorCommonManager.isCreatureSizeDnD5(rActor, sSizeCheck) then
+				if not ActorCommonManager.isCreatureSizeDnD(rActor, sSizeCheck) then
 					bReturn = false;
 					break;
 				end

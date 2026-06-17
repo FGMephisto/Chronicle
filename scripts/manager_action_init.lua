@@ -85,5 +85,5 @@ function getEffectAdjustments(rActor)
 		tCheckFilter = { "dexterity" },
 	};
 	ActionCheck.applyEffectsToRollMod(rRoll, rActor);
-	return rRoll.bEffects, rRoll.tEffectDice, rRoll.nEffectMod, rRoll.bADV, rRoll.bDIS;
+	return rRoll;
 end

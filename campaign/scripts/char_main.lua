@@ -4,6 +4,7 @@
 --
 
 function onInit()
+	self.onHealthChanged();
 	self.onXPChanged();
 	self.onBackgroundChanged();
 	self.onSpeciesChanged();

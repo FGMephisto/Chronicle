@@ -83,11 +83,11 @@ local _tActorDiceSystemRules = {
 		sDefaultKey = "humanoid_were",
 	},
 	["beast_insect"] = {
-		sName = "Giant Centipeded|Giant Fire Beetle|Giant Scorpion|Giant Wasp|Scorpion|Swarm of Insects|Swarm of Insects (Beetles)|Swarm of Insects (Centipedes)|Swarm of Insects (Wasps)",
+		sName = "Giant Centipede|Giant Fire Beetle|Giant Scorpion|Giant Wasp|Scorpion|Swarm of Insects|Swarm of Insects (Beetles)|Swarm of Insects (Centipedes)|Swarm of Insects (Wasps)",
 		sDefaultKey = "beast_insect",
 	},
 	["beast_reptile"] = {
-		sName = "Allosaurus|Ankylosaurus|Crocodile|Giant Crocodile|Giant Lizard|Lizard|Lizardfolk|Lizardfolk Shaman|Lizardfolk King/Queen||Pteranodon|Triceratops|Tyrannosaurus Rex",
+		sName = "Allosaurus|Ankylosaurus|Crocodile|Giant Crocodile|Giant Lizard|Lizard|Lizardfolk|Lizardfolk Shaman|Lizardfolk King/Queen|Pteranodon|Triceratops|Tyrannosaurus Rex",
 		sDefaultKey = "beast_reptile",
 	},
 	["humanoid_death"] = {
@@ -199,7 +199,7 @@ local _tActorTypeDefaults = {
 	},
 	["fiend"] = {
 		{ diceskin = 270 },
-		{ diceskin = 0, dicebodycolor="FF000000", dicetextcolor="FFFF000" }
+		{ diceskin = 0, dicebodycolor="FF000000", dicetextcolor="FFFF0000" }
 	},
 	["giant"] = {
 		{ diceskin = 267 }

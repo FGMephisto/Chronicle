@@ -83,12 +83,14 @@ creaturesize = {
 	["large"] = 1,
 	["huge"] = 2,
 	["gargantuan"] = 3,
+	["colossal"] = 4,
 	["t"] = -2,
 	["s"] = -1,
 	["m"] = 0,
 	["l"] = 1,
 	["h"] = 2,
 	["g"] = 3,
+	["c"] = 4,
 };
 
 -- Values for creature type comparison
@@ -151,6 +153,7 @@ conditions = {
 	"cursed",
 	"deafened",
 	"encumbered",
+	"exhaustion",
 	"frightened",
 	"grappled",
 	"incapacitated",
@@ -166,6 +169,10 @@ conditions = {
 	"surprised",
 	"turned",
 	"unconscious"
+};
+
+stackable_conditions = {
+	"exhaustion",
 };
 
 -- Bonus/penalty effect types for token widgets

@@ -430,7 +430,7 @@
 
 			<label_charframetop name="healthtitle">
 				<anchored height="20">
-					<top anchor="bottom" offset="-110" />
+					<top anchor="bottom" offset="-120" />
 					<left offset="90" />
 					<right offset="-90" />
 				</anchored>
@@ -999,6 +999,7 @@
 			</spacer_listitem_right>
 			<number_listitem_right name="level">
 				<anchored width="40" />
+				<delaykeyupdate />
 			</number_listitem_right>
 
 			<string_listitem_center_underline name="name" />

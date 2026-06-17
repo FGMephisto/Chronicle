@@ -39,46 +39,47 @@ function onTurnStart(nodeEntry)
 	-- Handle beginning of turn changes
 	DB.setValue(nodeEntry, "reaction", "number", 0);
 
-	-- Check for exhaustion levels for pre-2024 rules
-	if nodeEntry then
-		local sClass, sRecord = DB.getValue(nodeEntry, "link");
-		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
-			-- Get exhaustion modifiers
-			local nExhaustMod = EffectManager.getBonusMod(nodeEntry, "EXHAUSTION");
+	local rActor = ActorManager.resolveActor(nodeEntry);
+	if ActorManager.isPC(rActor) then
+		-- Check for exhaustion levels for pre-2024 rules
+		local nExhaustLevel = ActorManager5E.getExhaustionLevel(rActor);
+		if OptionsManager.isOption("GAVE", "2024") then
+			if nExhaustLevel > 5 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
+			elseif nExhaustLevel > 0 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = string.format("Exhausted; Speed -%d (info only)", nExhaustLevel * 5), nDuration = 1, });
+			end
+		else
+			if nExhaustLevel > 5 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
+			elseif nExhaustLevel > 4 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1, });
+			elseif nExhaustLevel > 3 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1, });
+			elseif nExhaustLevel > 1 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1, });
+			end
+		end
 
-			if OptionsManager.isOption("GAVE", "2024") then
-				if nExhaustMod > 5 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
-				elseif nExhaustMod > 0 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = string.format("Exhausted; Speed -%d (info only)", nExhaustMod * 5), nDuration = 1, });
-				end
-			else
-				if nExhaustMod > 5 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
-				elseif nExhaustMod > 4 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1, });
-				elseif nExhaustMod > 3 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1, });
-				elseif nExhaustMod > 1 then
-					EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1, });
+		-- Check for death saves (based on option)
+		if OptionsManager.isOption("HRST", "on") then
+			local nHP = GameManager.getRecordFieldValueLinked(rActor, "hptotal", 0);
+			if nHP > 0 then
+				local nWounds = GameManager.getRecordFieldValueLinked(rActor, "wounds", 0);
+				if nWounds >= nHP then
+					local nDeathSaveFail = GameManager.getRecordFieldValueLinked(rActor, "deathsavefail", 0);
+					if nDeathSaveFail < 3 then
+						if not EffectManager.hasCondition(rActor, "Stable") then
+							ActionSave.performDeathRoll(nil, rActor, true);
+						end
+					end
 				end
 			end
 		end
-	end
 
-	-- Check for death saves (based on option)
-	if OptionsManager.isOption("HRST", "on") then
-		local sClass, sRecord = DB.getValue(nodeEntry, "link");
-		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
-			local nHP = DB.getValue(nodeEntry, "hptotal", 0);
-			local nWounds = DB.getValue(nodeEntry, "wounds", 0);
-			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
-			if (nHP > 0) and (nWounds >= nHP) and (nDeathSaveFail < 3) then
-				local rActor = ActorManager.resolveActor(sRecord);
-				if not EffectManager.hasCondition(rActor, "Stable") then
-					ActionSave.performDeathRoll(nil, rActor, true);
-				end
-			end
+		-- Encumbrance notification
+		if GameManager.getRecordFieldValue(rActor, "enclevel", 0) > 0 then
+			ChatManager.sendMessage(string.format("[%s]", GameManager.getRecordFieldValue(rActor, "encstate", ""):upper()), { sIcon = "action_weight", rActor = rActor, })
 		end
 	end
 end
@@ -643,14 +644,17 @@ function getEntryInitRecord(nodeEntry)
 
 	-- Get any effect modifiers
 	local rActor = ActorManager.resolveActor(nodeEntry);
-	local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = ActionInit.getEffectAdjustments(rActor);
-	if bEffects then
-		tInit.nMod = tInit.nMod + StringManager.evalDice(aEffectDice, nEffectMod);
-		if bEffectADV then
+	local rRoll = ActionInit.getEffectAdjustments(rActor);
+	if rRoll.bEffects then
+		tInit.nMod = tInit.nMod + StringManager.evalDice(rRoll.tEffectDice, rRoll.nEffectMod);
+		if rRoll.bADV then
 			tInit.bADV = true;
 		end
-		if bEffectDIS then
+		if rRoll.bDIS then
 			tInit.bDIS = true;
+		end
+		if rRoll.bReliable then
+			tInit.bReliable = true;
 		end
 	end
 
@@ -674,7 +678,15 @@ function rollRandomInit(tInit)
 		table.insert(tSuffix, string.format("[DIS] (DROPPED %d)", math.max(nInitResult, nInitResult2)));
 		nInitResult = math.min(nInitResult, nInitResult2);
 	end
-	tInit.sSuffix = table.concat(tSuffix, " ");
+	if tInit.bReliable then
+		if nInitResult < 10 then
+			table.insert(tSuffix, string.format("[RELIABLE] (DROPPED %d)", nInitResult));
+			nInitResult = 10;
+		else
+			table.insert(tSuffix, "[RELIABLE]");
+		end
+	end
+	tInit.sSuffix = table.concat(tSuffix, "\r");
 
 	return nInitResult + (tInit.nMod or 0);
 end

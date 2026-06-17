@@ -349,6 +349,7 @@
 			<number_content_column name="hp" />
 			<string_content_column_remainder name="hd">
 				<anchored to="hp" />
+				<delaykeyupdate />
 			</string_content_column_remainder>
 
 			<label_content_column name="damagethreshold_label">
@@ -392,6 +393,7 @@
 			<number_content_column name="hp" />
 			<string_content_column_remainder name="hd">
 				<anchored to="hp" />
+				<delaykeyupdate />
 			</string_content_column_remainder>
 
 			<label_content_column name="damagethreshold_label">
@@ -417,11 +419,8 @@
 				<static textres="npc_label_size" />
 			</label_content_column>
 			<string_content_columnh name="size">
-				<script>
-					function onValueChanged()
-						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
-					end
-				</script>
+				<delaykeyupdate />
+				<script file="campaign/scripts/record_size.lua" />
 			</string_content_columnh>
 
 			<label_content_column name="type_label">

@@ -293,6 +293,13 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	if not rSource then
 		return;
 	end
+
+	-- Handle encumbrance penalty
+	if CharEncumbranceManager5E.isHeavilyEncumbered(rSource) then
+		rRoll.bDIS = true;
+		rRoll.sDesc = StringManager.append(rRoll.sDesc, string.format("[%s]", Interface.getString("encumbrance_encumbered_heavy"):upper()), "\r");
+	end
+
 	local tSrcEffData = { rTarget = rTarget, tFilter = rRoll.tAttackFilter, };
 	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tAttackFilter, };
 
@@ -325,9 +332,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
 	elseif EffectManager.hasCondition(rSource, "Blinded") then
-		rRoll.bEffects = true;
-		rRoll.bDIS = true;
-	elseif EffectManager.hasCondition(rSource, "Encumbered") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
 	elseif EffectManager.hasCondition(rSource, "Frightened") then

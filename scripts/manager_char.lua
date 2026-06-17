@@ -20,8 +20,11 @@ TRAIT_LUCK = "Luck";
 TRAIT_LUCKY = "Lucky";
 
 TRAIT_ARMORED_CASING = "armored casing";
+TRAIT_BEAST_OF_BURDEN = "beast of burden";
 TRAIT_CHAMELEON_CARAPACE = "chameleon carapace";
 TRAIT_DWARVEN_TOUGHNESS = "dwarven toughness";
+TRAIT_EQUINE_BUILD = "equine build";
+TRAIT_HEAVY_LIFTER = "heavy lifter";
 TRAIT_HIPPO_BUILD = "hippo build";
 TRAIT_LITTLE_GIANT = "little giant";
 TRAIT_NATURAL_ARMOR = "natural armor";
@@ -35,6 +38,7 @@ FEATURE_JACK_OF_ALL_TRADES = "Jack of All Trades";
 FEATURE_RELIABLE_TALENT = "Reliable Talent";
 FEATURE_SILVER_TONGUE = "Silver Tongue";
 FEATURE_SUPERIOR_CRITICAL = "Superior Critical";
+FEATURE_TIRELESS = "Tireless";
 
 FEATURE_ABJURATION_SAVANT = "abjuration savant";
 FEATURE_ASPECT_OF_THE_BEAR = "aspect of the bear";
@@ -127,13 +131,8 @@ function messageInspiration(nodeChar, nAdj)
 		return;
 	end
 
-	local msg = {
-		sender = DB.getValue(nodeChar, "name", ""),
-		icon = "charlist_inspiration",
-		font = "systemfont",
-		text = Interface.getString((nAdj > 0) and "char_message_inspiration_gained" or "char_message_inspiration_used"),
-	};
-	Comm.deliverChatMessage(msg);
+	local sMsg = Interface.getString((nAdj > 0) and "char_message_inspiration_gained" or "char_message_inspiration_used");
+	ChatManager.sendMessage(sMsg, { rActor = ActorManager.resolveActor(nodeChar), sIcon = "charlist_inspiration", });
 end
 
 --
@@ -593,7 +592,7 @@ function addHP(nodeChar, vHP)
 	if not nodeChar or (nHP <= 0) then
 		return false;
 	end
-	DB.setValue(nodeChar, "hp.total", "number", DB.getValue(nodeChar, "hp.total", 0) + nHP);
+	GameManager.setRecordFieldValue(nodeChar, "hptotal", "number", GameManager.getRecordFieldValue(nodeChar, "hptotal", 0) + nHP);
 end
 function setSize(nodeChar, s)
 	if not nodeChar then

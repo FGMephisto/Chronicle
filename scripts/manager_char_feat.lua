@@ -547,9 +547,8 @@ function applyTough(nodeChar, bInitialAdd)
 		nAddHP = CharManager.getLevel(nodeChar) * 2;
 	end
 
-	local nHP = DB.getValue(nodeChar, "hp.total", 0);
-	nHP = nHP + nAddHP;
-	DB.setValue(nodeChar, "hp.total", "number", nHP);
+	local nHP = GameManager.getRecordFieldValue(nodeChar, "hptotal", 0);
+	GameManager.setRecordFieldValue(nodeChar, "hptotal", "number", nHP + nAddHP);
 
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeat", StringManager.capitalizeAll(CharManager.FEAT_TOUGH), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

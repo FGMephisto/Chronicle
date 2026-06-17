@@ -29,9 +29,8 @@ end
 -- NOTE 2: We can not use default effect checking in this function;
 -- 		as it will cause endless loop with conditionals that check health
 function getWoundPercent(rActor)
-	local nHP = GameManager.getRecordFieldValue(rActor, "hptotal", 0);
-	local nWounds = GameManager.getRecordFieldValue(rActor, "wounds", 0);
-	local nDeathSaveFail = GameManager.getRecordFieldValue(rActor, "deathsavefail", 0);
+	local nHP = GameManager.getRecordFieldValueLinked(rActor, "hptotal", 0);
+	local nWounds = GameManager.getRecordFieldValueLinked(rActor, "wounds", 0);
 
 	local nPercentWounded = 0;
 	if nHP > 0 then
@@ -40,6 +39,7 @@ function getWoundPercent(rActor)
 
 	local sStatus;
 	if nPercentWounded >= 1 then
+		local nDeathSaveFail = GameManager.getRecordFieldValueLinked(rActor, "deathsavefail", 0);
 		if nDeathSaveFail >= 3 then
 			sStatus = ActorHealthManager.STATUS_DEAD;
 		else
@@ -800,7 +800,7 @@ function getNonPCActorConditionImmunitiesHelper(rActor)
 	else
 		sActorImmune = DB.getValue(nodeActor, "conditionimmunities", ""):lower();
 	end
-	local tActorImmuneWords = StringManager.split(sActorImmune, ",", true);
+	local tActorImmuneWords = StringManager.split(sActorImmune, ";,", true);
 	for _,v in ipairs(tActorImmuneWords) do
 		local vLower = v:lower();
 		if ActionCore.isCondition(vLower) then
@@ -857,10 +857,14 @@ function restPC(rActor, sRestType)
 	local nodeChar = ActorManager.getCreatureNode(rActor);
 	PowerManager.resetPowers(nodeChar, (sRestType == "long"));
 
-	if sRestType == "long" then
+	if sRestType == "short" then
+		if ActorManager5E.hasFeature(rActor, CharManager.FEATURE_TIRELESS) then
+			ActorManager5E.reduceExhaustion(rActor);
+		end
+	elseif sRestType == "long" then
 		ActorManager5E.reduceExhaustion(rActor);
 
-		if CharManager.hasTrait(nodeChar, CharManager.TRAIT_RESOURCEFUL) then
+		if ActorManager5E.hasTrait(rActor, CharManager.TRAIT_RESOURCEFUL) then
 			if DB.getValue(nodeChar, "inspiration", 0) <= 0 then
 				DB.setValue(nodeChar, "inspiration", "number", 1);
 			end
@@ -901,25 +905,24 @@ function resetHealthPC(rActor, sRestType)
 		end
 	end
 
-	local nodeChar = ActorManager.getCreatureNode(rActor);
-
 	-- Reset health fields and conditions
 	if bResetWounds then
 		if not ActorManager.canHeal(rActor, "rest") then
 			ChatManager.Message(Interface.getString("message_healblocked"), true, rActor);
 		else
-			DB.setValue(nodeChar, "hp.wounds", "number", 0);
-			DB.setValue(nodeChar, "hp.deathsavesuccess", "number", 0);
-			DB.setValue(nodeChar, "hp.deathsavefail", "number", 0);
+			GameManager.setRecordFieldValue(rActor, "wounds", "number", 0);
+			GameManager.setRecordFieldValue(rActor, "deathsavesuccess", "number", 0);
+			GameManager.setRecordFieldValue(rActor, "deathsavefail", "number", 0);
 
 			EffectManager.removeCondition(rActor, "Stable");
 			EffectManager.removeCondition(rActor, "Unconscious");
 		end
 	end
 	if bResetTemp then
-		DB.setValue(nodeChar, "hp.temporary", "number", 0);
+		GameManager.setRecordFieldValue(rActor, "hptemp", "number", 0);
 	end
 
+	local nodeChar = ActorManager.getCreatureNode(rActor);
 	-- Reset all hit dice
 	if bResetHitDice then
 		for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
@@ -979,15 +982,33 @@ function resetHealthPC(rActor, sRestType)
 		end
 	end
 end
-function reduceExhaustion(rActor)
-	local nExhaustMod = EffectManager.getBonusMod(rActor, "EXHAUSTION");
-	if nExhaustMod > 0 then
-		nExhaustMod = nExhaustMod - 1;
-		EffectManager.removeEffectsByTag(rActor, "EXHAUSTION");
-		if nExhaustMod > 0 then
-			EffectManager.addEffectByText(rActor, string.format("EXHAUSTION: %d", nExhaustMod));
+
+function getExhaustionLevel(rActor)
+	local nExhaustTagMod = EffectManager.getBonusMod(rActor, "EXHAUSTION");
+	local nExhaustTextMod = #(EffectManager.getCompsDataByText(rActor, "Exhaustion"));
+	return nExhaustTagMod + nExhaustTextMod;
+end
+function setExhaustionLevel(rActor, n)
+	EffectManager.removeEffectsByTag(rActor, "EXHAUSTION");
+	EffectManager.removeEffectsByText(rActor, "Exhaustion");
+
+	if n > 0 then
+		if n == 1 then
+			EffectManager.addEffectByText(rActor, "Exhaustion");
+		else
+			EffectManager.addEffectByText(rActor, string.format("EXHAUSTION: %d", n));
 		end
 	end
+end
+function reduceExhaustion(rActor)
+	if EffectManager.hasCondition(rActor, "STAYEXHAUST") then
+		return;
+	end
+	local nExhaustLevel = ActorManager5E.getExhaustionLevel(rActor);
+	if nExhaustLevel <= 0 then
+		return;
+	end
+	ActorManager5E.setExhaustionLevel(rActor, nExhaustLevel - 1);
 end
 
 --

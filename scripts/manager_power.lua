@@ -1819,7 +1819,7 @@ function parseEffects(sPowerName, aWords)
 							break;
 						end
 
-					elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], "frightened")  then
+					elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], { "frightened", "exhausted" })  then
 						bValidCondition = true;
 						nConditionStart = j;
 						break;
@@ -2247,8 +2247,8 @@ function parsePCPower(nodePower)
 					local nodeAction = DB.createChild(nodeActions);
 					DB.setValue(nodeAction, "type", "string", "heal");
 
-					if vAction.subtype == "temp" then
-						DB.setValue(nodeAction, "healtype", "string", "temp");
+					if (vAction.subtype or "") ~= "" then
+						DB.setValue(nodeAction, "healtype", "string", vAction.subtype);
 					end
 					if vAction.sTargeting then
 						DB.setValue(nodeAction, "healtargeting", "string", vAction.sTargeting);

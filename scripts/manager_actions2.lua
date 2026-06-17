@@ -44,23 +44,31 @@ function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	local nExhaustMod = EffectManager.getBonusMod(rSource, "EXHAUSTION");
-	if OptionsManager.isOption("GAVE", "2024") then
-		if nExhaustMod > 0 then
+	local nExhaustLevel = ActorManager5E.getExhaustionLevel(rSource);
+	if nExhaustLevel <= 0 then
+		return;
+	end
+
+	if OptionsManager.isOption("HREX", "") then
+		if OptionsManager.isOption("GAVE", "2024") then
 			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
+			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustLevel);
+		else
+			if StringManager.contains({ "attack", "save", "death", "death_auto", "concentration", "systemshock", }, rRoll.sType) then
+				if nExhaustLevel > 2 then
+					rRoll.bEffects = true;
+					rRoll.bDIS = true;
+				end
+			elseif StringManager.contains({ "check", "skill", "init", }, rRoll.sType) then
+				rRoll.bEffects = true;
+				rRoll.bDIS = true;
+			end
 		end
 	else
-		if StringManager.contains({ "attack", "save", "death", "death_auto", "concentration", "systemshock", }, rRoll.sType) then
-			if nExhaustMod > 2 then
-				rRoll.bEffects = true;
-				rRoll.bDIS = true;
-			end
-		elseif rRoll.sType == "check" then
-			if nExhaustMod > 0 then
-				rRoll.bEffects = true;
-				rRoll.bDIS = true;
-			end
+		local nLevelMod = tonumber(OptionsManager.getOption("HREX")) or 0;
+		if nLevelMod ~= 0 then
+			rRoll.bEffects = true;
+			rRoll.nEffectMod = rRoll.nEffectMod + (nLevelMod * nExhaustLevel);
 		end
 	end
 end
@@ -113,10 +121,16 @@ function handleLuckTrait(rActor, rRoll)
 			return;
 		end
 		if not ActionsManager2.handleSingleReroll(rRoll, 2, 1) then
+			if rRoll.sDesc:match(string.format("%%[%s%%]", Interface.getString("roll_msg_feat_elvenaccuracy"))) then
+				if not ActionsManager2.handleSingleReroll(rRoll, 3, 1) then
+					return;
+				end
+			end
 			return;
 		end
 	end
-	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_trait_luck"));
+	rRoll.sDesc = string.format("%s\r[%s]", rRoll.sDesc, Interface.getString("roll_msg_trait_luck"));
+	rRoll.nTotal = ActionsManager.total(rRoll);
 end
 function handleReliable(_, rRoll)
 	local bReliable = string.match(rRoll.sDesc or "", "%[" .. Interface.getString("roll_msg_feature_reliable") .. "%]");
@@ -125,17 +139,19 @@ function handleReliable(_, rRoll)
 	end
 
 	ActionCore.applyRollMinDie(rRoll, 1, 10);
+	rRoll.nTotal = ActionsManager.total(rRoll);
 end
 function handleHealerFeat(rActor, rRoll)
 	if not ActorManager5E.hasRollFeat2024(rActor, CharManager.FEAT_HEALER) then
 		return;
 	end
 
+	rRoll.sDesc = string.format("%s\r[%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_healer"));
 	local nDice = #rRoll.aDice;
 	for i = 1, nDice do
 		ActionsManager2.handleSingleReroll(rRoll, i, 1);
 	end
-	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_healer"));
+	rRoll.nTotal = ActionsManager.total(rRoll);
 end
 function handleElvenAccuracyFeatMod(rRoll, rActor)
 	if not ActorManager5E.hasRollFeat2014(rActor, CharManager.FEAT_ELVEN_ACCURACY) then
@@ -160,7 +176,7 @@ function handleElvenAccuracyFeatMod(rRoll, rActor)
 	end
 	table.insert(rRoll.aDice, 2, UtilityManager.copyDeep(rRoll.aDice[1]));
 	rRoll.aDice.expr = nil;
-	rRoll.sDesc = string.format("%s [%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_elvenaccuracy"));
+	rRoll.sDesc = string.format("%s\r[%s]", rRoll.sDesc, Interface.getString("roll_msg_feat_elvenaccuracy"));
 end
 function handleElvenAccuracyFeatResolve(rRoll)
 	if not rRoll then
@@ -169,23 +185,27 @@ function handleElvenAccuracyFeatResolve(rRoll)
 	if not rRoll.sDesc:match(string.format("%%[%s%%]", Interface.getString("roll_msg_feat_elvenaccuracy"))) then
 		return;
 	end
-	if #(rRoll.aDice) > 2 then
-		if rRoll.aDice[1].result < rRoll.aDice[3].result then
-			local tTemp = rRoll.aDice[1];
-			rRoll.aDice[1] = rRoll.aDice[3];
-			rRoll.aDice[3] = tTemp;
-			rRoll.aDice[3].type = "d" .. string.sub(rRoll.aDice[3].type, 2);
-		end
-		local nDroppedDie = rRoll.aDice[3].result;
-		rRoll.aDice[1].type = "g" .. string.sub(rRoll.aDice[1].type, 2);
-		rRoll.aDice[1].value = nil;
-		rRoll.aDice[3].value = nil;
-		rRoll.aDice[3].dropped = true;
-		rRoll.aDice[3].backcolor = "80808080";
-		rRoll.aDice[3].iconcolor = "80FFFFFF";
-		rRoll.aDice.expr = nil;
-		rRoll.sDesc = rRoll.sDesc .. " [DROPPED " .. nDroppedDie .. "]";
+	if #(rRoll.aDice) < 3 then
+		return;
 	end
+
+	if rRoll.aDice[1].result < rRoll.aDice[3].result then
+		local tTemp = rRoll.aDice[1];
+		rRoll.aDice[1] = rRoll.aDice[3];
+		rRoll.aDice[3] = tTemp;
+		rRoll.aDice[3].type = "d" .. string.sub(rRoll.aDice[3].type, 2);
+	end
+	local nDroppedDie = rRoll.aDice[3].result;
+	rRoll.aDice[1].type = "g" .. string.sub(rRoll.aDice[1].type, 2);
+	rRoll.aDice[1].value = nil;
+	rRoll.aDice[3].value = nil;
+	rRoll.aDice[3].dropped = true;
+	rRoll.aDice[3].backcolor = "80808080";
+	rRoll.aDice[3].iconcolor = "80FFFFFF";
+	rRoll.aDice.expr = nil;
+	rRoll.sDesc = rRoll.sDesc .. "\r[DROPPED " .. nDroppedDie .. "]";
+
+	rRoll.nTotal = ActionsManager.total(rRoll);
 end
 
 function handleSingleReroll(rRoll, kDie, nTriggerLow)
@@ -211,7 +231,7 @@ function handleSingleReroll(rRoll, kDie, nTriggerLow)
 		return false;
 	end
 
-	rRoll.sDesc = string.format("%s [REROLL D%d=%d]", rRoll.sDesc, kDie, tDie.result);
+	rRoll.sDesc = string.format("%s\r[REROLL D%d=%d]", rRoll.sDesc, kDie, tDie.result);
 
 	local tDroppedDie = UtilityManager.copyDeep(tDie);
 	tDroppedDie.type = "d" .. string.sub(tDroppedDie.type, 2);

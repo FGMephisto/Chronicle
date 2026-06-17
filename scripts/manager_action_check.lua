@@ -43,7 +43,7 @@ function modRoll(rSource, rTarget, rRoll)
 	return true;
 end
 
-function onRoll(rSource, _, rRoll)
+function onRoll(rSource, rTarget, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
@@ -126,6 +126,15 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
+
+	-- Handle encumbrance penalty
+	if StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
+		if CharEncumbranceManager5E.isHeavilyEncumbered(rSource) then
+			rRoll.bDIS = true;
+			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("encumbrance_encumbered_heavy"):upper()));
+		end
+	end
+
 	local tSrcEffData = { tFilter = rRoll.tCheckFilter, };
 
 	-- Get roll effect modifiers
@@ -148,11 +157,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	elseif EffectManager.hasCondition(rSource, "Poisoned") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
-		if EffectManager.hasCondition(rSource, "Encumbered") then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		end
 	end
 
 	if rRoll.sType == "init" then

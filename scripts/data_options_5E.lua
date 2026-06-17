@@ -27,20 +27,38 @@ function registerOptions()
 	-- House Rules
 	OptionsManager.registerStandardOption("HRFC");
 	OptionsManager.registerStandardOption("HRIR");
-	OptionsManager.registerStandardOption("HRNH");
+
 	OptionsManager.registerStandardOption("HRST");
 	OptionsManager.registerOptionData({
 		sKey = "NPCD", sGroupRes = "option_header_houserule",
 		tCustom = { labelsres = "option_val_fixed", values = "fixed", baselabelres = "option_val_variable", baseval = "off", default = "off", },
 	});
+	OptionsManager.registerStandardOption("HRNH");
 	OptionsManager.registerOptionData({	sKey = "HRMD", sGroupRes = "option_header_houserule", });
+
+	OptionsManager.registerOptionData({
+		sKey = "HREX", sGroupRes = "option_header_houserule",
+		tCustom = { labelsraw = "-1|-2|-3", values = "-1|-2|-3", baselabelres = "option_val_standard", baseval = "", default = "", },
+	});
+	OptionsManager.registerOptionData({
+		sKey = "HRHE", sGroupRes = "option_header_houserule",
+		tCustom = { labelsres = "option_val_1|option_val_2|option_val_3|option_val_4|option_val_5", values = "1|2|3|4|5", baselabelres = "option_val_off", baseval = "off", default = "off", },
+	});
+	OptionsManager.registerOptionData({	sKey = "HRSE", sGroupRes = "option_header_houserule", });
+
+	OptionsManager.registerOptionData({	sKey = "HRBASTION", sGroupRes = "option_header_houserule", });
+
 	OptionsManager.registerOptionData({
 		sKey = "HRAS", sGroupRes = "option_header_houserule",
 		tCustom = { labelsres = "option_val_4|option_val_5|option_val_HRAS_prof|option_val_2", values = "4|5|prof|2", baselabelres = "option_val_3", baseval = "3", default = "3", },
 	});
 	OptionsManager.registerOptionData({
 		sKey = "HREN", sGroupRes = "option_header_houserule",
-		tCustom = { labelsres = "option_val_variant", values = "variant", baselabelres = "option_val_standard", baseval = "", default = "", },
+		tCustom = { labelsres = "option_val_standard|option_val_variant", values = "standard|variant", baselabelres = "option_val_off", baseval = "off", default = "standard", },
+	});
+	OptionsManager.registerOptionData({
+		sKey = "HRFL", sGroupRes = "option_header_houserule",
+		tCustom = { labelsres = "option_val_HRFL_passive|option_val_all", values = "passive|all", baselabelres = "option_val_standard", baseval = "", default = "", },
 	});
 	OptionsManager.registerOptionData({
 		sKey = "HRHV", sGroupRes = "option_header_houserule",
@@ -50,5 +68,4 @@ function registerOptions()
 		sKey = "HRIS", sGroupRes = "option_header_houserule",
 		tCustom = { labelsraw = "2|3|5", values = "2|3|5", baselabelres = "option_val_standard", baseval = "", default = "", },
 	});
-	OptionsManager.registerOptionData({	sKey = "HRBASTION", sGroupRes = "option_header_houserule", });
 end

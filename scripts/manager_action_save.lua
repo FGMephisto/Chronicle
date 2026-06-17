@@ -104,13 +104,14 @@ function modSave(rSource, rTarget, rRoll)
 	ActionsManager2.finalizeD20RollMod(rRoll);
 end
 
-function onSave(rSource, _, rRoll)
+function onSave(rSource, rTarget, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	ActionSave.onPreSaveResolve(rSource, rRoll, rMessage);
 	ActionSave.onSaveResolve(rSource, rRoll, rMessage);
+	ActionSave.handleFortitudeTraitOnSave(rSource, rTarget, rRoll);
 	ActionSave.onPostSaveResolve(rSource, rRoll, rMessage);
 end
 -- onPreSaveResolve(rSource, rRoll, rMessage)
@@ -198,6 +199,24 @@ end
 -- onPostSaveApply(rSource, rOrigin, rRoll)
 function onPostSaveApply()
 	-- Do nothing; location to override
+end
+
+function handleFortitudeTraitOnSave(rSource, rTarget, rRoll)
+	if (rRoll.sSubType or "") ~= "fortitude" then
+		return;
+	end
+	if ((rRoll.nTarget or 0) <= 0) or (rRoll.nTotal < rRoll.nTarget) then
+		return;
+	end
+
+	local rHealRoll = {
+		sType = "heal",
+		bSecret = rRoll.bSecret,
+		sDesc = string.format("[%s] %s", Interface.getString("action_heal_tag"), (rRoll.sSaveTrait or "")),
+		nTotal = 1,
+	};
+	ActionDamageD20.notifyApplyDamage(nil, rSource, rHealRoll);
+	EffectManager.removeCondition(rSource, "Prone");
 end
 
 --
@@ -297,6 +316,14 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		return;
 	end
 
+	-- Handle encumbrance penalty
+	if StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
+		if CharEncumbranceManager5E.isHeavilyEncumbered(rSource) then
+			rRoll.bDIS = true;
+			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("encumbrance_encumbered_heavy"):upper()));
+		end
+	end
+
 	local bFrozen = EffectManager.hasCondition(rSource, "Paralyzed") or
 			EffectManager.hasCondition(rSource, "Petrified") or
 			EffectManager.hasCondition(rSource, "Stunned") or
@@ -332,11 +359,6 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	elseif ((rRoll.sAbility or "") == "dexterity") and EffectManager.hasCondition(rSource, "Restrained") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
-		if EffectManager.hasCondition(rSource, "Encumbered") then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		end
 	end
 
 	if ((rRoll.sAbility or "") == "dexterity") and EffectManager.hasCondition(rSource, "Dodge") and
@@ -536,9 +558,9 @@ function applySystemShockRoll(rSource, rRoll)
 
 	ActionSave.onPostSystemShockApply(rSource, rRoll);
 
-	rAction.sType = "save";
-	rAction.sSaveType = "systemshock";
-	GameManager.callEventFunctions("onSavePostResolve", rSource, nil, rAction);
+	rRoll.sType = "save";
+	rRoll.sSaveType = "systemshock";
+	GameManager.callEventFunctions("onSavePostResolve", rSource, nil, rRoll);
 end
 -- onPostSystemShockApply(rSource, rRoll)
 function onPostSystemShockApply()
@@ -555,26 +577,17 @@ function onSystemShockResultRoll(rSource, _, rRoll)
 	ActionSave.onPostSaveResolve(rSource, rRoll, rMessage);
 end
 function onSystemShockResultRollResolve(rSource, rRoll, rMessage)
-	local nodeActor = ActorManager.getCreatureNode(rSource);
 	local nTotal = ActionsManager.total(rRoll);
 
 	if (nTotal <= 1) then
-		if ActorManager.isPC(rSource) then
-			DB.setValue(nodeActor, "hp.wounds", "number", DB.getValue(nodeActor, "hp.total", 0));
-		else
-			DB.setValue(nodeActor, "wounds", "number", DB.getValue(nodeActor, "hptotal", 0));
-		end
+		GameManager.setRecordFieldValue(rSource, "wounds", "number", GameManager.getRecordFieldValue(rSource, "hptotal", 0));
 		EffectManager.removeCondition(rSource, "Stable");
 		EffectManager.addCondition(rSource, "Unconscious");
 		EffectManager.addCondition(rSource, "Prone");
 		rMessage.text = rMessage.text .. " -> [DROPPED TO ZERO]";
 
 	elseif ((nTotal == 2) or (nTotal == 3)) then
-		if ActorManager.isPC(rSource) then
-			DB.setValue(nodeActor, "hp.wounds", "number", DB.getValue(nodeActor, "hp.total", 0));
-		else
-			DB.setValue(nodeActor, "wounds", "number", DB.getValue(nodeActor, "hptotal", 0));
-		end
+		GameManager.setRecordFieldValue(rSource, "wounds", "number", GameManager.getRecordFieldValue(rSource, "hptotal", 0));
 		EffectManager.addCondition(rSource, "Stable");
 		EffectManager.addCondition(rSource, "Unconscious");
 		EffectManager.addCondition(rSource, "Prone");

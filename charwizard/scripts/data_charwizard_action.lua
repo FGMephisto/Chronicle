@@ -180,7 +180,12 @@ parsedata = {
 	["retaliation"] = { actions = { { type = "effect", sName = "Retaliation", sTargeting = "self", }, }, },
 	["brutalcritical"] = { actions = { { type = "effect", sName = "Brutal Critical; DMG: 3d8, melee, critical", sTargeting = "self", }, }, },
 	["dangersense"] = { actions = { { type = "effect", sName = "Danger Sense; ADVSAV: dexterity", sTargeting = "self", sApply = "action" }, }, },
-	["frenzy"] = { actions = { { type = "effect", sName = "Frenzy; Extra bonus action attack and suffer exhaustion after rage", sTargeting = "self", }, }, },
+	["frenzy"] = { 
+		actions = {
+			{ type = "effect", sName = "Frenzy; Extra bonus action attack and suffer exhaustion after rage", sTargeting = "self", },
+			{ type = "effect", sName = "Exhaustion", sTargeting = "self", },
+		},
+	},
 	-- Barbarian - Path of the Ancestral Guardian
 	["ancestralprotectors"] = {
 		actions = {
@@ -2164,7 +2169,7 @@ parsedata = {
 	["integratedtool"] = { actions = { { type = "effect", sName = "Integrated Tool: ADVSKILL: ", sTargeting = "self" }, }, },
 	["ironfists"] = { actions = { { type = "damage", clauses = { { dice = { "d4" }, dmgtype = "bludgeoning", stat = "strength" }, }, }, }, },
 	["warforgedresilience"] = {
-		actions = { { type = "effect", sName = "Warforged Resilience; RESIST: poison; Adv against poison; Immune to disease and exhaustion", sTargeting = "self" }, },
+		actions = { { type = "effect", sName = "Warforged Resilience; RESIST: poison; IMMUNE: exhaustion; Adv against poison; Immune to disease", sTargeting = "self" }, },
 	},
 	["constructedresilience"] = {
 		actions = { { type = "effect", sName = "Constructed Resilience; RESIST: poison; Adv on save vs. poisoned, Immune to disease, Cannot be put to sleep by magic. ", sTargeting = "self" }, },
@@ -5255,17 +5260,10 @@ tBuildDataClass2024 = {
 		addspeed = 10,
 	},
 	["tireless"] = {
-		multiple_actions = {
-			["Tireless (Temporary Hit Points)"] = {
-				actions = {
-					{ type = "heal", subtype = "temp", sTargeting = "self", clauses = { { dice = { "d8" }, stat = "wisdom", }, }, },
-				},
-				prepared = 1,
-			},
-			["Tireless (Decrease Exhaustion)"] = {
-				actions = {},
-			},
+		actions = {
+			{ type = "heal", subtype = "temp", sTargeting = "self", clauses = { { dice = { "d8" }, stat = "wisdom", }, }, },
 		},
+		prepared = 1,
 	},
 	["relentlesshunter"] = {
 		actions = {
