@@ -11,14 +11,12 @@ function onInit()
 
 	self.updateAttunement();
 end
-
 function onClose()
 	OptionsManager.unregisterCallback("HREN", self.onHRENOptionChanged);
 end
 
 function onHRENOptionChanged()
-	local sOptionHREN = OptionsManager.getOption("HREN");
-	local bShowVariant = (sOptionHREN == "variant");
+	local bShowVariant = OptionsManager.isOption("HREN", "variant");
 	encumbrancebase_label.setVisible(bShowVariant);
 	encumbrancebase.setVisible(bShowVariant);
 	encumbranceheavy_label.setVisible(bShowVariant);

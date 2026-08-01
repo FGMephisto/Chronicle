@@ -93,11 +93,11 @@ function addToWeaponDB(nodeItem)
 		end
 
 		local aDamageTypes = {};
-		while StringManager.contains(DataCommon.dmgtypes, aWords[i]) do
+		while ActionCore.isDamageType(aWords[i]) do
 			table.insert(aDamageTypes, aWords[i]);
 			i = i + 1;
 		end
-		if bMagic then
+		if bMagic and SetManager.overlaps({ "bludgeoning", "piercing", "slashing", }, aDamageTypes) then
 			table.insert(aDamageTypes, "magic");
 		end
 
@@ -545,17 +545,8 @@ function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
 			sVersatile = nil;
 		end
 
-		-- Handle reroll value, if any
-		local aDmgReroll = nil;
-		if nReroll then
-			aDmgReroll = {};
-			for kDie,_ in ipairs(aDmgDice) do
-				aDmgReroll[kDie] = nReroll;
-			end
-		end
-
 		-- Add clause to list of clauses
-		table.insert(clauses, { dice = aDmgDice, stat = sDmgAbility, statmult = nMult, modifier = nDmgMod, dmgtype = sDmgType, reroll = aDmgReroll });
+		table.insert(clauses, { dice = aDmgDice, stat = sDmgAbility, statmult = nMult, modifier = nDmgMod, dmgtype = sDmgType, nReroll = nReroll });
 	end
 
 	return clauses;
@@ -578,13 +569,13 @@ function buildDamageAction(nodeChar, nodeWeapon)
 
 	-- Check for reroll property
 	local nPropReroll = CharWeaponManager.getPropertyNumber(nodeWeapon, CharWeaponManager.WEAPON_PROP_REROLL);
-	if nPropReroll and (nPropReroll > 0) then
-		rAction.nReroll = nPropReroll;
+	if (nPropReroll or 0) > 0 then
+		table.insert(rAction.tAddText, string.format("[REROLL %d]", nPropReroll));
 	end
 
 	-- Build damage clauses
 	local sBaseAbility = CharWeaponManager.getDamageBaseAbility(nodeChar, nodeWeapon);
-	rAction.clauses = CharWeaponManager.getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, rAction.nReroll);
+	rAction.clauses = CharWeaponManager.getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nPropReroll);
 
 	if (DB.getValue(nodeWeapon, "type", 0) == 2) then
 		if rAction.clauses[1] and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_THROWN_WEAPON_FIGHTING) then
@@ -614,11 +605,7 @@ function buildDamageAction(nodeChar, nodeWeapon)
 		if CharManager.hasFeat2024(nodeChar, CharManager.FEAT_GREAT_WEAPON_FIGHTING) then
 			if CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_TWOHANDED) or CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_VERSATILE) then
 				table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_greatweaponfighting")));
-				local nWeaponDice = 0;
-				for _,tClause in ipairs(rAction.clauses) do
-					nWeaponDice = nWeaponDice + #(tClause.dice or {});
-				end
-				table.insert(rAction.tAddText, string.format("[MIN 3 %dD]", nWeaponDice));
+				rAction.clauses[1].nMin = 3;
 			end
 		end
 	end

@@ -1,7 +1,6 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
 function onInit()
@@ -39,39 +38,29 @@ function onHealthChanged()
 	status.setColor(sColor);
 end
 
--- Adjusted
 function updateHealthDisplay()
 	local sOption;
-	if friendfoe.getStringValue() == "friend" then
+	if friendfoe.getValue() == "friend" then
 		sOption = OptionsManager.getOption("SHPC");
 	else
 		sOption = OptionsManager.getOption("SHNPC");
 	end
-	
-	if sOption == "detailed" then
-		hptotal.setVisible(true);
-		fatigue.setVisible(true);
-		injuries.setVisible(true);
-		trauma.setVisible(true);
-		wounds.setVisible(true);
-		status.setVisible(false);
-	elseif sOption == "status" then
-		hptotal.setVisible(false);
-		fatigue.setVisible(false);
-		injuries.setVisible(false);
-		trauma.setVisible(false);
-		wounds.setVisible(false);
-		status.setVisible(true);
-	else
-		hptotal.setVisible(false);
-		fatigue.setVisible(false);
-		injuries.setVisible(false);
-		trauma.setVisible(false);
-		wounds.setVisible(false);
-		status.setVisible(false);
-	end
 
-	if sub_active and sub_active.subwindow then
+	local bShowDetail = (sOption == "detailed");
+	local bShowStatus = (sOption == "status");
+
+	hptotal.setVisible(bShowDetail);
+	-- hptemp.setVisible(bShowDetail);
+	trauma.setVisible(bShowDetail);
+	injuries.setVisible(bShowDetail);
+	fatigue.setVisible(bShowDetail);
+	wounds.setVisible(bShowDetail);
+	status.setVisible(bShowStatus);
+
+	local bShowHealthBase = not OptionsManager.isOption("SHPC", "off") or not OptionsManager.isOption("SHNPC", "off");
+	healthbase.setVisible(bShowHealthBase);
+
+	if sub_active and sub_active.subwindow and sub_active.subwindow.updateHealthDisplay then
 		sub_active.subwindow.updateHealthDisplay(sOption);
 	end
 end

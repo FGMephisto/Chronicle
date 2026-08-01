@@ -80,10 +80,10 @@
 				<static textres="char_label_inventory" />
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<icon>char_inventory</icon>
 				<static textres="char_label_inventory" />
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<button_iadd name="list_iadd">
 				<anchored to="header" position="insidetopright" offset="5,0" />
@@ -374,8 +374,7 @@
 			end
 
 			function onHRENOptionChanged()
-				local sOptionHREN = OptionsManager.getOption("HREN");
-				local bShowVariant = (sOptionHREN == "variant");
+				local bShowVariant = OptionsManager.isOption("HREN", "variant");
 				encumbrancebase_label.setVisible(bShowVariant);
 				encumbrancebase.setVisible(bShowVariant);
 				encumbranceheavy_label.setVisible(bShowVariant);

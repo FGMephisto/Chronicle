@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <!-- 
-  Please see the license.html file included with this distribution for
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
@@ -22,15 +21,12 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- Adjusted -->
 	<panel name="modifierstack" merge="join">
 		<bounds>15,-100,320,57</bounds>
 	</panel>
-
-	<!-- Adjusted -->
 	<windowclass name="modifierstack" merge="join">
 		<sizelimits>
-			<minimum width="200" height="62" />
+			<minimum width="200" height="60" />
 		</sizelimits>
 		<sheetdata>
 			<modifierstack_base name="base">
@@ -56,6 +52,7 @@
 				</acceptdrop>
 			</modifierstack_modifier>
 
+			<!-- Chronicle Modifiers -->
 			<button_modifierkey name="PLUS1">
 				<bounds>80,8,30,18</bounds>
 			</button_modifierkey>

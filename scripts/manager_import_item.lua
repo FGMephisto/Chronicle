@@ -50,7 +50,7 @@ function import2024(sList, sDesc)
 	ImportItemManager.nextImportLine(tImportList);
 	local sColumnNames = tImportList.sActiveLine;
 	sColumnNames = (sColumnNames or ""):gsub("name", "Name");
-	local columnNames = StringManager.splitByPattern(sColumnNames, "|", true);
+	local columnNames = StringManager.splitByPattern(sColumnNames, "|", true, true);
 
 	-- Table to store the parsed data
 	local tParsedData = {};

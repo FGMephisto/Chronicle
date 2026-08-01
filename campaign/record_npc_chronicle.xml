@@ -7,6 +7,9 @@
 -->
 
 <root>
+	<!-- =================================================================================================================== -->
+	<!-- NPC -->
+	<!-- =================================================================================================================== -->
 	<windowclass name="npc">
 		<frame>recordsheet</frame>
 		<placement>
@@ -62,25 +65,29 @@
 			</subwindow_record>
 
 			<tabs_recordsheet name="tabs">
+				<!-- <tab> -->
+					<!-- <icon>tab_main</icon> -->
+					<!-- <subwindow>main_creature</subwindow> -->
+				<!-- </tab> -->
 				<tab>
-					<tabres>tab_skills</tabres>
+					<icon>tab_skills</icon>
 					<subwindow>skills</subwindow>
 				</tab>
 				<tab>
-					<tabres>tab_abilities</tabres>
+					<icon>tab_abilities</icon>
 					<subwindow>abilities</subwindow>
 				</tab>
 				<tab>
-					<tabres>tab_inventory</tabres>
+					<icon>tab_inventory</icon>
 					<subwindow>inventory</subwindow>
 				</tab>
 				<tab>
-					<tabres>tab_actions</tabres>
+					<icon>tab_actions</icon>
 					<subwindow>actions</subwindow>
 				</tab>
 
 				<tab>
-					<tabres>tab_other</tabres>
+					<icon>tab_other</icon>
 					<subwindow>text</subwindow>
 				</tab>
 			</tabs_recordsheet>

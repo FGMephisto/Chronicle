@@ -4,8 +4,8 @@
 --
 
 function onInit()
-	ActionsManager.registerModHandler("skill", ActionSkill.modRoll);
-	ActionsManager.registerResultHandler("skill", ActionSkill.onRoll);
+	ActionsManager.registerModHandler("skill", ActionCheck.modRoll);
+	ActionsManager.registerResultHandler("skill", ActionCheck.onRoll);
 end
 
 --
@@ -15,6 +15,7 @@ end
 function getRoll(rActor, nodeSkill)
 	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
 	ActionSkill.setupRollBuildFromNodePC(rRoll, rActor, nodeSkill);
+	ActionSkill.setupRollReliableOption(rRoll);
 	ActionsManager2.finalizeD20RollBuild(rRoll);
 	return rRoll;
 end
@@ -57,6 +58,7 @@ end
 function getUnlistedRoll(rActor, sSkill)
 	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
 	ActionSkill.setupRollBuildFromNamePC(rRoll, rActor, sSkill);
+	ActionSkill.setupRollReliableOption(rRoll);
 	ActionsManager2.finalizeD20RollBuild(rRoll);
 	return rRoll;
 end
@@ -64,6 +66,7 @@ end
 function getNPCRoll(rActor, sSkill, nSkill)
 	local rRoll = ActionsManager2.setupD20RollBuild("skill", rActor);
 	ActionSkill.setupRollBuildFromNameNPC(rRoll, rActor, sSkill, nSkill);
+	ActionSkill.setupRollReliableOption(rRoll);
 	ActionsManager2.finalizeD20RollBuild(rRoll);
 	return rRoll;
 end
@@ -72,12 +75,20 @@ function performNPCRoll(draginfo, rActor, sSkill, nSkill)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function modRoll(rSource, rTarget, rRoll)
-	ActionCheck.modRoll(rSource, rTarget, rRoll);
-end
-
-function onRoll(rSource, rTarget, rRoll)
-	ActionCheck.onRoll(rSource, rTarget, rRoll);
+function setupRollReliableOption(rRoll)
+	if OptionsManager.isOption("HRFL", "all") then
+		rRoll.bReliable = true;
+	elseif OptionsManager.isOption("HRFL", "passive") then
+		local tPassiveStd = {
+			Interface.getString("skill_value_insight"),
+			Interface.getString("skill_value_investigation"),
+			Interface.getString("skill_value_perception"),
+		};
+		ActionCore.decodeRollData(rRoll, "action_skill_tag");
+		if StringManager.contains(tPassiveStd, rRoll.sSkill) then
+			rRoll.bReliable = true;
+		end
+	end
 end
 
 --
@@ -85,17 +96,17 @@ end
 --
 
 function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
-	local sSkill = DB.getValue(nodeSkill, "name", "");
+	rRoll.sSkill = StringManager.trim(DB.getValue(nodeSkill, "name", ""));
 	local sAbility = DB.getValue(nodeSkill, "stat", "");
 
 	local sAddText;
-	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), sSkill);
+	rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, sAbility:lower(), rRoll.sSkill);
 	rRoll.nMod = rRoll.nMod + DB.getValue(nodeSkill, "misc", 0);
 
-	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = rRoll.sSkill, }, "action_skill_tag"));
 
-	if DataCommon.skilldata[sSkill] then
-		if sAbility ~= (DataCommon.skilldata[sSkill].stat or "") then
+	if DataCommon.skilldata[rRoll.sSkill] then
+		if sAbility ~= (DataCommon.skilldata[rRoll.sSkill].stat or "") then
 			table.insert(rRoll.tNotifications, string.format("[MOD:%s]", DataCommon.ability_ltos[sAbility] or ""));
 		end
 	else
@@ -126,15 +137,16 @@ function setupRollBuildFromNodePC(rRoll, rActor, nodeSkill)
 	end
 end
 function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
+	rRoll.sSkill = sSkill;
 	local sAddText;
-	if DataCommon.skilldata[sSkill] then
-		rRoll.sAbility = DataCommon.skilldata[sSkill].stat;
+	if DataCommon.skilldata[rRoll.sSkill] then
+		rRoll.sAbility = DataCommon.skilldata[rRoll.sSkill].stat;
 	end
 	if rRoll.sAbility then
-		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, rRoll.sAbility, sSkill);
+		rRoll.nMod, rRoll.bADV, rRoll.bDIS, sAddText = ActorManager5E.getCheck(rActor, rRoll.sAbility, rRoll.sSkill);
 	end
 
-	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = rRoll.sSkill, }, "action_skill_tag"));
 
 	if (sAddText or "") ~= "" then
 		table.insert(rRoll.tNotifications, sAddText);
@@ -144,6 +156,7 @@ function setupRollBuildFromNamePC(rRoll, rActor, sSkill)
 	end
 end
 function setupRollBuildFromNameNPC(rRoll, _, sSkill, nSkill)
-	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = sSkill, }, "action_skill_tag"));
+	rRoll.sSkill = sSkill;
+	table.insert(rRoll.tNotifications, ActionCore.encodeActionText({ label = rRoll.sSkill, }, "action_skill_tag"));
 	rRoll.nMod = nSkill;
 end

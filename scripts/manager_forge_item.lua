@@ -295,15 +295,15 @@ function createMagicItem()
 					end
 				end
 
-				local aProperties = {};
-				if rMagicItem.sProperties and rMagicItem.sProperties ~= "" then
-					table.insert(aProperties, rMagicItem.sProperties);
+				local tProperties = StringManager.splitByPattern(rMagicItem.sProperties, ",", true);
+				for _,s in ipairs(StringManager.splitByPattern(rTemplate.sProperties, ",", true)) do
+					table.insert(tProperties, s);
 				end
-				if rTemplate.sProperties and rTemplate.sProperties ~= "" then
-					table.insert(aProperties, rTemplate.sProperties);
-				end
-				table.insert(aProperties, "magic");
-				rMagicItem.sProperties = table.concat(aProperties, ", ");
+				table.insert(tProperties, "magic");
+				rMagicItem.sProperties = table.concat(tProperties, ", ");
+			end
+			if sTemplateTypeLower == "weapon" then
+				rMagicItem.sDamage = StringManager.append(rMagicItem.sDamage, rTemplate.sDamage, " plus ");
 			end
 
 			-- Rarity Adjustment

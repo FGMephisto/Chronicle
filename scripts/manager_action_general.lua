@@ -5,22 +5,16 @@
 
 function onInit()
 	ActionsManager.registerModHandler("dice", ActionGeneral.modRoll);
-	ActionsManager.registerResultHandler("dice", ActionGeneral.onRoll);
+	ActionsManager.registerPostRollHandler("dice", ActionGeneral.onRoll);
 end
 
 function modRoll(_, _, rRoll)
-	ActionsManager2.encodeDesktopMods(rRoll);
-
 	if #(rRoll.aDice) == 1 and rRoll.aDice[1].type == "d20" then
-		ActionsManager2.encodeAdvantage(rRoll);
+		ActionD20.encodeAdvantage(rRoll);
 	end
 	return true;
 end
 
-function onRoll(rSource, _, rRoll)
-	ActionsManager2.decodeAdvantage(rRoll);
-
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	Comm.deliverChatMessage(rMessage);
+function onRoll(rSource, rRoll)
+	ActionD20.decodeAdvantage(rRoll);
 end
-

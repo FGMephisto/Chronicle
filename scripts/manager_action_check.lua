@@ -40,9 +40,10 @@ function modRoll(rSource, rTarget, rRoll)
 	ActionsManager2.finalizeEffectsToD20RollMod(rRoll);
 	ActionCheck.finalizeRollMod(rRoll);
 	ActionsManager2.finalizeD20RollMod(rRoll);
+	return true;
 end
 
-function onRoll(rSource, _, rRoll)
+function onRoll(rSource, rTarget, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
@@ -118,7 +119,7 @@ end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
 	ActionCheck.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
-	ActionCheck.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
+	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionCheck.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 end
 function applyStandardEffectsToRollMod(rRoll, rSource, _)
@@ -126,126 +127,82 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	-- Get roll effect modifiers
-	local tCheckDice, nCheckMod, nCheckEffect = EffectManager5E.getEffectsBonus(rSource, { "CHECK" }, false, rRoll.tCheckFilter);
-	if (nCheckEffect > 0) then
-		rRoll.bEffects = true;
-		for _,vDie in ipairs(tCheckDice) do
-			table.insert(rRoll.tEffectDice, vDie);
+	-- Handle encumbrance penalty
+	if StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
+		if CharEncumbranceManager5E.isHeavilyEncumbered(rSource) then
+			rRoll.bDIS = true;
+			table.insert(rRoll.tNotifications, string.format("[%s]", Interface.getString("encumbrance_encumbered_heavy"):upper()));
 		end
-		rRoll.nEffectMod = rRoll.nEffectMod + nCheckMod;
 	end
 
+	local tSrcEffData = { tFilter = rRoll.tCheckFilter, };
+
+	-- Get roll effect modifiers
+	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "CHECK", tSrcEffData);
+
 	-- Get condition modifiers
-	if EffectManager5E.hasEffectCondition(rSource, "ADVCHK") then
-		rRoll.bEffects = true;
-		rRoll.bADV = true;
-	elseif #(EffectManager5E.getEffectsByType(rSource, "ADVCHK", rRoll.tCheckFilter)) > 0 then
+	if EffectManager.hasTextOrTag(rSource, "ADVCHK", tSrcEffData) then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
 	end
-	if EffectManager5E.hasEffectCondition(rSource, "DISCHK") then
+	if EffectManager.hasTextOrTag(rSource, "DISCHK", tSrcEffData) then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif #(EffectManager5E.getEffectsByType(rSource, "DISCHK", rRoll.tCheckFilter)) > 0 then
+	elseif EffectManager.hasCondition(rSource, "Frightened") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager5E.hasEffectCondition(rSource, "Frightened") then
+	elseif EffectManager.hasCondition(rSource, "Intoxicated") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
+	elseif EffectManager.hasCondition(rSource, "Poisoned") then
 		rRoll.bEffects = true;
 		rRoll.bDIS = true;
-	elseif EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
-		rRoll.bEffects = true;
-		rRoll.bDIS = true;
-	elseif StringManager.contains({ "strength", "dexterity", "constitution" }, rRoll.sAbility) then
-		if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		end
 	end
 
 	if rRoll.sType == "init" then
-		local tInitDice, nInitMod, nInitEffect = EffectManager5E.getEffectsBonus(rSource, {"INIT"}, false);
-		if (nInitEffect > 0) then
-			rRoll.bEffects = true;
-			for _,vDie in ipairs(tInitDice) do
-				table.insert(rRoll.tEffectDice, vDie);
-			end
-			rRoll.nEffectMod = rRoll.nEffectMod + nInitMod;
-		end
+		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "INIT");
 
-		if EffectManager5E.hasEffectCondition(rSource, "ADVINIT") then
+		if EffectManager.hasText(rSource, "ADVINIT") then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
-		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager5E.hasEffectCondition(rSource, "Invisible") then
+		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager.hasCondition(rSource, "Invisible") then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
 		end
-		if EffectManager5E.hasEffectCondition(rSource, "DISINIT") then
+		if EffectManager.hasText(rSource, "DISINIT") then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		elseif OptionsManager.isOption("GAVE", "2024") then
-			if EffectManager5E.hasEffectCondition(rSource, "Incapacitated") then
+			if EffectManager.hasCondition(rSource, "Incapacitated") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager5E.hasEffectCondition(rSource, "Paralyzed") then
+			elseif EffectManager.hasCondition(rSource, "Paralyzed") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager5E.hasEffectCondition(rSource, "Petrified") then
+			elseif EffectManager.hasCondition(rSource, "Petrified") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager5E.hasEffectCondition(rSource, "Stunned") then
+			elseif EffectManager.hasCondition(rSource, "Stunned") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
+			elseif EffectManager.hasCondition(rSource, "Unconscious") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
-			elseif EffectManager5E.hasEffectCondition(rSource, "Surprised") then
+			elseif EffectManager.hasCondition(rSource, "Surprised") then
 				rRoll.bEffects = true;
 				rRoll.bDIS = true;
 			end
 		end
 	elseif rRoll.sType == "skill" then
-		local tSkillDice, nSkillMod, nSkillEffect = EffectManager5E.getEffectsBonus(rSource, {"SKILL"}, false, rRoll.tSkillFilter);
-		if (nSkillEffect > 0) then
-			rRoll.bEffects = true;
-			for _,vDie in ipairs(tSkillDice) do
-				table.insert(rRoll.tEffectDice, vDie);
-			end
-			rRoll.nEffectMod = rRoll.nEffectMod + nSkillMod;
-		end
+		local tSrcSkillEffData = { tFilter = rRoll.tSkillFilter, };
 
-		if EffectManager5E.hasEffectCondition(rSource, "ADVSKILL") then
-			rRoll.bEffects = true;
-			rRoll.bADV = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "ADVSKILL", rRoll.tSkillFilter)) > 0 then
+		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "SKILL", tSrcSkillEffData);
+
+		if EffectManager.hasTextOrTag(rSource, "ADVSKILL", tSrcSkillEffData) then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
 		end
-		if EffectManager5E.hasEffectCondition(rSource, "DISSKILL") then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "DISSKILL", rRoll.tSkillFilter)) > 0 then
-			rRoll.bEffects = true;
-			rRoll.bDIS = true;
-		end
-	end
-end
-function applyExhaustionEffectsToRollMod(rRoll, rSource, _)
-	if not rSource then
-		return;
-	end
-
-	local nExhaustMod,_ = EffectManager5E.getEffectsBonus(rSource, { "EXHAUSTION" }, true);
-	if OptionsManager.isOption("GAVE", "2024") then
-		if nExhaustMod > 0 then
-			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod - (2 * nExhaustMod);
-		end
-	else
-		if nExhaustMod > 0 then
+		if EffectManager.hasTextOrTag(rSource, "DISSKILL", tSrcSkillEffData) then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		end
@@ -256,27 +213,21 @@ function applyReliableEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	if EffectManager5E.hasEffectCondition(rSource, "RELIABLE") then
+	if EffectManager.hasText(rSource, "RELIABLE") then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
-	elseif EffectManager5E.hasEffectCondition(rSource, "RELIABLECHK") then
-		rRoll.bEffects = true;
-		rRoll.bReliable = true;
-	elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLECHK", rRoll.tCheckFilter)) > 0 then
+	elseif EffectManager.hasTextOrTag(rSource, "RELIABLECHK", { tFilter = rRoll.tCheckFilter, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
 	end
 
 	if rRoll.sType == "init" then
-		if EffectManager5E.hasEffectCondition(rSource, "RELIABLEINIT") then
+		if EffectManager.hasText(rSource, "RELIABLEINIT") then
 			rRoll.bEffects = true;
 			rRoll.bReliable = true;
 		end
 	elseif rRoll.sType == "skill" then
-		if EffectManager5E.hasEffectCondition(rSource, "RELIABLESKILL") then
-			rRoll.bEffects = true;
-			rRoll.bReliable = true;
-		elseif #(EffectManager5E.getEffectsByType(rSource, "RELIABLESKILL", rRoll.tSkillFilter)) > 0 then
+		if EffectManager.hasTextOrTag(rSource, "RELIABLESKILL", { tFilter = rRoll.tSkillFilter, }) then
 			rRoll.bEffects = true;
 			rRoll.bReliable = true;
 		elseif rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then

@@ -1,24 +1,14 @@
---
+-- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 -- File adjusted for Chronicle System
 --
 
-WEAPON_TYPE_RANGED = "ranged";
+WEAPON_PROP_AMMUNITION = "ammunition"
+WEAPON_PROP_REACH = "reach"
+WEAPON_PROP_TWOHANDED = "twohanded"
 
-WEAPON_PROP_AMMUNITION = "ammunition";
-WEAPON_PROP_CRITRANGE = "crit range %(?(%d+)%)?";
-WEAPON_PROP_FINESSE = "finesse";
-WEAPON_PROP_HEAVY = "heavy";
-WEAPON_PROP_LIGHT = "light";
-WEAPON_PROP_MAGIC = "magic";
-WEAPON_PROP_REACH = "reach";
-WEAPON_PROP_REROLL = "reroll %(?(%d+)%)?";
-WEAPON_PROP_THROWN = "thrown";
-WEAPON_PROP_TWOHANDED = "two%-handed";
-WEAPON_PROP_VERSATILE = "versatile %(?%d?(d%d+)%)?";
-
--- Added
+-- New
 WEAPON_TYPE_BOWS = "bows"
 WEAPON_TYPE_CROSSBOWS = "crossbows"
 WEAPON_TYPE_THROWN = "thrown"
@@ -28,26 +18,31 @@ WEAPON_PROP_OFFHAND = "offhand"
 WEAPON_PROP_DEFENSIVE = "defensive"
 
 function onInit()
-	DB.addHandler("charsheet.*.inventorylist.*.isidentified", "onUpdate", CharWeaponManager.onItemIDChanged);
+	DB.addHandler("charsheet.*.inventorylist.*.isidentified", "onUpdate", onItemIDChanged);
 end
 
---
---	Weapon inventory management
---
-
+-- ===================================================================================================================
+-- Weapon inventory management
+-- ===================================================================================================================
+-- Add weapon data to Weapon Action List if a weapon is dropped to the Inventory List
+-- Adjusted
+-- ===================================================================================================================
 function addToWeaponDB(nodeItem)
+	-- Debug.chat("FN: addToWeaponDB in manager_char_weapon")
+
 	-- Parameter validation
 	if not ItemManager.isWeapon(nodeItem) then
 		return;
 	end
-
+	
 	-- Get the weapon list we are going to add to
 	local nodeChar = DB.getChild(nodeItem, "...");
-	local nodeWeapons = DB.createChild(nodeChar, "weaponlist");
+	local nodeWeapons = nodeChar.createChild("weaponlist");
+
 	if not nodeWeapons then
 		return;
 	end
-
+	
 	-- Set new weapons as equipped
 	DB.setValue(nodeItem, "carried", "number", 2);
 
@@ -59,10 +54,14 @@ function addToWeaponDB(nodeItem)
 
 	-- Grab some information from the source node to populate the new weapon entries
 	local sName;
+
 	if nItemID == 1 then
 		sName = DB.getValue(nodeItem, "name", "");
 	else
 		sName = DB.getValue(nodeItem, "nonid_name", "");
+		if sName == "" then
+			sName = Interface.getString("item_unidentified");
+		end
 		sName = "** " .. sName .. " **";
 	end
 
@@ -397,38 +396,29 @@ function getAttackBonus(nodeChar, nodeWeapon)
 	-- return nMod, sAbility;
 end
 
---
+-- ===================================================================================================================
 --	Action helpers
---
-
+-- ===================================================================================================================
 function buildAttackAction(nodeChar, nodeWeapon)
-	local rAction = {
-		bWeapon = true,
-		label = DB.getValue(nodeWeapon, "name", ""),
-		range = CharWeaponManager.getRange(nodeChar, nodeWeapon),
-		tAddText = {},
-	};
-	
+	-- Debug.chat("FN: buildAttackAction in manager_char_weapon")
+	local rAction = {};
+
+	rAction.bWeapon = true;
+	rAction.label = DB.getValue(nodeWeapon, "name", "");
+	rAction.range = getRange(nodeChar, nodeWeapon);
 	rAction.nodeWeapon = nodeWeapon;
 	rAction.nStat, rAction.nSkill, rAction.nPenalty, rAction.nMod, rAction.sStat, rAction.sSkill = CharWeaponManager.getAttackBonus(nodeChar, nodeWeapon);
-	
-	-- rAction.modifier, rAction.stat = CharWeaponManager.getAttackBonus(nodeChar, nodeWeapon);
-
-	-- local nCritThreshold = CharWeaponManager.getCritRange(nodeChar, nodeWeapon);
-	-- if nCritThreshold > 1 and nCritThreshold < 20 then
-		-- rAction.nCritRange = nCritThreshold;
-	-- end
-
-	-- if (DB.getValue(nodeWeapon, "type", 0) == 1) and CharManager.hasFeat2024(nodeChar, CharManager.FEAT_ARCHERY) then
-		-- rAction.modifier = (rAction.modifier or 0) + 2;
-		-- table.insert(rAction.tAddText, string.format("[%s]", Interface.getString("roll_msg_feat_archery")));
-	-- end
 
 	return rAction;
 end
 
+-- ===================================================================================================================
+--	Action helpers
+-- ===================================================================================================================
 function decrementAmmo(nodeChar, nodeWeapon)
+	-- Debug.chat("FN: decrementAmmo in manager_char_weapon")
 	local nMaxAmmo = DB.getValue(nodeWeapon, "maxammo", 0);
+
 	if nMaxAmmo > 0 then
 		local nUsedAmmo = DB.getValue(nodeWeapon, "ammo", 0);
 		if nUsedAmmo >= nMaxAmmo then
@@ -440,9 +430,12 @@ function decrementAmmo(nodeChar, nodeWeapon)
 	end
 end
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function getDamageBaseAbility(nodeChar, nodeWeapon)
+	local sAbility = "";
+
 	-- Use ability based on type
-	local sAbility;
 	local nWeaponType = DB.getValue(nodeWeapon, "type", 0);
 	-- Ranged
 	if nWeaponType == 1 then
@@ -451,7 +444,7 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	else
 		sAbility = "strength";
 
-		local bFinesse = CharWeaponManager.checkProperty(nodeWeapon, CharWeaponManager.WEAPON_PROP_FINESSE);
+		local bFinesse = checkProperty(nodeWeapon, WEAPON_PROP_FINESSE);
 		if bFinesse then
 			local nSTR = ActorManager5E.getAbilityBonus(nodeChar, "strength");
 			local nDEX = ActorManager5E.getAbilityBonus(nodeChar, "dexterity");
@@ -462,18 +455,23 @@ function getDamageBaseAbility(nodeChar, nodeWeapon)
 	end
 
 	-- However, if off-hand without two-weapon fighting, only use negative ability
-	if (DB.getValue(nodeWeapon, "handling", 0) == 2) then
-		local bTwoWeaponStyle = (DB.getValue(nodeChar, "weapon.twoweaponfighting", 0) == 1) or CharManager.hasFeat2024(nodeChar, CharManager.FEAT_TWO_WEAPON_FIGHTING);
-		if not bTwoWeaponStyle then
-			sAbility = "-" .. sAbility;
-		end
+	local nWeaponHands = DB.getValue(nodeWeapon, "handling", 0);
+	local nTwoWeaponFightingStyle = DB.getValue(nodeChar, "weapon.twoweaponfighting", 0);
+	if nWeaponHands == 2 and nTwoWeaponFightingStyle ~= 1 then
+		sAbility = "-" .. sAbility;
 	end
 
 	return sAbility;
 end
 
+-- ===================================================================================================================
+-- Damage functions
+-- ===================================================================================================================
 -- Adjusted
-function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
+-- ===================================================================================================================
+function getDamageClauses(nodeChar, nodeWeapon)
+	-- Debug.chat("FN: getDamageClauses in manager_char_weapon.lua")
+	local rActor = ActorManager.resolveActor(nodeChar);
 	local clauses = {};
 
 	-- Get damage modifiers
@@ -489,17 +487,16 @@ function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
 	local bWEAPON_PROP_ADAPTABLE = CharWeaponManager.checkProperty(sWeaponQualities, WEAPON_PROP_ADAPTABLE);
 	local bWEAPON_PROP_POWERFUL = CharWeaponManager.checkProperty(sWeaponQualities, WEAPON_PROP_POWERFUL);
 
+	-- Get current weapon handling
+	local nWeaponHandling = DB.getValue(nodeWeapon, "wpn_handling", 0);
+
 	-- If Weapon Grade is "Extraordinar", add +1 damage
 	if sWeaponGrade == "Extraordinary" then
 		nDmgTotal = nDmgTotal + 1;
 	end
 
-	-- Get current weapon handling
-	local nWeaponHands = DB.getValue(nodeWeapon, "wpn_handling", 0);
-
-
 	-- If Weapon Handling is "two-handed" and weapon has quality "Adaptable", add +1 damage
-	if nWeaponHands == 1 and bWEAPON_PROP_ADAPTABLE == true then
+	if nWeaponHandling == 1 and bWEAPON_PROP_ADAPTABLE == true then
 		nDmgTotal = nDmgTotal + 1;
 	end
 
@@ -521,7 +518,8 @@ function getDamageClauses(nodeChar, nodeWeapon, sBaseAbility, nReroll)
 	return clauses;
 end
 
--- Adjusted
+-- ===================================================================================================================
+-- ===================================================================================================================
 function buildDamageAction(nodeChar, nodeWeapon)
 	-- Debug.chat("FN: buildDamageAction in manager_char_weapon")
 	-- Build basic damage action record
@@ -553,24 +551,29 @@ function buildDamageAction(nodeChar, nodeWeapon)
 	return rAction;
 end
 
+
+-- ===================================================================================================================
+-- ===================================================================================================================
 function buildDamageString(nodeChar, nodeWeapon)
+	-- Debug.chat("FN: buildDamageString in manager_char_weapon")
 	local aDamage = {};
-	local sBaseAbility = CharWeaponManager.getDamageBaseAbility(nodeChar, nodeWeapon);
-	local clauses = CharWeaponManager.getDamageClauses(nodeChar, nodeWeapon, sBaseAbility);
+	local clauses = getDamageClauses(nodeChar, nodeWeapon);
+
 	for _,v in ipairs(clauses) do
-		if (#(v.dice) > 0) or (v.modifier ~= 0) then
+		if v.modifier ~= 0 then
 			local sDamage = StringManager.convertDiceToString(v.dice, v.modifier);
-			if (v.dmgtype or "") ~= "" then
-				sDamage = sDamage .. " " .. v.dmgtype;
-			end
 			table.insert(aDamage, sDamage);
 		end
 	end
+
 	return table.concat(aDamage, "\n");
 end
 
+-- ===================================================================================================================
 -- Added
+-- ===================================================================================================================
 function getAttackBonus(nodeChar, nodeWeapon)
+	-- Debug.chat("FN: getAttackBonus in manager_char_weapon")
 	local sAbility = DB.getValue(nodeWeapon, "atk_stat", 0)
 	local sSkill = ActionsManager2.ConvertToTechnical(DB.getValue(nodeWeapon, "atk_skill", ""))
 	local nStat = ActorManager5E.getAbilityScore(nodeChar, sAbility)
@@ -590,8 +593,12 @@ function getAttackBonus(nodeChar, nodeWeapon)
 	return nStat, nSkill, nPenalty, nBonus, sAbility, sSkill
 end
 
--- Added - ToDo Check against checkProperty
+-- ===================================================================================================================
+-- Added
+-- ToDo Check against checkProperty
+-- ===================================================================================================================
 function getPropertyValue(v, sTargetProperty)
+	-- Debug.chat("FN: getPropertyValue in manager_char_weapon")
 	local sQualities
 	local sVarType = type(v)
 

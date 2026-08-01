@@ -44,42 +44,6 @@ _tDataModuleSets =
 	["client"] =
 	{
 		{
-			name = "2024 - Free Rules",
-			modules =
-			{
-				{ name = "DND2024FREERULES", displayname = "D&D Free Rules" },
-			},
-		},
-		{
-			name = "2024 - Core Rules",
-			modules =
-			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
-			},
-		},
-		{
-			name = "2014 - SRD",
-			modules =
-			{
-				{ name = "DD5E SRD Data", displayname = "D&D SRD Data" },
-			},
-		},
-		{
-			name = "2014 - Basic Rules",
-			modules =
-			{
-				{ name = "DD Basic Rules - Player", displayname = "D&D Basic Rules - Player" },
-			},
-		},
-		{
-			name = "2014 - Core Rules",
-			modules =
-			{
-				{ name = "DD PHB Deluxe", storeid = "WOTC5EPHBDELUXE", displayname = "D&D Player's Handbook (Legacy)" },
-			},
-		},
-		{
 			name = "All Rules",
 			modules =
 			{
@@ -101,53 +65,45 @@ _tDataModuleSets =
 				{ name = "DD Xanathar's Guide to Everything Players", storeid = "WOTC5EXGTE", displayname = "D&D Xanathar's Guide to Everything - Player" },
 			},
 		},
-	},
-	["host"] =
-	{
 		{
-			name = "2024 - Free Rules",
+			name = "Core Rules",
+			modules =
+			{
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
+			},
+		},
+		{
+			name = "Free Rules",
 			modules =
 			{
 				{ name = "DND2024FREERULES", displayname = "D&D Free Rules" },
 			},
 		},
 		{
-			name = "2024 - Core Rules",
+			name = "Legacy - Core Rules",
 			modules =
 			{
-				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
-				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide" },
-				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
-				{ name = "WOTC50MM", storeid = "WOTC50MM", displayname = "D&D Monster Manual" },
+				{ name = "DD PHB Deluxe", storeid = "WOTC5EPHBDELUXE", displayname = "D&D Player's Handbook (Legacy)" },
 			},
 		},
 		{
-			name = "2014 - SRD",
+			name = "Legacy - Basic Rules",
 			modules =
 			{
-				{ name = "DD5E SRD Bestiary", displayname = "D&D SRD Bestiary" },
-				{ name = "DD5E SRD Data", displayname = "D&D SRD Data" },
-				{ name = "DD5E SRD Magic Items", displayname = "D&D SRD Magic Items" },
-			},
-		},
-		{
-			name = "2014 - Basic Rules",
-			modules =
-			{
-				{ name = "DD Basic Rules - DM", displayname = "D&D Basic Rules" },
 				{ name = "DD Basic Rules - Player", displayname = "D&D Basic Rules - Player" },
 			},
 		},
 		{
-			name = "2014 - Core Rules",
+			name = "Legacy - SRD",
 			modules =
 			{
-				{ name = "DD Dungeon Masters Guide", storeid = "WOTC5EDMG", displayname = "D&D Dungeon Master's Guide (Legacy)" },
-				{ name = "DD Dungeon Masters Guide - Players", storeid = "WOTC5EDMG", displayname = "D&D Dungeon Master's Guide - Player (Legacy)" },
-				{ name = "DD MM Monster Manual", storeid = "WOTC5EMMDELUXE", displayname = "D&D Monster Manual" },
-				{ name = "DD PHB Deluxe", storeid = "WOTC5EPHBDELUXE", displayname = "D&D Player's Handbook (Legacy)" },
+				{ name = "DD5E SRD Data", displayname = "D&D SRD Data" },
 			},
 		},
+	},
+	["host"] =
+	{
 		{
 			name = "All Rules",
 			modules =
@@ -180,6 +136,50 @@ _tDataModuleSets =
 				{ name = "D&D Wayfinder's Guide to Eberron", storeid = "WOTC5EWGTE" },
 				{ name = "DD Xanathar's Guide to Everything", storeid = "WOTC5EXGTE", displayname = "D&D Xanathar's Guide to Everything" },
 				{ name = "DD Xanathar's Guide to Everything Players", storeid = "WOTC5EXGTE", displayname = "D&D Xanathar's Guide to Everything - Player" },
+			},
+		},
+		{
+			name = "Core Rules",
+			modules =
+			{
+				{ name = "WOTC50PHB", storeid = "WOTC50PHB", displayname = "D&D Player's Handbook" },
+				{ name = "WOTC50DMG", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide" },
+				{ name = "WOTC50DMGBastions", storeid = "WOTC50DMG", displayname = "D&D Dungeon Master's Guide - Player" },
+				{ name = "WOTC50MM", storeid = "WOTC50MM", displayname = "D&D Monster Manual" },
+			},
+		},
+		{
+			name = "Free Rules",
+			modules =
+			{
+				{ name = "DND2024FREERULES", displayname = "D&D Free Rules" },
+			},
+		},
+		{
+			name = "Legacy - Core Rules",
+			modules =
+			{
+				{ name = "DD Dungeon Masters Guide", storeid = "WOTC5EDMG", displayname = "D&D Dungeon Master's Guide (Legacy)" },
+				{ name = "DD Dungeon Masters Guide - Players", storeid = "WOTC5EDMG", displayname = "D&D Dungeon Master's Guide - Player (Legacy)" },
+				{ name = "DD MM Monster Manual", storeid = "WOTC5EMMDELUXE", displayname = "D&D Monster Manual" },
+				{ name = "DD PHB Deluxe", storeid = "WOTC5EPHBDELUXE", displayname = "D&D Player's Handbook (Legacy)" },
+			},
+		},
+		{
+			name = "Legacy - Basic Rules",
+			modules =
+			{
+				{ name = "DD Basic Rules - DM", displayname = "D&D Basic Rules" },
+				{ name = "DD Basic Rules - Player", displayname = "D&D Basic Rules - Player" },
+			},
+		},
+		{
+			name = "Legacy - SRD",
+			modules =
+			{
+				{ name = "DD5E SRD Bestiary", displayname = "D&D SRD Bestiary" },
+				{ name = "DD5E SRD Data", displayname = "D&D SRD Data" },
+				{ name = "DD5E SRD Magic Items", displayname = "D&D SRD Magic Items" },
 			},
 		},
 	},

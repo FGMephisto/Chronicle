@@ -8,59 +8,57 @@ function onInit()
 end
 
 function registerOptions()
-	OptionsManager.registerOptionData({
-		sKey = "RMMT", bLocal = true,
-		tCustom = { labelsres = "option_val_on|option_val_multi", values = "on|multi", baselabelres = "option_val_off", baseval = "off", default = "multi", },
-	});
+	-- Per User
+	OptionsManager.registerStandardOption("RMMT");
 
-	OptionsManager.registerOptionData({
-		sKey = "SHRR", sGroupRes = "option_header_game",
-		tCustom = { labelsres = "option_val_on|option_val_friendly|option_val_friendly_only", values = "on|pc|pconly", baselabelres = "option_val_off", baseval = "off", default = "on", },
-	});
+	-- Game
+	OptionsManager.registerStandardOption("SHRR");
 	OptionsManager.registerOptionData({
 		sKey = "GAVE", sGroupRes = "option_header_game",
 		tCustom = { labelsres = "record_label_2024", values = "2024", baselabelres = "record_label_2014", baseval = "2014", default = "2024", },
 	});
 
-	OptionsManager.registerOptionData({
-		sKey = "INIT", sGroupRes = "option_header_combat",
-		tCustom = { labelsres = "option_val_on|option_val_group", values = "on|group", baselabelres = "option_val_off", baseval = "off", default = "group", },
-	});
-	OptionsManager.registerOptionData({
-		sKey = "BARC", sGroupRes = "option_header_combat",
-		tCustom = { labelsres = "option_val_tiered", values = "tiered", baselabelres = "option_val_standard", baseval = "", default = "", },
-	});
-	OptionsManager.registerOptionData({
-		sKey = "SHPC", sGroupRes = "option_header_combat",
-		tCustom = { labelsres = "option_val_detailed|option_val_status", values = "detailed|status", baselabelres = "option_val_off", baseval = "off", default = "detailed", },
-	});
-	OptionsManager.registerOptionData({
-		sKey = "SHNPC", sGroupRes = "option_header_combat",
-		tCustom = { labelsres = "option_val_detailed|option_val_status", values = "detailed|status", baselabelres = "option_val_off", baseval = "off", default = "status", },
-	});
+	-- Combat
+	OptionsManager.registerStandardOption("INIT");
+	OptionsManager.registerStandardOption("BARC");
+	OptionsManager.registerStandardOption("SHPC");
+	OptionsManager.registerStandardOption("SHNPC");
 
-	OptionsManager.registerOptionData({	sKey = "HRST", sGroupRes = "option_header_houserule", tCustom = { default = "on", }, });
-	OptionsManager.registerOptionData({	sKey = "HRIR", sGroupRes = "option_header_houserule", });
+	-- House Rules
+	OptionsManager.registerStandardOption("HRFC");
+	OptionsManager.registerStandardOption("HRIR");
+
+	OptionsManager.registerStandardOption("HRST");
 	OptionsManager.registerOptionData({
 		sKey = "NPCD", sGroupRes = "option_header_houserule",
 		tCustom = { labelsres = "option_val_fixed", values = "fixed", baselabelres = "option_val_variable", baseval = "off", default = "off", },
 	});
-	OptionsManager.registerOptionData({
-		sKey = "HRNH", sGroupRes = "option_header_houserule",
-		tCustom = { labelsres = "option_val_max|option_val_random", values = "max|random", baselabelres = "option_val_standard", baseval = "off", default = "off", },
-	});
+	OptionsManager.registerStandardOption("HRNH");
 	OptionsManager.registerOptionData({	sKey = "HRMD", sGroupRes = "option_header_houserule", });
+
 	OptionsManager.registerOptionData({
-		sKey = "HRFC", sGroupRes = "option_header_houserule",
-		tCustom = { labelsres = "option_val_fumbleandcrit|option_val_fumble|option_val_crit", values = "both|fumble|criticalhit", baselabelres = "option_val_off", baseval = "", default = "", },
+		sKey = "HREX", sGroupRes = "option_header_houserule",
+		tCustom = { labelsraw = "-1|-2|-3", values = "-1|-2|-3", baselabelres = "option_val_standard", baseval = "", default = "", },
 	});
+	OptionsManager.registerOptionData({
+		sKey = "HRHE", sGroupRes = "option_header_houserule",
+		tCustom = { labelsres = "option_val_1|option_val_2|option_val_3|option_val_4|option_val_5", values = "1|2|3|4|5", baselabelres = "option_val_off", baseval = "off", default = "off", },
+	});
+	OptionsManager.registerOptionData({	sKey = "HRSE", sGroupRes = "option_header_houserule", });
+
+	OptionsManager.registerOptionData({	sKey = "HRBASTION", sGroupRes = "option_header_houserule", });
+
 	OptionsManager.registerOptionData({
 		sKey = "HRAS", sGroupRes = "option_header_houserule",
 		tCustom = { labelsres = "option_val_4|option_val_5|option_val_HRAS_prof|option_val_2", values = "4|5|prof|2", baselabelres = "option_val_3", baseval = "3", default = "3", },
 	});
 	OptionsManager.registerOptionData({
 		sKey = "HREN", sGroupRes = "option_header_houserule",
-		tCustom = { labelsres = "option_val_variant", values = "variant", baselabelres = "option_val_standard", baseval = "", default = "", },
+		tCustom = { labelsres = "option_val_standard|option_val_variant", values = "standard|variant", baselabelres = "option_val_off", baseval = "off", default = "standard", },
+	});
+	OptionsManager.registerOptionData({
+		sKey = "HRFL", sGroupRes = "option_header_houserule",
+		tCustom = { labelsres = "option_val_HRFL_passive|option_val_all", values = "passive|all", baselabelres = "option_val_standard", baseval = "", default = "", },
 	});
 	OptionsManager.registerOptionData({
 		sKey = "HRHV", sGroupRes = "option_header_houserule",
@@ -70,5 +68,4 @@ function registerOptions()
 		sKey = "HRIS", sGroupRes = "option_header_houserule",
 		tCustom = { labelsraw = "2|3|5", values = "2|3|5", baselabelres = "option_val_standard", baseval = "", default = "", },
 	});
-	OptionsManager.registerOptionData({	sKey = "HRBASTION", sGroupRes = "option_header_houserule", });
 end

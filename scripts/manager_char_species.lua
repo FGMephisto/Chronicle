@@ -564,9 +564,8 @@ function applyDwarvenToughness(nodeChar, bInitialAdd)
 		nAddHP = CharManager.getLevel(nodeChar);
 	end
 
-	local nHP = DB.getValue(nodeChar, "hp.total", 0);
-	nHP = nHP + nAddHP;
-	DB.setValue(nodeChar, "hp.total", "number", nHP);
+	local nHP = GameManager.getRecordFieldValue(nodeChar, "hptotal", 0);
+	GameManager.setRecordFieldValue(nodeChar, "hptotal", "number", nHP + nAddHP);
 
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddtrait", StringManager.capitalizeAll(CharManager.TRAIT_DWARVEN_TOUGHNESS), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

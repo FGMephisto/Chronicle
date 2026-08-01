@@ -9,13 +9,13 @@ function onInit()
 end
 
 function performRoll(draginfo, rActor, nodeClass)
-	local rRoll = {};
-	rRoll.sType = "recovery";
-	rRoll.sClassNode = DB.getPath(nodeClass);
-
-	rRoll.sDesc = "[RECOVERY]";
-	rRoll.aDice = {};
-	rRoll.nMod = 0;
+	local rRoll = {
+		sType = "recovery",
+		sDesc = "[RECOVERY]",
+		aDice = {},
+		nMod = 0,
+		sClassNode = DB.getPath(nodeClass),
+	};
 
 	local aHDDice = DB.getValue(nodeClass, "hddie", {});
 	if #aHDDice > 0 then
@@ -42,6 +42,7 @@ function performRoll(draginfo, rActor, nodeClass)
 		end
 	end
 	rRoll.nMod = rRoll.nMod + ActorManager5E.getAbilityBonus(rActor, sAbility);
+	
 	if sAbility2 ~= "" then
 		local sAbilityEffect2 = DataCommon.ability_ltos[sAbility2];
 		if sAbilityEffect2 then
@@ -53,80 +54,61 @@ function performRoll(draginfo, rActor, nodeClass)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
-function modRecovery(rSource, _, rRoll)
-	local aAddDesc = {};
-	local aAddDice = {};
-	local nAddMod = 0;
+function modRecovery(rSource, rTarget, rRoll)
+	ActionRecovery.applyModAbilityEffect(rSource, rTarget, rRoll);
 
-	if rSource then
-		local bEffects = false;
+	ActionHealD20.applyModHealEffects(rSource, rTarget, rRoll);
 
-		-- Determine ability used (if any)
-		local sActionStat = nil;
-		local sActionStat2 = nil;
-		local sModStat = string.match(rRoll.sDesc, "%[MOD:(%w+)%]");
-		if sModStat then
-			sActionStat = DataCommon.ability_stol[sModStat];
-		end
-		if not sActionStat then
-			sActionStat = "constitution";
-		end
-		local sModStat2 = string.match(rRoll.sDesc, "%[MOD2:(%w+)%]");
-		if sModStat2 then
-			sActionStat2 = DataCommon.ability_stol[sModStat2];
-		end
-
-		-- Determine ability modifiers
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rSource, sActionStat);
-		if nBonusEffects > 0 then
-			bEffects = true;
-			nAddMod = nAddMod + nBonusStat;
-		end
-		if sActionStat2 then
-			local nBonusStat2, nBonusEffects2 = ActorManager5E.getAbilityEffectsBonus(rSource, sActionStat2);
-			if nBonusEffects2 > 0 then
-				bEffects = true;
-				nAddMod = nAddMod + nBonusStat2;
-			end
-		end
-
-		-- If effects happened, then add note
-		if bEffects then
-			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
-			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
-		end
+	ActionCore.applyModMaxEffects(rSource, rTarget, rRoll);
+	ActionCore.applyModHalfEffects(rSource, rTarget, rRoll);
+	ActionCore.applyModTabletopButtons(rSource, rTarget, rRoll);
+end
+function applyModAbilityEffect(rSource, rTarget, rRoll)
+	if not rSource then
+		return;
 	end
 
-	if #aAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
+	local sModStat = rRoll.sDesc:match("%[MOD:(%w+)%]");
+	local sModStat2 = rRoll.sDesc:match("%[MOD2:(%w+)%]");
+
+	local sActionStat = sModStat and DataCommon.ability_stol[sModStat] or "constitution";
+	local sActionStat2 = sModStat2 and DataCommon.ability_stol[sModStat2];
+
+	-- Determine ability modifiers
+	local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rSource, sActionStat);
+	if nBonusEffects > 0 then
+		rRoll.bEffects = true;
+		rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat;
 	end
-	ActionsManager2.encodeDesktopMods(rRoll);
-	for _,vDie in ipairs(aAddDice) do
-		if vDie:sub(1,1) == "-" then
-			table.insert(rRoll.aDice, "-p" .. vDie:sub(3));
-		else
-			table.insert(rRoll.aDice, "p" .. vDie:sub(2));
+	if sActionStat2 then
+		local nBonusStat2, nBonusEffects2 = ActorManagerD20.getAbilityEffectsBonus(rSource, sActionStat2);
+		if nBonusEffects2 > 0 then
+			rRoll.bEffects = true;
+			rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat;
 		end
 	end
-	rRoll.nMod = rRoll.nMod + nAddMod;
 end
 
 function onRecovery(rSource, _, rRoll)
+	ActionCore.applyRollGeneralModifiers(rSource, rRoll);
+	rRoll.nTotal = ActionsManager.total(rRoll);
+
 	-- Get basic roll message and total
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	local nTotal = ActionsManager.total(rRoll);
 
 	-- Handle minimum damage
-	if nTotal < 0 and #(rRoll.aDice or {}) > 0 then
+	if rRoll.nTotal < 0 and #(rRoll.aDice or {}) > 0 then
 		rMessage.text = rMessage.text .. " [MIN RECOVERY]";
-		rMessage.diemodifier = rMessage.diemodifier - nTotal;
-		nTotal = 0;
+		rMessage.diemodifier = rMessage.diemodifier - rRoll.nTotal;
+		rRoll.nTotal = 0;
 	end
 	if ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_DURABLE) then
 		local nDurableMin = math.max(ActorManager5E.getAbilityBonus(rSource, "constitution"), 1) * 2;
-		if nTotal < nDurableMin then
-			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - nTotal);
-			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - nTotal);
+		if rRoll.nTotal < nDurableMin then
+			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - rRoll.nTotal);
+			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - rRoll.nTotal);
+			rRoll.nMod = rRoll.nMod + (nDurableMin - rRoll.nTotal);
+			rRoll.nTotal = nDurableMin; 
 		else
 			rMessage.text = rMessage.text .. " [DURABLE]";
 		end
@@ -139,7 +121,6 @@ function onRecovery(rSource, _, rRoll)
 	if rRoll.sClassNode then
 		rMessage.text = rMessage.text .. " [NODE:" .. rRoll.sClassNode .. "]";
 	end
-	rRoll.nTotal = ActionsManager.total(rRoll);
 	rRoll.sDesc = rMessage.text;
-	ActionDamage.notifyApplyDamage(nil, rSource, rRoll);
+	ActionDamageD20.notifyApplyDamage(rSource, rSource, rRoll);
 end

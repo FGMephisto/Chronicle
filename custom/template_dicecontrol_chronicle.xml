@@ -7,19 +7,16 @@
 -->
 
 <root>
+	<!-- =================================================================================================================== -->
 	<!-- Possible values for <rolltype> used in the lua script are: "attack, check, damage, init, skill -->
 	<!-- Possible values for <stat> are all abilities present in DB -->
 	<!-- Possible values for <skill> are all skills present in DB -->
 	<!-- These tags are used in the lua script to determine what dice script to use and what fields to display -->
 	<!-- <Actorpath> holds the number of DB levels the script needs to traverse up to find the Actor of the DB node. Enter ".." for the first level and one "." for each additional level to climb, i.e. "..." will climb 2 levels -->
-
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol">
 		<genericcontrol>
-			<!-- <anchored width="60" height="35" /> -->
-			<anchored to="rightanchor" width="40" height="20" >
-				<top />
-				<right relation="relative" offset="-5" postoffset="-5" />
-			</anchored>
+			<anchored width="60" height="35" />
 			<frame name="fielddark" />
 			<rolltype>skill</rolltype>
 			<stat></stat>
@@ -29,6 +26,8 @@
 		</genericcontrol>
 	</template>
 
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol_attack">
 		<genericcontrol>
 			<anchored width="60" height="35" />
@@ -41,6 +40,8 @@
 		</genericcontrol>
 	</template>
 
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol_init">
 		<genericcontrol>
 			<anchored width="60" height="35" />
@@ -53,22 +54,28 @@
 		</genericcontrol>
 	</template>
 
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol_ability">
-		<simplenumber>
+		<simplenumberc>
 			<color>FFFFFF</color>
 			<nodrag />
 			<readonly />
-		</simplenumber>
+		</simplenumberc>
 	</template>
 
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol_skill">
-		<simplenumber>
+		<simplenumberc>
 			<color>FFFFFF</color>
 			<nodrag />
 			<readonly />
-		</simplenumber>
+		</simplenumberc>
 	</template>
 
+	<!-- =================================================================================================================== -->
+	<!-- =================================================================================================================== -->
 	<template name="dicecontrol_interface">
 		<genericcontrol>
 			<rolltype></rolltype>

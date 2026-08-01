@@ -4,7 +4,9 @@
 -- File adjusted for Chronicle System
 --
 
+-- ===================================================================================================================
 -- Abilities (database names)
+-- ===================================================================================================================
 abilities = {
 	"agility",
 	"animalhandling",
@@ -27,7 +29,9 @@ abilities = {
 	"will"
 };
 
+-- ===================================================================================================================
 -- Abilities - Match full name to shorthand
+-- ===================================================================================================================
 ability_ltos = {
 	["agility"] = "AGI",
 	["animalhandling"] ="ANI",
@@ -50,7 +54,9 @@ ability_ltos = {
 	["will"] = "WIL"
 };
 
+-- ===================================================================================================================
 -- Abilities - Match shorthand to full name
+-- ===================================================================================================================
 ability_stol = {
 	["AGI"] = "agility",
 	["ANI"] = "animalhandling",
@@ -73,12 +79,16 @@ ability_stol = {
 	["WIL"] = "will"
 };
 
+-- ===================================================================================================================
 -- Values for wound comparison
+-- ===================================================================================================================
 healthstatusfull = "healthy";
 healthstatushalf = "bloodied";
 healthstatuswounded = "wounded";
 
+-- ===================================================================================================================
 -- Values for alignment comparison
+-- ===================================================================================================================
 alignment_lawchaos = {
 	["lawful"] = 1,
 	["chaotic"] = 3,
@@ -105,7 +115,9 @@ alignment_goodevil = {
 };
 alignment_neutral = "n";
 
+-- ===================================================================================================================
 -- Values for size comparison
+-- ===================================================================================================================
 creaturesize = {
 	["tiny"] = -2,
 	["small"] = -1,
@@ -121,7 +133,9 @@ creaturesize = {
 	["g"] = 3,
 };
 
+-- ===================================================================================================================
 -- Values for creature type comparison
+-- ===================================================================================================================
 creaturedefaulttype = "humanoid";
 creaturehalftype = "half-";
 creaturehalftypesubrace = "human";
@@ -151,10 +165,10 @@ creaturesubtype = {
 	-- "devil",
 	-- "dragonborn",
 	"dwarf",
-	"elf",
+	"elf", 
 	-- "gith",
 	-- "gnoll",
-	-- "gnome",
+	-- "gnome", 
 	-- "goblinoid",
 	-- "grimlock",
 	-- "halfling",
@@ -176,36 +190,34 @@ creaturesubtype = {
 	"troll"
 };
 
+-- ===================================================================================================================
 -- Values supported in effect conditionals
+-- ===================================================================================================================
 conditionaltags = {
 };
 
+-- ===================================================================================================================
 -- Conditions supported in effect conditionals and for token widgets
--- (Also shown in Effects window)
+-- ===================================================================================================================
 conditions = {
-	"blinded",
-	-- "charmed",
-	-- "cursed",
+	"blinded", 
 	"deafened",
 	"encumbered",
-	"frightened",
-	"grappled",
+	"frightened", 
+	"grappled", 
 	"incapacitated",
 	"intoxicated",
-	"invisible",
 	"paralyzed",
-	-- "petrified",
 	"poisoned",
-	"prone",
+	"prone", 
 	"restrained",
-	"stable",
 	"stunned",
-	"surprised",
-	-- "turned",
 	"unconscious"
 };
 
+-- ===================================================================================================================
 -- Bonus/penalty effect types for token widgets
+-- ===================================================================================================================
 bonuscomps = {
 	"INIT",
 	-- "CHECK",
@@ -243,10 +255,14 @@ bonuscomps = {
 	"DEF"
 };
 
+
+
+-- ===================================================================================================================
 -- Condition effect types for token widgets, i.e. icon displayed
+-- ===================================================================================================================
 condcomps = {
 	["blinded"] = "cond_blinded",
-	-- ["charmed"] = "cond_charmed",
+	["charmed"] = "cond_charmed",
 	["deafened"] = "cond_deafened",
 	["encumbered"] = "cond_encumbered",
 	["frightened"] = "cond_frightened",
@@ -256,35 +272,20 @@ condcomps = {
 	["paralyzed"] = "cond_paralyzed",
 	["petrified"] = "cond_paralyzed",
 	["prone"] = "cond_prone",
+	["poisoned"] = "cond_poisoned",
 	["restrained"] = "cond_restrained",
 	["stunned"] = "cond_stunned",
-	["surprised"] = "cond_disadvantage",
-	-- ["turned"] = "cond_frightened",
 	["unconscious"] = "cond_unconscious",
 	["intoxicated"] = "cond_intoxicated",
 
 	-- Similar to conditions
 	["cover"] = "cond_cover",
 	["scover"] = "cond_cover",
-	-- ADV
-	-- ["advatk"] = "cond_advantage",
-	-- ["advchk"] = "cond_advantage",
-	-- ["advskill"] = "cond_advantage",
-	-- ["advinit"] = "cond_advantage",
-	-- ["advsav"] = "cond_advantage",
-	-- ["advdeath"] = "cond_advantage",
-	-- ["grantdisatk"] = "cond_advantage",
-	-- DIS
-	-- ["disatk"] = "cond_disadvantage",
-	-- ["dischk"] = "cond_disadvantage",
-	-- ["disskill"] = "cond_disadvantage",
-	-- ["disinit"] = "cond_disadvantage",
-	-- ["dissav"] = "cond_disadvantage",
-	-- ["disdeath"] = "cond_disadvantage",
-	-- ["grantadvatk"] = "cond_disadvantage",
 };
 
+-- ===================================================================================================================
 -- Other visible effect types for token widgets
+-- ===================================================================================================================
 othercomps = {
 	["COVER"] = "cond_cover",
 	["SCOVER"] = "cond_cover",
@@ -293,25 +294,11 @@ othercomps = {
 	-- ["VULN"] = "cond_vulnerable",
 	-- ["REGEN"] = "cond_regeneration",
 	["DMGO"] = "cond_bleed",
-	-- ADV
-	-- ["ADVATK"] = "cond_advantage",
-	-- ["ADVCHK"] = "cond_advantage",
-	-- ["ADVSKILL"] = "cond_advantage",
-	-- ["ADVINIT"] = "cond_advantage",
-	-- ["ADVSAV"] = "cond_advantage",
-	-- ["ADVDEATH"] = "cond_advantage",
-	-- ["GRANTDISATK"] = "cond_advantage",
-	-- DIS
-	-- ["DISATK"] = "cond_disadvantage",
-	-- ["DISCHK"] = "cond_disadvantage",
-	-- ["DISSKILL"] = "cond_disadvantage",
-	-- ["DISINIT"] = "cond_disadvantage",
-	-- ["DISSAV"] = "cond_disadvantage",
-	-- ["DISDEATH"] = "cond_disadvantage",
-	-- ["GRANTADVATK"] = "cond_disadvantage",
 };
 
+-- ===================================================================================================================
 -- Effect components which can be targeted
+-- ===================================================================================================================
 targetableeffectcomps = {
 	"COVER",
 	"SCOVER",
@@ -329,13 +316,17 @@ connectors = {
 	"or"
 };
 
+-- ===================================================================================================================
 -- Range types supported
+-- ===================================================================================================================
 rangetypes = {
 	"melee",
 	"ranged"
 };
 
+-- ===================================================================================================================
 -- Damage types supported
+-- ===================================================================================================================
 dmgtypes = {
 	"acid",		-- ENERGY TYPES
 	"cold",
@@ -357,51 +348,27 @@ dmgtypes = {
 	-- "critical", -- SPECIAL DAMAGE TYPES
 };
 
+-- ===================================================================================================================
 specialdmgtypes = {
 	-- "critical",
 };
 
+-- ===================================================================================================================
 -- Bonus types supported in power descriptions
+-- ===================================================================================================================
 bonustypes = {
 };
 
+-- ===================================================================================================================
 stackablebonustypes = {
 };
 
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
-	-- Classes
-	class_nametovalue = {
-		[Interface.getString("class_value_artificer")] = "artificer",
-		[Interface.getString("class_value_bard")] = "bard",
-		[Interface.getString("class_value_cleric")] = "cleric",
-		[Interface.getString("class_value_druid")] = "druid",
-		[Interface.getString("class_value_fighter")] = "fighter",
-		[Interface.getString("class_value_monk")] = "monk",
-		[Interface.getString("class_value_paladin")] = "paladin",
-		[Interface.getString("class_value_ranger")] = "ranger",
-		[Interface.getString("class_value_rogue")] = "rogue",
-		[Interface.getString("class_value_sorcerer")] = "sorcerer",
-		[Interface.getString("class_value_warlock")] = "warlock",
-		[Interface.getString("class_value_wizard")] = "wizard",
-	};
-
-	class_valuetoname = {
-		-- ["artificer"] = Interface.getString("class_value_artificer"),
-		-- ["barbarian"] = Interface.getString("class_value_barbarian"),
-		-- ["bard"] = Interface.getString("class_value_bard"),
-		-- ["cleric"] = Interface.getString("class_value_cleric"),
-		-- ["druid"] = Interface.getString("class_value_druid"),
-		-- ["fighter"] = Interface.getString("class_value_fighter"),
-		-- ["monk"] = Interface.getString("class_value_monk"),
-		-- ["paladin"] = Interface.getString("class_value_paladin"),
-		-- ["ranger"] = Interface.getString("class_value_ranger"),
-		-- ["rogue"] = Interface.getString("class_value_rogue"),
-		-- ["sorcerer"] = Interface.getString("class_value_sorcerer"),
-		-- ["warlock"] = Interface.getString("class_value_warlock"),
-		-- ["wizard"] = Interface.getString("class_value_wizard"),
-	};
-
+	-- ===================================================================================================================
 	-- Skills
+	-- ===================================================================================================================
 	skilldata = {
 		[Interface.getString("skill_value_acrobatics")] = { stat = "agility", disarmorstealth = 1 },
 		[Interface.getString("skill_value_act")] = { stat = "deception" },
@@ -477,7 +444,48 @@ function onInit()
 		[Interface.getString("skill_value_treatinjury")] = { stat = "healing" },
 	};
 
+	-- ===================================================================================================================
+	-- Weapon grade list data
+	-- ===================================================================================================================
+	wpngradedata = {
+		"Common",
+		"Superior",
+		"Extraordinary",
+		"Poor"
+	};
+
+	-- ===================================================================================================================
+	-- Weapon skill list data
+	-- ===================================================================================================================
+	wpnskilldata = {
+		"None",
+		Interface.getString("skill_value_axes"),
+		Interface.getString("skill_value_bludgeons"),
+		Interface.getString("skill_value_brawling"),
+		Interface.getString("skill_value_fencing"),
+		Interface.getString("skill_value_longblades"),
+		Interface.getString("skill_value_polearms"),
+		Interface.getString("skill_value_shields"),
+		Interface.getString("skill_value_shortblades"),
+		Interface.getString("skill_value_spears"),
+		Interface.getString("skill_value_bows"),
+		Interface.getString("skill_value_crossbows"),
+		Interface.getString("skill_value_siege"),
+		Interface.getString("skill_value_thrown"),
+	};
+
+	-- ===================================================================================================================
+	-- Weapon damage abilities list data
+	-- ===================================================================================================================
+	wpndmgabilitydata = {
+		Interface.getString("agility"),
+		Interface.getString("athletics"),
+		Interface.getString("animalhandling"),
+	};
+
+	-- ===================================================================================================================
 	-- Party sheet drop down abilities list data
+	-- ===================================================================================================================
 	psabilitydata = {
 		Interface.getString("agility"),
 		Interface.getString("animalhandling"),
@@ -500,7 +508,9 @@ function onInit()
 		Interface.getString("will")
 	};
 
-	-- Party sheet drop down list data
+	-- ===================================================================================================================
+	-- Party sheet drop down skill list data
+	-- ===================================================================================================================
 	psskilldata = {
 		Interface.getString("skill_value_acrobatics"),
 		Interface.getString("skill_value_balance"),
@@ -574,41 +584,5 @@ function onInit()
 		Interface.getString("skill_value_coordinate"),
 		Interface.getString("skill_value_courage"),
 		Interface.getString("skill_value_dedication")
-	};
-
-	-- Added
-	-- Weapon grade list data
-	wpngradedata = {
-		"Common",
-		"Superior",
-		"Extraordinary",
-		"Poor"
-	};
-
-	-- Added
-	-- Weapon skill list data
-	wpnskilldata = {
-		"None",
-		Interface.getString("skill_value_axes"),
-		Interface.getString("skill_value_bludgeons"),
-		Interface.getString("skill_value_brawling"),
-		Interface.getString("skill_value_fencing"),
-		Interface.getString("skill_value_longblades"),
-		Interface.getString("skill_value_polearms"),
-		Interface.getString("skill_value_shields"),
-		Interface.getString("skill_value_shortblades"),
-		Interface.getString("skill_value_spears"),
-		Interface.getString("skill_value_bows"),
-		Interface.getString("skill_value_crossbows"),
-		Interface.getString("skill_value_siege"),
-		Interface.getString("skill_value_thrown"),
-	};
-
-	-- Added
-	-- Weapon damage abilities list data
-	wpndmgabilitydata = {
-		Interface.getString("agility"),
-		Interface.getString("athletics"),
-		Interface.getString("animalhandling"),
 	};
 end

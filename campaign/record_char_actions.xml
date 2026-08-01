@@ -119,7 +119,7 @@
 				</script>
 			</label_charframetop>
 			<!--
-			<header_content_framed_metalplate_with_icon_top name="weapon_header">
+			<header_content_framed_metalplate_icon name="weapon_header">
 				<static textres="char_label_weapon" />
 				<icon>char_attacks</icon>
 				<script>
@@ -138,7 +138,7 @@
 						return true;
 					end
 				</script>
-			</header_content_framed_metalplate_with_icon_top>
+			</header_content_framed_metalplate_icon>
 			-->
 			<button_details name="weapons_global_detail">
 				<anchored to="weapon_header" position="insidetopright" offset="5,0" />

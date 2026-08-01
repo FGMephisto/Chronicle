@@ -4,8 +4,14 @@
 -- File adjusted for Chronicle System
 --
 
---luacheck: globals _tDataModuleSets _tModifierExclusionSets _tModifierWindowPresets
+-- ===================================================================================================================
+-- ===================================================================================================================
 function onInit()
+	DesktopManager.setSidebarDockCategoryIconColor("A3A29D");
+	DesktopManager.setSidebarDockCategoryTextColor("A3A29D");
+	DesktopManager.setSidebarDockIconColor("332A25");
+	DesktopManager.setSidebarDockTextColor("332A25");
+
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
 	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
 
@@ -16,16 +22,17 @@ function onInit()
 	end
 end
 
+-- ===================================================================================================================
 -- Shown in Modifiers window
 -- NOTE: Set strings for "modifier_category_*" and "modifier_label_*"
 -- Adjusted
+-- ===================================================================================================================
 _tModifierWindowPresets =
 {
 	{
 		sCategory = "attack",
-		tPresets =
+		tPresets = 
 		{
-			-- "ATT_OPP",
 			"ATT_AIM",
 			"ATT_HIGHGROUND",
 			"ATT_CAUTIOUS",
@@ -37,9 +44,9 @@ _tModifierWindowPresets =
 			"DEF_SPRINT",
 		},
 	},
-	{
+	{ 
 		sCategory = "damage",
-		tPresets = {
+		tPresets = { 
 			-- "DMG_CRIT",
 			-- "DMG_MAX",
 			-- "",
@@ -54,9 +61,11 @@ _tModifierExclusionSets =
 	{ "DEF_LOWLIGHT", "DEF_NOLIGHT" },
 };
 
+-- ===================================================================================================================
 -- Shown in Campaign Setup window
 -- Adjusted
-_tDataModuleSets =
+-- ===================================================================================================================
+_tDataModuleSets = 
 {
 	["client"] =
 	{

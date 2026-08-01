@@ -18,6 +18,7 @@ actions = {
 	["effect"] = { sIcon = "action_effect", sTargeting = "all" },
 	["init"] = { bUseModStack = true },
 	["save"] = { bUseModStack = true },
+	["save_auto"] = { },
 	["check"] = { bUseModStack = true },
 	["recharge"] = { },
 	["recovery"] = { bUseModStack = true },

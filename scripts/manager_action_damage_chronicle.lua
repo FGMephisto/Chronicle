@@ -33,7 +33,7 @@ function handleApplyDamage(msgOOB)
 	end
 	
 	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
-	ActionDamage.applyDamage(rSource, rTarget, rRoll);
+	ActionDamageD20.applyDamage(rSource, rTarget, rRoll);
 end
 
 -- ===================================================================================================================
@@ -50,7 +50,7 @@ function notifyApplyDamage(rSource, rTarget, rRoll)
 	rRoll.bSecret = rRoll.bTower;
 
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
-	msgOOB.type = ActionDamage.OOB_MSGTYPE_APPLYDMG;
+	msgOOB.type = ActionDamageD20.OOB_MSGTYPE_APPLYDMG;
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
 	msgOOB.nTargetOrder = rTarget.nOrder;
@@ -108,7 +108,7 @@ function getRoll(rActor, rAction)
 	-- end
 
 	-- Encode the damage types
-	ActionDamage.encodeDamageTypes(rRoll);
+	ActionDamageD20.encodeDamageTypes(rRoll);
 
 	return rRoll;
 end
@@ -118,7 +118,7 @@ end
 function performRoll(draginfo, rActor, rAction)
 -- Step 1
 	-- Debug.chat("FN: performRoll in manager_action_damage")
-	local rRoll = ActionDamage.getRoll(rActor, rAction);
+	local rRoll = ActionDamageD20.getRoll(rActor, rAction);
 
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
@@ -128,27 +128,27 @@ end
 function modDamage(rSource, rTarget, rRoll)
 -- Step 3
 	-- Debug.chat("FN: modDamage in manager_action_damage")
-	ActionDamage.setupModRoll(rRoll, rSource, rTarget);
+	ActionDamageD20.setupModRoll(rRoll, rSource, rTarget);
 
 	if rSource then
-		ActionDamage.applyAbilityEffectsToModRoll(rRoll, rSource, rTarget);
-		ActionDamage.applyDmgEffectsToModRoll(rRoll, rSource, rTarget);
-		ActionDamage.applyEffectModNotificationToModRoll(rRoll);
+		ActionDamageD20.applyAbilityEffectsToModRoll(rRoll, rSource, rTarget);
+		ActionDamageD20.applyDmgEffectsToModRoll(rRoll, rSource, rTarget);
+		ActionDamageD20.applyEffectModNotificationToModRoll(rRoll);
 
-		ActionDamage.applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget);
+		ActionDamageD20.applyDmgTypeEffectsToModRoll(rRoll, rSource, rTarget);
 	end
 	
 	if rRoll.bCritical then
-		ActionDamage.applyCriticalToModRoll(rRoll, rSource, rTarget);
+		ActionDamageD20.applyCriticalToModRoll(rRoll, rSource, rTarget);
 	end
 	
 	if ActorManager.isRecordType(rSource, "npc") and OptionsManager.isOption("NPCD", "fixed") then
-		ActionDamage.applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget);
+		ActionDamageD20.applyFixedDamageOptionToModRoll(rRoll, rSource, rTarget);
 	end
 
-	ActionDamage.applyModifierKeysToModRoll(rRoll, rSource, rTarget);
+	ActionDamageD20.applyModifierKeysToModRoll(rRoll, rSource, rTarget);
 	
-	ActionDamage.finalizeModRoll(rRoll);
+	ActionDamageD20.finalizeModRoll(rRoll);
 end
 
 -- ===================================================================================================================
@@ -187,7 +187,7 @@ function onDamageRoll(rSource, rRoll)
 		end
 	end
 	
-	ActionDamage.decodeDamageTypes(rRoll, true);
+	ActionDamageD20.decodeDamageTypes(rRoll, true);
 end
 
 -- ===================================================================================================================
@@ -230,7 +230,7 @@ function onDamage(rSource, rTarget, rRoll)
 	-- Multiple damage by Degrees of Success
 	rRoll.nTotal = rRoll.nTotal * tonumber(rRoll.nDoS)
 
-	ActionDamage.notifyApplyDamage(rSource, rTarget, rRoll);
+	ActionDamageD20.notifyApplyDamage(rSource, rTarget, rRoll);
 end
 
 -- ===================================================================================================================
@@ -241,7 +241,7 @@ end
 function setupModRoll(rRoll, rSource, rTarget)
 -- Step 4
 	-- Debug.chat("FN: setupModRoll in manager_action_damage")
-	-- ActionDamage.decodeDamageTypes(rRoll);
+	-- ActionDamageD20.decodeDamageTypes(rRoll);
 	-- CombatManager2.addRightClickDiceToClauses(rRoll);
 
 											  
@@ -585,7 +585,7 @@ function finalizeModRoll(rRoll)
 	rRoll.tEffectDice = nil;
 	rRoll.nEffectMod = nil;
 
-	-- ActionDamage.encodeDamageTypes(rRoll);
+	-- ActionDamageD20.encodeDamageTypes(rRoll);
 	ActionsManager2.encodeDesktopMods(rRoll);
 end
 
@@ -840,7 +840,7 @@ function decodeDamageTypes(rRoll, bFinal)
 		end
 		
 		-- Collapse damage clauses into smallest set, then add to roll description as text
-		local aDamage = ActionDamage.getDamageStrings(rRoll.clauses);
+		local aDamage = ActionDamageD20.getDamageStrings(rRoll.clauses);
 		for _, rDamage in ipairs(aDamage) do
 			local sDice = StringManager.convertDiceToString(rDamage.aDice, rDamage.nMod);
 			local sDmgTypeOutput = rDamage.sType;
@@ -921,7 +921,7 @@ end
 -- ===================================================================================================================
 function checkReductionType(aReduction, aDmgType)
 	for _,sDmgType in pairs(aDmgType) do
-		if ActionDamage.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamage.checkReductionTypeHelper(aReduction["all"], aDmgType) then
+		if ActionDamageD20.checkReductionTypeHelper(aReduction[sDmgType], aDmgType) or ActionDamageD20.checkReductionTypeHelper(aReduction["all"], aDmgType) then
 			return true;
 		end
 	end
@@ -971,13 +971,13 @@ function checkNumericalReductionType(aReduction, aDmgType, nLimit)
 	
 	for _,sDmgType in pairs(aDmgType) do
 		if nLimit then
-			local nSpecificAdjust = ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType, nLimit);
+			local nSpecificAdjust = ActionDamageD20.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType, nLimit);
 			nAdjust = nAdjust + nSpecificAdjust;
-			local nGlobalAdjust = ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType, nLimit - nSpecificAdjust);
+			local nGlobalAdjust = ActionDamageD20.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType, nLimit - nSpecificAdjust);
 			nAdjust = nAdjust + nGlobalAdjust;
 		else
-			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType);
-			nAdjust = nAdjust + ActionDamage.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType);
+			nAdjust = nAdjust + ActionDamageD20.checkNumericalReductionTypeHelper(aReduction[sDmgType], aDmgType);
+			nAdjust = nAdjust + ActionDamageD20.checkNumericalReductionTypeHelper(aReduction["all"], aDmgType);
 		end
 	end
 	
@@ -1017,9 +1017,9 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 		end
 		
 		-- Handle standard immunity, vulnerability and resistance
-		local bLocalVulnerable = ActionDamage.checkReductionType(aVuln, aSrcDmgClauseTypes);
-		local bLocalResist = ActionDamage.checkReductionType(aResist, aSrcDmgClauseTypes);
-		local bLocalImmune = ActionDamage.checkReductionType(aImmune, aSrcDmgClauseTypes);
+		local bLocalVulnerable = ActionDamageD20.checkReductionType(aVuln, aSrcDmgClauseTypes);
+		local bLocalResist = ActionDamageD20.checkReductionType(aResist, aSrcDmgClauseTypes);
+		local bLocalImmune = ActionDamageD20.checkReductionType(aImmune, aSrcDmgClauseTypes);
 		
 		-- Calculate adjustment
 		-- Vulnerability = double
@@ -1031,13 +1031,13 @@ function getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput)
 			bResist = true;
 		else
 			-- Handle numerical resistance
-			local nLocalResist = ActionDamage.checkNumericalReductionType(aResist, aSrcDmgClauseTypes, v);
+			local nLocalResist = ActionDamageD20.checkNumericalReductionType(aResist, aSrcDmgClauseTypes, v);
 			if nLocalResist ~= 0 then
 				nLocalDamageAdjust = nLocalDamageAdjust - nLocalResist;
 				bResist = true;
 			end
 			-- Handle numerical vulnerability
-			local nLocalVulnerable = ActionDamage.checkNumericalReductionType(aVuln, aSrcDmgClauseTypes);
+			local nLocalVulnerable = ActionDamageD20.checkNumericalReductionType(aVuln, aSrcDmgClauseTypes);
 			if nLocalVulnerable ~= 0 then
 				nLocalDamageAdjust = nLocalDamageAdjust + nLocalVulnerable;
 				bVulnerable = true;
@@ -1227,14 +1227,14 @@ function applyDamage(rSource, rTarget, rRoll)
 	local sOriginalStatus = ActorHealthManager.getHealthStatus(rTarget);
 
 	-- Decode damage/heal description
-	local rDamageOutput = ActionDamage.decodeDamageText(rRoll.nTotal, rRoll.sDesc);
+	local rDamageOutput = ActionDamageD20.decodeDamageText(rRoll.nTotal, rRoll.sDesc);
 	rDamageOutput.tNotifications = {};
 	
 	-- Damage
 	-- Apply damage type adjustments
 	-- Is this needed?
 	rTarget.sSubtargetPath = rRoll.sSubtargetPath;
-	-- local nDamageAdjust, bVulnerable, bResist = ActionDamage.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
+	-- local nDamageAdjust, bVulnerable, bResist = ActionDamageD20.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
 															   
 	  
 									
@@ -1544,7 +1544,7 @@ function applyDamage(rSource, rTarget, rRoll)
 	rRoll.sDamageText = rDamageOutput.sTypeOutput;
 	rRoll.nTotal = rDamageOutput.nVal;
 	rRoll.sResults = table.concat(rDamageOutput.tNotifications, " ");
-	ActionDamage.messageDamage(rSource, rTarget, rRoll);
+	ActionDamageD20.messageDamage(rSource, rTarget, rRoll);
 
 	-- Remove target after applying damage
 	if bRemoveTarget and rSource and rTarget then
@@ -1657,7 +1657,7 @@ function handleApplyDamageState(msgOOB)
 	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
 	
 	if Session.IsHost then
-		ActionDamage.setDamageState(rSource, rTarget, msgOOB.sAttack, msgOOB.sState);
+		ActionDamageD20.setDamageState(rSource, rTarget, msgOOB.sAttack, msgOOB.sState);
 	end
 end
 
@@ -1667,7 +1667,7 @@ end
 function setDamageState(rSource, rTarget, sAttack, sState)
 	-- Debug.chat("FN: setDamageState in manager_action_damage")
 	if not Session.IsHost then
-		ActionDamage.applyDamageState(rSource, rTarget, sAttack, sState);
+		ActionDamageD20.applyDamageState(rSource, rTarget, sAttack, sState);
 		return;
 	end
 	

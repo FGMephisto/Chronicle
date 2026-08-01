@@ -203,7 +203,6 @@
 						DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
 						DB.addHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
 						DB.addHandler(nodeSkill, "onChildUpdate", onSourceUpdate);
-						super.hasSources = true;
 					end
 
 					super.onInit();
@@ -341,8 +340,13 @@
 				function onDrop(x, y, draginfo)
 					if draginfo.getType() == "number" then
 						local rActor = ActorManager.resolveActor(window.getDatabaseNode());
-						local rRoll = { sDesc = draginfo.getDescription(), nTotal = draginfo.getNumberData() };
-						ActionDamage.applyDamage(nil, rActor, rRoll);
+						local rRoll = {
+							sType = "number",
+							sDesc = draginfo.getDescription(),
+							nTotal = draginfo.getNumberData(),
+							bSecret = false,
+						};
+						ActionDamageD20.notifyApplyDamage(nil, rActor, rRoll);
 					end
 					return true;
 				end

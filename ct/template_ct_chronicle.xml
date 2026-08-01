@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <!-- 
-  Please see the license.html file included with this distribution for
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- Adjusted -->
-	<template name="button_ct_controls_menu" merge="join">
-		<button_listitem_text_left_sm>
-			<script file="ct/scripts/ct_menu_chronicle.lua" />
-		</button_listitem_text_left_sm>
-	</template>
-
 	<!-- GM combat tracker entry -->
 	<!-- Adjusted -->
 	<template name="number_ct_ability">
@@ -22,11 +14,7 @@
 			<script>
 				function action(draginfo)
 					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
-					-- if Input.isShiftPressed() then
-						-- ActionSave.performRoll(draginfo, rActor, self.target[1]);
-					-- else
-						ActionCheck.performRoll(draginfo, rActor, self.target[1]);
-					-- end
+					ActionCheck.performRoll(draginfo, rActor, self.target[1]);
 					return true;
 				end
 				function onDragStart(button, x, y, draginfo)
@@ -61,7 +49,7 @@
 	<!-- Player combat tracker entry -->
 	<template name="number_clientct_wounds">
 		<number_ct_static name="wounds">
-			<anchored to="healthbase" width="30" height="20">
+			<anchored to="healthbase" width="25" height="20">
 				<top />
 				<right />
 			</anchored>
@@ -89,11 +77,11 @@
 			</script>
 		</number_ct_static>
 	</template>
-	
+
 	<!-- Adjusted -->
 	<template name="number_clientct_hp">
 		<number_ct_static name="hptotal">
-			<anchored to="fatigue" width="30" height="20">
+			<anchored to="fatigue" width="25" height="20">
 				<top />
 				<right anchor="left" offset="-10" />
 			</anchored>
@@ -133,13 +121,36 @@
 		</label>
 	</template>
 
+	<!-- Adjusted from CoreRPG -->
+	<template name="base_clientct_health">
+		<genericcontrol name="healthbase">
+			<anchored to="rightanchor" width="165" height="20">
+				<top />
+				<right anchor="left" relation="relative" offset="-10" />
+			</anchored>
+			<disabled />
+		</genericcontrol>
+	</template>
+
+	<!-- Adjusted from CoreRPG -->
+	<template name="string_clientct_status">
+		<simplestring name="status">
+			<anchored to="healthbase" position="over" />
+			<frame name="fieldlight" offset="7,5,7,5" />
+			<center />
+			<static />
+			<invisible />
+		</simplestring>
+	</template>
+
 	<!-- Added -->
-	<template name="number_clientct_fatigue">
-		<number_ct_static name="fatigue">
-			<anchored to="injuries" width="30" height="20">
+	<template name="number_clientct_trauma">
+		<number_ct_static name="trauma">
+			<anchored to="wounds" width="25" height="20">
 				<top />
 				<right anchor="left" offset="-10" />
 			</anchored>
+			<color>0000AA</color>
 			<min value="0" />
 			<script>
 				function onValueChanged()
@@ -152,10 +163,11 @@
 	<!-- Added -->
 	<template name="number_clientct_injuries">
 		<number_ct_static name="injuries">
-			<anchored to="trauma" width="30" height="20">
+			<anchored to="trauma" width="25" height="20">
 				<top />
 				<right anchor="left" offset="-10" />
 			</anchored>
+			<color>0000AA</color>
 			<min value="0" />
 			<script>
 				function onValueChanged()
@@ -166,12 +178,13 @@
 	</template>
 
 	<!-- Added -->
-	<template name="number_clientct_trauma">
-		<number_ct_static name="trauma">
-			<anchored to="wounds" width="30" height="20">
+	<template name="number_clientct_fatigue">
+		<number_ct_static name="fatigue">
+			<anchored to="injuries" width="25" height="20">
 				<top />
 				<right anchor="left" offset="-10" />
 			</anchored>
+			<color>0000AA</color>
 			<min value="0" />
 			<script>
 				function onValueChanged()
@@ -179,15 +192,5 @@
 				end
 			</script>
 		</number_ct_static>
-	</template>
-	
-	<!-- Added -->
-	<template name="base_clientct_health_5x">
-		<base_clientct_health>
-			<anchored to="rightanchor" width="190" height="20">
-				<top />
-				<right anchor="left" relation="relative" offset="-10" />
-			</anchored>
-		</base_clientct_health>
 	</template>
 </root>

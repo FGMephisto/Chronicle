@@ -133,6 +133,7 @@
 			<stringu name="size">
 				<anchored to="weight" position="righthigh" offset="5,0" width="70" height="20" />
 				<delaykeyupdate />
+				<script file="campaign/scripts/record_size.lua" />
 			</stringu>
 			<label_charfieldtop>
 				<anchored to="gender" offset="0,5" />

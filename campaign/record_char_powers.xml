@@ -638,16 +638,9 @@
 				<anchored to="healbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_heal" />
 			</label>
-			<button_iconcycler name="healtargeting">
-				<anchored to="heallabel" position="righthigh" offset="5,5" width="30" height="10" />
-				<parameters>
-					<icons>button_toggle_self</icons>
-					<values>self</values>
-					<tooltipsres>power_tooltip_targetself</tooltipsres>
-					<defaulticon>button_toggle_trgt</defaulticon>
-					<defaulttooltipres>power_tooltip_targetnormal</defaulttooltipres>
-				</parameters>
-			</button_iconcycler>
+			<iconcycler_poweraction_targeting name="healtargeting">
+				<anchored to="heallabel" />
+			</iconcycler_poweraction_targeting>
 			<string_poweractionview name="healview">
 				<anchored to="heallabel" position="righthigh" offset="40,0">
 					<right parent="" offset="-5" />
@@ -667,12 +660,8 @@
 			end
 			function onDataChanged()
 				local nodeAction = getDatabaseNode();
-
-				local sLabel = PowerActionManagerCore.getActionText(nodeAction);
-				local sDuration = PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "duration" });
-
-				effectview.setValue(sLabel);
-				durationview.setValue(sDuration);
+				effectview.setValue(PowerActionManagerCore.getActionText(nodeAction));
+				durationview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "duration" }));
 			end
 			function performAction(draginfo, sSubRoll)
 				PowerActionManagerCore.performAction(draginfo, getDatabaseNode(), { sSubRoll = sSubRoll });
@@ -687,16 +676,9 @@
 				<anchored to="effectbutton" position="righthigh" offset="5,0" width="40" />
 				<static textres="power_label_effect" />
 			</label>
-			<button_iconcycler name="targeting">
-				<anchored to="effectlabel" position="righthigh" offset="5,5" width="30" height="10" />
-				<parameters>
-					<icons>button_toggle_self</icons>
-					<values>self</values>
-					<tooltipsres>power_tooltip_targetself</tooltipsres>
-					<defaulticon>button_toggle_trgt</defaulticon>
-					<defaulttooltipres>power_tooltip_targetnormal</defaulttooltipres>
-				</parameters>
-			</button_iconcycler>
+			<iconcycler_poweraction_effect_targeting name="targeting">
+				<anchored to="effectlabel" />
+			</iconcycler_poweraction_effect_targeting>
 			<string_poweractionview name="effectview">
 				<anchored to="effectlabel" position="righthigh" offset="40,0">
 					<right parent="" offset="-65" />

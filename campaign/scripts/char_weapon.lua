@@ -124,6 +124,6 @@ function onDamageAction(draginfo)
 
 	-- Perform damage action
 	local rActor = ActorManager.resolveActor(nodeChar);
-	ActionDamage.performRoll(draginfo, rActor, rAction);
+	ActionDamageD20.performRoll(draginfo, rActor, rAction);
 	return true;
 end

@@ -8,14 +8,17 @@ OOB_MSGTYPE_APPLYSAVEVS = "applysavevs";
 function onInit()
 	OOBManager.registerOOBMsgHandler(ActionPower.OOB_MSGTYPE_APPLYSAVEVS, ActionPower.handleApplySaveVs);
 
-	ActionsManager.registerTargetingHandler("cast", ActionPower.onPowerTargeting);
-	ActionsManager.registerTargetingHandler("powersave", ActionPower.onPowerTargeting);
-
-	ActionsManager.registerModHandler("powersave", ActionPower.modCastSave);
-
+	ActionsManager.registerTargetingHandler("cast", ActionCore.onTargeting);
 	ActionsManager.registerResultHandler("cast", ActionPower.onPowerCast);
+
+	ActionsManager.registerTargetingHandler("powersave", ActionCore.onTargeting);
+	ActionsManager.registerModHandler("powersave", ActionPower.modCastSave);
 	ActionsManager.registerResultHandler("powersave", ActionPower.onPowerSave);
 end
+
+--
+--	CAST HANDLING
+--
 
 function handleApplySaveVs(msgOOB)
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
@@ -51,55 +54,12 @@ function notifyApplySaveVs(rSource, rTarget, bSecret, sDesc, nDC, bRemoveOnMiss)
 
 	msgOOB.nRemoveOnMiss = bRemoveOnMiss and 1 or 0;
 
-	if ActorManager.isPC(rTarget) then
-		local nodeTarget = ActorManager.getCreatureNode(rTarget);
-		if Session.IsHost then
-			local sOwner = DB.getOwner(nodeTarget);
-			if (sOwner or "") ~= "" then
-				for _,vUser in ipairs(User.getActiveUsers()) do
-					if vUser == sOwner then
-						for _,vIdentity in ipairs(User.getActiveIdentities(vUser)) do
-							if DB.getName(nodeTarget) == vIdentity then
-								Comm.deliverOOBMessage(msgOOB, sOwner);
-								return;
-							end
-						end
-					end
-				end
-			end
-		else
-			if DB.isOwner(nodeTarget) then
-				ActionPower.handleApplySaveVs(msgOOB);
-				return;
-			end
-		end
+	if not Session.IsHost and ActorManager.isPC(rTarget) and ActorManager.isOwner(rTarget) then
+		ActionPower.handleApplySaveVs(msgOOB);
+		return;
 	end
 
 	Comm.deliverOOBMessage(msgOOB, "");
-end
-
-function onPowerTargeting(_, aTargeting, rRolls)
-	local bRemoveOnMiss = false;
-	local sOptRMMT = OptionsManager.getOption("RMMT");
-	if sOptRMMT == "on" then
-		bRemoveOnMiss = true;
-	elseif sOptRMMT == "multi" then
-		local aTargets = {};
-		for _,vTargetGroup in ipairs(aTargeting) do
-			for _,vTarget in ipairs(vTargetGroup) do
-				table.insert(aTargets, vTarget);
-			end
-		end
-		bRemoveOnMiss = (#aTargets > 1);
-	end
-
-	if bRemoveOnMiss then
-		for _,vRoll in ipairs(rRolls) do
-			vRoll.bRemoveOnMiss = true;
-		end
-	end
-
-	return aTargeting;
 end
 
 function getPowerCastRoll(_, rAction)
@@ -113,47 +73,67 @@ function getPowerCastRoll(_, rAction)
 	return rRoll;
 end
 
+function onPowerCast(rSource, rTarget, rRoll)
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
+	rMessage.dice = nil;
+	rMessage.icon = "action_cast";
+
+	if rTarget then
+		rMessage.text = rMessage.text .. " [at " .. ActorManager.getDisplayName(rTarget) .. "]";
+	end
+
+	Comm.deliverChatMessage(rMessage);
+end
+
+--
+--	POWER SAVE HANDLING (SAVE VS.)
+--
+
 function getSaveVsRoll(rActor, rAction)
-	local rRoll = {};
-	rRoll.sType = "powersave";
-	rRoll.aDice = {};
-	rRoll.nMod = rAction.savemod or 0;
+	local rRoll = {
+		sType = "powersave",
+		sDesc = ActionCore.encodeActionText(rAction, "action_savevs_tag"),
+		sSave = rAction.save,
+		aDice = {},
+		nMod = rAction.savemod or 0,
+		bEffects = false,
+		nEffectMod = 0,
+		tNotifications = {},
+	};
 
-	rRoll.sDesc = ActionCore.encodeActionText(rAction, "action_savevs_tag");
-
-	rRoll.sSave = rAction.save;
-
-	local tAddDesc = {};
-	local bEffects = false;
-	local nAddMod = 0;
+	if OptionsManager.isOption("HRSE", "on") then
+		ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rActor);
+	end
+	if DataCommon.ability_ltos[rAction.save] then
+		local nBonusStat, nBonusEffects = ActorManagerD20.getAbilityEffectsBonus(rActor, rAction.savestat);
+		if nBonusEffects > 0 then
+			rRoll.bEffects = true;
+			rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat;
+		end
+	end
+	rRoll.nMod = rRoll.nMod + rRoll.nEffectMod;
 
 	if DataCommon.ability_ltos[rAction.save] then
-		local nBonusStat, nBonusEffects = ActorManager5E.getAbilityEffectsBonus(rActor, rAction.savestat);
-		if nBonusEffects > 0 then
-			bEffects = true;
-			nAddMod = nAddMod + nBonusStat;
-		end
-
-		local sDC = string.format("[%s DC %d]", DataCommon.ability_ltos[rAction.save], rRoll.nMod + nAddMod);
-		table.insert(tAddDesc, sDC);
+		local sDC = string.format("[%s DC %d]", DataCommon.ability_ltos[rAction.save], rRoll.nMod);
+		table.insert(rRoll.tNotifications, sDC);
 	end
 	if rAction.magic then
-		table.insert(tAddDesc, "[MAGIC]");
+		table.insert(rRoll.tNotifications, "[MAGIC]");
 	end
 	if rAction.onmissdamage == "half" then
-		table.insert(tAddDesc, "[HALF ON SAVE]");
+		table.insert(rRoll.tNotifications, "[HALF ON SAVE]");
+	end
+	if rRoll.bEffects then
+		local sMod = StringManager.convertDiceToString(nil, rRoll.nEffectMod, true);
+		table.insert(rRoll.tNotifications, EffectManager.buildEffectOutput(sMod));
+	end
+	if #(rRoll.tNotifications) > 0 then
+		rRoll.sDesc = rRoll.sDesc .. "\r" .. table.concat(rRoll.tNotifications, "\r");
 	end
 
-	if bEffects then
-		local sMod = StringManager.convertDiceToString(nil, nAddMod, true);
-		table.insert(tAddDesc, EffectManager.buildEffectOutput(sMod));
-	end
-
-	if #tAddDesc > 0 then
-		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(tAddDesc, " ");
-	end
-
-	rRoll.nMod = rRoll.nMod + nAddMod;
+	rRoll.bEffects = nil;
+	rRoll.nEffectMod = nil;
+	rRoll.tNotifications = nil;
 
 	if Session.IsHost and (OptionsManager.isOption("REVL", "off") or CombatManager.isCTHidden(ActorManager.getCTNode(rActor))) then
 		rRoll.bSecret = true;
@@ -161,10 +141,8 @@ function getSaveVsRoll(rActor, rAction)
 
 	return rRoll;
 end
-
 function performSaveVsRoll(draginfo, rActor, rAction)
 	local rRoll = ActionPower.getSaveVsRoll(rActor, rAction);
-
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
@@ -176,20 +154,17 @@ function modCastSave(_, _, rRoll)
 			rRoll.sDesc = rRoll.sDesc .. " [COVER +2]";
 		end
 	end
+	return true;
 end
 
-function onPowerCast(rSource, rTarget, rRoll)
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	rMessage.dice = nil;
-	rMessage.icon = "roll_cast";
-
-	if rTarget then
-		rMessage.text = rMessage.text .. " [at " .. ActorManager.getDisplayName(rTarget) .. "]";
+function onPowerSave(rSource, rTarget, rRoll)
+	if ActionPower.onCastSave(rSource, rTarget, rRoll) then
+		return;
 	end
 
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	Comm.deliverChatMessage(rMessage);
 end
-
 function onCastSave(rSource, rTarget, rRoll)
 	if rTarget then
 		local sSaveShort,_ = rRoll.sDesc:match("%[(%w+) DC (%d+)%]")
@@ -201,15 +176,5 @@ function onCastSave(rSource, rTarget, rRoll)
 			end
 		end
 	end
-
 	return false;
-end
-
-function onPowerSave(rSource, rTarget, rRoll)
-	if ActionPower.onCastSave(rSource, rTarget, rRoll) then
-		return;
-	end
-
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-	Comm.deliverChatMessage(rMessage);
 end

@@ -1,7 +1,6 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
 function onInit()
@@ -40,27 +39,33 @@ function updateHealthDisplay()
 	end
 
 	-- 3.5E
-	-- if w.label_nonlethal then
-		-- w.label_nonlethal.setVisible(bShowDetail);
-	-- end
+	if w.label_nonlethal then
+		w.label_nonlethal.setVisible(bShowDetail);
+	end
 
 	-- 4E
-	-- if w.label_surges then
-		-- w.label_surges.setVisible(bShowDetail);
-	-- end
+	if w.label_surges then
+		w.label_surges.setVisible(bShowDetail);
+	end
 
 	-- 13A
-	-- if w.label_recoveries then
-		-- w.label_recoveries.setVisible(bShowDetail);
-	-- end
+	if w.label_recoveries then
+		w.label_recoveries.setVisible(bShowDetail);
+	end
 
 	-- CoC
-	-- if w.label_mp then
-		-- w.label_mp.setVisible(bShowDetail);
-	-- end
-	-- if w.label_sp then
-		-- w.label_sp.setVisible(bShowDetail);
-	-- end
+	if w.label_mp then
+		w.label_mp.setVisible(bShowDetail);
+	end
+	if w.label_sp then
+		w.label_sp.setVisible(bShowDetail);
+	end
+
+	w.label_status.setVisible(bShowStatus);
+
+	for _,wChild in pairs(list.getWindows()) do
+		wChild.updateHealthDisplay();
+	end
 
 	-- Chronicle
 	if w.label_trauma then
@@ -71,11 +76,5 @@ function updateHealthDisplay()
 	end
 	if w.label_fatigue then
 		w.label_fatigue.setVisible(bShowDetail);
-	end
-
-	w.label_status.setVisible(bShowStatus);
-
-	for _,wChild in pairs(list.getWindows()) do
-		wChild.updateHealthDisplay();
 	end
 end

@@ -20,8 +20,11 @@ TRAIT_LUCK = "Luck";
 TRAIT_LUCKY = "Lucky";
 
 TRAIT_ARMORED_CASING = "armored casing";
+TRAIT_BEAST_OF_BURDEN = "beast of burden";
 TRAIT_CHAMELEON_CARAPACE = "chameleon carapace";
 TRAIT_DWARVEN_TOUGHNESS = "dwarven toughness";
+TRAIT_EQUINE_BUILD = "equine build";
+TRAIT_HEAVY_LIFTER = "heavy lifter";
 TRAIT_HIPPO_BUILD = "hippo build";
 TRAIT_LITTLE_GIANT = "little giant";
 TRAIT_NATURAL_ARMOR = "natural armor";
@@ -35,6 +38,7 @@ FEATURE_JACK_OF_ALL_TRADES = "Jack of All Trades";
 FEATURE_RELIABLE_TALENT = "Reliable Talent";
 FEATURE_SILVER_TONGUE = "Silver Tongue";
 FEATURE_SUPERIOR_CRITICAL = "Superior Critical";
+FEATURE_TIRELESS = "Tireless";
 
 FEATURE_ABJURATION_SAVANT = "abjuration savant";
 FEATURE_ASPECT_OF_THE_BEAR = "aspect of the bear";
@@ -122,134 +126,13 @@ end
 -- ACTIONS
 --
 
-function rest(nodeChar, bLong)
-	PowerManager.resetPowers(nodeChar, bLong);
-	CharManager.resetHealth(nodeChar, bLong);
-	if bLong then
-		CombatManager2.reduceExhaustion(ActorManager.getCTNode(nodeChar));
-
-		if CharManager.hasTrait(nodeChar, CharManager.TRAIT_RESOURCEFUL) then
-			if DB.getValue(nodeChar, "inspiration", 0) <= 0 then
-				DB.setValue(nodeChar, "inspiration", "number", 1);
-			end
-		end
-	end
-end
-function resetHealth(nodeChar, bLong)
-	local bResetWounds = false;
-	local bResetTemp = false;
-	local bResetHitDice = false;
-	local bResetHalfHitDice = false;
-	local bResetQuarterHitDice = false;
-
-	local sOptHRHV = OptionsManager.getOption("HRHV");
-	if sOptHRHV == "fast" then
-		if bLong then
-			bResetWounds = true;
-			bResetTemp = true;
-			bResetHitDice = true;
-		else
-			bResetQuarterHitDice = true;
-		end
-	elseif sOptHRHV == "slow" then
-		if bLong then
-			bResetTemp = true;
-			bResetHalfHitDice = true;
-		end
-	else
-		if bLong then
-			bResetWounds = true;
-			bResetTemp = true;
-			if OptionsManager.isOption("GAVE", "2024") then
-				bResetHitDice = true;
-			else
-				bResetHalfHitDice = true;
-			end
-		end
-	end
-
-	-- Reset health fields and conditions
-	if bResetWounds then
-		DB.setValue(nodeChar, "hp.wounds", "number", 0);
-		DB.setValue(nodeChar, "hp.deathsavesuccess", "number", 0);
-		DB.setValue(nodeChar, "hp.deathsavefail", "number", 0);
-	end
-	if bResetTemp then
-		DB.setValue(nodeChar, "hp.temporary", "number", 0);
-	end
-
-	-- Reset all hit dice
-	if bResetHitDice then
-		for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-			DB.setValue(vClass, "hdused", "number", 0);
-		end
-	end
-
-	-- Reset half or quarter of hit dice (assume biggest hit dice selected first)
-	if bResetHalfHitDice or bResetQuarterHitDice then
-		local nHDUsed, nHDTotal = CharManager.getClassHDUsage(nodeChar);
-		if nHDUsed > 0 then
-			local nHDRecovery;
-			if bResetQuarterHitDice then
-				nHDRecovery = math.max(math.floor(nHDTotal / 4), 1);
-			else
-				nHDRecovery = math.max(math.floor(nHDTotal / 2), 1);
-			end
-			if nHDRecovery >= nHDUsed then
-				for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-					DB.setValue(vClass, "hdused", "number", 0);
-				end
-			else
-				local nodeClassMax, nClassMaxHDSides, nClassMaxHDUsed;
-				while nHDRecovery > 0 do
-					nodeClassMax = nil;
-					nClassMaxHDSides = 0;
-					nClassMaxHDUsed = 0;
-
-					for _,vClass in ipairs(DB.getChildList(nodeChar, "classes")) do
-						local nClassHDUsed = DB.getValue(vClass, "hdused", 0);
-						if nClassHDUsed > 0 then
-							local aClassDice = DB.getValue(vClass, "hddie", {});
-							if #aClassDice > 0 then
-								local nClassHDSides = tonumber(aClassDice[1]:sub(2)) or 0;
-								if nClassHDSides > 0 and nClassMaxHDSides < nClassHDSides then
-									nodeClassMax = vClass;
-									nClassMaxHDSides = nClassHDSides;
-									nClassMaxHDUsed = nClassHDUsed;
-								end
-							end
-						end
-					end
-
-					if nodeClassMax then
-						if nHDRecovery >= nClassMaxHDUsed then
-							DB.setValue(nodeClassMax, "hdused", "number", 0);
-							nHDRecovery = nHDRecovery - nClassMaxHDUsed;
-						else
-							DB.setValue(nodeClassMax, "hdused", "number", nClassMaxHDUsed - nHDRecovery);
-							nHDRecovery = 0;
-						end
-					else
-						break;
-					end
-				end
-			end
-		end
-	end
-end
-
 function messageInspiration(nodeChar, nAdj)
 	if not nodeChar or ((nAdj or 0) == 0) then
 		return;
 	end
 
-	local msg = {
-		sender = DB.getValue(nodeChar, "name", ""),
-		icon = "charlist_inspiration",
-		font = "systemfont",
-		text = Interface.getString((nAdj > 0) and "char_message_inspiration_gained" or "char_message_inspiration_used"),
-	};
-	Comm.deliverChatMessage(msg);
+	local sMsg = Interface.getString((nAdj > 0) and "char_message_inspiration_gained" or "char_message_inspiration_used");
+	ChatManager.sendMessage(sMsg, { rActor = ActorManager.resolveActor(nodeChar), sIcon = "charlist_inspiration", });
 end
 
 --
@@ -709,7 +592,7 @@ function addHP(nodeChar, vHP)
 	if not nodeChar or (nHP <= 0) then
 		return false;
 	end
-	DB.setValue(nodeChar, "hp.total", "number", DB.getValue(nodeChar, "hp.total", 0) + nHP);
+	GameManager.setRecordFieldValue(nodeChar, "hptotal", "number", GameManager.getRecordFieldValue(nodeChar, "hptotal", 0) + nHP);
 end
 function setSize(nodeChar, s)
 	if not nodeChar then
@@ -982,4 +865,12 @@ function addSpell(nodeChar, tData)
 	end
 
 	return nodeNew;
+end
+
+--
+--	DEPRECATED (2026-04)
+--
+
+function rest(nodeChar, bLong)
+	ActorCommonManager.rest(ActorManager.resolveActor(nodeChar), bLong and "long" or "short");
 end

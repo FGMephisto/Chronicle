@@ -8,16 +8,10 @@ OOB_MSGTYPE_APPLYINIT = "applyinit";
 function onInit()
 	OOBManager.registerOOBMsgHandler(ActionInit.OOB_MSGTYPE_APPLYINIT, ActionInit.handleApplyInit);
 
-	ActionsManager.registerModHandler("init", ActionInit.modRoll);
-	ActionsManager.registerResultHandler("init", ActionInit.onResolve);
+	ActionsManager.registerModHandler("init", ActionCheck.modRoll);
+	ActionsManager.registerResultHandler("init", ActionCheck.onRoll);
 end
 
-function handleApplyInit(msgOOB)
-	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
-	local nTotal = tonumber(msgOOB.nTotal) or 0;
-
-	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
-end
 function notifyApplyInit(rSource, nTotal)
 	if not rSource then
 		return;
@@ -25,12 +19,16 @@ function notifyApplyInit(rSource, nTotal)
 
 	local msgOOB = {};
 	msgOOB.type = ActionInit.OOB_MSGTYPE_APPLYINIT;
-
 	msgOOB.nTotal = nTotal;
-
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 
 	Comm.deliverOOBMessage(msgOOB, "");
+end
+function handleApplyInit(msgOOB)
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local nTotal = tonumber(msgOOB.nTotal) or 0;
+
+	DB.setValue(ActorManager.getCTNode(rSource), "initresult", "number", nTotal);
 end
 
 --
@@ -46,14 +44,6 @@ end
 function performRoll(draginfo, rActor, bSecretRoll)
 	local rRoll = ActionInit.getRoll(rActor, bSecretRoll);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
-end
-
-function modRoll(rSource, rTarget, rRoll)
-	ActionCheck.modRoll(rSource, rTarget, rRoll);
-end
-
-function onResolve(rSource, rTarget, rRoll)
-	ActionCheck.onRoll(rSource, rTarget, rRoll);
 end
 
 --
@@ -95,5 +85,5 @@ function getEffectAdjustments(rActor)
 		tCheckFilter = { "dexterity" },
 	};
 	ActionCheck.applyEffectsToRollMod(rRoll, rActor);
-	return rRoll.bEffects, rRoll.tEffectDice, rRoll.nEffectMod, rRoll.bADV, rRoll.bDIS;
+	return rRoll;
 end

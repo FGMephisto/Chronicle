@@ -16,14 +16,12 @@
 	<imagesettings>
 		<pointer defaultconeangle="5E" />
 	</imagesettings>
+	
+	<hotkeybar>
+		<title frame="hotkeytitlebox" frameoffset="2,-2,5,2" margin="2,7" font="hotkey" />
+	</hotkeybar>
 
-	<linksettings>
-		<class key="reference_class_specialization" copy="class" />
-		<class key="reference_class_spell_list" copy="spell" />
-		<class key="reference_subrace" copy="race" />
-		<class key="reference_vehicle" copy="item" />
-	</linksettings>
-
+	<!-- Dice -->
 	<panel name="dicepanel" merge="join">
 		<anchored>
 			<left offset="330" />

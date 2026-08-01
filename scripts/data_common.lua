@@ -3,6 +3,8 @@
 -- attribution and copyright information.
 --
 
+resttypes = { "long", "short", };
+
 -- Abilities (database names)
 abilities = {
 	"strength",
@@ -48,11 +50,6 @@ classes = {
 	"wizard",
 };
 
--- Values for wound comparison
-healthstatusfull = "healthy";
-healthstatushalf = "bloodied";
-healthstatuswounded = "wounded";
-
 -- Values for alignment comparison
 alignment_lawchaos = {
 	["lawful"] = 1,
@@ -88,18 +85,18 @@ creaturesize = {
 	["large"] = 1,
 	["huge"] = 2,
 	["gargantuan"] = 3,
+	["colossal"] = 4,
 	["t"] = -2,
 	["s"] = -1,
 	["m"] = 0,
 	["l"] = 1,
 	["h"] = 2,
 	["g"] = 3,
+	["c"] = 4,
 };
 
 -- Values for creature type comparison
-creaturedefaulttype = "humanoid";
 creaturehalftype = "half-";
-creaturehalftypesubrace = "human";
 -- NOTE: Multi-word types must come before single word types
 creaturetype = {
 	"aberration",
@@ -150,10 +147,6 @@ creaturesubtype = {
 	"yugoloth",
 };
 
--- Values supported in effect conditionals
-conditionaltags = {
-};
-
 -- Conditions supported in effect conditionals and for token widgets
 -- (Also shown in Effects window)
 conditions = {
@@ -162,6 +155,7 @@ conditions = {
 	"cursed",
 	"deafened",
 	"encumbered",
+	"exhaustion",
 	"frightened",
 	"grappled",
 	"incapacitated",
@@ -177,6 +171,10 @@ conditions = {
 	"surprised",
 	"turned",
 	"unconscious"
+};
+
+stackable_conditions = {
+	"exhaustion",
 };
 
 -- Bonus/penalty effect types for token widgets
@@ -264,22 +262,10 @@ othercomps = {
 	["GRANTADVATK"] = "cond_disadvantage",
 };
 
--- Effect components which can be targeted
-targetableeffectcomps = {
-	"COVER",
-	"SCOVER",
-	"AC",
-	"SAVE",
-	"ATK",
-	"DMG",
-	"IMMUNE",
-	"VULN",
-	"RESIST"
-};
-
-connectors = {
-	"and",
-	"or"
+-- Attack types supported
+atktypes = {
+	"spell",
+	"weapon"
 };
 
 -- Range types supported
@@ -326,12 +312,6 @@ basicdmgtypes = {
 };
 specialdmgtypes = {
 	"critical",
-};
-
--- Bonus types supported in power descriptions
-bonustypes = {
-};
-stackablebonustypes = {
 };
 
 function onInit()

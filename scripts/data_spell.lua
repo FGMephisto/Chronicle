@@ -62,8 +62,8 @@ parsedata = {
 	},
 	["blindnessdeafness"] = {
 		{ type = "powersave", save = "constitution", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Blinded; NOTE: End of Round Save", nDuration = 1, sUnits = "minute" },
-		{ type = "effect", sName = "Deafened; NOTE: End of Round Save", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Blinded; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Deafened; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute" },
 	},
 	["blur"] = {
 		{ type = "effect", sName = "GRANTDISATK; (C)", sTargeting = "self", nDuration = 1, sUnits = "minute" },
@@ -71,7 +71,7 @@ parsedata = {
 	["chilltouch"] = {
 		{ type = "attack", range = "R", spell = true, base = "group" },
 		{ type = "damage", clauses = { { dice = { "d8" }, dmgtype = "necrotic" } } },
-		{ type = "effect", sName = "NOTE: Can't regain hit points", nDuration = 1 },
+		{ type = "effect", sName = "NOHEAL", nDuration = 1 },
 		{ type = "effect", sName = "[TRGT]; GRANTDISATK", sTargeting = "self", nDuration = 1 },
 	},
 	["chromaticorb"] = {
@@ -101,7 +101,7 @@ parsedata = {
 	},
 	["crownofmadness"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Charmed; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Charmed; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["crusadersmantle"] = {
 		{ type = "effect", sName = "DMG: 1d4 radiant; (C)", nDuration = 1, sUnits = "minute" },
@@ -176,6 +176,9 @@ parsedata = {
 		{ type = "powersave", save = "dexterity", onmissdamage = "half", magic = true, savebase = "group" },
 		{ type = "damage", clauses = { { modifier = 20, dmgtype = "radiant" } } },
 	},
+	["guidance"] = {
+		{ type = "effect", sName = "SKILL: 1d4; (C)", sApply = "roll", nDuration = 1, sUnits = "minute", },
+	},
 	["guidingbolt"] = {
 		{ type = "attack", range = "R", spell = true, base = "group" },
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6" }, dmgtype = "radiant" } } },
@@ -246,7 +249,7 @@ parsedata = {
 	},
 	["rayofenfeeblement"] = {
 		{ type = "attack", range = "R", spell = true, base = "group" },
-		{ type = "effect", sName = "NOTE: Deals half damage with Strength attacks; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "NOTE: Deals half damage with Strength attacks; SAVEOE: [SDC] constitution; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["sanctuary"] = {
 		{ type = "effect", sName = "NOTE: Sanctuary", nDuration = 1, sUnits = "minute" },
@@ -259,7 +262,7 @@ parsedata = {
 	},
 	["slow"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "NOTE: Slowed; AC: -2; SAVE: -2 dexterity; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "NOTE: Slowed; AC: -2; SAVE: -2 dexterity; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["sunbeam"] = {
 		{ type = "effect", sName = "Sunbeam; (C)", sTargeting = "self", nDuration = 1, sUnits = "minute" },
@@ -280,7 +283,7 @@ parsedata = {
 	},
 	["tashashideouslaughter"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Prone; Incapacitated; NOTE: Unable to stand up; NOTE: Save on end of round and damage; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Prone; Incapacitated; NOTE: Unable to stand up; NOTE: Save on damage; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["tongues"] = {
 		{ type = "effect", sName = "Tongues; LANG: all", nDuration = 1, sUnits = "hour" },
@@ -353,8 +356,8 @@ tBuildDataSpell2024 = {
 	},
 	["blindnessdeafness"] = {
 		{ type = "powersave", save = "constitution", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Blinded; NOTE: End of Round Save", nDuration = 1, sUnits = "minute" },
-		{ type = "effect", sName = "Deafened; NOTE: End of Round Save", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Blinded; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Deafened; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute" },
 	},
 	["blur"] = {
 		{ type = "effect", sName = "GRANTDISATK; (C)", sTargeting = "self", nDuration = 1, sUnits = "minute" },
@@ -419,7 +422,7 @@ tBuildDataSpell2024 = {
 	},
 	["crownofmadness"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Charmed; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Charmed; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["darkness"] = {
 		{ type = "effect", sName = "LIGHT: 15/15 FF000000; (C)", nDuration = 10, sUnits = "minute" },
@@ -700,7 +703,7 @@ tBuildDataSpell2024 = {
 	},
 	["ottosirresistibledance"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Charmed; Speed 0; Must Dance; DISSAV: dexterity; DISATK; GRANTADVATK; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Charmed; Speed 0; Must Dance; DISSAV: dexterity; DISATK; GRANTADVATK; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 		{ type = "effect", sName = "Speed 0; Must Dance", nDuration = 1 },
 	},
 	["passwithouttrace"] = {
@@ -709,10 +712,10 @@ tBuildDataSpell2024 = {
 	["phantasmalkiller"] = {
 		{ type = "powersave", save = "wisdom", onmissdamage = "half", magic = true, savebase = "group" },
 		{ type = "damage", clauses = { { dice = { "d10", "d10", "d10", "d10", }, dmgtype = "psychic" } } },
-		{ type = "effect", sName = "DMGO: 4d10 psychic; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "DMGO: 4d10 psychic; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["powerwordstun"] = {
-		{ type = "effect", sName = "Stunned; NOTE: Con Save on end of round" },
+		{ type = "effect", sName = "Stunned; SAVEOE: [SDC] constitution" },
 	},
 	["prismaticspray"] = {
 		{ type = "powersave", save = "dexterity", onmissdamage = "half", magic = true, savebase = "group" },
@@ -722,7 +725,7 @@ tBuildDataSpell2024 = {
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6" }, dmgtype = "poison" } } },
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6" }, dmgtype = "cold" } } },
 		{ type = "effect", sName = "Restrained; NOTE: Con Save on end of round (3 Successes Ends Effect) (3 Failures Applies Petrified)" },
-		{ type = "effect", sName = "Blinded; NOTE: Wis Save on end of round (Success Ends) (Failure Teleports)", nDuration = 1 },
+		{ type = "effect", sName = "Blinded; SAVEO: [SDC] wisdom; FAIL; NOTE: Sent to another plane", nDuration = 1 },
 	},
 	["prismaticwall"] = {
 		{ type = "powersave", save = "constitution", magic = true, savebase = "group" },
@@ -734,7 +737,7 @@ tBuildDataSpell2024 = {
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6" }, dmgtype = "poison" } } },
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6" }, dmgtype = "cold" } } },
 		{ type = "effect", sName = "Restrained; NOTE: Con Save on end of round (3 Successes Ends Effect) (3 Failures Applies Petrified)" },
-		{ type = "effect", sName = "Blinded; NOTE: Wis Save on end of round (Success Ends) (Failure Teleports)", nDuration = 1 },
+		{ type = "effect", sName = "Blinded; SAVEO: [SDC] wisdom; FAIL; NOTE: Sent to another plane", nDuration = 1 },
 	},
 	["produceflame"] = {
 		{ type = "effect", sName = "LIGHT: 20 torch", nDuration = 10, sUnits = "minute" },
@@ -759,7 +762,7 @@ tBuildDataSpell2024 = {
 	},
 	["rayofenfeeblement"] = {
 		{ type = "powersave", save = "constitution", magic = true, savebase = "group" },
-		{ type = "effect", sName = "DISATK; DISCHK: strength; DISSAV: strength; DMG: -1d8; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "DISATK; DISCHK: strength; DISSAV: strength; DMG: -1d8; SAVEOE: [SDC] constitution; (C)", nDuration = 1, sUnits = "minute" },
 		{ type = "effect", sName = "DISATK; (C)", sApply = "roll", nDuration = 1 },
 	},
 	["rayoffrost"] = {
@@ -796,7 +799,7 @@ tBuildDataSpell2024 = {
 	},
 	["searingsmite"] = {
 		{ type = "effect", sName = "DMG: 1d6 fire", sTargeting = "self", sApply = "roll", nDuration = 1 },
-		{ type = "effect", sName = "DMGO: 1d6 fire; NOTE: Con Save on end of round" },
+		{ type = "effect", sName = "DMGO: 1d6 fire; SAVEO: [SDC] constitution" },
 	},
 	["seeming"] = {
 		{ type = "effect", sName = "Seeming", nDuration = 8, sUnits = "hour" },
@@ -824,11 +827,11 @@ tBuildDataSpell2024 = {
 	},
 	["sleep"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Incapacitated; NOTE: Save on end of round (Success ends) (Failure applies Unconscious); (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Incapacitated; (C); NOTE: Ends on damage; SAVEOE: [SDC] wisdom; FAIL: inherit; Unconscious; Prone", nDuration = 1, sUnits = "minute" },
 	},
 	["slow"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Slowed; Speed Half; AC: -2; SAVE: -2 dexterity; NOTE: No Reactions; NOTE: Save on end of round; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Slowed; Speed Half; AC: -2; SAVE: -2 dexterity; NOTE: No Reactions; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["songalselementalsuffusion"] = {
 		{ type = "effect", sName = "RESIST: acid; (C)", nDuration = 1, sUnits = "minute" },
@@ -916,11 +919,11 @@ tBuildDataSpell2024 = {
 	["synapticstatic"] = {
 		{ type = "powersave", save = "intelligence", onmissdamage = "half", magic = true, savebase = "group" },
 		{ type = "damage", clauses = { { dice = { "d6", "d6", "d6", "d6", "d6", "d6", "d6", "d6" }, dmgtype = "psychic" } } },
-		{ type = "effect", sName = "Muddled Thoughts; ATK: -1d6; CHECK: -1d6; NOTE: Concentration saves -1d6; NOTE: Save on end of round", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Muddled Thoughts; ATK: -1d6; CHECK: -1d6; NOTE: Concentration saves -1d6; SAVEOE: [SDC] intelligence", nDuration = 1, sUnits = "minute" },
 	},
 	["tashashideouslaughter"] = {
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Prone; Incapacitated; NOTE: Unable to stand up; NOTE: Save on end of round and damage; (C)", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Prone; Incapacitated; NOTE: Unable to stand up; NOTE: Save on damage; SAVEOE: [SDC] wisdom; (C)", nDuration = 1, sUnits = "minute" },
 	},
 	["telepathy"] = {
 		{ type = "effect", sName = "Telepathy", nDuration = 24, sUnits = "hour" },
@@ -980,6 +983,6 @@ tBuildDataSpell2024 = {
 	["wrathfulsmite"] = {
 		{ type = "effect", sName = "DMG: 1d6 necrotic", sTargeting = "self", sApply = "roll", nDuration = 1 },
 		{ type = "powersave", save = "wisdom", magic = true, savebase = "group" },
-		{ type = "effect", sName = "Frightened; NOTE: Save on end of round", nDuration = 1, sUnits = "minute" },
+		{ type = "effect", sName = "Frightened; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute" },
 	},
 };

@@ -160,7 +160,7 @@ function onHeal(rSource, rTarget, rRoll)
 
 	rRoll.nTotal = ActionsManager.total(rRoll);
 	rRoll.sDesc = rMessage.text;
-	ActionDamage.notifyApplyDamage(rSource, rTarget, rRoll);
+	ActionDamageD20.notifyApplyDamage(rSource, rTarget, rRoll);
 end
 
 --

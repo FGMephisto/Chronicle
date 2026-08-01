@@ -346,17 +346,7 @@
 			<label_column name="healtargeting_label">
 				<static textres="power_label_targeting" />
 			</label_column>
-			<button_stringcycler name="healtargeting">
-				<anchored width="60" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
-				</anchored>
-				<parameters>
-					<defaultlabelres>power_label_targetnormal</defaultlabelres>
-					<labelsres>power_label_targetself</labelsres>
-					<values>self</values>
-				</parameters>
-			</button_stringcycler>
+			<stringcycler_column_poweraction_targeting name="healtargeting" />
 
 			<label_column name="healtype_label">
 				<static textres="power_label_healtype" />
@@ -442,6 +432,20 @@
 	</windowclass>
 
 	<windowclass name="power_action_editor_effect">
+		<script>
+			function onInit()
+				self.onExpirationChanged();
+			end
+			function onExpirationChanged()
+				local sExpire = expiration.getValue();
+				local bShowDuration = ((sExpire ~= "restlong") and (sExpire ~= "restshort") and (sExpire ~= "endnext"));
+				durmod.setVisible(bShowDuration);
+				durunit.setVisible(bShowDuration);
+
+				local bShowInitSource = ((sExpire ~= "restlong") and (sExpire ~= "restshort"));
+				initsource.setVisible(bShowInitSource);
+			end
+		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
@@ -460,21 +464,23 @@
 				<static textres="power_header_effect_duration" />
 				<center />
 			</header_column>
-			<basicnumber name="durmod">
-				<anchored width="30" height="20">
+
+			<genericcontrol name="area_duration">
+				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
 					<left offset="5" />
+					<right offset="-5" />
 				</anchored>
+			</genericcontrol>
+			<basicnumber name="durmod">
+				<anchored to="area_duration" position="insidetopleft" width="30" height="20" />
 				<hideonvalue value="0" />
 			</basicnumber>
-			<button_stringcycler name="durunit">
-				<anchored to="durmod" position="righthigh" offset="10,0" width="40" height="20" />
-				<parameters>
-					<defaultlabelres>effect_label_durunitrnd</defaultlabelres>
-					<labelsres>effect_label_durunitmin|effect_label_durunithr|effect_label_durunitday</labelsres>
-					<values>minute|hour|day</values>
-				</parameters>
-			</button_stringcycler>
+			<stringcycler_editor_poweraction_effect_units name="durunit" />
+			<button_editor_poweraction_effect_expiration name="expiration">
+				<anchored to="area_duration" position="insidetopleft" offset="90,0" width="24" height="10" merge="replace" />
+			</button_editor_poweraction_effect_expiration>
+			<button_editor_poweraction_effect_initsource name="initsource" />
 
 			<header_column name="header_other">
 				<static textres="power_header_effect_other" />
@@ -484,32 +490,12 @@
 			<label_column name="targeting_label">
 				<static textres="power_label_targeting" />
 			</label_column>
-			<button_stringcycler name="targeting">
-				<anchored width="60" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
-				</anchored>
-				<parameters>
-					<defaultlabelres>power_label_targetnormal</defaultlabelres>
-					<labelsres>power_label_targetself</labelsres>
-					<values>self</values>
-				</parameters>
-			</button_stringcycler>
+			<stringcycler_column_poweraction_effect_targeting name="targeting" />
 
 			<label_column name="apply_label">
 				<static textres="power_label_effect_apply" />
 			</label_column>
-			<button_stringcycler name="apply">
-				<anchored width="120" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-					<left offset="97" />
-				</anchored>
-				<parameters>
-					<defaultlabelres>power_label_effect_applyall</defaultlabelres>
-					<labelsres>power_label_effect_applyaction|power_label_effect_applyroll|power_label_effect_applysingle</labelsres>
-					<values>action|roll|single</values>
-				</parameters>
-			</button_stringcycler>
+			<stringcycler_column_poweraction_effect_apply name="apply" />
 		</sheetdata>
 	</windowclass>
 </root>

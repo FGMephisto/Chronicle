@@ -147,7 +147,10 @@
 			<label_content_column name="size_label">
 				<static textres="npc_label_size" />
 			</label_content_column>
-			<string_content_columnh name="size" />
+			<string_content_columnh name="size">
+				<delaykeyupdate />
+				<script file="campaign/scripts/record_size.lua" />
+			</string_content_columnh>
 
 			<label_content_column name="cost_label">
 				<static textres="vehicle_label_cost" />

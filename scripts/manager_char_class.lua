@@ -199,7 +199,7 @@ function helperAddClassHP(rAdd)
 	end
 
 	-- Add hit points based on level added
-	local nHP = DB.getValue(rAdd.nodeChar, "hp.total", 0);
+	local nHP = GameManager.getRecordFieldValue(rAdd.nodeChar, "hptotal", 0);
 	local nConBonus = DB.getValue(rAdd.nodeChar, "abilities.constitution.bonus", 0);
 	if rAdd.nCharLevel == 1 then
 		local nAddHP = math.max((nHDMult * nHDSides) + nConBonus, 1);
@@ -212,7 +212,7 @@ function helperAddClassHP(rAdd)
 
 		ChatManager.SystemMessageResource("char_abilities_message_hpaddavg", rAdd.sSourceName, rAdd.sCharName, nAddHP);
 	end
-	DB.setValue(rAdd.nodeChar, "hp.total", "number", nHP);
+	GameManager.setRecordFieldValue(rAdd.nodeChar, "hptotal", "number", nHP);
 
 	-- Special hit point level up handling
 	-- 2024/2014 - PHB - Species - Dwarf - Dwarven Toughness
@@ -1195,9 +1195,8 @@ end
 function applyDraconicResilience(nodeChar)
 	-- Add extra hit points
 	local nAddHP = 1;
-	local nHP = DB.getValue(nodeChar, "hp.total", 0);
-	nHP = nHP + nAddHP;
-	DB.setValue(nodeChar, "hp.total", "number", nHP);
+	local nHP = GameManager.getRecordFieldValue(nodeChar, "hptotal", 0);
+	GameManager.setRecordFieldValue(nodeChar, "hptotal", "number", nHP + nAddHP);
 
 	ChatManager.SystemMessageResource("char_abilities_message_hpaddfeature", StringManager.capitalizeAll(CharManager.FEATURE_DRACONIC_RESILIENCE), DB.getValue(nodeChar, "name", ""), nAddHP);
 end

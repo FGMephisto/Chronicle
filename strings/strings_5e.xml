@@ -89,23 +89,27 @@
 	<string name="roll_msg_armor_disstealth">ARMOR STEALTH PENALTY</string>
 
 	<!-- Options -->
+	<string name="option_label_HRST">Combat: Auto death rolls</string>
 	<string name="option_label_NPCD">Combat: NPC damage rolls</string>
+	<string name="option_label_HRNH">Combat: NPC hit points</string>
+	<string name="option_label_HRMD">Combat: Massive system shock</string>
+	<string name="option_label_HREX">Exhaustion: Roll modifier per level</string>
+	<string name="option_label_HRHE">Exhaustion: Apply when heal from dying</string>
+	<string name="option_label_HRSE">Exhaustion: Apply mod to spell DC</string>
+	<string name="option_label_HRBASTION">Game: Bastion support</string>
+	<string name="option_label_HRFL">Game: Skill auto-reliable rolls</string>
+	<string name="option_label_HRAS">PC: Attunement slots</string>
+	<string name="option_label_HRHV">PC: Healing variants</string>
+	<string name="option_label_HRIS">PC: Inspiration slots</string>
+
+	<string name="option_label_GAVE">Game: Rules Version</string>
+
 	<string name="option_val_fixed">Fixed</string>
 	<string name="option_val_variable">Variable</string>
 	<string name="option_val_HRHV_fast">Healing Surges</string>
 	<string name="option_val_HRHV_slow">Slow Natural Heal</string>
 	<string name="option_val_HRAS_prof">Prof. Bonus</string>
-
-	<string name="option_label_HRST">Combat: Auto death rolls</string>
-	<string name="option_label_HRNH">Combat: NPC hit points</string>
-	<string name="option_label_HRMD">Combat: Massive system shock</string>
-	<string name="option_label_HRAS">PC: Attunement slots</string>
-	<string name="option_label_HREN">PC: Encumbrance</string>
-	<string name="option_label_HRHV">PC: Healing variants</string>
-	<string name="option_label_HRIS">PC: Inspiration slots</string>
-	<string name="option_label_HRBASTION">Game: Bastion Support</string>
-
-	<string name="option_label_GAVE">Game: Rules Version</string>
+	<string name="option_val_HRFL_passive">Ins/Inv/Per</string>
 
 	<!-- Languages -->
 	<string name="language_value_common">Common</string>
@@ -396,12 +400,7 @@
 	<string name="char_tooltip_weaponhand1">Primary Hand</string>
 	<string name="char_tooltip_weaponhand2">Two Hands</string>
 	<string name="char_tooltip_weaponhandoff">Off Hand</string>
-	<string name="char_label_weaponatkdetail">Attack:</string>
-	<string name="char_label_weapondmgdetail">Damage:</string>
-	<string name="char_label_weapondmgtype">Type:</string>
-	<string name="char_label_weaponproperties">Properties:</string>
 	<string name="char_label_weaponammo">Ammo</string>
-	<string name="char_button_weapondamage">Damage</string>
 
 	<string name="char_weaponmeta_title">WEAPON META</string>
 	<string name="char_label_critrange">Crit on:</string>

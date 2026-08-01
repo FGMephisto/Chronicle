@@ -39,48 +39,47 @@ function onTurnStart(nodeEntry)
 	-- Handle beginning of turn changes
 	DB.setValue(nodeEntry, "reaction", "number", 0);
 
-	-- Check for exhaustion levels for pre-2024 rules
-	if nodeEntry then
-		local sClass, sRecord = DB.getValue(nodeEntry, "link");
-		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
-			-- Get exhaustion modifiers
-			local nExhaustMod,_ = EffectManager5E.getEffectsBonus(nodeEntry, { "EXHAUSTION" }, true);
-			local bShowMsg = true;
+	local rActor = ActorManager.resolveActor(nodeEntry);
+	if ActorManager.isPC(rActor) then
+		-- Check for exhaustion levels for pre-2024 rules
+		local nExhaustLevel = ActorManager5E.getExhaustionLevel(rActor);
+		if OptionsManager.isOption("GAVE", "2024") then
+			if nExhaustLevel > 5 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
+			elseif nExhaustLevel > 0 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = string.format("Exhausted; Speed -%d (info only)", nExhaustLevel * 5), nDuration = 1, });
+			end
+		else
+			if nExhaustLevel > 5 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
+			elseif nExhaustLevel > 4 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1, });
+			elseif nExhaustLevel > 3 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1, });
+			elseif nExhaustLevel > 1 then
+				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1, });
+			end
+		end
 
-			if OptionsManager.isOption("GAVE", "2024") then
-				if nExhaustMod > 5 then
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1 }, bShowMsg);
-				elseif nExhaustMod > 0 then
-					local nSpeedAdjust = nExhaustMod * 5;
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed -" .. nSpeedAdjust .. " (info only)", nDuration = 1 }, bShowMsg);
-				end
-			else
-				if nExhaustMod > 5 then
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1 }, bShowMsg);
-				elseif nExhaustMod > 4 then
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1 }, bShowMsg);
-				elseif nExhaustMod > 3 then
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1 }, bShowMsg);
-				elseif nExhaustMod > 1 then
-					EffectManager.addEffect("", "", nodeEntry, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1 }, bShowMsg);
+		-- Check for death saves (based on option)
+		if OptionsManager.isOption("HRST", "on") then
+			local nHP = GameManager.getRecordFieldValueLinked(rActor, "hptotal", 0);
+			if nHP > 0 then
+				local nWounds = GameManager.getRecordFieldValueLinked(rActor, "wounds", 0);
+				if nWounds >= nHP then
+					local nDeathSaveFail = GameManager.getRecordFieldValueLinked(rActor, "deathsavefail", 0);
+					if nDeathSaveFail < 3 then
+						if not EffectManager.hasCondition(rActor, "Stable") then
+							ActionSave.performDeathRoll(nil, rActor, true);
+						end
+					end
 				end
 			end
 		end
-	end
 
-	-- Check for death saves (based on option)
-	if OptionsManager.isOption("HRST", "on") then
-		local sClass, sRecord = DB.getValue(nodeEntry, "link");
-		if (sClass == "charsheet") and ((sRecord or "") ~= "") then
-			local nHP = DB.getValue(nodeEntry, "hptotal", 0);
-			local nWounds = DB.getValue(nodeEntry, "wounds", 0);
-			local nDeathSaveFail = DB.getValue(nodeEntry, "deathsavefail", 0);
-			if (nHP > 0) and (nWounds >= nHP) and (nDeathSaveFail < 3) then
-				local rActor = ActorManager.resolveActor(sRecord);
-				if not EffectManager.hasCondition(rActor, "Stable") then
-					ActionSave.performDeathRoll(nil, rActor, true);
-				end
-			end
+		-- Encumbrance notification
+		if GameManager.getRecordFieldValue(rActor, "enclevel", 0) > 0 then
+			ChatManager.sendMessage(string.format("[%s]", GameManager.getRecordFieldValue(rActor, "encstate", ""):upper()), { sIcon = "action_weight", rActor = rActor, })
 		end
 	end
 end
@@ -100,14 +99,14 @@ function parseResistances(sResistances)
 		local aResistTypes = {};
 
 		for _,v2 in ipairs(StringManager.split(v, ",", true)) do
-			if StringManager.isWord(v2, DataCommon.dmgtypes) then
+			if ActionCore.isDamageType(v2) then
 				table.insert(aResistTypes, v2);
 			else
 				local aResistWords = StringManager.parseWords(v2);
 
 				local i = 1;
 				while aResistWords[i] do
-					if StringManager.isWord(aResistWords[i], DataCommon.dmgtypes) then
+					if ActionCore.isDamageType(aResistWords[i]) then
 						table.insert(aResistTypes, aResistWords[i]);
 					elseif StringManager.isWord(aResistWords[i], "cold-forged") and StringManager.isWord(aResistWords[i+1], "iron") then
 						i = i + 1;
@@ -177,7 +176,7 @@ function onNPCPostAdd(tCustom)
 	local tEffects = {};
 	CombatManager2.parseNPCPowers(ActorManager.resolveActor(tCustom.nodeCT), tEffects);
 	if #tEffects > 0 then
-		EffectManager.addEffect("", "", tCustom.nodeCT, { sName = table.concat(tEffects, "; "), nDuration = 0, nGMOnly = 1 }, false);
+		EffectManager.addEffectByTable(tCustom.nodeCT, { sName = table.concat(tEffects, "; "), nGMOnly = 1 });
 	end
 
 	-- Roll initiative and sort
@@ -253,7 +252,7 @@ function parseNPCPowerBuildEffects(nodePower, tEffects)
 				while tPowerWords[i+1] do
 					if StringManager.isWord(tPowerWords[i+1], {"or"}) then
 						-- SKIP
-					elseif StringManager.isWord(tPowerWords[i+1], DataCommon.dmgtypes) then
+					elseif ActionCore.isDamageType(tPowerWords[i+1]) then
 						table.insert(aRegenBlockTypes, tPowerWords[i+1]);
 					elseif StringManager.isWord(tPowerWords[i+1], "cold-forged") and StringManager.isWord(tPowerWords[i+2], "iron") then
 						table.insert(aRegenBlockTypes, "cold-forged iron");
@@ -272,7 +271,7 @@ function parseNPCPowerBuildEffects(nodePower, tEffects)
 			local sRegen = "REGEN: " .. sRegenAmount;
 			if #aRegenBlockTypes > 0 then
 				sRegen = sRegen .. " " .. table.concat(aRegenBlockTypes, ",");
-				EffectManager.addEffect("", "", DB.getChild(nodePower, "..."), { sName = sRegen, nDuration = 0, nGMOnly = 1 }, false);
+				EffectManager.addEffectByTable(DB.getChild(nodePower, "..."), { sName = sRegen, nGMOnly = 1 });
 			else
 				table.insert(tEffects, sRegen);
 			end
@@ -289,27 +288,21 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 	local tDisplayOptions = {};
 
 	local tAbilities = PowerManager.parseNPCPower(nodePower, bAllowSpellDataOverride);
+	local bSpell = false;
+	local bWeapon = false;
 	for _,v in ipairs(tAbilities) do
 		PowerManager.evalAction(rActor, nodePower, v);
+
 		if v.type == "attack" then
+			if v.range then
+				table.insert(tDisplayOptions, string.format("[%s]", v.range));
+				if v.rangedist and v.rangedist ~= "5" then
+					table.insert(tDisplayOptions, string.format("[RNG: %s]", v.rangedist));
+				end
+			end
 			if v.nomod then
-				if v.range then
-					table.insert(tDisplayOptions, string.format("[%s]", v.range));
-				end
-				if v.spell then
-					table.insert(tDisplayOptions, "[ATK: SPELL]");
-				elseif v.weapon then
-					table.insert(tDisplayOptions, "[ATK: WEAPON]");
-				else
-					table.insert(tDisplayOptions, "[ATK]");
-				end
+				table.insert(tDisplayOptions, "[ATK]");
 			else
-				if v.range then
-					table.insert(tDisplayOptions, string.format("[%s]", v.range));
-					if v.rangedist and v.rangedist ~= "5" then
-						table.insert(tDisplayOptions, string.format("[RNG: %s]", v.rangedist));
-					end
-				end
 				table.insert(tDisplayOptions, string.format("[ATK: %+d]", v.modifier or 0));
 			end
 
@@ -327,10 +320,10 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 
 		elseif v.type == "damage" then
 			local aDmgDisplay = {};
-			for _,vClause in ipairs(v.clauses) do
-				local sDmg = StringManager.convertDiceToString(vClause.dice, vClause.modifier);
-				if vClause.dmgtype and vClause.dmgtype ~= "" then
-					sDmg = sDmg .. " " .. vClause.dmgtype;
+			for _,tClause in ipairs(v.clauses) do
+				local sDmg = StringManager.convertDiceToString(tClause.dice, tClause.modifier);
+				if tClause.dmgtype and tClause.dmgtype ~= "" then
+					sDmg = sDmg .. " " .. tClause.dmgtype;
 				end
 				table.insert(aDmgDisplay, sDmg);
 			end
@@ -338,8 +331,8 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 
 		elseif v.type == "heal" then
 			local aHealDisplay = {};
-			for _,vClause in ipairs(v.clauses) do
-				local sHeal = StringManager.convertDiceToString(vClause.dice, vClause.modifier);
+			for _,tClause in ipairs(v.clauses) do
+				local sHeal = StringManager.convertDiceToString(tClause.dice, tClause.modifier);
 				table.insert(aHealDisplay, sHeal);
 			end
 
@@ -351,9 +344,19 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 			table.insert(tDisplayOptions, string.format("[HEAL: %s]", sHeal));
 
 		elseif v.type == "effect" then
-			table.insert(tDisplayOptions, EffectManager5E.encodeEffectForCT(v));
-
+			table.insert(tDisplayOptions, EffectManagerD20.encodeEffectForCT(v));
 		end
+
+		if v.bSpell then
+			bSpell = true;
+		elseif v.bWeapon then
+			bWeapon = true;
+		end
+	end
+	if bSpell then
+		table.insert(tDisplayOptions, "[S]");
+	elseif bWeapon then
+		table.insert(tDisplayOptions, "[W]");
 	end
 
 	-- Remove melee / ranged attack in title
@@ -370,7 +373,7 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 
 	-- Set the value field to the short version
 	if #tDisplayOptions > 0 then
-		sDisplay = string.format("%s %s", sDisplay, table.concat(tDisplayOptions, " "));
+		sDisplay = StringManager.append(sDisplay, table.concat(tDisplayOptions, " "), " ");
 	end
 	DB.setValue(nodePower, "value", "string", sDisplay);
 end
@@ -419,7 +422,7 @@ function onVehiclePostAdd(tCustom)
 
 	-- Add effects
 	if #tEffects > 0 then
-		EffectManager.addEffect("", "", tCustom.nodeCT, { sName = table.concat(tEffects, "; "), nDuration = 0, nGMOnly = 1 }, false);
+		EffectManager.addEffectByTable(tCustom.nodeCT, { sName = table.concat(tEffects, "; "), nGMOnly = 1 });
 	end
 
 	-- Roll initiative and sort
@@ -431,149 +434,159 @@ end
 --
 
 function parseAttackLine(sLine)
-	local rPower = nil;
-
 	local nIntroStart, nIntroEnd, sName = sLine:find("([^%[]*)[%[]?");
-	if nIntroStart then
-		rPower = {};
-		rPower.name = PowerManager.cleanNPCPowerName(sName);
-		rPower.aAbilities = {};
-		nIndex = nIntroEnd;
+	if not nIntroStart then
+		return nil;
+	end
 
-		local nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nIntroEnd);
-		while nAbilityStart do
-			if sAbility == "M" or sAbility == "R" then
-				rPower.range = sAbility;
+	local rPower = {};
+	rPower.name = PowerManager.cleanNPCPowerName(sName);
+	rPower.aAbilities = {};
+	nIndex = nIntroEnd;
 
-			elseif sAbility:sub(1,4) == "ATK:" and #sAbility > 4 then
-				local rAttack = {};
-				rAttack.sType = "attack";
-				rAttack.nStart = nAbilityStart + 1;
-				rAttack.nEnd = nAbilityEnd;
-				rAttack.label = rPower.name;
-				rAttack.range = rPower.range;
-				local sAttack, sCritRange = sAbility:sub(7):match("([+-]?%d+)%s*%((%d+)%)");
-				if sAttack then
-					rAttack.modifier = tonumber(sAttack) or 0;
-					rAttack.nCritRange = tonumber(sCritRange) or 0;
-					if rAttack.nCritRange < 2 or rAttack.nCritRange > 19 then
-						rAttack.nCritRange = nil;
+	local nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nIntroEnd);
+	while nAbilityStart do
+		if sAbility == "M" or sAbility == "R" then
+			rPower.range = sAbility;
+
+		elseif sAbility:sub(1,4) == "ATK:" and #sAbility > 4 then
+			local rAttack = {};
+			rAttack.sType = "attack";
+			rAttack.nStart = nAbilityStart + 1;
+			rAttack.nEnd = nAbilityEnd;
+			rAttack.label = rPower.name;
+			rAttack.range = rPower.range;
+			local sAttack, sCritRange = sAbility:sub(7):match("([+-]?%d+)%s*%((%d+)%)");
+			if sAttack then
+				rAttack.modifier = tonumber(sAttack) or 0;
+				rAttack.nCritRange = tonumber(sCritRange) or 0;
+				if rAttack.nCritRange < 2 or rAttack.nCritRange > 19 then
+					rAttack.nCritRange = nil;
+				end
+			else
+				rAttack.modifier = tonumber(sAbility:sub(5)) or 0;
+			end
+			table.insert(rPower.aAbilities, rAttack);
+
+		elseif sAbility:sub(1,7) == "SAVEVS:" and #sAbility > 7 then
+			local aWords = StringManager.parseWords(sAbility:sub(7));
+
+			local rSave = {};
+			rSave.sType = "powersave";
+			rSave.nStart = nAbilityStart + 1;
+			rSave.nEnd = nAbilityEnd;
+			rSave.label = rPower.name;
+			rSave.save = aWords[1];
+			rSave.savemod = tonumber(aWords[2]) or 0;
+			if StringManager.isWord(aWords[3], "H") then
+				rSave.onmissdamage = "half";
+			end
+			if StringManager.isWord(aWords[3], "magic") or StringManager.isWord(aWords[4], "magic") then
+				rSave.magic = true;
+			end
+			table.insert(rPower.aAbilities, rSave);
+
+		elseif sAbility:sub(1,4) == "DMG:" and #sAbility > 4 then
+			local rDamage = {};
+			rDamage.sType = "damage";
+			rDamage.nStart = nAbilityStart + 1;
+			rDamage.nEnd = nAbilityEnd;
+			rDamage.label = rPower.name;
+			rDamage.range = rPower.range;
+			rDamage.clauses = {};
+
+			local tPowerWords = StringManager.parseWords(sAbility:sub(5));
+			local i = 1;
+			while tPowerWords[i] do
+				if StringManager.isDiceString(tPowerWords[i]) then
+					local aDmgDiceStr = {};
+					table.insert(aDmgDiceStr, tPowerWords[i]);
+					while StringManager.isDiceString(tPowerWords[i+1]) do
+						table.insert(aDmgDiceStr, tPowerWords[i+1]);
+						i = i + 1;
 					end
-				else
-					rAttack.modifier = tonumber(sAbility:sub(5)) or 0;
-				end
-				table.insert(rPower.aAbilities, rAttack);
+					local aClause = {};
+					aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aDmgDiceStr));
 
-			elseif sAbility:sub(1,7) == "SAVEVS:" and #sAbility > 7 then
-				local aWords = StringManager.parseWords(sAbility:sub(7));
-
-				local rSave = {};
-				rSave.sType = "powersave";
-				rSave.nStart = nAbilityStart + 1;
-				rSave.nEnd = nAbilityEnd;
-				rSave.label = rPower.name;
-				rSave.save = aWords[1];
-				rSave.savemod = tonumber(aWords[2]) or 0;
-				if StringManager.isWord(aWords[3], "H") then
-					rSave.onmissdamage = "half";
-				end
-				if StringManager.isWord(aWords[3], "magic") or StringManager.isWord(aWords[4], "magic") then
-					rSave.magic = true;
-				end
-				table.insert(rPower.aAbilities, rSave);
-
-			elseif sAbility:sub(1,4) == "DMG:" and #sAbility > 4 then
-				local rDamage = {};
-				rDamage.sType = "damage";
-				rDamage.nStart = nAbilityStart + 1;
-				rDamage.nEnd = nAbilityEnd;
-				rDamage.label = rPower.name;
-				rDamage.range = rPower.range;
-				rDamage.clauses = {};
-
-				local tPowerWords = StringManager.parseWords(sAbility:sub(5));
-				local i = 1;
-				while tPowerWords[i] do
-					if StringManager.isDiceString(tPowerWords[i]) then
-						local aDmgDiceStr = {};
-						table.insert(aDmgDiceStr, tPowerWords[i]);
-						while StringManager.isDiceString(tPowerWords[i+1]) do
-							table.insert(aDmgDiceStr, tPowerWords[i+1]);
-							i = i + 1;
-						end
-						local aClause = {};
-						aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aDmgDiceStr));
-
-						local aDmgType = {};
-						while tPowerWords[i+1] and not StringManager.isDiceString(tPowerWords[i+1]) and not StringManager.isWord(tPowerWords[i+1], {"and", "plus"}) do
-							table.insert(aDmgType, tPowerWords[i+1]);
-							i = i + 1;
-						end
-						aClause.dmgtype = table.concat(aDmgType, ",");
-
-						table.insert(rDamage.clauses, aClause);
+					local aDmgType = {};
+					while tPowerWords[i+1] and not StringManager.isDiceString(tPowerWords[i+1]) and not StringManager.isWord(tPowerWords[i+1], {"and", "plus"}) do
+						table.insert(aDmgType, tPowerWords[i+1]);
+						i = i + 1;
 					end
+					aClause.dmgtype = table.concat(aDmgType, ",");
 
-					i = i + 1;
-				end
-				table.insert(rPower.aAbilities, rDamage);
-
-			elseif sAbility:sub(1,5) == "HEAL:" and #sAbility > 5 then
-				local rHeal = {};
-				rHeal.sType = "heal";
-				rHeal.nStart = nAbilityStart + 1;
-				rHeal.nEnd = nAbilityEnd;
-				rHeal.label = rPower.name;
-				rHeal.clauses = {};
-
-				local tPowerWords = StringManager.parseWords(sAbility:sub(6));
-				local i = 1;
-				local aHealDiceStr = {};
-				while StringManager.isDiceString(tPowerWords[i]) do
-					table.insert(aHealDiceStr, tPowerWords[i]);
-					i = i + 1;
+					table.insert(rDamage.clauses, aClause);
 				end
 
-				local aClause = {};
-				aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aHealDiceStr));
-				table.insert(rHeal.clauses, aClause);
+				i = i + 1;
+			end
+			table.insert(rPower.aAbilities, rDamage);
 
-				if StringManager.isWord(tPowerWords[i], "temp") then
-					rHeal.subtype = "temp";
-				end
+		elseif sAbility:sub(1,5) == "HEAL:" and #sAbility > 5 then
+			local rHeal = {};
+			rHeal.sType = "heal";
+			rHeal.nStart = nAbilityStart + 1;
+			rHeal.nEnd = nAbilityEnd;
+			rHeal.label = rPower.name;
+			rHeal.clauses = {};
 
-				table.insert(rPower.aAbilities, rHeal);
-
-			elseif sAbility:sub(1,4) == "EFF:" and #sAbility > 4 then
-				local rEffect = EffectManager5E.decodeEffectFromCT(sAbility);
-				if rEffect then
-					rEffect.nStart = nAbilityStart + 1;
-					rEffect.nEnd = nAbilityEnd;
-					table.insert(rPower.aAbilities, rEffect);
-				end
-
-			elseif sAbility:sub(1,2) == "R:" and #sAbility == 3 then
-				local rUsage = {};
-				rUsage.sType = "usage";
-
-				local nUsedStart, nUsedEnd, sUsage = string.find(sLine, "%[(USED)%]");
-				if nUsedStart then
-					rUsage.nStart = nUsedStart + 1;
-					rUsage.nEnd = nUsedEnd;
-				else
-					rUsage.nStart = nAbilityStart + 1;
-					rUsage.nEnd = nAbilityEnd;
-					sUsage = sAbility;
-				end
-				table.insert(rPower.aAbilities, rUsage);
-
-				rPower.sUsage = sUsage;
-				rPower.nUsageStart = rUsage.nStart;
-				rPower.nUsageEnd = rUsage.nEnd;
+			local tPowerWords = StringManager.parseWords(sAbility:sub(6));
+			local i = 1;
+			local aHealDiceStr = {};
+			while StringManager.isDiceString(tPowerWords[i]) do
+				table.insert(aHealDiceStr, tPowerWords[i]);
+				i = i + 1;
 			end
 
-			nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nAbilityEnd + 1);
+			local aClause = {};
+			aClause.dice, aClause.modifier = StringManager.convertStringToDice(table.concat(aHealDiceStr));
+			table.insert(rHeal.clauses, aClause);
+
+			if StringManager.isWord(tPowerWords[i], "temp") then
+				rHeal.subtype = "temp";
+			end
+
+			table.insert(rPower.aAbilities, rHeal);
+
+		elseif sAbility:sub(1,4) == "EFF:" and #sAbility > 4 then
+			local rEffect = EffectManagerD20.decodeEffectFromCT(sAbility);
+			if rEffect then
+				rEffect.nStart = nAbilityStart + 1;
+				rEffect.nEnd = nAbilityEnd;
+				table.insert(rPower.aAbilities, rEffect);
+			end
+
+		elseif sAbility:sub(1,2) == "R:" and #sAbility == 3 then
+			local rUsage = {};
+			rUsage.sType = "usage";
+
+			local nUsedStart, nUsedEnd, sUsage = string.find(sLine, "%[(USED)%]");
+			if nUsedStart then
+				rUsage.nStart = nUsedStart + 1;
+				rUsage.nEnd = nUsedEnd;
+			else
+				rUsage.nStart = nAbilityStart + 1;
+				rUsage.nEnd = nAbilityEnd;
+				sUsage = sAbility;
+			end
+			table.insert(rPower.aAbilities, rUsage);
+
+			rPower.sUsage = sUsage;
+			rPower.nUsageStart = rUsage.nStart;
+			rPower.nUsageEnd = rUsage.nEnd;
 		end
+
+		nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nAbilityEnd + 1);
+	end
+
+	if sLine:match("%[W%]") then
+		rPower.bWeapon = true;
+	elseif sLine:match("%[S%]") then
+		rPower.bSpell = true;
+	end
+	for _,v in ipairs(rPower.aAbilities) do
+		v.bWeapon = rPower.bWeapon;
+		v.bSpell = rPower.bSpell;
 	end
 
 	return rPower;
@@ -601,69 +614,12 @@ function resetInit()
 	CombatManager.callForEachCombatant(CombatManager2.resetCombatantInit);
 end
 
-function resetHealth(nodeCT, bLong)
-	if bLong then
-		DB.setValue(nodeCT, "wounds", "number", 0);
-		DB.setValue(nodeCT, "hptemp", "number", 0);
-		DB.setValue(nodeCT, "deathsavesuccess", "number", 0);
-		DB.setValue(nodeCT, "deathsavefail", "number", 0);
-
-		local rActor = ActorManager.resolveActor(nodeCT);
-		EffectManager.removeCondition(rActor, "Stable");
-		EffectManager.removeCondition(rActor, "Unconscious");
-		CombatManager2.reduceExhaustion(nodeCT);
-	end
-end
-function reduceExhaustion(nodeCT)
-	local nExhaustMod = EffectManager5E.getEffectsBonus(ActorManager.resolveActor(nodeCT), { "EXHAUSTION" }, true);
-	if nExhaustMod > 0 then
-		nExhaustMod = nExhaustMod - 1;
-		EffectManager5E.removeEffectByType(nodeCT, "EXHAUSTION");
-		if nExhaustMod > 0 then
-			EffectManager.addEffect("", "", nodeCT, { sName = "EXHAUSTION: " .. nExhaustMod, nDuration = 0 }, false);
-		end
-	end
-end
-
-function clearExpiringEffects()
-	local function checkEffectExpire(nodeEffect)
-		local sLabel = DB.getValue(nodeEffect, "label", "");
-		local nDuration = DB.getValue(nodeEffect, "duration", 0);
-
-		if nDuration ~= 0 or sLabel == "" then
-			DB.deleteNode(nodeEffect);
-		end
-	end
-	CombatManager.callForEachCombatantEffect(checkEffectExpire);
-end
-
-function rest(bLong)
-	CombatManager.resetInit();
-	CombatManager2.clearExpiringEffects();
-
-	for _,v in pairs(CombatManager.getCombatantNodes()) do
-		local bHandled = false;
-		local sClass, sRecord = DB.getValue(v, "link", "", "");
-		if sClass == "charsheet" and sRecord ~= "" then
-			local nodePC = DB.findNode(sRecord);
-			if nodePC then
-				CharManager.rest(nodePC, bLong);
-				bHandled = true;
-			end
-		end
-
-		if not bHandled then
-			CombatManager2.resetHealth(v, bLong);
-		end
-	end
-end
-
 --
 -- INIT FUNCTIONS
 --
 
 function isInitSwapPlayerAllowed(nodeCT)
-	if not CombatManager.isOwnedPlayerCT(nodeCT) then
+	if not ActorManager.isOwner(nodeCT) then
 		return false;
 	end
 	local _,sRecord = DB.getValue(nodeCT, "link", "", "");
@@ -688,14 +644,17 @@ function getEntryInitRecord(nodeEntry)
 
 	-- Get any effect modifiers
 	local rActor = ActorManager.resolveActor(nodeEntry);
-	local bEffects, aEffectDice, nEffectMod, bEffectADV, bEffectDIS = ActionInit.getEffectAdjustments(rActor);
-	if bEffects then
-		tInit.nMod = tInit.nMod + StringManager.evalDice(aEffectDice, nEffectMod);
-		if bEffectADV then
+	local rRoll = ActionInit.getEffectAdjustments(rActor);
+	if rRoll.bEffects then
+		tInit.nMod = tInit.nMod + StringManager.evalDice(rRoll.tEffectDice, rRoll.nEffectMod);
+		if rRoll.bADV then
 			tInit.bADV = true;
 		end
-		if bEffectDIS then
+		if rRoll.bDIS then
 			tInit.bDIS = true;
+		end
+		if rRoll.bReliable then
+			tInit.bReliable = true;
 		end
 	end
 
@@ -719,7 +678,15 @@ function rollRandomInit(tInit)
 		table.insert(tSuffix, string.format("[DIS] (DROPPED %d)", math.max(nInitResult, nInitResult2)));
 		nInitResult = math.min(nInitResult, nInitResult2);
 	end
-	tInit.sSuffix = table.concat(tSuffix, " ");
+	if tInit.bReliable then
+		if nInitResult < 10 then
+			table.insert(tSuffix, string.format("[RELIABLE] (DROPPED %d)", nInitResult));
+			nInitResult = 10;
+		else
+			table.insert(tSuffix, "[RELIABLE]");
+		end
+	end
+	tInit.sSuffix = table.concat(tSuffix, "\r");
 
 	return nInitResult + (tInit.nMod or 0);
 end
@@ -831,23 +798,9 @@ function calcBattleCR(nodeBattle)
 end
 
 --
---	COMBAT ACTION FUNCTIONS
+--	DEPRECATED (2026-04)
 --
 
-function addRightClickDiceToClauses(rRoll)
-	if #rRoll.clauses > 0 then
-		local nOrigDamageDice = 0;
-		for _,vClause in ipairs(rRoll.clauses) do
-			nOrigDamageDice = nOrigDamageDice + #vClause.dice;
-		end
-		if #rRoll.aDice > nOrigDamageDice then
-			for i = nOrigDamageDice + 1,#rRoll.aDice do
-				if type(rRoll.aDice[i]) == "table" then
-					table.insert(rRoll.clauses[1].dice, rRoll.aDice[i].type);
-				else
-					table.insert(rRoll.clauses[1].dice, rRoll.aDice[i]);
-				end
-			end
-		end
-	end
+function rest(bLong)
+	CombatManager.rest(bLong and "long" or "short");
 end

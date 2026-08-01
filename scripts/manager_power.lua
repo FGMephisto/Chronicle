@@ -176,10 +176,27 @@ function getPCPowerAction(nodeAction, sSubRoll)
 		return;
 	end
 
-	local rAction = {};
-	rAction.type = DB.getValue(nodeAction, "type", "");
-	rAction.label = DB.getValue(nodeAction, "...name", "");
-	rAction.order = PowerManager.getPCPowerActionOutputOrder(nodeAction);
+	local rAction = PowerManager.getPCPowerActionHelper(rActor, nodeAction, sSubRoll);
+
+	return rAction, rActor;
+end
+function getPCPowerActionHelper(rActor, nodeAction, sSubRoll)
+	if not nodeAction then
+		return nil;
+	end
+
+	local rAction = {
+		type = DB.getValue(nodeAction, "type", ""),
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPCPowerActionOutputOrder(nodeAction),
+		nodeAction = nodeAction,
+	};
+
+	local nodePower = DB.getChild(nodeAction, "...");
+	local rPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
+	if rPowerGroup then
+		rAction.bSpell = ((rPowerGroup.sCasterType or "") == "memorization");
+	end
 
 	if rAction.type == "cast" then
 		rAction.subtype = sSubRoll;
@@ -259,16 +276,10 @@ function getPCPowerAction(nodeAction, sSubRoll)
 		end
 
 	elseif rAction.type == "effect" then
-		rAction.sName = DB.getValue(nodeAction, "label", "");
-
-		rAction.sApply = DB.getValue(nodeAction, "apply", "");
-		rAction.sTargeting = DB.getValue(nodeAction, "targeting", "");
-
-		rAction.nDuration = DB.getValue(nodeAction, "durmod", 0);
-		rAction.sUnits = DB.getValue(nodeAction, "durunit", "");
+		EffectManagerD20.getStandardEffectDataFromAction(nodeAction, rAction);
 	end
 
-	return rAction, rActor;
+	return rAction;
 end
 
 function performPCPowerAction(draginfo, nodeAction, sSubRoll)
@@ -312,8 +323,7 @@ function getPCPowerDamageActionText(nodeAction)
 	if rAction then
 		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
 
-		local aDamage = ActionDamage.getDamageStrings(rAction.clauses);
-		for _,rDamage in ipairs(aDamage) do
+		for _,rDamage in ipairs(ActionCore.getCombinedClauses(rAction.clauses)) do
 			local sDice = StringManager.convertDiceToString(rDamage.aDice, rDamage.nMod);
 			if rDamage.sType ~= "" then
 				table.insert(aOutput, string.format("%s %s", sDice, rDamage.sType));
@@ -333,11 +343,11 @@ function getPCPowerHealActionText(nodeAction)
 
 		local aHealDice = {};
 		local nHealMod = 0;
-		for _,vClause in ipairs(rAction.clauses) do
-			for _,vDie in ipairs(vClause.dice) do
+		for _,tClause in ipairs(rAction.clauses) do
+			for _,vDie in ipairs(tClause.dice) do
 				table.insert(aHealDice, vDie);
 			end
-			nHealMod = nHealMod + vClause.modifier;
+			nHealMod = nHealMod + tClause.modifier;
 		end
 
 		sHeal = StringManager.convertDiceToString(aHealDice, nHealMod);
@@ -372,6 +382,7 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 		if nodePowerGroup then
 			aPowerGroup = {};
 
+			aPowerGroup.sCasterType = DB.getValue(nodePowerGroup, "castertype", "memorization");
 			aPowerGroup.sStat = DB.getValue(nodePowerGroup, "stat", "");
 
 			aPowerGroup.nAtkProf = DB.getValue(nodePowerGroup, "atkprof", 1);
@@ -417,6 +428,7 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 		end
 		if nodeTrait then
 			aPowerGroup = {};
+			aPowerGroup.sCasterType = "memorization";
 			aPowerGroup.bInnate = bInnate;
 
 			local sDesc = DB.getValue(nodeTrait, "desc", ""):lower();
@@ -558,28 +570,28 @@ function evalAction(rActor, nodePower, rAction)
 	end
 
 	if (rAction.type == "damage") or (rAction.type == "heal") then
-		for _,vClause in ipairs(rAction.clauses) do
-			if (vClause.stat or "") ~= "" then
-				if vClause.stat == "base" then
+		for _,tClause in ipairs(rAction.clauses) do
+			if (tClause.stat or "") ~= "" then
+				if tClause.stat == "base" then
 					if not aPowerGroup then
 						aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 					end
 					if aPowerGroup then
 						local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, aPowerGroup.sStat);
-						local nMult = vClause.statmult or 1;
+						local nMult = tClause.statmult or 1;
 						if nAbilityBonus > 0 and nMult ~= 1 then
 							nAbilityBonus = math.floor(nMult * nAbilityBonus);
 						end
-						vClause.modifier = vClause.modifier + nAbilityBonus;
-						vClause.stat = aPowerGroup.sStat;
+						tClause.modifier = tClause.modifier + nAbilityBonus;
+						tClause.stat = aPowerGroup.sStat;
 					end
 				else
-					local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, vClause.stat);
-					local nMult = vClause.statmult or 1;
+					local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, tClause.stat);
+					local nMult = tClause.statmult or 1;
 					if nAbilityBonus > 0 and nMult ~= 1 then
 						nAbilityBonus = math.floor(nMult * nAbilityBonus);
 					end
-					vClause.modifier = vClause.modifier + nAbilityBonus;
+					tClause.modifier = tClause.modifier + nAbilityBonus;
 				end
 			end
 		end
@@ -594,7 +606,7 @@ function evalAction(rActor, nodePower, rAction)
 				rAction.sName =  rAction.sName:gsub("%[BASE%]", string.format("[%s]", DataCommon.ability_ltos[aPowerGroup.sStat]));
 			end
 		end
-		rAction.sName = EffectManager5E.evalEffect(rActor, rAction.sName);
+		ActorEffectManager.evalEffectTags(rActor, rAction);
 	end
 end
 
@@ -625,10 +637,10 @@ function performAction(draginfo, rActor, rAction, nodePower)
 		table.insert(rRolls, ActionPower.getSaveVsRoll(rActor, rAction));
 
 	elseif rAction.type == "damage" then
-		table.insert(rRolls, ActionDamage.getRoll(rActor, rAction));
+		table.insert(rRolls, ActionDamageD20.getRoll(rActor, rAction));
 
 	elseif rAction.type == "heal" then
-		table.insert(rRolls, ActionHeal.getRoll(rActor, rAction));
+		table.insert(rRolls, ActionHealD20.getRoll(rActor, rAction));
 
 	elseif rAction.type == "effect" then
 		local rRoll = ActionEffect.getRoll(draginfo, rActor, rAction);
@@ -695,10 +707,10 @@ function parseAttacks(sPowerName, aWords)
 					rAttack.label = sPowerName;
 
 					if StringManager.isWord(aWords[i-1], "weapon") then
-						rAttack.weapon = true;
+						rAttack.bWeapon = true;
 						rAttack.startindex = i - 1;
 					elseif StringManager.isWord(aWords[i-1], "spell") then
-						rAttack.spell = true;
+						rAttack.bSpell = true;
 						rAttack.startindex = i - 1;
 					end
 
@@ -753,9 +765,9 @@ function parseAttacks(sPowerName, aWords)
 						rAttack.label = sPowerName;
 
 						if StringManager.isWord(aWords[i-1], "weapon") then
-							rAttack.weapon = true;
+							rAttack.bWeapon = true;
 						elseif StringManager.isWord(aWords[i-1], "spell") then
-							rAttack.spell = true;
+							rAttack.bSpell = true;
 						end
 
 						if StringManager.isWord(aWords[i-2], "melee") then
@@ -765,7 +777,7 @@ function parseAttacks(sPowerName, aWords)
 						end
 
 						rAttack.modifier = 0;
-						if rAttack.weapon then
+						if rAttack.bWeapon then
 							rAttack.nomod = true;
 						else
 							rAttack.base = "group";
@@ -788,9 +800,9 @@ function parseDamagePhrase(aWords, i)
 
 	local bValid = false;
 	local nDamageBegin = i;
-	while StringManager.isWord(aWords[nDamageBegin - 1], DataCommon.dmgtypes) or
+	while ActionCore.isDamageType(aWords[nDamageBegin - 1]) or
 			(StringManager.isWord(aWords[nDamageBegin - 1], "iron") and StringManager.isWord(aWords[nDamageBegin - 2], "cold-forged")) or
-			(StringManager.isWord(aWords[nDamageBegin - 1], "or") and StringManager.isWord(aWords[nDamageBegin - 2], DataCommon.dmgtypes)) or
+			(StringManager.isWord(aWords[nDamageBegin - 1], "or") and ActionCore.isDamageType(aWords[nDamageBegin - 2])) or
 			(StringManager.isWord(aWords[nDamageBegin - 1], "or") and StringManager.isWord(aWords[nDamageBegin - 2], "iron") and StringManager.isWord(aWords[nDamageBegin - 3], "cold-forged")) do
 		if (StringManager.isWord(aWords[nDamageBegin - 1], "iron") and StringManager.isWord(aWords[nDamageBegin - 2], "cold-forged")) then
 			nDamageBegin = nDamageBegin - 2;
@@ -827,9 +839,9 @@ function parseDamagePhrase(aWords, i)
 			end
 
 			local aDmgType = {};
-			while StringManager.isWord(aWords[j+1], DataCommon.dmgtypes) or
+			while ActionCore.isDamageType(aWords[j+1]) or
 					(StringManager.isWord(aWords[j+1], "cold-forged") and StringManager.isWord(aWords[j+2], "iron")) or
-					(StringManager.isWord(aWords[j+1], "or") and StringManager.isWord(aWords[j+2], DataCommon.dmgtypes)) or
+					(StringManager.isWord(aWords[j+1], "or") and ActionCore.isDamageType(aWords[j+2])) or
 					(StringManager.isWord(aWords[j+1], "or") and StringManager.isWord(aWords[j+2], "cold-forged") and StringManager.isWord(aWords[j+3], "iron")) do
 				if StringManager.isWord(aWords[j+1], "cold-forged") and StringManager.isWord(aWords[j+2], "iron") then
 					j = j + 1;
@@ -980,7 +992,7 @@ function parseDamagePhrase(aWords, i)
 			local aDmgType = {};
 			if i ~= nStart then
 				local k = nStart;
-				while StringManager.isWord(aWords[k], DataCommon.dmgtypes) or
+				while ActionCore.isDamageType(aWords[k]) or
 						(StringManager.isWord(aWords[k], "cold-forged") and StringManager.isWord(aWords[k+1], "iron")) do
 					if StringManager.isWord(aWords[k], "cold-forged") and StringManager.isWord(aWords[k+1], "iron") then
 						k = k + 1;
@@ -1049,21 +1061,24 @@ function parseDamages(sPowerName, aWords, bMagic)
 				StringManager.isWord(aWords[i-2], "magic") and StringManager.isWord(aWords[i-3], "a") and
 				StringManager.isWord(aWords[i-4], "is") and StringManager.isWord(aWords[i-5], "this") then
 			bMagicAttack = true;
+
+		elseif StringManager.isWord(aWords[i], "range") and StringManager.isWord(aWords[i + 1], ":") then
+			if StringManager.isWord(aWords[i + 2], "self") or StringManager.isWord(aWords[i + 2], "touch") then
+				sRange = "M";
+			elseif StringManager.isWord(aWords[i + 3], "feet") then
+				sRange = "R";
+			end
 		end
 
 		i = i + 1;
 	end
 
 	-- SET MAGIC DAMAGE IF PHYSICAL DAMAGE SPECIFIED AND GENERATED BY SPELL
-	if bMagic then
+	if bMagic and not bMagicAttack then
 		for _,rDamage in ipairs(damages) do
 			for _, rClause in ipairs(rDamage.clauses) do
-				if (rClause.dmgtype or "") ~= "" then
-					local aDmgType = StringManager.split(rClause.dmgtype, ",", true);
-					if StringManager.contains(aDmgType, "bludgeoning") or StringManager.contains(aDmgType, "piercing") or StringManager.contains(aDmgType, "slashing") then
-						bMagicAttack = true;
-						break;
-					end
+				if SetManager.overlaps(StringManager.splitByPattern(rClause.dmgtype, ",", true), { "bludgeoning", "piercing", "slashing", }) then
+					bMagicAttack = true;
 				end
 			end
 		end
@@ -1073,11 +1088,7 @@ function parseDamages(sPowerName, aWords, bMagic)
 	if bMagicAttack then
 		for _,rDamage in ipairs(damages) do
 			for _, rClause in ipairs(rDamage.clauses) do
-				if not rClause.dmgtype or rClause.dmgtype == "" then
-					rClause.dmgtype = "magic";
-				else
-					rClause.dmgtype = rClause.dmgtype .. ",magic";
-				end
+				rClause.dmgtype = StringManager.append(rClause.dmgtype, "magic");
 			end
 		end
 	end
@@ -1622,7 +1633,7 @@ function parseEffects(sPowerName, aWords)
 
 					if StringManager.isWord(aWords[rCurrent.startindex - 1], "takes") and
 							StringManager.isWord(aWords[rCurrent.startindex - 2], "and") and
-							StringManager.isWord(aWords[rCurrent.startindex - 3], DataCommon.conditions) then
+							ActionCore.isCondition(aWords[rCurrent.startindex - 3]) then
 						rCurrent.startindex = rCurrent.startindex - 2;
 					end
 
@@ -1662,7 +1673,7 @@ function parseEffects(sPowerName, aWords)
 				end
 			end
 
-		elseif (i > 1) and StringManager.isWord(aWords[i], DataCommon.conditions) then
+		elseif (i > 1) and ActionCore.isCondition(aWords[i]) then
 			local bValidCondition = false;
 			local nConditionStart = i;
 
@@ -1670,14 +1681,14 @@ function parseEffects(sPowerName, aWords)
 			if StringManager.isWord(aWords[i+1], {"condition", "conditions"}) then
 				bNewConditionText = true;
 			elseif StringManager.isWord(aWords[i+1], "and") and
-					StringManager.isWord(aWords[i+2], DataCommon.conditions) and
+					ActionCore.isCondition(aWords[i+2]) and
 					StringManager.isWord(aWords[i+3], "conditions") then
 				bNewConditionText = true;
 			end
 
 			if bNewConditionText then
 				local j = i - 1;
-				if StringManager.isWord(aWords[i+1], "conditions") and StringManager.isWord(aWords[i-1], "and") and StringManager.isWord(aWords[i-2], DataCommon.conditions) then
+				if StringManager.isWord(aWords[i+1], "conditions") and StringManager.isWord(aWords[i-1], "and") and ActionCore.isCondition(aWords[i-2]) then
 					j = j - 2;
 					nConditionStart = i - 1;
 				end
@@ -1741,7 +1752,7 @@ function parseEffects(sPowerName, aWords)
 					elseif StringManager.isWord(aWords[j], { "also", "magically" }) then
 
 					-- Special handling: Blindness/Deafness
-					elseif StringManager.isWord(aWords[j], "or") and StringManager.isWord(aWords[j-1], DataCommon.conditions) and
+					elseif StringManager.isWord(aWords[j], "or") and ActionCore.isCondition(aWords[j-1]) and
 							StringManager.isWord(aWords[j-2], "either") and StringManager.isWord(aWords[j-3], "is") then
 						bValidCondition = true;
 						break;
@@ -1775,7 +1786,7 @@ function parseEffects(sPowerName, aWords)
 						bValidCondition = true;
 						nConditionStart = j;
 
-					elseif StringManager.isWord(aWords[j], DataCommon.conditions) then
+					elseif ActionCore.isCondition(aWords[j]) then
 						break;
 
 					elseif StringManager.isWord(aWords[i], "poisoned") then
@@ -1809,7 +1820,7 @@ function parseEffects(sPowerName, aWords)
 							break;
 						end
 
-					elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], "frightened")  then
+					elseif StringManager.isWord(aWords[j], {"become", "becomes"}) and StringManager.isWord(aWords[i], { "frightened", "exhausted" })  then
 						bValidCondition = true;
 						nConditionStart = j;
 						break;
@@ -1844,7 +1855,7 @@ function parseEffects(sPowerName, aWords)
 
 		elseif StringManager.isWord(aWords[i], "resistance") and
 				StringManager.isWord(aWords[i+1], "to") and
-				StringManager.isWord(aWords[i+2], DataCommon.dmgtypes) and
+				ActionCore.isDamageType(aWords[i+2]) and
 				StringManager.isWord(aWords[i-1], "damage") and
 				StringManager.isWord(aWords[i-1], "have") then
 			local bValidResist = false;
@@ -1884,6 +1895,20 @@ function parseEffects(sPowerName, aWords)
 				end
 				rCurrent.startindex = i-1;
 				rCurrent.endindex = i;
+			end
+		elseif StringManager.isWord(aWords[i], {"gain", "gains", "suffer", "suffers", "take"}) and 
+				StringManager.isWord(aWords[i + 2], { "level", "levels" }) and
+				StringManager.isWord(aWords[i + 3], "of") and 
+				StringManager.isWord(aWords[i + 4], "exhaustion") then
+			local nLevel = CharBuildManager.convertSingleNumberTextToNumber(aWords[i + 1]);
+			if StringManager.isWord(aWords[i + 1], "another") then
+				nLevel = 1;
+			end
+			if (nLevel > 0) then
+				rCurrent = {};
+				rCurrent.sName = string.format("EXHAUSTION: %d", nLevel);
+				rCurrent.startindex = i;
+				rCurrent.endindex = i + 4;
 			end
 		end
 
@@ -2117,6 +2142,10 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 
 	-- Make sure correct duration applied to NPC spell effects
 	if bSpell then
+		for _,v in ipairs(tActions) do
+			v.bSpell = true;
+		end
+
 		local sDuration, sUnits = sPowerDesc:lower():match("duration: concentration, up to (%d+) (%w+)");
 		if sDuration and sUnits then
 			local nDuration = tonumber(sDuration) or 0;
@@ -2157,10 +2186,10 @@ function getNPCPowerVariables(nodePower)
 		return nil;
 	end
 	local tVars = {
-		["slevel"] = DB.getValue(nodeActor, "summon_level", 0),
-		["sattack"] = DB.getValue(nodeActor, "summon_attack", 0),
-		["sdc"] = DB.getValue(nodeActor, "summon_dc", 0),
-		["smod"] = DB.getValue(nodeActor, "summon_mod", 0),
+		["summonlvl"] = DB.getValue(nodeActor, "summon_level", 0),
+		["summonatk"] = DB.getValue(nodeActor, "summon_attack", 0),
+		["summondc"] = DB.getValue(nodeActor, "summon_dc", 0),
+		["summonmod"] = DB.getValue(nodeActor, "summon_mod", 0),
 	};
 	return tVars;
 end
@@ -2219,8 +2248,8 @@ function parsePCPower(nodePower)
 					local nodeAction = DB.createChild(nodeActions);
 					DB.setValue(nodeAction, "type", "string", "heal");
 
-					if vAction.subtype == "temp" then
-						DB.setValue(nodeAction, "healtype", "string", "temp");
+					if (vAction.subtype or "") ~= "" then
+						DB.setValue(nodeAction, "healtype", "string", vAction.subtype);
 					end
 					if vAction.sTargeting then
 						DB.setValue(nodeAction, "healtargeting", "string", vAction.sTargeting);
@@ -2386,7 +2415,7 @@ function parsePCPower(nodePower)
 							DB.setValue(nodeCastAction, "atktype", "string", "melee");
 						end
 
-						if v.spell then
+						if v.bSpell then
 							-- Use group attack mod
 						else
 							DB.setValue(nodeCastAction, "atkbase", "string", "fixed");

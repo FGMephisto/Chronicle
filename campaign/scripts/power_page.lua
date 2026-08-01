@@ -514,6 +514,12 @@ function rebuildGroups()
 
 	for _,v in ipairs(DB.getChildList(nodeChar, "powergroup")) do
 		local sGroup = DB.getValue(v, "name", "");
+
+		if aGroups[sGroup] then
+			DB.deleteNode(aGroups[sGroup].node);
+			aGroups[sGroup] = nil;
+		end
+
 		local rGroup = {};
 		rGroup.node = v;
 		rGroup.nodename = DB.getPath(v);

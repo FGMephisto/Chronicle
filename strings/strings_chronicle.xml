@@ -96,14 +96,11 @@
 
 	<string name="ct_tooltip_ac">Combat Defense</string>
 	<string name="ct_tooltip_fatigue">Fatigue</string>
-	<string name="ct_tooltip_hitpoints">Health</string>
 	<string name="ct_tooltip_initiative">Initiative</string>
 	<string name="ct_tooltip_injuries">Injuries</string>
 	<string name="ct_tooltip_speed">Movement</string>
 	<string name="ct_tooltip_sprint">Sprint</string>
 	<string name="ct_tooltip_trauma">Wounds</string>
-
-	<string name="ct_message_rest">Party taking a rest.</string>
 
 	<!-- Party Sheet -->
 	<string name="ps_label_hp">Health</string>
