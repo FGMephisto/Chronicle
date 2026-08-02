@@ -184,6 +184,10 @@
 		</resize>
 	</template>
 
+	<template name="close">
+		<button_window_close />
+	</template>
+
 	<template name="close_calendar">
 		<close>
 			<anchored>

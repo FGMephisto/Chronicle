@@ -58,9 +58,11 @@
 	<includefile source="campaign/record_char_skills_chronicle.xml" />
 	<includefile source="campaign/record_char_weapon_chronicle.xml" />
 
+	<includefile source="campaign/record_char_stats_chronicle.xml" />
+
 	<includefile source="campaign/record_battle_chronicle.xml" />
 	<includefile source="campaign/record_item_chronicle.xml" />	
-	<includefile source="campaign/record_itemtemplate.xml" />
+	<!-- <includefile source="campaign/record_itemtemplate.xml" /> -->
 	<includefile source="campaign/record_location.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
 	<includefile source="campaign/record_quest_chronicle.xml" />
@@ -78,7 +80,7 @@
 	<includefile source="campaign/record_power_roll.xml" />
 	<includefile source="campaign/record_race.xml" />
 	<includefile source="campaign/record_race_subrace.xml" />
-	<includefile source="campaign/record_skill_chronicle.xml" />
+	<includefile source="campaign/record_skill.xml" />
 
 	<!-- Import Windows -->
 	<includefile source="campaign/import_item.xml" />
@@ -130,7 +132,7 @@
 	<!-- <includefile source="ps/ps_bastion.xml" /> -->
 
 	<!-- High-level scripts -->
-	<script name="DataCommon" file="scripts/data_common.lua" />
+	<script name="DataCommon" file="scripts/data_common_chronicle.lua" />
 	<script name="GameSystem" file="scripts/manager_gamesystem_chronicle.lua" />
 	<script name="CampaignDataManager2" file="scripts/manager_campaigndata2.lua" />
 	<script name="DataSpell" file="scripts/data_spell.lua" />

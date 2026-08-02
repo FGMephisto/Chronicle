@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+-->
+
+<root>
+ 	<windowclass name="charsheet_stats_main">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="header">
+				<anchored height="20">
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="10" />
+					<left offset="15" />
+					<right offset="-10" />
+				</anchored>
+				<icons>char_abilities_purple</icons>
+				<static textres="char_label_stats" />
+			</label_charframetop>
+			<button_details name="activatedetail">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("char_stat_editor", window.getDatabaseNode());
+					end
+				</script>
+			</button_details>
+
+			<list_content_noscroll_top name="list">
+				<anchored>
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.abilities</datasource>
+				<class>charsheet_statlist_item</class>
+				<classheader></classheader>
+				<columns width="150" dynamic="true" />
+				<sortby><control>sortkey</control></sortby>
+				<script file="campaign/scripts/char_statlist_hm3.lua" />
+			</list_content_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_statlist_item">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_statlist_item_hm3.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<hs name="group" />
+			<hsc name="groupid" />
+			<hn name="base"><default>8</default></hn>
+			<hn name="bonus"><default>0</default></hn>
+
+			<number_listitem_right_static name="score">
+				<script file="custom/scripts/number_stat_score_hm3.lua" />
+			</number_listitem_right_static>
+
+			<button_listitem_roll_right name="button_roll_stat">
+				<script>
+					function onDragStart(button, x, y, draginfo)
+						return window.action(draginfo);
+					end
+					function onButtonPress()
+						return window.action();
+					end
+				</script>
+			</button_listitem_roll_right>
+
+			<string_listitem_center_noframe_static name="name" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_stat_editor" copy="charsheethelper_base">
+		<sizelimits>
+			<minimum width="330" height="430" />
+		</sizelimits>
+		<sheetdata>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>char_stat_title</prefix>
+			</windowtitlebar_charsheethelper>
+
+			<sub_content_framed_groupbox name="main">
+				<class>char_stat_editor_main</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content_main />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_stat_editor_main">
+		<sheetdata>
+			<anchor_content_top />
+
+			<list_content_labeled_top name="list">
+				<anchored>
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.abilities</datasource>
+				<class>charsheet_stat_editorlist_item</class>
+				<filter control="filter" />
+				<filteron control="name" />
+				<sortkeyby><control>sortkey</control></sortkeyby>
+			</list_content_labeled_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+
+			<!-- Left -->
+			<label_list_content_string_noframe_left name="label_name">
+				<static textres="char_label_skillname" />
+			</label_list_content_string_noframe_left>
+
+			<label_list_content_number_left>
+				<static textres="char_stat_label_base" />
+			</label_list_content_number_left>
+			<label_list_content_number_left>
+				<static textres="char_stat_label_bonus" />
+			</label_list_content_number_left>
+			<label_list_content_number_left>
+				<static textres="char_stat_label_total" />
+			</label_list_content_number_left>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_stat_editorlist_item">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<!-- Hidden controls -->
+			<hsc name="sortkey" />
+
+			<!-- Left side -->
+			<string_listitem_left_noframe_static name="name" />
+
+			<number_listitem_left name="base">
+				<default>8</default>
+			</number_listitem_left>
+
+			<number_listitem_left name="bonus" >
+				<default>0</default>
+			</number_listitem_left>
+
+			<number_listitem_left_static name="score" />
+
+			<spacer_listitem_left name="spacer">
+				<anchored width="10" />
+			</spacer_listitem_left>
+		</sheetdata>
+	</windowclass>
+</root>

@@ -3,60 +3,60 @@
 <!-- 
   Please see the license.html file included with this distribution for
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- Weapon List -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="char_weapon">
 		<margins control="0,0,0,5" />
 		<script file="campaign/scripts/char_weapon_chronicle.lua" />
-
 		<sheetdata>
-			<genericcontrol name="rightanchor">
-				<anchored width="0" height="0">
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+			<anchor_listitem_top />
+
+			<!-- Left side -->
+			<button_listitem_idelete_left name="idelete" />
+			<link_listitem_left name="shortcut" />
+			<button_listitem_carried_left name="carried" />
+			<state_charweapontype name="wpn_type">
+				<anchored to="leftanchor" width="20" height="20">
 					<top />
-					<right />
+					<left relation="relative" offset="0" postoffset="0" />
 				</anchored>
-				<invisible />
-			</genericcontrol>
+			</state_charweapontype>
+			<state_charweaponhand name="wpn_handling">
+				<anchored to="leftanchor" width="20" height="20">
+					<top />
+					<left relation="relative" offset="0" postoffset="0" />
+				</anchored>
+			</state_charweaponhand>
 
-			<linkfield name="shortcut">
-				<anchored to="rightanchor" width="20" height="20">
-					<top offset="8" />
-					<right anchor="left" relation="relative" offset="-2" />
-				</anchored>
-			</linkfield>
-
-			<button_idelete name="idelete">
-				<anchored to="rightanchor">
-					<top offset="8" />
-					<right anchor="left" offset="-2" />
-				</anchored>
-				<editmode>actions_iedit</editmode>
-			</button_idelete>
-
-			<button_details name="activatedetail">
-				<anchored to="rightanchor" width="20" height="20">
-					<top offset="8" />
-					<right anchor="left" relation="relative" offset="-3" />
-				</anchored>
+			<!-- Right side -->
+			<buttonc_listitem_right name="activatedetail">
+				<icon normal="button_details" pressed="button_details_down" />
 				<script>
 					function onButtonPress()
 						Interface.openWindow("char_weapon_editor", window.getDatabaseNode());
 					end
 				</script>
-			</button_details >
+			</buttonc_listitem_right>
 
-			<!-- =================================================================================================================== -->
-			<!-- Damage Field -->
-			<!-- =================================================================================================================== -->
+			<!-- <stringc_listitem_right_static name="damageview"> -->
+				<!-- <anchored width="100" height="-1"> -->
+					<!-- <top parent="contentanchor" relation="relative" offset="0" postoffset="0" /> -->
+				<!-- </anchored> -->
+				<!-- <multilinespacing>20</multilinespacing> -->
+				<!-- <script> -->
+					<!-- function onDragStart(_, _, _, draginfo) -->
+						<!-- return window.onDamageAction(draginfo); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </stringc_listitem_right_static> -->
+
 			<genericcontrol name="dmg_frame">
 				<anchored to="rightanchor" width="75" height="35">
 					<top />
-					<right anchor="left" relation="relative" />
+					<right relation="relative" offset="-2" />
 				</anchored>
 				<frame name="fielddark" />
 			</genericcontrol>
@@ -109,13 +109,31 @@
 				<anchored to="dmg_total" position="right" width="20" />
 			</button_dos>
 
-			<!-- =================================================================================================================== -->
-			<!-- Attack Field -->
-			<!-- =================================================================================================================== -->
+			<!-- <buttonc_listitem_right name="button_damage"> -->
+				<!-- <icon normal="button_action_damage" pressed="button_action_damage_down" /> -->
+				<!-- <script> -->
+					<!-- function onButtonPress() -->
+						<!-- window.onDamageAction(); -->
+					<!-- end -->
+					<!-- function onDragStart(button, _, _, draginfo) -->
+						<!-- return window.onDamageAction(draginfo); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </buttonc_listitem_right> -->
+			<!-- <stringc_listitem_right_static name="attackview">
+				<anchored width="20" />
+				<center />
+				<script>
+					function onDragStart(_, _, _, draginfo)
+						return window.onAttackAction(draginfo);
+					end
+				</script>
+			</stringc_listitem_right_static> -->
+
 			<genericcontrol name="atk_frame">
 				<anchored to="rightanchor" width="110" height="35">
 					<top />
-					<right anchor="left" relation="relative" offset="-7" />
+					<right relation="relative" offset="-7" />
 				</anchored>
 				<frame name="fielddark" />
 			</genericcontrol>
@@ -175,69 +193,78 @@
 				</script>
 			</genericcontrol>
 
-			<!-- =================================================================================================================== -->
-			<state_charweaponhand name="wpn_handling">
-				<anchored to="rightanchor">
-					<top offset="2" />
-					<right anchor="left" relation="relative" offset="0" />
-				</anchored>
-			</state_charweaponhand>
+			<!-- <buttonc_listitem_right name="button_attack"> -->
+				<!-- <icon normal="button_action_attack" pressed="button_action_attack_down" /> -->
+				<!-- <script> -->
+					<!-- function onButtonPress() -->
+						<!-- window.onAttackAction(); -->
+					<!-- end -->
+					<!-- function onDragStart(_, _, _, draginfo) -->
+						<!-- return window.onAttackAction(draginfo); -->
+					<!-- end -->
+				<!-- </script> -->
+			<!-- </buttonc_listitem_right> -->
 
-			<state_charweapontype name="wpn_type">
-				<anchored to="rightanchor">
-					<top offset="2" />
-					<right anchor="left" relation="relative" offset="2" />
-				</anchored>
-			</state_charweapontype>
+			<!-- Center -->
+			<string_listitem_center_underline name="name" />
 
-			<genericcontrol name="leftanchor">
-				<anchored width="0" height="0">
-					<top />
-					<left />
+			<!-- Sections -->
+			<!-- <sub_content_column name="sub_mastery"> -->
+				<!-- <anchored> -->
+					<!-- <left parent="" offset="20" /> -->
+				<!-- </anchored> -->
+			<!-- </sub_content_column> -->
+			<sub_content_column name="sub_ranged">
+				<anchored>
+					<left parent="" offset="20" />
 				</anchored>
-				<invisible />
-			</genericcontrol>
+			</sub_content_column>
+		</sheetdata>
+	</windowclass>
 
-			<button_char_inv_carried name="carried">
-				<anchored to="leftanchor" width="20" height="20">
-					<top offset="5" />
-					<left anchor="right" relation="relative" offset="0" />
-				</anchored>
-				<script file="common/scripts/button_crosslink.lua" />
-			</button_char_inv_carried>
-			
-			<stringu name="name">
-				<anchored height="20">
-					<top offset="8" />
-					<left parent="leftanchor" anchor="right" relation="relative" offset="2" />
-					<right parent="rightanchor" anchor="left" relation="relative" offset="0" />
-				</anchored>
-			</stringu>
+	<windowclass name="char_weapon_ranged">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				--local tFields = { "maxammo", };
+				--WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<!-- Spacer to prevent ammo counter clipping -->
+			<spacer_content_top>
+				<anchored height="2" />
+			</spacer_content_top>
+
+			<area_content_top name="area_details">
+				<anchored height="20" />
+			</area_content_top>
 
 			<label name="label_ammo">
-				<anchored width="50">
-					<top parent="dmg_total" anchor="bottom" relation="relative" offset="5" />
-					<left offset="15" />
-				</anchored>
+				<anchored to="area_details" position="insidetopleft" offset="0,0" />
 				<static textres="char_label_weaponammo" />
 			</label>
-
-			<basicnumber name="maxammo">
-				<anchored to="label_ammo" position="righthigh" width="30" height="20" />
+			<number_content_base name="maxammo">
+				<anchored to="label_ammo" position="righthigh" offset="10,0" width="40" />
+				<frame name="fielddark" offset="5,5,5,5" />
 				<min>0</min>
 				<max>100</max>
-			</basicnumber>
+			</number_content_base>
 			<state_charammocounter name="ammocounter">
-				<anchored to="maxammo" position="righthigh" offset="8,0" />
+				<anchored to="maxammo">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
 			</state_charammocounter>
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Weapon Editor -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="char_weapon_editor">
-		<frame>charsheethelper</frame>
+	<windowclass name="char_weapon_editor" copy="charsheethelper_base">
 		<placement>
 			<size width="525" height="350" />
 		</placement>
@@ -245,41 +272,18 @@
 			<minimum width="525" height="350" />
 			<dynamic />
 		</sizelimits>
-		<tooltip control="name" />
-
 		<sheetdata>
 			<windowtitlebar_charsheethelper name="title">
 				<prefix>weapon_title</prefix>
 			</windowtitlebar_charsheethelper>
 
-			<anchor_title_charsheethelper name="contentanchor" />
-			
-			<genericcontrol name="contentframe">
-				<anchored to="contentanchor">
-					<top anchor="bottom" offset="0" />
-					<left />
-					<right />
-					<bottom parent="" offset="-30" />
-				</anchored>
-			</genericcontrol>
-
-			<subwindow_record name="main">
+			<sub_content_framed_groupbox name="main">
 				<class>char_weapon_editor_main</class>
-				<activate />
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-
-			<resize_charsheethelper />
-			<close_charsheethelper />
+			</sub_content_framed_groupbox>
+			<scrollbar_content_main />
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Weapon Editor Main -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="char_weapon_editor_main">
 		<sheetdata>
 			<anchor_column name="columnanchor" />
@@ -304,9 +308,6 @@
 				<center />
 			</header_column>
 
-			<!-- =================================================================================================================== -->
-			<!-- Attack Line -->
-			<!-- =================================================================================================================== -->
 			<stringfield name="atk_stat">
 				<anchored width="120" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -414,9 +415,6 @@
 				<static textres="weapon_label_atk_modifier" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
-			<!-- Damage Line -->
-			<!-- =================================================================================================================== -->
 			<header_column name="header_dmg">
 				<static textres="weapon_header_dmg" />
 				<center />

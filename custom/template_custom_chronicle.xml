@@ -7,8 +7,6 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="anchor_column">
 		<genericcontrol>
 			<anchored position="insidetop" offset="0,-5" height="0" />
@@ -17,8 +15,6 @@
 		</genericcontrol>
 	</template>
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="header_column">
 		<label>
 			<anchored height="20">
@@ -30,8 +26,6 @@
 		</label>
 	</template>
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
 	<template name="metalplate">
 		<stringcontrol>
 			<frame name="metalplate" offset="10,2,10,2" />
@@ -41,102 +35,6 @@
 		</stringcontrol>
 	</template>
 
-	<!-- =================================================================================================================== -->
-	<!-- Combobox Wpngrade -->
-	<!-- Added -->
-	<!-- =================================================================================================================== -->
-	<template name="combobox_wpngrade">
-		<combobox>
-			<anchored width="90" height="20" />
-			<frame><name>fielddark</name></frame>
-			<default textres="default_wpn_grade" />
-			<listdirection>down</listdirection>
-			<listmaxsize>6</listmaxsize>
-			<unsorted />
-			<script>
-				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpngradedata)
-				end
-			</script>
-		</combobox>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Combobox Wpnskill - Standard -->
-	<!-- Added -->
-	<!-- =================================================================================================================== -->
-	<template name="combobox_wpnskill">
-		<combobox>
-			<anchored width="90" height="20" />
-			<frame><name>fielddark</name></frame>
-			<center />
-			<default textres="default_wpn_skill" />
-			<listdirection>down</listdirection>
-			<listmaxsize>6</listmaxsize>
-			<unsorted />
-			<script>
-				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpnskilldata)
-				end
-			</script>
-		</combobox>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Combobox Wpnskill - Used in column sheets (e.g. items) -->
-	<!-- Added -->
-	<!-- =================================================================================================================== -->
-	<template name="combobox_wpnskill_column">
-		<combobox_wpnskill>
-			<anchored width="120" height="20">
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<left offset="97" />
-			</anchored>
-			<center merge="delete" />
-			<!-- <script file="common/scripts/column_combobox_chronicle.lua" /> -->
-		</combobox_wpnskill>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Combobox Wpndmgability - Standard -->
-	<!-- Added -->
-	<!-- =================================================================================================================== -->
-	<template name="combobox_wpndmgability">
-		<combobox>
-			<anchored width="120" height="20" />
-			<frame><name>fielddark</name></frame>
-			<center />
-			<default textres="default_wpn_dmg_ability" />
-			<listdirection>down</listdirection>
-			<listmaxsize>6</listmaxsize>
-			<unsorted />
-			<script>
-				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpndmgabilitydata)
-				end
-			</script>
-		</combobox>
-	</template>
-
-	<!-- =================================================================================================================== -->
-	<!-- Combobox Wpndmgability - Used in column sheets (e.g. items) -->
-	<!-- Added -->
-	<!-- =================================================================================================================== -->
-	<template name="combobox_wpndmgability_column">
-		<combobox_wpndmgability>
-			<anchored width="120" height="20">
-				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
-				<left offset="97" />
-			</anchored>
-			<center merge="delete" />
-			<!-- <script file="common/scripts/column_combobox_chronicle.lua" /> -->
-		</combobox_wpndmgability>
-	</template>
-
-	<!-- Added -->
 	<!-- Combobox Wpngrade -->
 	<template name="combobox_wpngrade">
 		<combobox>
@@ -148,14 +46,15 @@
 			<unsorted />
 			<script>
 				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpngradedata)
+					if super and super.onInit then
+						super.onInit();
+					end
+					self.addItems(DataCommon.wpngradedata);
 				end
 			</script>
 		</combobox>
 	</template>
 
-	<!-- Added -->
 	<!-- Combobox Wpnskill - Standard -->
 	<template name="combobox_wpnskill">
 		<combobox>
@@ -168,34 +67,15 @@
 			<unsorted />
 			<script>
 				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.weaponskilldata)
+					if super and super.onInit then
+						super.onInit();
+					end
+					self.addItems(DataCommon.wpnskilldata);
 				end
 			</script>
 		</combobox>
 	</template>
 
-	<!-- Added -->
-	<!-- Combobox Wpndmgability - Standard -->
-	<template name="combobox_wpndmgability">
-		<combobox>
-			<anchored width="120" height="20" />
-			<frame><name>fielddark</name></frame>
-			<center />
-			<default textres="default_wpn_dmg_ability" />
-			<listdirection>down</listdirection>
-			<listmaxsize>6</listmaxsize>
-			<unsorted />
-			<script>
-				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpndmgabilitydata)
-				end
-			</script>
-		</combobox>
-	</template>
-
-	<!-- Added -->
 	<!-- Combobox Wpnskill - Used in column sheets (e.g. items) -->
 	<template name="combobox_wpnskill_column">
 		<combobox_content_columnh>
@@ -203,23 +83,47 @@
 			<center merge="delete" />
 			<script>
 				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.weaponskilldata)
+					if super and super.onInit then
+						super.onInit();
+					end
+					self.addItems(DataCommon.wpnskilldata);
 				end
 			</script>
 		</combobox_content_columnh>
 	</template>
 
-	<!-- Added -->
+	<!-- Combobox Wpndmgability - Standard -->
+	<template name="combobox_wpndmgability">
+		<combobox>
+			<anchored width="120" height="20" />
+			<frame><name>fielddark</name></frame>
+			<center />
+			<default textres="default_wpn_dmg_ability" />
+			<listdirection>down</listdirection>
+			<listmaxsize>6</listmaxsize>
+			<unsorted />
+			<script>
+				function onInit()
+					if super and super.onInit then
+						super.onInit();
+					end
+					self.addItems(DataCommon.wpndmgabilitydata);
+				end
+			</script>
+		</combobox>
+	</template>
+
 	<!-- Combobox Wpndmgability - Used in column sheets (e.g. items) -->
-	<template name="combobox_content_column_wpndmgability">
+	<template name="combobox_wpndmgability_column">
 		<combobox_content_columnh>
 			<frame><name>fielddark</name></frame>
 			<center merge="delete" />
 			<script>
 				function onInit()
-					super.onInit()
-					self.addItems(DataCommon.wpndmgabilitydata)
+					if super and super.onInit then
+						super.onInit();
+					end
+					self.addItems(DataCommon.wpndmgabilitydata);
 				end
 			</script>
 		</combobox_content_columnh>

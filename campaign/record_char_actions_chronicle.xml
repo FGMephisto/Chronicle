@@ -7,9 +7,7 @@
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_actions">
 		<script>
 			function onDrop(x, y, draginfo)
@@ -38,11 +36,6 @@
 			<button_iedit name="actions_iedit">
 				<anchored position="insidebottomright" offset="10,10" />
 				<tooltip textres="char_tooltip_actionedit" />
-			
-							  
-												
-		
-			 
 			</button_iedit>
 
 			<buttoncontrol name="weapons_iadd">
@@ -85,9 +78,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_actions_contents">
 		<margins control="0,0,0,2" />
 		<script>
@@ -102,9 +93,7 @@
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
-			<!-- =================================================================================================================== -->
 			<!-- Health -->
-			<!-- =================================================================================================================== -->
 			<label_charframetop name="healthtitle">
 				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
@@ -201,9 +190,7 @@
 				<min value="0" />
 			</basicnumber>
 
-			<!-- =================================================================================================================== -->
 			<!-- Combat -->
-			<!-- =================================================================================================================== -->
 			<label_charframetop name="combattitle">
 				<anchored to="healthtitle" height="20">
 					<top anchor="bottom" relation="relative" offset="60" />
@@ -288,9 +275,7 @@
 				</anchored>
 			</number_charsprint>
 
-			<!-- =================================================================================================================== -->
 			<!-- Actions -->
-			<!-- =================================================================================================================== -->
 			<label_charframetop name="actionstitle">
 				<anchored to="combattitle" height="20">
 					<top anchor="bottom" relation="relative" offset="60" />
@@ -301,9 +286,7 @@
 				<icons>char_attacks</icons>
 			</label_charframetop>
 
-			<!-- =================================================================================================================== -->
 			<!-- Dice Field - Init -->
-			<!-- =================================================================================================================== -->
 			<dicecontrol_init name="diceframe_init">
 				<anchored to="actionstitle">
 					<top anchor="bottom" offset="15" />
@@ -317,9 +300,7 @@
 				<static textres="char_actions_label_initiative" />
 			</label_abilityscore>
 
-			<!-- =================================================================================================================== -->
 			<!-- Dice Field - Ride -->
-			<!-- =================================================================================================================== -->
 			<dicecontrol name="diceframe_ride">
 				<anchored to="diceframe_init">
 					<top anchor="top" offset="0" />
@@ -334,9 +315,7 @@
 				<static textres="char_actions_label_ride" />
 			</label_abilityscore>
 
-			<!-- =================================================================================================================== -->
 			<!-- Dice Field - Dodge -->
-			<!-- =================================================================================================================== -->
 			<dicecontrol name="diceframe_dodge">
 				<anchored to="diceframe_init">
 					<top anchor="top" offset="0" />
@@ -351,9 +330,7 @@
 				<static textres="char_actions_label_dodge" />
 			</label_abilityscore>
 			
-			<!-- =================================================================================================================== -->
 			<!-- Weapons -->
-			<!-- =================================================================================================================== -->
 			<label_charframetop name="weapontitle">
 				<anchored to="combattitle" height="20">
 					<top anchor="bottom" relation="relative" offset="60" />
@@ -376,9 +353,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Combat Details-->
-	<!-- =================================================================================================================== -->
 	<windowclass name="char_weaponmeta">
 		<frame>charsheethelper</frame>
 		<placement>
@@ -397,9 +371,6 @@
 				<anchored to="contentanchor" position="below" offset="0,-5" />
 			</anchor_column>
 
-			<!-- =================================================================================================================== -->
-			<!-- Defense Details -->
-			<!-- =================================================================================================================== -->
 			<label name="label_acdetail">
 				<anchored width="60">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -499,9 +470,6 @@
 				<static textres="char_label_ac_misc" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
-			<!-- Armor Details -->
-			<!-- =================================================================================================================== -->
 			<label name="label_armordetail">
 				<anchored width="60">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -542,9 +510,6 @@
 				<static textres="char_label_armor_misc" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
-			<!-- Speed Details -->
-			<!-- =================================================================================================================== -->
 			<label name="label_speeddetail">
 				<anchored width="60">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
@@ -627,9 +592,6 @@
 				<static textres="char_label_speed_bulk" />
 			</label_fieldtop>
 
-			<!-- =================================================================================================================== -->
-			<!-- Sprint Details -->
-			<!-- =================================================================================================================== -->
 			<label name="label_sprintdetail">
 				<anchored width="60">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />

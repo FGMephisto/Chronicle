@@ -4,22 +4,12 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	DesktopManager.setSidebarDockCategoryIconColor("A3A29D");
-	DesktopManager.setSidebarDockCategoryTextColor("A3A29D");
-	DesktopManager.setSidebarDockIconColor("332A25");
-	DesktopManager.setSidebarDockTextColor("332A25");
+	CampaignSetupManager.addAutoLoadRules(_tAutoLoadRules);
+	CampaignSetupManager.addModuleSetsByMode(_tDataModuleSets);
 
 	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
 	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
-
-	for k,v in pairs(_tDataModuleSets) do
-		for _,v2 in ipairs(v) do
-			Desktop.addDataModuleSet(k, v2);
-		end
-	end
 end
 
 -- ===================================================================================================================

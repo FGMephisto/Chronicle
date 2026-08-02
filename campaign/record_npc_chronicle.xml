@@ -3,161 +3,577 @@
 <!-- 
   Please see the license.html file included with this distribution for
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- NPC -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="npc">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="525" height="640" />
-		</placement>
+	<windowclass name="npc" copy="record_window_tabbed">
 		<sizelimits>
-			<minimum width="525" height="640" />
-			<dynamic />
+			<minimum width="500" height="500" />
 		</sizelimits>
 		<minimize>minimized_npc</minimize>
-		<tooltip field="name" />
 		<gmexport>npc</gmexport>
-		<script file="campaign/scripts/npc_chronicle.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>npc_header</class>
-			</sub_record_header>
-
-			<frame_record_content_tabbed name="contentframe" />
-
-			<!-- <subwindow_record name="main_creature"> -->
-				<!-- <class>npc_combat</class> -->
-			<!-- </subwindow_record> -->
-			
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<invisible />
-			</ft_record>
-
-			<!-- <scrollbar_record> -->
-				<!-- <target>main_creature</target> -->
-			<!-- </scrollbar_record> -->
-			
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-
-			<!-- Added from Char -->
-			<subwindow_record name="skills">
-				<class>npcsheet_skills</class>
-			</subwindow_record>
-
-			<subwindow_record name="abilities">
-				<class>charsheet_abilities</class>
-			</subwindow_record>
-
-			<subwindow_record name="inventory">
-				<class>charsheet_inventory</class>
-			</subwindow_record>
-
-			<subwindow_record name="actions">
-				<class>charsheet_actions</class>
-			</subwindow_record>
-
-			<tabs_recordsheet name="tabs">
-				<!-- <tab> -->
-					<!-- <icon>tab_main</icon> -->
-					<!-- <subwindow>main_creature</subwindow> -->
-				<!-- </tab> -->
-				<tab>
-					<icon>tab_skills</icon>
-					<subwindow>skills</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_abilities</icon>
-					<subwindow>abilities</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_inventory</icon>
-					<subwindow>inventory</subwindow>
-				</tab>
-				<tab>
-					<icon>tab_actions</icon>
-					<subwindow>actions</subwindow>
-				</tab>
-
-				<tab>
-					<icon>tab_other</icon>
-					<subwindow>text</subwindow>
-				</tab>
-			</tabs_recordsheet>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
+		<!-- <tab> -->
+			<!-- <name>main</name> -->
+			<!-- <resource>tab_main</resource> -->
+			<!-- <class>npc_combat</class> -->
+			<!-- <embed /> -->
+		<!-- </tab> -->
+		<tab merge="add">
+			<name>skills</name>
+			<resource>tab_skills</resource>
+			<class>npcsheet_skills</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>abilities</name>
+			<resource>tab_abilities</resource>
+			<class>charsheet_abilities</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>inventory</name>
+			<resource>tab_inventory</resource>
+			<class>charsheet_inventory</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>actions</name>
+			<resource>tab_actions</resource>
+			<class>charsheet_actions</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>notes</name>
+			<resource>tab_notes</resource>
+			<class>npc_notes</class>
+			<embed />
+		</tab>
+		<tab merge="add">
+			<name>pictures</name>
+			<resource>tab_pictures</resource>
+			<class>record_content_pictures</class>
+			<embed />
+		</tab>
+		<script>
+			function onIDChanged()
+				super.onIDChanged();
+				if not Session.IsHost then
+					local bID = LibraryData.getIDState("npc", getDatabaseNode(), true);
+					tabs.setVisible(bID);
+					sub_version.setVisible(bID);
+				end
+			end
+		</script>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="npc_header" merge="join">
-		<margins control="0,0,0,2" />
-		<sheetdata>
-			<subwindow name="npc_header_contents">
-				<anchored height="80">
-					<top offset="40" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
-				<class>npc_combat</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-		</sheetdata>
-	</windowclass>
-
-	<!-- =================================================================================================================== -->
 	<!-- Adjusted -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="npc_combat">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/npc_main_chronicle.lua" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
-			
-			<label_column name="nonid_name_label">
-				<static textres="npc_label_unidentified" />
-			</label_column>
-			<string_columnh name="nonid_name" />
-			
-			<label_column name="size_label">
-				<static textres="npc_label_size" />
-			</label_column>
+			<anchor_content_top />
 
-			<string_columnh name="size">
-				<!-- <script> -->
-					<!-- function onValueChanged() -->
-						<!-- window.onSummaryChanged(); -->
-					<!-- end -->
-				<!-- </script> -->
-			</string_columnh>
-			
-			<label_column name="type_label">
-				<static textres="npc_label_type" />
-			</label_column>
-			<string_columnh name="type">
-				<delaykeyupdate />
-				<!-- <script> -->
-					<!-- function onValueChanged() -->
-						<!-- window.onSummaryChanged(); -->
-					<!-- end -->
-				<!-- </script> -->
-			</string_columnh>
+			<sub_content_column name="sub_top">
+				<class>npc_combat_top</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_summon" />
+
+			<sub_content_column name="sub_abilities">
+				<class>npc_combat_abilities</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_bottom">
+				<class>npc_combat_bottom</class>
+			</sub_content_column>
+
+			<sub_content_column name="sub_action">
+				<class>npc_combat_actions</class>
+			</sub_content_column>
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
+	<windowclass name="npc_combat_top">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_top.lua" />
+		<sheetdata>
+			<hn name="dexterity" source="abilities.dexterity.score">
+				<default>10</default>
+				<script>
+					function onValueChanged()
+						window.onInitChanged();
+					end
+				</script>
+			</hn>
+			<hn name="initmiscmod" source="initiative.misc">
+				<script>
+					function onValueChanged()
+						window.onInitChanged();
+					end
+				</script>
+			</hn>
+
+			<anchor_content_top />
+
+			<sub_content_hidden_top name="sub_summary_fields">
+				<class>npc_combat_summary_fields</class>
+			</sub_content_hidden_top>
+			<summary_content_column name="summary" />
+
+			<line_content_top />
+
+			<label_content_column name="ac_label">
+				<static textres="armorclass" />
+			</label_content_column>
+			<number_content_column name="ac" />
+
+			<label_content_column_right name="initmod_label">
+				<anchored to="ac" />
+				<static textres="npc_label_init" />
+			</label_content_column_right>
+			<numberc_npc_initmod_2024 name="initmod">
+				<anchored to="ac" />
+			</numberc_npc_initmod_2024>
+
+			<label_content_column name="hp_label">
+				<static textres="hitpoints" />
+			</label_content_column>
+			<number_content_column name="hp" />
+			<string_content_column_remainder name="hd">
+				<anchored to="hp" />
+				<delaykeyupdate />
+			</string_content_column_remainder>
+
+			<label_content_column name="damagethreshold_label">
+				<static textres="npc_label_damagethreshold" />
+				<tooltip textres="npc_tooltip_damagethreshold" />
+			</label_content_column>
+			<number_content_columnh name="damagethreshold" />
+
+			<label_content_column name="speed_label">
+				<static textres="npc_label_speed" />
+			</label_content_column>
+			<string_content_column name="speed" />
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_summary_fields">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="size_label">
+				<static textres="npc_label_size" />
+			</label_content_column>
+			<string_content_columnh name="size">
+				<delaykeyupdate />
+				<script file="campaign/scripts/record_size.lua" />
+			</string_content_columnh>
+
+			<label_content_column name="type_label">
+				<static textres="npc_label_type" />
+			</label_content_column>
+			<string_content_columnh name="type">
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+
+			<label_content_column name="alignment_label">
+				<static textres="npc_label_alignment" />
+			</label_content_column>
+			<string_content_columnh name="alignment">
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onSummaryChanged");
+					end
+				</script>
+			</string_content_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_abilities">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_abilities.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<area_content_top name="area_labels">
+				<anchored height="15" />
+			</area_content_top>
+			<area_npc_abilitylabel_2024 name="area_labels_left">
+				<anchored to="area_labels">
+					<right anchor="center" offset="-75" />
+				</anchored>
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_left">
+				<anchored to="area_labels_left" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_left">
+				<anchored to="area_labels_left" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
+			<area_npc_abilitylabel_2024 name="area_labels_center">
+				<anchored to="area_labels_left" position="righthigh" offset="15,0" />
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_center">
+				<anchored to="area_labels_center" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_center">
+				<anchored to="area_labels_center" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
+			<area_npc_abilitylabel_2024 name="area_labels_right">
+				<anchored to="area_labels_center" position="righthigh" offset="15,0" />
+			</area_npc_abilitylabel_2024>
+			<label_npc_abilitymod_2024 name="label_abilitymod_right">
+				<anchored to="area_labels_right" />
+				<static textres="npc_label_abilitymod" />
+			</label_npc_abilitymod_2024>
+			<label_npc_abilitysave_2024 name="label_abilitysave_right">
+				<anchored to="area_labels_right" />
+				<static textres="npc_label_abilitysave" />
+			</label_npc_abilitysave_2024>
+
+			<area_content_top name="area_physical">
+				<anchored height="24" />
+			</area_content_top>
+			<area_npc_abilityscore_2024 name="area_str">
+				<anchored to="area_physical">
+					<right anchor="center" offset="-75" />
+				</anchored>
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_str">
+				<anchored to="area_str" />
+				<static textres="STR" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="strength" source="abilities.strength.score">
+				<anchored to="area_str" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="strengthmod">
+				<anchored to="area_str" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="strengthsave">
+				<anchored to="area_str" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="strengthsavemod" source="abilities.strength.savemodifier">
+				<anchored to="area_str" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_dex">
+				<anchored to="area_str" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_dex">
+				<anchored to="area_dex" />
+				<static textres="DEX" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="dexterity" source="abilities.dexterity.score">
+				<anchored to="area_dex" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="dexteritymod">
+				<anchored to="area_dex" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="dexteritysave">
+				<anchored to="area_dex" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="dexteritysavemod" source="abilities.dexterity.savemodifier">
+				<anchored to="area_dex" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_con">
+				<anchored to="area_dex" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_con">
+				<anchored to="area_con" />
+				<static textres="CON" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="constitution" source="abilities.constitution.score">
+				<anchored to="area_con" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="constitutionmod">
+				<anchored to="area_con" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="constitutionsave">
+				<anchored to="area_con" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="constitutionsavemod" source="abilities.constitution.savemodifier">
+				<anchored to="area_con" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_content_top name="area_mental">
+				<anchored height="24" />
+			</area_content_top>
+			<area_npc_abilityscore_2024 name="area_int">
+				<anchored to="area_mental">
+					<right anchor="center" offset="-75" />
+				</anchored>
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_int">
+				<anchored to="area_int" />
+				<static textres="INT" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="intelligence" source="abilities.intelligence.score">
+				<anchored to="area_int" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="intelligencemod">
+				<anchored to="area_int" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="intelligencesave">
+				<anchored to="area_int" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="intelligencesavemod" source="abilities.intelligence.savemodifier">
+				<anchored to="area_int" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_wis">
+				<anchored to="area_int" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_wis">
+				<anchored to="area_wis" />
+				<static textres="WIS" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="wisdom" source="abilities.wisdom.score">
+				<anchored to="area_wis" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="wisdommod">
+				<anchored to="area_wis" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="wisdomsave">
+				<anchored to="area_wis" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="wisdomsavemod" source="abilities.wisdom.savemodifier">
+				<anchored to="area_wis" />
+			</number_npc_abilitysavemod_2024>
+
+			<area_npc_abilityscore_2024 name="area_cha">
+				<anchored to="area_wis" position="righthigh" offset="15,0" />
+			</area_npc_abilityscore_2024>
+			<label_npc_abilityscore_2024 name="label_cha">
+				<anchored to="area_cha" />
+				<static textres="CHA" />
+			</label_npc_abilityscore_2024>
+			<number_npc_abilityscore_2024 name="charisma" source="abilities.charisma.score">
+				<anchored to="area_cha" />
+			</number_npc_abilityscore_2024>
+			<number_npc_abilitymod_2024 name="charismamod">
+				<anchored to="area_cha" />
+			</number_npc_abilitymod_2024>
+			<number_npc_abilitysave_2024 name="charismasave">
+				<anchored to="area_cha" />
+			</number_npc_abilitysave_2024>
+			<number_npc_abilitysavemod_2024 name="charismasavemod" source="abilities.charisma.savemodifier">
+				<anchored to="area_cha" />
+			</number_npc_abilitysavemod_2024>
+
+			<line_content_top />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_bottom">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="skills_label">
+				<static textres="npc_label_skills" />
+			</label_content_column>
+			<string_content_columnh_multiroll name="skills" >
+				<script file="campaign/scripts/npc_skill.lua" />
+			</string_content_columnh_multiroll>
+
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_columnh name="damageimmunities" />
+
+			<label_content_column name="gear_label">
+				<static textres="npc_label_gear" />
+			</label_content_column>
+			<string_content_columnh name="gear" />
+
+			<label_content_column name="senses_label">
+				<static textres="npc_label_senses" />
+			</label_content_column>
+			<string_content_columnh name="senses">
+				<delaykeyupdate />
+			</string_content_columnh>
+
+			<label_content_column name="languages_label">
+				<static textres="npc_label_languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
+
+			<label_content_column name="cr_label">
+				<static textres="npc_label_challenge" />
+			</label_content_column>
+			<string_content_column name="cr" >
+				<anchored width="30">
+					<right merge="delete" />
+				</anchored>
+				<center />
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onProfBonusDataChanged");
+					end
+				</script>
+			</string_content_column>
+
+			<label name="profbonus_label">
+				<anchored to="cr">
+					<top />
+					<right parent="" anchor="center" offset="50" />
+				</anchored>
+				<static textres="npc_label_profbonus" />
+				<tooltip textres="npc_tooltip_profbonus" />
+			</label>
+			<numberc_static name="profbonus">
+				<anchored to="cr" width="40" height="20">
+					<top offset="1" />
+					<left parent="" anchor="center" offset="60" />
+				</anchored>
+				<displaysign />
+			</numberc_static>
+
+			<label_content_column_right name="xp_label">
+				<static textres="xp" />
+			</label_content_column_right>
+			<number_content_column_right name="xp" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_combat_bottom_2024">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/npc_main_bottom.lua" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="skills_label">
+				<static textres="npc_label_skills" />
+			</label_content_column>
+			<string_content_columnh_multiroll name="skills" >
+				<script file="campaign/scripts/npc_skill.lua" />
+			</string_content_columnh_multiroll>
+
+			<label_content_column name="damagevulnerabilities_label">
+				<static textres="npc_label_vulnerabilities" />
+			</label_content_column>
+			<string_content_columnh name="damagevulnerabilities" />
+
+			<label_content_column name="damageresistances_label">
+				<static textres="npc_label_resistances" />
+			</label_content_column>
+			<string_content_columnh name="damageresistances" />
+
+			<label_content_column name="damageimmunities_label">
+				<static textres="npc_label_immunities" />
+			</label_content_column>
+			<string_content_columnh name="damageimmunities" />
+
+			<label_content_column name="gear_label">
+				<static textres="npc_label_gear" />
+			</label_content_column>
+			<string_content_columnh name="gear" />
+
+			<label_content_column name="senses_label">
+				<static textres="npc_label_senses" />
+			</label_content_column>
+			<string_content_columnh name="senses">
+				<delaykeyupdate />
+			</string_content_columnh>
+
+			<label_content_column name="languages_label">
+				<static textres="npc_label_languages" />
+			</label_content_column>
+			<string_content_columnh name="languages" />
+
+			<label_content_column name="cr_label">
+				<static textres="npc_label_challenge" />
+			</label_content_column>
+			<string_content_column name="cr" >
+				<anchored width="30">
+					<right merge="delete" />
+				</anchored>
+				<center />
+				<delaykeyupdate />
+				<script>
+					function onValueChanged()
+						WindowManager.callOuterWindowFunction(window, "onProfBonusDataChanged");
+					end
+				</script>
+			</string_content_column>
+
+			<label name="profbonus_label">
+				<anchored to="cr">
+					<top />
+					<right parent="" anchor="center" offset="50" />
+				</anchored>
+				<static textres="npc_label_profbonus" />
+				<tooltip textres="npc_tooltip_profbonus" />
+			</label>
+			<numberc_static name="profbonus">
+				<anchored to="cr" width="40" height="20">
+					<top offset="1" />
+					<left parent="" anchor="center" offset="60" />
+				</anchored>
+				<displaysign />
+			</numberc_static>
+
+			<label_content_column_right name="xp_label">
+				<static textres="xp" />
+			</label_content_column_right>
+			<number_content_column_right name="xp" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="npc_notes">
+		<script>
+			function update()
+				local node = getDatabaseNode();
+				local bReadOnly = WindowManager.getReadOnlyState(node);
+				local sRecordType = WindowManager.getRecordType(self);
+				local bID = RecordDataManager.getIDState(sRecordType, node);
+
+				local tFields = { "habitat", "treasure", "text", };
+				WindowManager.callSafeControlsUpdate(self, tFields, bReadOnly, not bID);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_content_column name="habitat_label">
+				<static textres="npc_label_habitat" />
+			</label_content_column>
+			<string_content_columnh name="habitat" />
+
+			<label_content_column name="treasure_label">
+				<static textres="npc_label_treasure" />
+			</label_content_column>
+			<string_content_columnh name="treasure" />
+
+			<ft_content_noframe_noscroll_top name="text" />
+		</sheetdata>
+	</windowclass>
+
 	<!-- Added - NPC Sheet Skills -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="npcsheet_skills">
 		<sheetdata>
 			<button_iedit name="skills_iedit">

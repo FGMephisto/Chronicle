@@ -16,7 +16,7 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				local tFields = { "stat", "text", };
+				local tFields = { "stat", "test", "action", "text", };
 				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 		</script>
@@ -27,6 +27,16 @@
 				<static textres="skill_label_ability" />
 			</label_content_column>
 			<string_content_columnh name="stat" />
+
+			<label_content_column name="test_label">
+				<static textres="ref_skill_test_label" />
+			</label_content_column>
+			<string_content_columnh name="test" />
+
+			<label_content_column name="action_label">
+				<static textres="ref_skill_action_label" />
+			</label_content_column>
+			<string_content_columnh name="action" />
 
 			<ft_content_columnh_full name="text" />
 		</sheetdata>
