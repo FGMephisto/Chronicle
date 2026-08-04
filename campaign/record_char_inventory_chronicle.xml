@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!--
-  Please see the license.html file included with this distribution for
+<!-- 
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- Charsheet Inventory -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_inventory">
 		<script>
 			function onDrop(x, y, draginfo)
@@ -27,9 +23,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Inventory Contents -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_inventory_contents">
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/char_inventory_chronicle.lua" />
@@ -48,9 +41,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Inventory Items -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_inventory_items">
 		<margins control="0,0,0,2" />
 		<sheetdata>
@@ -155,9 +145,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Inventory Item -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="char_invitem" merge="join">
 		<sheetdata>
 			<button_idelete name="idelete" merge="delete" />
@@ -170,15 +157,12 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Money section -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_inventory_currencies">
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />
 
-			<label_charframetop name="header">
+			<label_charframetop name="moneytitle">
 				<anchored to="contentanchor" height="20">
 					<top relation="relative" offset="8" postoffset="8" />
 					<left offset="15" />
@@ -195,9 +179,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Encumbrance section -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="charsheet_inventory_encumbrance">
 		<margins control="0,0,0,2" />
 		<sheetdata>

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <!-- 
-  Please see the license.html file included with this distribution for
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- Battle -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="battle">
 		<frame>recordsheet</frame>
 		<placement>
@@ -101,9 +97,6 @@
 		</sheetdata>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Battle Header -->
-	<!-- =================================================================================================================== -->
 	<windowclass name="battle_header">
 		<margins control="0,0,0,2" />
 		<script>

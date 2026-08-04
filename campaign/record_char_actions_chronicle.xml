@@ -140,7 +140,7 @@
 			</number_charwounds>
 
 			<genericcontrol name="dmg_icon">
-				<anchored to="hp_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="hp" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_damage</icon>
 				<tooltip textres="char_tooltip_dmg" />
 			</genericcontrol>
@@ -151,7 +151,7 @@
 			</basicnumber>
 
 			<genericcontrol name="injuries_icon">
-				<anchored to="dmg_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="dmg" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_injuries</icon>
 				<tooltip textres="char_tooltip_injuries" />
 			</genericcontrol>
@@ -161,7 +161,7 @@
 			</number_charinjuries>
 
 			<genericcontrol name="trauma_icon">
-				<anchored to="injuries_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="injuries" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_trauma</icon>
 				<tooltip textres="char_tooltip_trauma" />
 			</genericcontrol>
@@ -172,7 +172,7 @@
 			</number_chartrauma>
 
 			<genericcontrol name="fatigue_icon">
-				<anchored to="trauma_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="trauma" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_fatigue</icon>
 				<tooltip textres="char_tooltip_fatigue" />
 			</genericcontrol>
@@ -211,7 +211,7 @@
 			</area_content_top>
 
 			<genericcontrol name="cd_icon">
-				<anchored to="combat_row" position="insidetopleft" offset="60,10" width="30" height="30" />
+				<anchored to="combat_row" position="insidetopleft" offset="15,10" width="30" height="30" />
 				<icon>char_cd</icon>
 				<tooltip textres="char_tooltip_cd" />
 			</genericcontrol>
@@ -220,7 +220,7 @@
 			</number_chartotalac>
 
 			<genericcontrol name="armor_icon">
-				<anchored to="cd_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="cd" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_armor</icon>
 				<tooltip textres="char_tooltip_armor" />
 			</genericcontrol>
@@ -229,7 +229,7 @@
 			</number_chartotalar>
 
 			<genericcontrol name="move_icon">
-				<anchored to="armor_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="armor" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_move</icon>
 				<tooltip textres="char_tooltip_move" />
 			</genericcontrol>
@@ -238,7 +238,7 @@
 			</number_charspeed>
 
 			<genericcontrol name="sprint_icon">
-				<anchored to="move_icon" position="righthigh" offset="15,0" width="30" height="30" />
+				<anchored to="move" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_sprint</icon>
 				<tooltip textres="char_tooltip_sprint" />
 			</genericcontrol>

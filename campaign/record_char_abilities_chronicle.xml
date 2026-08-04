@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!--
-  Please see the license.html file included with this distribution for
+<!-- 
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System.
 -->
 
 <root>
 	<windowclass name="charsheet_abilities">
+		<script>
+			function onDrop(x, y, draginfo)
+				if draginfo.isType("shortcut") then
+					local sClass, sRecord = draginfo.getShortcutData();
+					if StringManager.contains({ 
+							"reference_racialtrait", "reference_subracialtrait", 
+							"reference_classproficiency", "reference_classfeature", 
+							"reference_classfeaturechoice", "reference_backgroundfeature", 
+							"reference_feat", }, sClass) then
+						return CharBuildDropManager.addInfoDB(getDatabaseNode(), sClass, sRecord);
+					end
+				end
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 			<anchor_content_bottom />
@@ -20,7 +33,6 @@
 	</windowclass>
 
 	<windowclass name="charsheet_abilities_contents">
-		<script file="campaign/scripts/char_abilities_chronicle.lua" />
 		<sheetdata>
 			<anchor_content_top />
 
@@ -46,13 +58,7 @@
 		<sheetdata>
 			<anchor_content_top />
 
-			<label_charframetop name="header">
-				<anchored to="contentanchor" height="20">
-					<top relation="relative" offset="2" postoffset="2" />
-					<left offset="10" />
-					<right offset="-10" />
-				</anchored>
-			</label_charframetop>
+			<header_content_framed_metalplate_icon name="header" />
 			<button_iadd name="list_iadd">
 				<anchored to="header" position="insidetopright" offset="5,0" />
 				<target>list</target>
@@ -77,10 +83,10 @@
 
 	<windowclass name="charsheet_abilities_feats" copy="charsheet_abilities_list">
 		<sheetdata>
-			<label_charframetop name="header">
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_feats" />
-				<icons>char_abilities_green</icons>
-			</label_charframetop>
+				<icon>char_abilities_green</icon>
+			</header_content_framed_metalplate_icon>
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.featlist</datasource>
 				<class>charsheet_ability_feat</class>
@@ -91,10 +97,12 @@
 
 	<windowclass name="charsheet_abilities_languages" copy="charsheet_abilities_list">
 		<sheetdata>
-			<label_charframetop name="header">
+			<anchor_content_top />
+
+			<header_content_framed_metalplate_icon name="header">
 				<static textres="char_abilities_label_languages" />
-				<icons>char_abilities_blue</icons>
-			</label_charframetop>
+				<icon>char_abilities_blue</icon>
+			</header_content_framed_metalplate_icon>
 			<list_content_noscroll_alternating_top name="list">
 				<datasource>.languagelist</datasource>
 				<class>char_language</class>
@@ -125,7 +133,6 @@
 			</string_listitem_center_underline>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="charsheet_ability_feat" copy="charsheet_ability_item">
 		<sheetdata>
 			<linkc_listitem_left name="shortcut">

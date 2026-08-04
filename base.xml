@@ -48,6 +48,7 @@
 
 	<includefile source="campaign/campaign_chars.xml" />
 	<includefile source="campaign/record_char_chronicle.xml" />
+	<includefile source="campaign/record_char_abilities_chronicle.xml" />
 	<includefile source="campaign/record_ability_chronicle.xml" />
 	<includefile source="campaign/record_char_actions_chronicle.xml" />
 	<includefile source="campaign/record_char_inventory_chronicle.xml" />
@@ -68,7 +69,6 @@
 	<includefile source="campaign/record_quest_chronicle.xml" />
 	<includefile source="campaign/record_vehicle.xml" />
 
-	<includefile source="campaign/record_ability.xml" />
 	<includefile source="campaign/record_adventure.xml" />
 	<includefile source="campaign/record_background.xml" />
 	<includefile source="campaign/record_class.xml" />

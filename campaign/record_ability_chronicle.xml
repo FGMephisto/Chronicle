@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!--
-  Please see the license.html file included with this distribution for
+<!-- 
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root>
@@ -12,7 +11,6 @@
 			<right>chat_output</right>
 		</windowmenu>
 	</windowclass>
-
 	<windowclass name="ref_ability_header" copy="record_header">
 		<sheetdata>
 			<icon_record_header_type name="recordtype">
