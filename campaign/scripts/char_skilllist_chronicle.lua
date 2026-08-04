@@ -83,8 +83,8 @@ function constructDefaultSkills()
 				end
 				matches = { w };
 
-				-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
-				w.diceframe.onInit()
+				w.diceframe.onInit();
+				w.updateSortKey();
 			end
 		end
 

@@ -45,16 +45,14 @@
 
 			<area_list_content_controls name="area_controls" />
 			<anchor_list_content_controls_right name="rightanchor" />
-			<filter_list_content_controls>
+			<filter_list_content_controls name="stat_name_filter">
 				<delaykeyupdate merge="delete" />
 				<script>
 					function onValueChanged()
 						super.onValueChanged();
-						if window.content and window.content.subwindow and window.content.subwindow.content_skills and window.content.subwindow.content_skills.subwindow then
-							local wSkillsMain = window.content.subwindow.content_skills.subwindow;
-							if wSkillsMain.filter then
-								wSkillsMain.filter.setValue(getValue());
-							end
+						local wSkillsMain = window.content_skills.subwindow;
+						if wSkillsMain and wSkillsMain.filter_ability then
+							wSkillsMain.filter_ability.setValue(getValue());
 						end
 					end
 				</script>
@@ -107,11 +105,9 @@
 				<class>charsheet_skilllist_item</class>
 				<classheader>charsheet_skilllist_header</classheader>
 
-				<!-- <filter control="filter" /> -->
 				<filter control="filter_ability" />
 				<filteron control="stat_filter" />
-				<sortby><control>name</control></sortby>
-				<!-- <sortby><control>sortkey</control></sortby> -->
+				<sortby><control>sortkey</control></sortby>
 				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
 			</list_content_labeled>
 			<scrollbar_content_list />
@@ -178,6 +174,7 @@
 					end
 				</script>
 			</hsc>
+			<hsc name="sortkey" />
 
 			<button_listitem_idelete_left name="idelete" />
 			<spacer_listitem_idelete_left name="idelete_spacer" />
@@ -233,10 +230,9 @@
 				<script>
 					function onValueChanged()
 						sAbility = DB.getValue(window.getDatabaseNode(), "stat", "")
-						-- Set "stat_filter" so the skill will show/hide on filter set
 						window.stat_filter.setValue(sAbility)
-						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
 						window.diceframe.onInit()
+						window.updateSortKey()
 					end
 				</script>
 				<tabtarget next="misc" prev="name" />
@@ -250,7 +246,7 @@
 		</sheetdata>
 	</windowclass>
 
- 	<windowclass name="charsheet_stats_main">
+ 	<windowclass name="charsheet_stats_main2">
 		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_content_top />

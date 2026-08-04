@@ -1,85 +1,33 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!-- 
+<!--
   Please see the license.html file included with this distribution for
   attribution and copyright information.
   File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- =================================================================================================================== -->
-	<!-- Modified -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="ref_ability">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="350" height="350" />
-		</placement>
-		<sizelimits>
-			<minimum width="350" height="350" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_reference</minimize>
-		<tooltip field="name" />
-		<script file="custom/scripts/record_window.lua" />
-		<sheetdata>
-			<hs name="type" />
-
-			<sub_record_header name="header">
-				<class>ability_header</class>
-			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
-			
-			<ft_record name="text">
-				<anchored to="contentframe" position="over" />
-				<empty textres="ft_empty" hideonreadonly="true" />
-			</ft_record>
-
-			<scrollbar_record>
-				<target>text</target>
-			</scrollbar_record>
-			
-			<resize_recordsheet />
-			<close_recordsheet />
-		</sheetdata>
+	<windowclass name="ref_ability" copy="record_window_text">
+		<windowmenu>
+			<right>chat_output</right>
+		</windowmenu>
 	</windowclass>
 
-	<!-- =================================================================================================================== -->
-	<!-- Modified -->
-	<!-- =================================================================================================================== -->
-	<windowclass name="ability_header">
-		<margins control="0,0,0,2" />
-		<script file="custom/scripts/record_header_simple.lua" />
+	<windowclass name="ref_ability_header" copy="record_header">
 		<sheetdata>
-			<link_record_header name="link">
-				<class>ref_ability</class>
-			</link_record_header>
-
-			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked />
-			<button_record_locked />
-
-			<string_record_name name="name" />
-			
-			<label_recordtype name="recordtype_label">
+			<icon_record_header_type name="recordtype">
 				<script>
-					function onInit()
+					function getRecordType()
 						local sList = DB.getName(DB.getParent(window.getDatabaseNode()));
-						
-						local sValue = ""
 						if sList == "skilllist" then
-							sValue = LibraryData.getSingleDisplayText("skill")
+							return "skill";
 						elseif sList == "featlist" then
-							sValue = LibraryData.getSingleDisplayText("feat")
+							return "feat";
 						end
-						
-						setValue(sValue)
-						
-						super.onInit()
-					end 
+						return "";
+					end
 				</script>
-			</label_recordtype>
+			</icon_record_header_type>
 		</sheetdata>
 	</windowclass>
 </root>

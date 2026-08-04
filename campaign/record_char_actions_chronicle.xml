@@ -1,69 +1,47 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!-- 
+<!--
   Please see the license.html file included with this distribution for
   attribution and copyright information.
   File adjusted for Chronicle System
 -->
 
 <root>
-	<!-- Adjusted -->
 	<windowclass name="charsheet_actions">
 		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "weapons_iadd", };
+				WindowManager.callSafeControlsSetVisible(self, tFields, not bReadOnly);
+			end
 			function onDrop(x, y, draginfo)
-				-- if contents.subwindow.actions.subwindow.onDrop(x, y, draginfo) then
-					-- return true;
-				-- end
-				if contents.subwindow.weapons.onDrop(x, y, draginfo) then
+				if content.subwindow.weapons.onDrop(x, y, draginfo) then
 					return true;
 				end
 				return false;
 			end
-			
-			function onEditModeChanged()
-				-- local bEditMode = WindowManager.getEditMode(self, "actions_iedit");
-
-				-- powermode_label.setVisible(not bEditMode);
-				-- powermode.setVisible(not bEditMode);
-				-- powerdisplay_label.setVisible(not bEditMode);
-				-- powerdisplaymode.setVisible(not bEditMode);
-				-- if bEditMode then
-					-- DB.setValue(getDatabaseNode(), "powermode", "string", "standard");
-				-- end
-			end
 		</script>
 		<sheetdata>
-			<button_iedit name="actions_iedit">
-				<anchored position="insidebottomright" offset="10,10" />
-				<tooltip textres="char_tooltip_actionedit" />
-			</button_iedit>
+			<anchor_content_top />
+			<anchor_content_bottom />
 
+			<area_content_framed_groupbox_bottom name="area_controls">
+				<anchored height="20" />
+			</area_content_framed_groupbox_bottom>
 			<buttoncontrol name="weapons_iadd">
-				<anchored to="actions_iedit" position="lefthigh" offset="5,0" width="20" height="20" />
+				<anchored to="area_controls" position="insidetopright" offset="0,0" width="20" height="20" />
 				<icon normal="button_weapon" pressed="button_weapon_down" />
 				<tooltip textres="char_tooltip_actionaddweapon" />
 				<script>
 					function onButtonPress()
-						window.contents.subwindow.weapons.addEntry(true);
+						window.content.subwindow.weapons.addEntry(true);
 					end
 				</script>
 			</buttoncontrol>
-
-			<subwindow name="contents">
-				<anchored>
-					<bottom offset="-40" />
-					<top offset="0" />
-					<left offset="0" />
-					<right offset="-15" />
-				</anchored>
-				<class>charsheet_actions_contents</class>
-				<activate />
-				<fastinit />
-			</subwindow>
-			<scrollbar_charcontents />
-			
 			<button_stringcycler name="powermode">
-				<anchored position="insidebottomleft" width="80" offset="10,10" />
+				<anchored to="area_controls" position="insidetopleft" offset="0,0" width="80" />
 				<parameters>
 					<labelsres>power_label_modecombat</labelsres>
 					<values>combat</values>
@@ -71,138 +49,155 @@
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.contents.subwindow.onModeChanged();
+						window.content.subwindow.onModeChanged();
 					end
 				</script>
 			</button_stringcycler>
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_actions_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
 		</sheetdata>
 	</windowclass>
 
-	<!-- Adjusted -->
 	<windowclass name="charsheet_actions_contents">
 		<margins control="0,0,0,2" />
 		<script>
 			function onModeChanged()
 				weapons.onModeChanged();
-				
-				-- spellslots_prep.subwindow.onModeChanged();
-				-- spellslots_cast.subwindow.onModeChanged();
-				-- actions.subwindow.onModeChanged();
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
-			<!-- Health -->
-			<label_charframetop name="healthtitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
-					<left offset="15" />
+			<sub_content_top name="health">
+				<class>charsheet_actions_health</class>
+			</sub_content_top>
+			<sub_content_top name="combat">
+				<class>charsheet_actions_combat</class>
+			</sub_content_top>
+			<sub_content_top name="dice">
+				<class>charsheet_actions_dice</class>
+			</sub_content_top>
+
+			<label_charframetop name="weapon_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="8" postoffset="8" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>char_attacks</icons>
+				<static textres="char_title_weapons" />
+			</label_charframetop>
+
+			<button_details name="weapons_global_detail">
+				<anchored to="weapon_header" position="insidetopright" offset="5,0" />
+				<script>
+					function onButtonPress()
+						Interface.openWindow("char_weaponmeta", window.getDatabaseNode());
+					end
+				</script>
+			</button_details>
+
+			<list_charweapon name="weapons">
+				<anchored>
+					<top parent="weapon_header" anchor="bottom" relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-5" />
+				</anchored>
+				<class>char_weapon</class>
+				<noscroll />
+			</list_charweapon>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_actions_health">
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
 				<icons>char_background</icons>
 				<static textres="char_title_health" />
 			</label_charframetop>
 
+			<area_content_top name="health_row">
+				<anchored height="50" />
+			</area_content_top>
+
 			<genericcontrol name="hp_icon">
-				<anchored to="healthtitle" width="30" height="30">
-					<top anchor="bottom" offset="15" />
-					<left anchor="left" offset="15" />
-				</anchored>
+				<anchored to="health_row" position="insidetopleft" offset="15,10" width="30" height="30" />
 				<icon>char_health</icon>
 				<tooltip textres="char_tooltip_hp" />
 			</genericcontrol>
-
 			<number_charwounds name="hp" source="hp.total">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="hp_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_charwounds>
 
 			<genericcontrol name="dmg_icon">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="hp_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_damage</icon>
 				<tooltip textres="char_tooltip_dmg" />
 			</genericcontrol>
-
 			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
 			<basicnumber name="dmg" source="hp.wounds">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="dmg_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</basicnumber>
 
 			<genericcontrol name="injuries_icon">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="dmg_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_injuries</icon>
 				<tooltip textres="char_tooltip_injuries" />
 			</genericcontrol>
-
 			<number_charinjuries name="injuries" source="hp.injuries">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="injuries_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</number_charinjuries>
 
 			<genericcontrol name="trauma_icon">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="injuries_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_trauma</icon>
 				<tooltip textres="char_tooltip_trauma" />
 			</genericcontrol>
-
 			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
 			<number_chartrauma name="trauma" source="hp.trauma">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="trauma_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</number_chartrauma>
 
 			<genericcontrol name="fatigue_icon">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="trauma_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_fatigue</icon>
 				<tooltip textres="char_tooltip_fatigue" />
 			</genericcontrol>
-
 			<basicnumber name="fatigue" source="hp.fatigue">
-				<anchored to="hp_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="fatigue_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</basicnumber>
+		</sheetdata>
+	</windowclass>
 
-			<!-- Combat -->
-			<label_charframetop name="combattitle">
-				<anchored to="healthtitle" height="20">
-					<top anchor="bottom" relation="relative" offset="60" />
-					<left />
-					<right />
+	<windowclass name="charsheet_actions_combat">
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
+					<right offset="-10" />
 				</anchored>
-				<static textres="char_title_combat" />
 				<icons>char_attacks</icons>
+				<static textres="char_title_combat" />
 			</label_charframetop>
-
 			<buttoncontrol name="combatcalc_button">
-				<anchored width="20" to="combattitle" position="insideright" />
+				<anchored to="header" position="insideright" width="20" />
 				<state icon="button_details" pressed="button_details_down" />
 				<script>
 					function onButtonPress()
@@ -211,145 +206,94 @@
 				</script>
 			</buttoncontrol>
 
+			<area_content_top name="combat_row">
+				<anchored height="50" />
+			</area_content_top>
+
 			<genericcontrol name="cd_icon">
-				<anchored to="combattitle" width="30" height="30">
-					<top anchor="bottom" offset="15" />
-					<left anchor="left" offset="60" />
-				</anchored>
+				<anchored to="combat_row" position="insidetopleft" offset="60,10" width="30" height="30" />
 				<icon>char_cd</icon>
 				<tooltip textres="char_tooltip_cd" />
 			</genericcontrol>
-
 			<number_chartotalac name="cd" source="defenses.ac.total">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="cd_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_chartotalac>
 
 			<genericcontrol name="armor_icon">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="cd_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_armor</icon>
 				<tooltip textres="char_tooltip_armor" />
 			</genericcontrol>
-
 			<number_chartotalar name="armor" source="defenses.armor.total">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="armor_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_chartotalar>
 
 			<genericcontrol name="move_icon">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="armor_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_move</icon>
 				<tooltip textres="char_tooltip_move" />
 			</genericcontrol>
-
 			<number_charspeed name="move" source="speed.total">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="move_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_charspeed>
 
 			<genericcontrol name="sprint_icon">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="15" />
-				</anchored>
+				<anchored to="move_icon" position="righthigh" offset="15,0" width="30" height="30" />
 				<icon>char_sprint</icon>
 				<tooltip textres="char_tooltip_sprint" />
 			</genericcontrol>
-
 			<number_charsprint name="sprint" source="speed.sprint">
-				<anchored to="cd_icon" width="30" height="30">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="sprint_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_charsprint>
+		</sheetdata>
+	</windowclass>
 
-			<!-- Actions -->
-			<label_charframetop name="actionstitle">
-				<anchored to="combattitle" height="20">
-					<top anchor="bottom" relation="relative" offset="60" />
-					<left />
-					<right />
+	<windowclass name="charsheet_actions_dice">
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
+					<right offset="-10" />
 				</anchored>
-				<static textres="char_actions_title" />
 				<icons>char_attacks</icons>
+				<static textres="char_actions_title" />
 			</label_charframetop>
 
-			<!-- Dice Field - Init -->
+			<area_content_top name="dice_row">
+				<anchored height="50" />
+			</area_content_top>
+
 			<dicecontrol_init name="diceframe_init">
-				<anchored to="actionstitle">
-					<top anchor="bottom" offset="15" />
-					<left anchor="left" offset="15" />
-				</anchored>
+				<anchored to="dice_row" position="insidetopleft" offset="15,10" />
 				<actorpath></actorpath>
 			</dicecontrol_init>
-
 			<label_abilityscore>
 				<anchored to="diceframe_init" />
 				<static textres="char_actions_label_initiative" />
 			</label_abilityscore>
 
-			<!-- Dice Field - Ride -->
 			<dicecontrol name="diceframe_ride">
-				<anchored to="diceframe_init">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="diceframe_init" position="righthigh" offset="10,0" />
 				<stat>animalhandling</stat>
 				<skill>ride</skill>
 			</dicecontrol>
-
 			<label_abilityscore>
 				<anchored to="diceframe_ride" />
 				<static textres="char_actions_label_ride" />
 			</label_abilityscore>
 
-			<!-- Dice Field - Dodge -->
 			<dicecontrol name="diceframe_dodge">
-				<anchored to="diceframe_init">
-					<top anchor="top" offset="0" />
-					<left anchor="right" relation="relative" offset="10" />
-				</anchored>
+				<anchored to="diceframe_ride" position="righthigh" offset="10,0" />
 				<stat>agility</stat>
 				<skill>dodge</skill>
 			</dicecontrol>
-
 			<label_abilityscore>
 				<anchored to="diceframe_dodge" />
 				<static textres="char_actions_label_dodge" />
 			</label_abilityscore>
-			
-			<!-- Weapons -->
-			<label_charframetop name="weapontitle">
-				<anchored to="combattitle" height="20">
-					<top anchor="bottom" relation="relative" offset="60" />
-					<left />
-					<right />
-				</anchored>
-				<icons>char_attacks</icons>
-				<static textres="char_title_weapons" />
-			</label_charframetop>
-
-			<list_charweapon name="weapons">
-				<anchored>
-					<top parent="weapontitle" anchor="bottom" relation="relative" offset="2" />
-					<left offset="10" />
-					<right offset="-5" />
-				</anchored>
-				<class>char_weapon</class>
-				<noscroll />
-			</list_charweapon>
 		</sheetdata>
 	</windowclass>
 
@@ -380,7 +324,7 @@
 			</label>
 
 			<number_readonly name="agility" source="abilities.agility.score">
-				<anchored to="label_acdetail" width="50" height="20" >
+				<anchored to="label_acdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -391,7 +335,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_acdetail" >
+				<anchored to="label_acdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -400,7 +344,7 @@
 			</label>
 
 			<number_readonly name="athletics" source="abilities.athletics.score">
-				<anchored to="label_acdetail" width="50" height="20" >
+				<anchored to="label_acdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -411,7 +355,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_acdetail" >
+				<anchored to="label_acdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -420,7 +364,7 @@
 			</label>
 
 			<number_readonly name="awareness" source="abilities.awareness.score">
-				<anchored to="label_acdetail" width="50" height="20" >
+				<anchored to="label_acdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -431,7 +375,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_acdetail" >
+				<anchored to="label_acdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -440,7 +384,7 @@
 			</label>
 
 			<number_readonly name="acbonus" source="defenses.ac.bonus">
-				<anchored to="label_acdetail" width="50" height="20" >
+				<anchored to="label_acdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -451,7 +395,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_acdetail" >
+				<anchored to="label_acdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -460,7 +404,7 @@
 			</label>
 
 			<basicnumber name="acmisc" source="defenses.ac.misc">
-				<anchored to="label_acdetail" width="50" height="20" >
+				<anchored to="label_acdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -479,7 +423,7 @@
 			</label>
 
 			<number_readonly name="armor" source="defenses.armor.rating">
-				<anchored to="label_armordetail" width="50" height="20" >
+				<anchored to="label_armordetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -491,7 +435,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_armordetail" >
+				<anchored to="label_armordetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -500,7 +444,7 @@
 			</label>
 
 			<basicnumber name="armormisc" source="defenses.armor.misc">
-				<anchored to="label_armordetail" width="50" height="20" >
+				<anchored to="label_armordetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -519,7 +463,7 @@
 			</label>
 
 			<number_readonly name="speedbase" source="speed.base">
-				<anchored to="label_speeddetail" width="50" height="20" >
+				<anchored to="label_speeddetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -531,7 +475,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_speeddetail" >
+				<anchored to="label_speeddetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -540,7 +484,7 @@
 			</label>
 
 			<number_readonly name="speedbonus" source="speed.bonus">
-				<anchored to="label_speeddetail" width="50" height="20" >
+				<anchored to="label_speeddetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -552,7 +496,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_speeddetail" >
+				<anchored to="label_speeddetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -561,7 +505,7 @@
 			</label>
 
 			<basicnumber name="speedmisc" source="speed.misc">
-				<anchored to="label_speeddetail" width="50" height="20" >
+				<anchored to="label_speeddetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -572,7 +516,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_speeddetail" >
+				<anchored to="label_speeddetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -581,7 +525,7 @@
 			</label>
 
 			<number_readonly name="speedbulkhalf" source="encumbrance.bulkhalved">
-				<anchored to="label_speeddetail" width="50" height="20" >
+				<anchored to="label_speeddetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -601,7 +545,7 @@
 			</label>
 
 			<number_readonly name="sprintbase" source="speed.base">
-				<anchored to="label_sprintdetail" width="50" height="20" >
+				<anchored to="label_sprintdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -613,7 +557,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_sprintdetail" >
+				<anchored to="label_sprintdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -622,7 +566,7 @@
 			</label>
 
 			<number_readonly name="sprintbonus" source="speed.bonus">
-				<anchored to="label_sprintdetail" width="50" height="20" >
+				<anchored to="label_sprintdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -654,7 +598,7 @@
 			</label_fieldtop>
 
 			<label>
-				<anchored to="label_sprintdetail" >
+				<anchored to="label_sprintdetail">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>
@@ -663,7 +607,7 @@
 			</label>
 
 			<number_readonly name="sprintbulkhalf" source="encumbrance.bulkhalved">
-				<anchored to="label_sprintdetail" width="50" height="20" >
+				<anchored to="label_sprintdetail" width="50" height="20">
 					<top anchor="top" />
 					<left anchor="right" relation="relative" offset="5" />
 				</anchored>

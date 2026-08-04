@@ -509,6 +509,36 @@ function onInit()
 	};
 
 	-- ===================================================================================================================
+	-- Master ability list data
+	-- ===================================================================================================================
+	abilitydata = {
+		[Interface.getString("agility")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("animalhandling")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("athletics")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("awareness")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("cunning")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("deception")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("endurance")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("fighting")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("healing")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("knowledge")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("language")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("marksmanship")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("persuasion")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("status")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("stealth")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("survival")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("thievery")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("warfare")] = { group = "Abilities", groupid = 1 },
+		[Interface.getString("will")] = { group = "Abilities", groupid = 1 },
+	};
+
+	abilitygroups = {
+		["abilities"] = { groupid = 1, name = "Abilities" },
+		["generic"] = { groupid = 1, name = "Abilities" },
+	};
+
+	-- ===================================================================================================================
 	-- Party sheet drop down skill list data
 	-- ===================================================================================================================
 	psskilldata = {

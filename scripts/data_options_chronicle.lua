@@ -4,47 +4,11 @@
 -- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	registerDiceRolls();
-	registerOptions();
+	Options5E.registerOptions();
 end
 
--- ===================================================================================================================
 -- Adjusted
--- ===================================================================================================================
-function registerDiceRolls()
-	DiceRollManager.registerDamageKey();
-	-- DiceRollManager.registerDamageTypeKey("acid", "life");
-	DiceRollManager.registerDamageTypeKey("cold", "frost");
-	DiceRollManager.registerDamageTypeKey("fire", "fire");
-	-- DiceRollManager.registerDamageTypeKey("force", "arcane");
-	-- DiceRollManager.registerDamageTypeKey("lightning", "lightning");
-	-- DiceRollManager.registerDamageTypeKey("necrotic", "shadow");
-	DiceRollManager.registerDamageTypeKey("poison", "life");
-	-- DiceRollManager.registerDamageTypeKey("psychic", "shadow");
-	-- DiceRollManager.registerDamageTypeKey("radiant", "light");
-	-- DiceRollManager.registerDamageTypeKey("thunder", "storm");
-
-	-- DiceRollManager.registerDamageTypeKey("bludgeoning");
-	-- DiceRollManager.registerDamageTypeKey("piercing");
-	-- DiceRollManager.registerDamageTypeKey("slashing");
-
-	-- DiceRollManager.registerDamageTypeKey("adamantine");
-	-- DiceRollManager.registerDamageTypeKey("cold-forged iron");
-	-- DiceRollManager.registerDamageTypeKey("silver");
-
-	-- DiceRollManager.registerDamageTypeKey("magic");
-
-	DiceRollManager.registerHealKey();
-	DiceRollManager.registerHealTypeKey("health", "light");
-	-- DiceRollManager.registerHealTypeKey("temp", "water");
-end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function registerOptions()
 	OptionsManager.registerOption2("RMMT", true, "option_header_client", "option_label_RMMT", "option_entry_cycler", 
 			{ labels = "option_val_on|option_val_multi", values = "on|multi", baselabel = "option_val_off", baseval = "off", default = "multi" });
@@ -72,4 +36,32 @@ function registerOptions()
 			{ labels = "option_val_fumbleandcrit|option_val_fumble|option_val_crit", values = "both|fumble|criticalhit", baselabel = "option_val_off", baseval = "", default = "" });
 	-- OptionsManager.registerOption2("HREN", false, "option_header_houserule", "option_label_HREN", "option_entry_cycler", 
 			-- { labels = "option_val_variant", values = "variant", baselabel = "option_val_standard", baseval = "", default = "" });
+end
+
+-- Adjusted
+function registerDiceRolls()
+	DiceRollManager.registerDamageKey();
+	-- DiceRollManager.registerDamageTypeKey("acid", "life");
+	DiceRollManager.registerDamageTypeKey("cold", "frost");
+	DiceRollManager.registerDamageTypeKey("fire", "fire");
+	-- DiceRollManager.registerDamageTypeKey("force", "arcane");
+	-- DiceRollManager.registerDamageTypeKey("lightning", "lightning");
+	-- DiceRollManager.registerDamageTypeKey("necrotic", "shadow");
+	DiceRollManager.registerDamageTypeKey("poison", "life");
+	-- DiceRollManager.registerDamageTypeKey("psychic", "shadow");
+	-- DiceRollManager.registerDamageTypeKey("radiant", "light");
+	-- DiceRollManager.registerDamageTypeKey("thunder", "storm");
+
+	-- DiceRollManager.registerDamageTypeKey("bludgeoning");
+	-- DiceRollManager.registerDamageTypeKey("piercing");
+	-- DiceRollManager.registerDamageTypeKey("slashing");
+
+	-- DiceRollManager.registerDamageTypeKey("adamantine");
+	-- DiceRollManager.registerDamageTypeKey("cold-forged iron");
+	-- DiceRollManager.registerDamageTypeKey("silver");
+	-- DiceRollManager.registerDamageTypeKey("magic");
+
+	DiceRollManager.registerHealKey();
+	DiceRollManager.registerHealTypeKey("health", "light");
+	-- DiceRollManager.registerHealTypeKey("temp", "water");
 end

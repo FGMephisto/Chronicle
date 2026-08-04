@@ -38,16 +38,16 @@
 				<datasource>.abilities</datasource>
 				<class>charsheet_statlist_item</class>
 				<classheader></classheader>
-				<columns width="150" dynamic="true" />
+				<columns width="125" dynamic="true" />
 				<sortby><control>sortkey</control></sortby>
-				<script file="campaign/scripts/char_statlist_hm3.lua" />
+				<script file="campaign/scripts/char_statlist_chronicle.lua" />
 			</list_content_noscroll_top>
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="charsheet_statlist_item">
 		<margins control="0,0,0,2" />
-		<script file="campaign/scripts/char_statlist_item_hm3.lua" />
+		<script file="campaign/scripts/char_statlist_item_chronicle.lua" />
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
@@ -57,9 +57,7 @@
 			<hn name="base"><default>8</default></hn>
 			<hn name="bonus"><default>0</default></hn>
 
-			<number_listitem_right_static name="score">
-				<script file="custom/scripts/number_stat_score_hm3.lua" />
-			</number_listitem_right_static>
+			<number_listitem_right_static name="score" />
 
 			<button_listitem_roll_right name="button_roll_stat">
 				<script>
@@ -72,7 +70,17 @@
 				</script>
 			</button_listitem_roll_right>
 
-			<string_listitem_center_noframe_static name="name" />
+			<string_listitem_center_noframe_static name="name">
+				<script>
+					function onClickDown()
+						return true;
+					end
+					function onClickRelease()
+						window.setFilter();
+						return true;
+					end
+				</script>
+			</string_listitem_center_noframe_static>
 		</sheetdata>
 	</windowclass>
 

@@ -8,6 +8,14 @@
 -- ===================================================================================================================
 function onInit()
 	self.setRadialOptions();
+	self.updateSortKey();
+end
+
+function updateSortKey()
+	local nodeSkill = getDatabaseNode();
+	local sStat = DB.getValue(nodeSkill, "stat", "");
+	local sName = name.getValue();
+	sortkey.setValue(sStat .. " " .. sName);
 end
 
 -- ===================================================================================================================
