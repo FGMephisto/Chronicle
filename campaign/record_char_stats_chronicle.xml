@@ -38,7 +38,7 @@
 				<datasource>.abilities</datasource>
 				<class>charsheet_statlist_item</class>
 				<classheader></classheader>
-				<columns width="125" dynamic="true" />
+				<columns width="150" dynamic="true" />
 				<sortby><control>sortkey</control></sortby>
 				<script file="campaign/scripts/char_statlist_chronicle.lua" />
 			</list_content_noscroll_top>

@@ -68,8 +68,7 @@ function constructDefaultAbilities()
 
 		if w then
 			if w.name then
-				local sShort = (DataCommon.ability_ltos and DataCommon.ability_ltos[sKey]) or k;
-				w.name.setValue(sShort);
+				w.name.setValue(k);
 			end
 			if w.group then
 				w.group.setValue(t.group);
