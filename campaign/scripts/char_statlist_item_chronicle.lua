@@ -50,7 +50,10 @@ end
 
 function setFilter()
 	local sKey = getDatabaseNode().getNodeName();
-	local wContents = parentcontrol.window.parentcontrol.window;
+	local wContents = nil;
+	if windowlist and windowlist.window and windowlist.window.parentcontrol then
+		wContents = windowlist.window.parentcontrol.window;
+	end
 	if wContents and wContents.stat_name_filter then
 		local sCurrent = wContents.stat_name_filter.getValue();
 		if sCurrent == sKey then
