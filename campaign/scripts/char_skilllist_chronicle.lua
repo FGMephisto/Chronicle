@@ -10,6 +10,13 @@ function onInit()
 	DB.addHandler(DB.getPath(nodeChar, "skilllist.*.name"), "onUpdate", self.onDataChanged);
 	DB.addHandler(DB.getPath(nodeChar, "skilllist.*.stat"), "onUpdate", self.onDataChanged);
 
+	if window and window.filter then
+		window.filter.onValueChanged = onFilterChanged;
+	end
+	if window and window.filter_ability then
+		window.filter_ability.onValueChanged = onFilterChanged;
+	end
+
 	registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
 	
 	-- Construct default skills
@@ -27,6 +34,38 @@ end
 
 function onDataChanged()
 	self.applySort();
+end
+
+function onFilterChanged()
+	self.applyFilter();
+end
+
+function onFilter(w)
+	if not window then
+		return true;
+	end
+
+	if window.filter_ability then
+		local sAbilityFilter = window.filter_ability.getValue():lower();
+		if sAbilityFilter ~= "" then
+			local sSortKey = w.sortkey.getValue():lower();
+			if not sSortKey:find(sAbilityFilter, 1, true) then
+				return false;
+			end
+		end
+	end
+
+	if window.filter then
+		local sTextFilter = window.filter.getValue():lower();
+		if sTextFilter ~= "" then
+			local sSortKey = w.sortkey.getValue():lower();
+			if not sSortKey:find(sTextFilter, 1, true) then
+				return false;
+			end
+		end
+	end
+
+	return true;
 end
 
 function addEntry(bFocus)

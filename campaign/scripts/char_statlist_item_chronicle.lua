@@ -58,12 +58,15 @@ function setFilter()
 	if windowlist and windowlist.window and windowlist.window.parentcontrol then
 		wContents = windowlist.window.parentcontrol.window;
 	end
-	if wContents and wContents.filter then
-		local sCurrent = wContents.filter.getValue();
-		if sCurrent == sKey then
-			wContents.filter.setValue("");
-		else
-			wContents.filter.setValue(sKey);
+	if wContents and wContents.content_skills and wContents.content_skills.subwindow then
+		local wSkillsMain = wContents.content_skills.subwindow;
+		if wSkillsMain and wSkillsMain.filter_ability then
+			local sCurrent = wSkillsMain.filter_ability.getValue();
+			if sCurrent == sKey then
+				wSkillsMain.filter_ability.setValue("");
+			else
+				wSkillsMain.filter_ability.setValue(sKey);
+			end
 		end
 	end
 end

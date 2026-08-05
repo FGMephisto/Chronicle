@@ -78,6 +78,7 @@
 			<anchor_content_bottom />
 
 			<hsc name="filter" />
+			<hsc name="filter_ability" />
 
 			<label_charframetop name="header">
 				<anchored height="20">
@@ -106,8 +107,6 @@
 				<class>charsheet_skilllist_item</class>
 				<classheader>charsheet_skilllist_header</classheader>
 
-				<filter control="filter" />
-				<filteron control="sortkey" />
 				<sortby><control>sortkey</control></sortby>
 				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
 			</list_content_labeled>
