@@ -61,10 +61,11 @@ end
 -- ===================================================================================================================
 function performPartySheetRoll(draginfo, rActor, sSkill)
 	-- Debug.chat("FN: performPartySheetRoll in manager_action_skill")
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
-
-	-- Exit gracefully if not a PC
-	if sNodeType ~= "pc" then
+	if not ActorManager.isPC(rActor) then
+		return;
+	end
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	if not nodeActor then
 		return;
 	end
 
@@ -111,7 +112,7 @@ end
 -- ===================================================================================================================
  function getRoll(rActor, nodeSkill)
 	-- Debug.chat("FN: getRoll in manager_action_skill")
-	local sNodeType, nodeActor = ActorManager.getTypeAndNode(rActor);
+	local nodeActor = ActorManager.getCreatureNode(rActor);
 
 	-- Build rRoll
 	local rRoll = {};

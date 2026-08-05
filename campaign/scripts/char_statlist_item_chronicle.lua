@@ -20,7 +20,7 @@ end
 function action(draginfo)
 	local nodeStat = getDatabaseNode()
 
-	local sCheck = nodeStat.getNodeName():lower();
+	local sCheck = DB.getName(nodeStat):lower();
 	if DataCommon and DataCommon.ability_stol and DataCommon.ability_stol[sCheck:upper()] then
 		sCheck = DataCommon.ability_stol[sCheck:upper()];
 	elseif (sCheck or "") == "" then
@@ -49,17 +49,21 @@ function onDataChanged()
 end
 
 function setFilter()
-	local sKey = getDatabaseNode().getNodeName();
+	local nodeStat = getDatabaseNode();
+	local sKey = DB.getName(nodeStat);
+	if (sKey or "") == "" then
+		sKey = DB.getValue(nodeStat, "name", "");
+	end
 	local wContents = nil;
 	if windowlist and windowlist.window and windowlist.window.parentcontrol then
 		wContents = windowlist.window.parentcontrol.window;
 	end
-	if wContents and wContents.stat_name_filter then
-		local sCurrent = wContents.stat_name_filter.getValue();
+	if wContents and wContents.filter then
+		local sCurrent = wContents.filter.getValue();
 		if sCurrent == sKey then
-			wContents.stat_name_filter.setValue("");
+			wContents.filter.setValue("");
 		else
-			wContents.stat_name_filter.setValue(sKey);
+			wContents.filter.setValue(sKey);
 		end
 	end
 end

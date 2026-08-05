@@ -1,20 +1,34 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
+	local nodeChar = window.getDatabaseNode();
+	DB.addHandler(getDatabaseNode(), "onChildAdded", self.onDataChanged);
+	DB.addHandler(getDatabaseNode(), "onChildDeleted", self.onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "skilllist.*.name"), "onUpdate", self.onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "skilllist.*.stat"), "onUpdate", self.onDataChanged);
+
 	registerMenuItem(Interface.getString("list_menu_createitem"), "insert", 5);
 	
 	-- Construct default skills
 	self.constructDefaultSkills();
+	self.applySort();
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
+function onClose()
+	local nodeChar = window.getDatabaseNode();
+	DB.removeHandler(getDatabaseNode(), "onChildAdded", self.onDataChanged);
+	DB.removeHandler(getDatabaseNode(), "onChildDeleted", self.onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "skilllist.*.name"), "onUpdate", self.onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "skilllist.*.stat"), "onUpdate", self.onDataChanged);
+end
+
+function onDataChanged()
+	self.applySort();
+end
+
 function addEntry(bFocus)
 	local w = createWindow();
 
@@ -27,18 +41,13 @@ function addEntry(bFocus)
 	return w;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onMenuSelection(item)
 	if item == 5 then
 		addEntry(true);
 	end
 end
 
--- ===================================================================================================================
--- Create default skill selection
--- Adjusted
--- ===================================================================================================================
+-- Create default skill selection -- Adjusted
 function constructDefaultSkills()
 	-- Debug.chat("FN: constructDefaultSkills in char_skilllist")
 	-- Collect existing entries
@@ -83,7 +92,6 @@ function constructDefaultSkills()
 				end
 				matches = { w };
 
-				w.diceframe.onInit();
 				w.updateSortKey();
 			end
 		end
@@ -109,8 +117,6 @@ function constructDefaultSkills()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function addSkillReference(nodeSource)
 	if not nodeSource then
 		return;

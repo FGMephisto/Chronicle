@@ -45,14 +45,16 @@
 
 			<area_list_content_controls name="area_controls" />
 			<anchor_list_content_controls_right name="rightanchor" />
-			<filter_list_content_controls name="stat_name_filter">
+			<filter_list_content_controls name="filter">
 				<delaykeyupdate merge="delete" />
 				<script>
 					function onValueChanged()
 						super.onValueChanged();
-						local wSkillsMain = window.content_skills.subwindow;
-						if wSkillsMain and wSkillsMain.filter_ability then
-							wSkillsMain.filter_ability.setValue(getValue());
+						if window.content_skills and window.content_skills.subwindow then
+							local wSkillsMain = window.content_skills.subwindow;
+							if wSkillsMain.filter then
+								wSkillsMain.filter.setValue(getValue());
+							end
 						end
 					end
 				</script>
@@ -76,7 +78,6 @@
 			<anchor_content_bottom />
 
 			<hsc name="filter" />
-			<hsc name="filter_ability" />
 
 			<label_charframetop name="header">
 				<anchored height="20">
@@ -105,8 +106,8 @@
 				<class>charsheet_skilllist_item</class>
 				<classheader>charsheet_skilllist_header</classheader>
 
-				<filter control="filter_ability" />
-				<filteron control="stat_filter" />
+				<filter control="filter" />
+				<filteron control="sortkey" />
 				<sortby><control>sortkey</control></sortby>
 				<script file="campaign/scripts/char_skilllist_chronicle.lua" />
 			</list_content_labeled>
@@ -188,23 +189,29 @@
 				</script>
 			</button_listitem_left>
 
-			<dicecontrol name="diceframe">
-				<anchored to="rightanchor">
-					<top offset="-6" />
-					<right anchor="left" relation="relative" offset="-7" />
+			<number_listitem_right_static name="bonus_dice">
+				<anchored width="20">
+					<right relation="relative" offset="-2" postoffset="-2" />
 				</anchored>
-				<stat></stat>
-				<skill></skill>
-				<actorpath>...</actorpath>
-				<script>
-					function onInit()
-						local nodeSkill = window.getDatabaseNode()
-						self.stat[1] = DB.getValue(nodeSkill, "stat", "")
-						self.skill[1] = DB.getValue(nodeSkill, "name", "")
-						super.onInit()
-					end
-				</script>
-			</dicecontrol>
+				<frame mergerule="replace" />
+				<backcolor>2E7D32</backcolor>
+				<color>FFFFFF</color>
+				<hideonvalue mergerule="replace" />
+				<nodrag />
+				<script file="custom/scripts/number_skill_bonus_chronicle.lua" />
+			</number_listitem_right_static>
+
+			<number_listitem_right_static name="test_dice">
+				<anchored width="20">
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
+				<frame mergerule="replace" />
+				<backcolor>222222</backcolor>
+				<color>FFFFFF</color>
+				<hideonvalue mergerule="replace" />
+				<nodrag />
+				<script file="custom/scripts/number_skill_test_chronicle.lua" />
+			</number_listitem_right_static>
 
 			<button_listitem_roll_right name="button_roll_skill">
 				<script>
@@ -218,12 +225,6 @@
 			</button_listitem_roll_right>
 
 			<number_charskill name="misc">
-				<script>
-					function onValueChanged()
-						-- Re-run the dicefield onInit to populate Ability and Skill values to the control required
-						window.diceframe.onInit()
-					end
-				</script>
 				<tabtarget prev="stat" />
 			</number_charskill>
 			<cycler_charskillability name="stat">
@@ -231,7 +232,6 @@
 					function onValueChanged()
 						sAbility = DB.getValue(window.getDatabaseNode(), "stat", "")
 						window.stat_filter.setValue(sAbility)
-						window.diceframe.onInit()
 						window.updateSortKey()
 					end
 				</script>

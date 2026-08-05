@@ -7,15 +7,35 @@
 -- ===================================================================================================================
 -- ===================================================================================================================
 function onInit()
+	local nodeSkill = getDatabaseNode();
+	if nodeSkill then
+		DB.addHandler(DB.getPath(nodeSkill, "name"), "onUpdate", updateSortKey);
+		DB.addHandler(DB.getPath(nodeSkill, "stat"), "onUpdate", updateSortKey);
+	end
+
 	self.setRadialOptions();
 	self.updateSortKey();
+end
+
+function onClose()
+	local nodeSkill = getDatabaseNode();
+	if nodeSkill then
+		DB.removeHandler(DB.getPath(nodeSkill, "name"), "onUpdate", updateSortKey);
+		DB.removeHandler(DB.getPath(nodeSkill, "stat"), "onUpdate", updateSortKey);
+	end
 end
 
 function updateSortKey()
 	local nodeSkill = getDatabaseNode();
 	local sStat = DB.getValue(nodeSkill, "stat", "");
-	local sName = name.getValue();
-	sortkey.setValue(sStat .. " " .. sName);
+	local sName = DB.getValue(nodeSkill, "name", "");
+	if (sName == "") and name then
+		sName = name.getValue();
+	end
+	sortkey.setValue(sName .. " " .. sStat);
+	if windowlist then
+		windowlist.applySort();
+	end
 end
 
 -- ===================================================================================================================
@@ -84,4 +104,12 @@ function openSkillLink()
 	else
 		Interface.openWindow("ref_feat", getDatabaseNode());
 	end
+end
+
+function action(draginfo)
+	local nodeSkill = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeSkill, "...");
+	local rActor = ActorManager.resolveActor(nodeChar);
+	ActionSkill.performRoll(draginfo, rActor, nodeSkill);
+	return true;
 end

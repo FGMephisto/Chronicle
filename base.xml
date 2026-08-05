@@ -184,10 +184,7 @@
 	<script name="ActionResult" file="scripts/manager_action_result_chronicle.lua" />
 
 	<!-- Custom -->
-	<includefile source="custom/template_custom_chronicle.xml" />
 	<includefile source="custom/template_dicecontrol_chronicle.xml" />
-	<includefile source="custom/template_records.xml" />
-	<includefile source="custom/template_windows.xml" />
 
 	<!-- Custom High-level scripts -->
 	<script name="ListManagerGroups" file="scripts/manager_list_groups_chronicle.lua" />
