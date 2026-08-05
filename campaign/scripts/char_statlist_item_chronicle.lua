@@ -58,6 +58,9 @@ function setFilter()
 	if windowlist and windowlist.window and windowlist.window.parentcontrol then
 		wContents = windowlist.window.parentcontrol.window;
 	end
+	if wContents and wContents.filter then
+		wContents.filter.setValue("");
+	end
 	if wContents and wContents.content_skills and wContents.content_skills.subwindow then
 		local wSkillsMain = wContents.content_skills.subwindow;
 		if wSkillsMain and wSkillsMain.filter_ability then

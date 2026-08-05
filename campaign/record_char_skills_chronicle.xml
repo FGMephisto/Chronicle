@@ -52,8 +52,12 @@
 						super.onValueChanged();
 						if window.content_skills and window.content_skills.subwindow then
 							local wSkillsMain = window.content_skills.subwindow;
+							local sVal = getValue();
+							if sVal ~= "" and wSkillsMain.filter_ability then
+								wSkillsMain.filter_ability.setValue("");
+							end
 							if wSkillsMain.filter then
-								wSkillsMain.filter.setValue(getValue());
+								wSkillsMain.filter.setValue(sVal);
 							end
 						end
 					end
