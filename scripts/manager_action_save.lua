@@ -194,7 +194,7 @@ function applySave(rSource, rOrigin, rRoll)
 
 	ActionSave.onPostSaveApply(rSource, rOrigin, rRoll);
 
-	GameManager.callEventFunctions("onSavePostResolve", rSource, rOrigin, rAction);
+	GameManager.callEventFunctions("onSavePostResolve", rSource, rOrigin, rRoll);
 end
 -- onPostSaveApply(rSource, rOrigin, rRoll)
 function onPostSaveApply()

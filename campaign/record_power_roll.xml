@@ -432,6 +432,20 @@
 	</windowclass>
 
 	<windowclass name="power_action_editor_effect">
+		<script>
+			function onInit()
+				self.onExpirationChanged();
+			end
+			function onExpirationChanged()
+				local sExpire = expiration.getValue();
+				local bShowDuration = ((sExpire ~= "restlong") and (sExpire ~= "restshort") and (sExpire ~= "endnext"));
+				durmod.setVisible(bShowDuration);
+				durunit.setVisible(bShowDuration);
+
+				local bShowInitSource = ((sExpire ~= "restlong") and (sExpire ~= "restshort"));
+				initsource.setVisible(bShowInitSource);
+			end
+		</script>
 		<sheetdata>
 			<anchor_column name="columnanchor" />
 
@@ -451,15 +465,21 @@
 				<center />
 			</header_column>
 
-			<basicnumber name="durmod">
-				<anchored width="30" height="20">
+			<genericcontrol name="area_duration">
+				<anchored height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
 					<left offset="5" />
+					<right offset="-5" />
 				</anchored>
+			</genericcontrol>
+			<basicnumber name="durmod">
+				<anchored to="area_duration" position="insidetopleft" width="30" height="20" />
 				<hideonvalue value="0" />
 			</basicnumber>
 			<stringcycler_editor_poweraction_effect_units name="durunit" />
-			<button_editor_poweraction_effect_expiration name="expiration" />
+			<button_editor_poweraction_effect_expiration name="expiration">
+				<anchored to="area_duration" position="insidetopleft" offset="90,0" width="24" height="10" merge="replace" />
+			</button_editor_poweraction_effect_expiration>
 			<button_editor_poweraction_effect_initsource name="initsource" />
 
 			<header_column name="header_other">

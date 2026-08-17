@@ -2937,8 +2937,8 @@ tBuildDataClass2024 = {
 		},
 		actions = {
 			{ type = "powersave", save = "wisdom", savestat = "charisma", magic = true, },
-			{ type = "effect", sName = "Charmed; NOTE: Save on end of round", nDuration = 1, sUnits = "minute" },
-			{ type = "effect", sName = "Frightened; NOTE: Save on end of round", nDuration = 1, sUnits = "minute" },
+			{ type = "effect", sName = "Charmed; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute" },
+			{ type = "effect", sName = "Frightened; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute" },
 		},
 		prepared = 1,
 	},
@@ -5402,8 +5402,8 @@ tBuildDataClass2024 = {
 		actions = {
 			{ type = "effect", sName = "Beguiling Twist; NOTE: ADV on Saves vs. Charmed/Frightened", sTargeting = "self" },
 			{ type = "powersave", save = "wisdom", savestat = "wisdom", magic = true, },
-			{ type = "effect", sName = "Beguiling Twist; Charmed; NOTE: Save on end of each round", nDuration = 1, sUnits = "minute" },
-			{ type = "effect", sName = "Beguiling Twist; Frightened; NOTE: Save on end of each round", nDuration = 1, sUnits = "minute" },
+			{ type = "effect", sName = "Beguiling Twist; Charmed; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute" },
+			{ type = "effect", sName = "Beguiling Twist; Frightened; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute" },
 		},
 	},
 	["feyreinforcements"] = {
@@ -5658,7 +5658,7 @@ tBuildDataClass2024 = {
 			["Poison (Cost 1d6)"] = {
 				actions = {
 					{ type = "powersave", save = "constitution", savestat = "base", },
-					{ type = "effect", sName = "Poisoned; NOTE: Save on end of round", nDuration = 1, sUnits = "minute", },
+					{ type = "effect", sName = "Poisoned; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute", },
 				},
 				group = "Sneak Attack (Rogue)",
 				ability = "dexterity",
@@ -5705,7 +5705,7 @@ tBuildDataClass2024 = {
 			["Knock Out (Cost 6d6)"] = {
 				actions = {
 					{ type = "powersave", save = "constitution", savestat = "base", },
-					{ type = "effect", sName = "Unconscious; NOTE: Save on end of round", nDuration = 1, sUnits = "minute" },
+					{ type = "effect", sName = "Unconscious; SAVEOE: [SDC] constitution", nDuration = 1, sUnits = "minute" },
 					{ type = "effect", sName = "Prone" },
 				},
 				group = "Sneak Attack (Rogue)",
@@ -5839,7 +5839,7 @@ tBuildDataClass2024 = {
 	["rendmind"] = {
 		actions = {
 			{ type = "powersave", save = "wisdom", savestat = "dexterity", magic = true, },
-			{ type = "effect", sName = "Rend Mind; Stunned; NOTE: Save at end of round", nDuration = 1, sUnits = "minute", },
+			{ type = "effect", sName = "Rend Mind; Stunned; SAVEOE: [SDC] wisdom", nDuration = 1, sUnits = "minute", },
 		},
 		prepared = 1,
 	},

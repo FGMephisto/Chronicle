@@ -1039,15 +1039,6 @@ function importCharacter(nodeChar)
 		return;
 	end
 
-	local wChar = Interface.findWindow("charsheet", nodeChar);
-	if wChar then
-		wChar.close();
-	end
-	local wCharClass = Interface.findWindow("charsheet_classes", nodeChar);
-	if wCharClass then
-		wCharClass.close();
-	end
-
 	local wWizard = Interface.openWindow("charwizard_levelup", "");
 
 	CharWizardManager.resetData();

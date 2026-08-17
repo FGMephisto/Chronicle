@@ -3,6 +3,8 @@
 -- attribution and copyright information.
 --
 
+resttypes = { "long", "short", };
+
 -- Abilities (database names)
 abilities = {
 	"strength",

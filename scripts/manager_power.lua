@@ -189,6 +189,7 @@ function getPCPowerActionHelper(rActor, nodeAction, sSubRoll)
 		type = DB.getValue(nodeAction, "type", ""),
 		label = DB.getValue(nodeAction, "...name", ""),
 		order = PowerManager.getPCPowerActionOutputOrder(nodeAction),
+		nodeAction = nodeAction,
 	};
 
 	local nodePower = DB.getChild(nodeAction, "...");
@@ -2185,10 +2186,10 @@ function getNPCPowerVariables(nodePower)
 		return nil;
 	end
 	local tVars = {
-		["slevel"] = DB.getValue(nodeActor, "summon_level", 0),
-		["sattack"] = DB.getValue(nodeActor, "summon_attack", 0),
-		["sdc"] = DB.getValue(nodeActor, "summon_dc", 0),
-		["smod"] = DB.getValue(nodeActor, "summon_mod", 0),
+		["summonlvl"] = DB.getValue(nodeActor, "summon_level", 0),
+		["summonatk"] = DB.getValue(nodeActor, "summon_attack", 0),
+		["summondc"] = DB.getValue(nodeActor, "summon_dc", 0),
+		["summonmod"] = DB.getValue(nodeActor, "summon_mod", 0),
 	};
 	return tVars;
 end

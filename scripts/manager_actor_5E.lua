@@ -16,6 +16,8 @@ function onInit()
 	GameManager.setFunction("onActorEffectDamageAdjust", ActorManager5E.getEffectsAdjustActor);
 	GameManager.setFunction("onActorEffectConditionImmune", ActorManager5E.getConditionImmunities);
 	GameManager.setFunction("onActorRest", ActorManager5E.rest);
+
+	ActorCommonManager.addDefaultSizeHandling();
 end
 
 --
@@ -60,16 +62,16 @@ end
 --	ABILITY SCORES
 --
 
-function getAbilityScore(rActor, sAbility)
+function getAbilityScore(rActor, sAbility, rEffect)
 	if not sAbility then
-		return -1;
+		return 0;
 	end
 	local nodeActor = ActorManager.getCreatureNode(rActor);
 	if not nodeActor then
-		return -1;
+		return 0;
 	end
 
-	local nStatScore = -1;
+	local nStatScore = 0;
 
 	local sShort = sAbility:sub(1, 3):lower();
 	if sShort == "str" then
@@ -101,6 +103,8 @@ function getAbilityScore(rActor, sAbility)
 				nStatScore = nStatScore + (tonumber(sLevelSub) or 0);
 			end
 		end
+	elseif sShort == "sdc" then
+		nStatScore = ActorManager5E.getEffectSpellDC(rActor, rEffect);
 	elseif StringManager.contains(DataCommon.classes, sAbility:lower()) then
 		nStatScore = ActorManager5E.getClassLevel(nodeActor, sAbility:lower());
 	end
@@ -122,7 +126,7 @@ function getClassLevel(nodeActor, sValue)
 
 	return 0;
 end
-function getAbilityBonus(rActor, sAbility)
+function getAbilityBonus(rActor, sAbility, rEffect)
 	if (sAbility or "") == "" then
 		return 0;
 	end
@@ -135,7 +139,7 @@ function getAbilityBonus(rActor, sAbility)
 		sAbility = sAbility:sub(2);
 	end
 
-	local nStatScore = ActorManager5E.getAbilityScore(rActor, sAbility);
+	local nStatScore = ActorManager5E.getAbilityScore(rActor, sAbility, rEffect);
 	if nStatScore < 0 then
 		return 0;
 	end
@@ -152,6 +156,146 @@ function getAbilityBonus(rActor, sAbility)
 	end
 
 	return nStatVal;
+end
+
+function getEffectSpellDC(rActor, rEffect)
+	local nDCMod = EffectManager.getBonusMod(rActor, "DC", { tActionTags = rEffect and rEffect.tActionTags, });
+
+	if rEffect and rEffect.nodeAction then
+		return ActorManager5E.getEffectSpellDCFromAction(rActor, rEffect.nodeAction) + nDCMod;
+	end
+	return ActorManager5E.getEffectSpellDCFromActor(rActor, rEffect) + nDCMod;
+end
+function getEffectSpellDCFromAction(rActor, nodeAction)
+	if not nodeAction then
+		return 0;
+	end
+	local nodePower = DB.getChild(nodeAction, "...");
+
+	local rCastAction;
+	for _, v in ipairs(DB.getChildList(nodePower, "actions")) do
+		if DB.getValue(v, "type", "") == "cast" then
+			rCastAction = PowerManager.getPCPowerActionHelper(rActor, v); 
+			break;
+		end
+	end
+	if rCastAction then
+		PowerManager.evalAction(rActor, nodePower, rCastAction);
+		return rCastAction.savemod;
+	end
+
+	local nDC = 8;
+	local aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
+	if aPowerGroup then
+		if (aPowerGroup.sSaveDCStat or "") ~= "" then
+			nDC = nDC + ActorCommonManager.getBonus(rActor, aPowerGroup.sSaveDCStat);
+		end
+		if (aPowerGroup.nSaveDCProf or 0) == 1 then
+			nDC = nDC + ActorCommonManager.getBonus(rActor, "prf");
+		end
+		nDC = nDC + (aPowerGroup.nSaveDCMod or 0);
+	end
+	return nDC;
+end
+function getEffectSpellDCFromActor(rActor, rEffect)
+	local sAbility = ActorManager5E.getSpellcastingAbility(rActor);
+	if ((sAbility or "") == "") then
+		local nSpellcastDC = ActorManager5E.getSpellcastingDC(rActor);
+		if nSpellcastDC then
+			return nSpellcastDC;
+		end
+	end
+	return 8 + ActorCommonManager.getBonus(rActor, "prf") + ActorCommonManager.getBonus(rActor, sAbility);
+end
+
+function getSpellcastingAbility(rActor)
+	if ActorManager.isPC(rActor) then
+		for _,v in ipairs(DB.getChildList(ActorManager.getCreatureNode(rActor), "featurelist")) do
+			local sName = StringManager.simplify(DB.getValue(v, "name", ""));
+			if StringManager.startsWith(sName, "spellcasting") or StringManager.startsWith(sName, "pactmagic") then
+				local sDesc = DB.getText(v, "text", ""):lower();
+				local sAbility = ActorManager5E.getSpellcastingAbilityFromText(sDesc);
+				if sAbility then
+					return sAbility;
+				end
+			end
+		end
+	elseif ActorManager.isRecordType(rActor, "npc") then
+		local nodeActor = ActorManager.getCreatureNode(rActor);
+		for _,v in ipairs(DB.getChildList(nodeActor, "traits")) do
+			local s = StringManager.simplify(DB.getValue(v, "name", ""));
+			if StringManager.startsWith(s, "spellcasting") or
+					StringManager.startsWith(s, "pactmagic") or
+					StringManager.startsWith(s, "innatespellcasting") then
+				local sDesc = DB.getText(v, "desc", ""):lower();
+				local sAbility = ActorManager5E.getSpellcastingAbilityFromText(sDesc);
+				if sAbility then
+					return sAbility;
+				end
+			end
+		end
+		if not nSpellcastAbilityBonus then
+			for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
+				local s = StringManager.simplify(DB.getValue(v, "name", ""));
+				if StringManager.startsWith(s, "spellcasting") then
+					local sDesc = DB.getText(v, "desc", ""):lower();
+					local sAbility = ActorManager5E.getSpellcastingAbilityFromText(sDesc);
+					if sAbility then
+						return sAbility;
+					end
+				end
+			end
+		end
+	end
+	return "";
+end
+function getSpellcastingAbilityFromText(s)
+	if (s or "") == "" then
+		return nil;
+	end
+	local sAbility = s:match("(%a+) is your spellcasting ability");
+	if not sAbility then
+		sAbility = s:match("(%a+) is the spellcasting ability");
+	end
+	if not sAbility then
+		sAbility = s:match("using (%w+) as the spellcasting ability");
+	end
+	if not sAbility then
+		sAbility = s:match("spellcasting ability is (%w+)")
+	end
+	return sAbility;
+end
+function getSpellcastingDC(rActor)
+	if not ActorManager.isRecordType(rActor, "npc") then
+		return nil;
+	end
+
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	for _,v in ipairs(DB.getChildList(nodeActor, "traits")) do
+		local s = StringManager.simplify(DB.getValue(v, "name", ""));
+		if StringManager.startsWith(s, "spellcasting") or
+				StringManager.startsWith(s, "pactmagic") or
+				StringManager.startsWith(s, "innatespellcasting") then
+			local sDesc = DB.getText(v, "desc", ""):lower();
+			local sDC = sDesc:match("spell save dc (%d+)");
+			if sDC then
+				return tonumber(sDC);
+			end
+		end
+	end
+	if not nSpellcastAbilityBonus then
+		for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
+			local s = StringManager.simplify(DB.getValue(v, "name", ""));
+			if StringManager.startsWith(s, "spellcasting") then
+				local sDesc = DB.getText(v, "desc", ""):lower();
+				local sDC = sDesc:match("spell save dc (%d+)");
+				if sDC then
+					return tonumber(sDC);
+				end
+			end
+		end
+	end
+	return nil;
 end
 
 --
