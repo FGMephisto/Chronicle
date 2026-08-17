@@ -1,5 +1,5 @@
--- 
--- Please see the license.html file included with this distribution for 
+--
+-- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
 
@@ -7,12 +7,20 @@
 function onInit()
 	self.addHandlers();
 	-- self.onAttuneRelatedAttributeUpdate();
+	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
 function onClose()
 	self.removeHandlers();
 end
 
--- Adjus
+function onLockModeChanged(bReadOnly)
+	local tFields = { "name", "nonid_name", "weight", "idelete", };
+	WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+	-- local tFields = { "count", "location", "carried", attune", };
+	-- WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+end
+
+-- Adjusted
 function addHandlers()
 	local node = getDatabaseNode();
 	DB.addHandler(node, "onDelete", self.onDelete);
@@ -20,7 +28,7 @@ function addHandlers()
 	-- DB.addHandler(DB.getPath(node, "rarity"), "onUpdate", self.onAttuneRelatedAttributeUpdate);
 end
 
--- Adjus
+-- Adjusted
 function removeHandlers()
 	local node = getDatabaseNode();
 	DB.removeHandler(node, "onDelete", self.onDelete);
@@ -32,10 +40,9 @@ function onDelete(node)
 	ItemManager.onCharRemoveEvent(node);
 	self.removeHandlers();
 end
-
--- Adjusted
-function onAttuneRelatedAttributeUpdate(nodeAttribute)
-	-- local bRequiresAttune = CharAttunementManager.doesItemAllowAttunement(getDatabaseNode());
-	-- attune.setVisible(bRequiresAttune);
-	-- attune_na.setVisible(not bRequiresAttune);
+function onAttuneRelatedAttributeUpdate()
+	do return; end -- Disabled -> exit
+	local bRequiresAttune = CharAttunementManager.doesItemAllowAttunement(getDatabaseNode());
+	attune.setVisible(bRequiresAttune);
+	attune_na.setVisible(not bRequiresAttune);
 end

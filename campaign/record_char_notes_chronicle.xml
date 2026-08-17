@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!--
-  Please see the license.html file included with this distribution for
+<!-- 
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
 -->
 
@@ -10,6 +10,10 @@
 		<sheetdata>
 			<anchor_content_top />
 			<anchor_content_bottom />
+
+			<!-- <sub_content_framed_groupbox_bottom name="footer"> -->
+				<!-- <class>charsheet_notes_footer</class> -->
+			<!-- </sub_content_framed_groupbox_bottom> -->
 
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_notes_contents</class>
@@ -20,6 +24,15 @@
 
 	<windowclass name="charsheet_notes_contents">
 		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "appearance", "notes", "allies", "history", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -72,8 +85,16 @@
 			</stringu_content_noframe_noscroll_top>
 		</sheetdata>
 	</windowclass>
-
 	<windowclass name="charsheet_notes_details">
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "gender", "age", "height", "weight", "size", "alignment", "deity", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 
@@ -121,6 +142,15 @@
 	</windowclass>
 
 	<windowclass name="charsheet_notes_destiny">
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				local tFields = { "dpbase", "dpawarded", "dpinvested", "dpburned", "dpsent", "spawarded", "spinvestedy", "spburned", "xpawarded", "xpinvested", };
+				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
+			end
+		</script>
 		<sheetdata>
 			<anchor_content_top />
 

@@ -17,6 +17,16 @@ end
 function constructDefaultAbilities()
 	if not DataCommon or not DataCommon.abilitydata then return end
 
+	local validKeys = {};
+	if DataCommon.abilities then
+		for _, sAbility in ipairs(DataCommon.abilities) do
+			validKeys[sAbility:lower()] = true;
+		end
+	end
+	for k, _ in pairs(DataCommon.abilitydata) do
+		validKeys[StringManager.simplify(k)] = true;
+	end
+
 	local entrymap = {};
 	local duplicates = {};
 
@@ -24,28 +34,55 @@ function constructDefaultAbilities()
 		local node = w.getDatabaseNode();
 		if node then
 			local sName = (w.name and w.name.getValue()) or "";
-			local sNodeName = node.getNodeName();
+			local sNodeName = node.getNodeName():lower();
 
 			local sKey = "";
-			if sName ~= "" and DataCommon.ability_stol and DataCommon.ability_stol[sName:upper()] then
+			if validKeys[sNodeName] then
+				sKey = sNodeName;
+			elseif sName ~= "" and DataCommon.ability_stol and DataCommon.ability_stol[sName:upper()] and validKeys[DataCommon.ability_stol[sName:upper()]] then
 				sKey = DataCommon.ability_stol[sName:upper()];
-			elseif sName ~= "" then
+			elseif sName ~= "" and validKeys[StringManager.simplify(sName)] then
 				sKey = StringManager.simplify(sName);
-			else
-				sKey = StringManager.simplify(sNodeName);
 			end
 
 			if sKey ~= "" then
 				if not entrymap[sKey] then
 					entrymap[sKey] = w;
 				else
-					table.insert(duplicates, w);
+					local prevW = entrymap[sKey];
+					local prevNode = prevW.getDatabaseNode();
+					if prevNode and prevNode.getNodeName():lower() ~= sKey and sNodeName == sKey then
+						local nPrevBase = DB.getValue(prevNode, "base", 8);
+						local nPrevBonus = DB.getValue(prevNode, "bonus", 0);
+						if nPrevBase ~= 8 and DB.getValue(node, "base", 8) == 8 then
+							DB.setValue(node, "base", "number", nPrevBase);
+						end
+						if nPrevBonus ~= 0 and DB.getValue(node, "bonus", 0) == 0 then
+							DB.setValue(node, "bonus", "number", nPrevBonus);
+						end
+						entrymap[sKey] = w;
+						table.insert(duplicates, prevW);
+					else
+						if prevNode then
+							local nWBase = DB.getValue(node, "base", 8);
+							local nWBonus = DB.getValue(node, "bonus", 0);
+							if nWBase ~= 8 and DB.getValue(prevNode, "base", 8) == 8 then
+								DB.setValue(prevNode, "base", "number", nWBase);
+							end
+							if nWBonus ~= 0 and DB.getValue(prevNode, "bonus", 0) == 0 then
+								DB.setValue(prevNode, "bonus", "number", nWBonus);
+							end
+						end
+						table.insert(duplicates, w);
+					end
 				end
+			else
+				table.insert(duplicates, w);
 			end
 		end
 	end
 
-	-- Remove duplicate windows/nodes from DB
+	-- Remove duplicate / invalid windows and nodes from DB
 	for _, w in ipairs(duplicates) do
 		local node = w.getDatabaseNode();
 		w.close();
@@ -54,7 +91,7 @@ function constructDefaultAbilities()
 		end
 	end
 
-	-- Ensure each defined ability exists exactly once with shorthand label
+	-- Ensure each defined ability exists exactly once with shorthand label and canonical node name
 	for k, t in pairs(DataCommon.abilitydata) do
 		local sKey = StringManager.simplify(k);
 		local w = entrymap[sKey];
@@ -63,6 +100,20 @@ function constructDefaultAbilities()
 			w = createWindowWithClass(sItemClass, "." .. sKey);
 			if w then
 				entrymap[sKey] = w;
+			end
+		elseif w.getDatabaseNode() and w.getDatabaseNode().getNodeName():lower() ~= sKey then
+			local oldNode = w.getDatabaseNode();
+			local nBase = DB.getValue(oldNode, "base", 8);
+			local nBonus = DB.getValue(oldNode, "bonus", 0);
+
+			w.close();
+			if oldNode then oldNode.delete(); end
+
+			w = createWindowWithClass(sItemClass, "." .. sKey);
+			if w then
+				entrymap[sKey] = w;
+				DB.setValue(w.getDatabaseNode(), "base", "number", nBase);
+				DB.setValue(w.getDatabaseNode(), "bonus", "number", nBonus);
 			end
 		end
 

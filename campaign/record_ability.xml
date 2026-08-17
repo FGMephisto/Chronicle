@@ -19,8 +19,14 @@
 						local sList = DB.getName(DB.getParent(window.getDatabaseNode()));
 						if sList == "skilllist" then
 							return "skill";
+						elseif sList == "proficiencylist" then
+							return "";
 						elseif sList == "featlist" then
 							return "feat";
+						elseif sList == "featurelist" then
+							return "";
+						elseif sList == "traitlist" then
+							return "";
 						end
 						return "";
 					end

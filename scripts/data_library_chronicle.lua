@@ -120,6 +120,9 @@ aRecordOverrides = {
 			-- ["CR"] = { sField = "cr", sType = "number", fSort = sortNPCCRValues },
 			["Type"] = { sField = "type", fGetValue = getNPCTypeValue },
 		},
+		tOptions = {
+			bInventory = true,
+		},
 	},
 	["item"] = {
 		fIsIdentifiable = isItemIdentifiable,
