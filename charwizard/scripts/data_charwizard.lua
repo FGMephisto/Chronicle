@@ -15,15 +15,26 @@ genmethod = {
 -- Campaign and any custom is first and then this list
 module_order_2024 = {
 	"WOTC50PHB",
+	"WOTC50DMG",
+	"WOTC50EFOTAPG",
+	"WOTC50FRAIF",
+	"WOTC50FRHOF",
+	"WOTC50SSHOTBP",
+	"WOTC50UAP",
+	"DD Monsters of the Multiverse Players",
+	"DD Tashas Cauldron of Everything - Players",
+	"DD Xanathar's Guide to Everything Players",
+	"DD Mordenkainen's Tome of Foes Players",
+	"DNDSRD521PLAYER",
 };
 module_order_2014 = {
 	"DD PHB Deluxe",
-	"DD5E SRD Data",
 	"DD Dungeon Masters Guide",
 	"DD Monsters of the Multiverse Players",
 	"DD Tashas Cauldron of Everything - Players",
 	"DD Xanathar's Guide to Everything Players",
 	"DD Mordenkainen's Tome of Foes Players",
+	"DD5E SRD Data",
 };
 
 aParseRaceLangChoices = {
@@ -301,15 +312,6 @@ tBuildOptionsSpells2024 = {
 	["improvedillusions"] = true,
 	["phantasmalcreatures"] = true,
 };
-
---Spells Known
-BARD_SPELLSKNOWN = {4,5,6,7,8,9,10,11,12,14,15,15,16,18,19,19,20,22,22,22};
-ELDRITCH_KNIGHT_SPELLSKNOWN = {0,0,3,4,4,4,5,6,6,7,8,8,9,10,10,11,11,11,12,13};
-RANGER_SPELLSKNOWN = {0,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11};
-ARCANE_TRICKSTER_SPELLSKNOWN = {0,0,3,4,4,4,5,6,6,7,8,8,9,10,10,11,11,11,12,13};
-SORCERER_SPELLSKNOWN = {2,3,4,5,6,7,8,9,10,11,12,12,13,13,14,14,15,15,15,15};
-WARLOCK_SPELLSKNOWN = {2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15};
-WIZARD_SPELLSKNOWN = {6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44};
 
 SPELLS_PREPARED_2024 = {
 	["standard"] = { 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22, },

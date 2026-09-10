@@ -369,14 +369,11 @@ function helperCollectDataType(s)
 	return tSorted;
 end
 function helperCollectDataTypeMap(s)
-	local tBaseMap = CharWizardManager.helperCollectDataTypeBaseMap(s);
-	local tChoiceMap = CharWizardManager.helperCollectDataTypeChoiceMap(s);
-
 	local tFinalMap = {};
-	for k,_ in pairs(tBaseMap) do
+	for k,_ in pairs(CharWizardManager.helperCollectDataTypeBaseMap(s)) do
 		tFinalMap[k] = true;
 	end
-	for k,_ in pairs(tChoiceMap) do
+	for k,_ in pairs(CharWizardManager.helperCollectDataTypeChoiceMap(s)) do
 		tFinalMap[k] = true;
 	end
 	return tFinalMap;
@@ -1529,7 +1526,7 @@ function addCommitInventory(nodeChar)
 	end
 
 	for _,v in ipairs(CharWizardClassManager.getStartingKitItems()) do
-		for i = 1, (v.count or 1) do
+		for _ = 1, (v.count or 1) do
 			ItemManager.handleItem(DB.getPath(nodeChar), "inventorylist", "item", DB.getPath(v.item), true);
 		end
 	end
