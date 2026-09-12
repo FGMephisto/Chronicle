@@ -31,6 +31,8 @@ jobs:
         run: |
           zip -r Chronicle.pak . \
             -x ".git/*" \
+            -x ".agent/*" \
+            -x ".agents/*" \
             -x ".github/*" \
             -x ".gitignore" \
             -x "docs/*" \
