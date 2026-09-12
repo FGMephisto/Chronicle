@@ -1,0 +1,47 @@
+name: Build and Release PAK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release version tag (e.g. v2026-09-12)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update release date in base.xml
+        run: |
+          RELEASE_DATE=$(date +'%Y-%m-%d')
+          sed -i -E "s/(ruleset \([v]?[0-9]{4}-[0-9]{2}-[0-9]{2}\))/ruleset (v$RELEASE_DATE)/g" base.xml
+          sed -i -E "s/(ruleset \([0-9]{4}-[0-9]{2}-[0-9]{2}\))/ruleset ($RELEASE_DATE)/g" base.xml
+
+      - name: Create .pak archive
+        run: |
+          zip -r Chronicle.pak . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x ".gitignore" \
+            -x "docs/*" \
+            -x "*.md" \
+            -x "mkdocs.yml" \
+            -x "*.pak"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Chronicle.pak
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          name: Release ${{ github.event.inputs.tag_name || github.ref_name }}
+          generate_release_notes: true
