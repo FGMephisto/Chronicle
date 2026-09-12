@@ -253,7 +253,7 @@
 			<cycler_abilitybase name="attackstat">
 				<anchored width="40" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
-					<left offset="5" />
+					<left offset="10" />
 				</anchored>
 			</cycler_abilitybase>
 			<label_fieldtop>

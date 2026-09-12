@@ -51,12 +51,6 @@ end
 --	ROLL BUILD/MOD/RESOLVE
 --
 
-function getRoll(rActor, rAction)
-	local rRoll = ActionsManager2.setupD20RollBuild("attack", rActor);
-	ActionAttack.setupRollBuild(rRoll, rActor, rAction);
-	ActionsManager2.finalizeD20RollBuild(rRoll);
-	return rRoll;
-end
 function performRoll(draginfo, rActor, rAction)
 	local rRoll = ActionAttack.getRoll(rActor, rAction);
 	ActionsManager.performAction(draginfo, rActor, rRoll);
@@ -70,6 +64,12 @@ function performPartySheetVsRoll(_, rActor, rAction)
 	end
 
 	ActionsManager.actionDirect(nil, "attack", { rRoll }, { { rActor } });
+end
+function getRoll(rActor, rAction)
+	local rRoll = ActionsManager2.setupD20RollBuild("attack", rActor);
+	ActionAttack.setupRollBuild(rRoll, rActor, rAction);
+	ActionsManager2.finalizeD20RollBuild(rRoll);
+	return rRoll;
 end
 
 function modAttack(rSource, rTarget, rRoll)
@@ -121,9 +121,16 @@ function onAttackResolve(rSource, rTarget, rRoll, rMessage)
 
 	-- REMOVE TARGET ON MISS OPTION
 	if rTarget then
-		if (rRoll.sResult == "miss" or rRoll.sResult == "fumble") then
-			if rRoll.bRemoveOnMiss then
-				TargetingManager.removeTarget(ActorManager.getCTNodeName(rSource), ActorManager.getCTNodeName(rTarget));
+		if StringManager.contains({ "crit", "hit", }, rRoll.sResult) then
+			ActionsPerformManager.setActionResultState(rSource, rTarget, { sAuto = "hit", sDamageLabel = rRoll.sLabel, sDamageResult = "", });
+		else
+			if (rRoll.sDesc:match("%[HALF ON MISS%]") ~= nil) then
+				ActionsPerformManager.setActionResultState(rSource, rTarget, { sAuto = "miss", sDamageLabel = rRoll.sLabel, sDamageResult = "half_miss", });
+			else
+				ActionsPerformManager.setActionResultState(rSource, rTarget, { sAuto = "miss", sDamageLabel = rRoll.sLabel, sDamageResult = "", });
+				if rRoll.bRemoveOnMiss then
+					TargetingManager.removeTarget(ActorManager.getCTNodeName(rSource), ActorManager.getCTNodeName(rTarget));
+				end
 			end
 		end
 	end
@@ -143,7 +150,7 @@ end
 function setupAttackResolve(rRoll, rSource, rTarget)
 	ActionAttack.decodeAttackRoll(rRoll);
 	ActionAttack.checkAttackDefense(rRoll, rSource, rTarget);
-	ActionAttack.checkAttackResult(rRoll);
+	ActionAttack.checkAttackResult(rRoll, rSource, rTarget);
 end
 function decodeAttackRoll(rRoll)
 	ActionAttackCore.decodeRollData(rRoll);
@@ -160,31 +167,45 @@ function checkAttackDefense(rRoll, rSource, rTarget)
 		table.insert(rRoll.aMessages, EffectManager.buildDefEffectOutput(rRoll.nDefEffectsBonus));
 	end
 end
-function checkAttackResult(rRoll)
+function checkAttackResult(rRoll, rSource, rTarget)
 	local sCritThreshold = rRoll.sDesc:match("%[CRIT (%d+)%]");
 	local nCritThreshold = tonumber(sCritThreshold) or 20;
 	if nCritThreshold < 2 or nCritThreshold > 20 then
 		nCritThreshold = 20;
 	end
 
-	rRoll.nFirstDie = 0;
-	if #(rRoll.aDice) > 0 then
-		rRoll.nFirstDie = rRoll.aDice[1].result or 0;
-	end
-	if rRoll.nFirstDie >= nCritThreshold then
-		rRoll.sResult = "crit";
-		table.insert(rRoll.aMessages, "[CRITICAL HIT]");
-	elseif rRoll.nFirstDie == 1 then
-		rRoll.sResult = "fumble";
-		table.insert(rRoll.aMessages, "[AUTOMATIC MISS]");
-	elseif rRoll.nDefenseVal then
-		if rRoll.nTotal >= rRoll.nDefenseVal then
-			rRoll.sResult = "hit";
-			table.insert(rRoll.aMessages, "[HIT]");
-		else
-			rRoll.sResult = "miss";
-			table.insert(rRoll.aMessages, "[MISS]");
+	if not rRoll.bOutOfRange then
+		rRoll.nFirstDie = (rRoll.aDice[1] and rRoll.aDice[1].result) or 0;
+		if rRoll.nFirstDie >= nCritThreshold then
+			rRoll.sResult = "crit";
+		elseif rRoll.nFirstDie == 1 then
+			rRoll.sResult = "fumble";
+		elseif rRoll.nDefenseVal then
+			if rRoll.nTotal >= rRoll.nDefenseVal then
+				rRoll.sResult = "hit";
+			else
+				rRoll.sResult = "miss";
+			end
 		end
+	end
+
+	if rRoll.sResult == "hit" then
+		if EffectManager.hasCondition(rTarget, "Paralyzed") or EffectManager.hasCondition(rTarget, "Unconscious") then
+			if ActorManager.isInRange(rSource, rTarget, 5) then
+				table.insert(rRoll.aMessages, "[CONVERTED TO CRIT]");
+				rRoll.sResult = "crit";
+			end
+		end
+	end
+
+	if rRoll.sResult == "crit" then
+		table.insert(rRoll.aMessages, "[CRITICAL HIT]");
+	elseif rRoll.sResult == "fumble" then
+		table.insert(rRoll.aMessages, "[AUTOMATIC MISS]");
+	elseif rRoll.sResult == "hit" then
+		table.insert(rRoll.aMessages, "[HIT]");
+	elseif rRoll.sResult == "miss" then
+		table.insert(rRoll.aMessages, "[MISS]");
 	end
 end
 
@@ -193,13 +214,19 @@ function applyAttack(rSource, rTarget, rRoll)
 
 	if (rRoll.sResults or "") ~= "" then
 		table.insert(tApplyData.tNotifications, rRoll.sResults);
-		if rRoll.sResults:match("%[CRITICAL HIT%]") then
-			tApplyData.sResultIconLong = "action_attack_crit";
-		elseif rRoll.sResults:match("HIT%]") then
-			tApplyData.sResultIconLong = "action_attack_hit";
-		elseif rRoll.sResults:match("MISS%]") then
-			tApplyData.sResultIconLong = "action_attack_miss";
-		end
+	end
+
+	if rRoll.bOutOfRange then
+		tApplyData.sResultIconLong = "action_error";
+		table.insert(tApplyData.tNotifications, "[OUT OF RANGE]");
+	elseif rRoll.sResult == "crit" then
+		tApplyData.sResultIconLong = "action_attack_crit";
+	elseif rRoll.sResult == "fumble" then
+		tApplyData.sResultIconLong = "action_attack_miss";
+	elseif rRoll.sResult == "hit" then
+		tApplyData.sResultIconLong = "action_attack_hit";
+	elseif rRoll.sResult == "miss" then
+		tApplyData.sResultIconLong = "action_attack_miss";
 	end
 
 	ActionCore.applyMessage(rSource, rTarget, rRoll, tApplyData);
@@ -213,10 +240,14 @@ function setupRollBuild(rRoll, rActor, rAction)
 	rRoll.sLabel = StringManager.capitalizeAll(rAction.label);
 	rRoll.nOrder = rAction.order;
 	rRoll.nMod = rAction.modifier or 0;
+	rRoll.sRange = rAction.range;
 	rRoll.bWeapon = rAction.bWeapon;
 	rRoll.bSpell = rAction.bSpell;
 	rRoll.bADV = rAction.bADV or false;
 	rRoll.bDIS = rAction.bDIS or false;
+	rRoll.tActionTags = rAction.tActionTags;
+	rRoll.nRange = rAction.nRange;
+	rRoll.nRangeLong = rAction.nRangeLong;
 
 	-- Build the description label
 	table.insert(rRoll.tNotifications, ActionAttackCore.encodeActionText(rAction));
@@ -252,8 +283,9 @@ function setupRollBuild(rRoll, rActor, rAction)
 		end
 	end
 
-	-- Legacy
-	rRoll.sRange = rAction.range;
+	if ((rAction.save or "") == "") and ((rAction.onmissdamage or "") == "half") then
+		table.insert(rRoll.tNotifications, "[HALF ON MISS]");
+	end
 end
 
 function setupRollMod(rRoll)
@@ -273,11 +305,6 @@ function setupRollMod(rRoll)
 	-- Check cover
 	rRoll.bCover = ModifierManager.getKey("DEF_COVER");
 	rRoll.bSuperiorCover = ModifierManager.getKey("DEF_SCOVER");
-	if rRoll.bSuperiorCover then
-		table.insert(rRoll.tNotifications, "[COVER -5]");
-	elseif rRoll.bCover then
-		table.insert(rRoll.tNotifications, "[COVER -2]");
-	end
 
 	-- Build attack filter
 	rRoll.tAttackFilter = ActionCore.buildEffectFilter(rRoll);
@@ -285,6 +312,7 @@ end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
+	ActionAttack.applyRangeToRollMod(rRoll, rSource, rTarget);
 	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyDefenderEffectsToRollMod(rRoll, rSource, rTarget);
@@ -300,8 +328,9 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		rRoll.sDesc = StringManager.append(rRoll.sDesc, string.format("[%s]", Interface.getString("encumbrance_encumbered_heavy"):upper()), "\r");
 	end
 
-	local tSrcEffData = { rTarget = rTarget, tFilter = rRoll.tAttackFilter, };
-	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tAttackFilter, };
+	local tSrcEffData = { rTarget = rTarget, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
+	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
+	local bInvisible = EffectManager.hasCondition(rSource, "Invisible") and not EffectManager.hasCondition(rSource, "NOINVISIBLE");
 
 	-- Get roll effect modifiers
 	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "ATK", tSrcEffData);
@@ -317,7 +346,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	elseif EffectManager.hasTextOrTag(rTarget, "GRANTADVATK", tTrgtEffData) then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
-	elseif EffectManager.hasCondition(rSource, "Invisible") then
+	elseif bInvisible then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
 	end
@@ -359,6 +388,12 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		rRoll.bEffects = true;
 	end
 
+	if EffectManager.hasTextOrTag(rSource, "SCOVER", tSrcEffData) then
+		rRoll.bSuperiorCover = true;
+	elseif EffectManager.hasTextOrTag(rSource, "COVER", tSrcEffData) then
+		rRoll.bCover = true;
+	end
+
 	-- Handle crit range effects
 	local tCritRange = EffectManager.getCompsDataByTag(rSource, "CRIT", tSrcEffData);
 	if #tCritRange > 0 then
@@ -374,10 +409,88 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 			local nRollCritThreshold = tonumber(sRollCritThreshold) or 20;
 			if rRoll.nCritThreshold < nRollCritThreshold then
 				if rRoll.sDesc:match(" %[CRIT %d+%]") then
-					rRoll.sDesc = rRoll.sDesc:gsub(" %[CRIT %d+%]", " [CRIT " .. rRoll.nCritThreshold .. "]");
+					rRoll.sDesc = rRoll.sDesc:gsub(" %[CRIT %d+%]", string.format("[CRIT %d]", rRoll.nCritThreshold));
 				else
-					rRoll.sDesc = rRoll.sDesc ..  " [CRIT " .. rRoll.nCritThreshold .. "]";
+					table.insert(rRoll.tNotifications, string.format("[CRIT %d]", rRoll.nCritThreshold));
 				end
+			end
+		end
+	end
+end
+function applyRangeToRollMod(rRoll, rSource, rTarget)
+	-- Handle prone condition range
+	if EffectManager.hasCondition(rTarget, "Prone") then
+		if ActorManager.isInRange(rSource, rTarget, 5) then
+			rRoll.bADV = true;
+		else
+			rRoll.bDIS = true;
+		end
+	end
+
+	-- Handle ranged attack specific modifications
+	if rRoll.sRange == "R" then
+		-- Check if ranged attack in melee
+		if not bInvisible and EffectQueryManager.onRangeCheck(rSource, "5,enemy,!incapacitated") then
+			local bApply = true;
+			if rRoll.bWeapon then
+				bApply = not ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SHARPSHOOTER) and
+						not ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_CROSSBOW_EXPORT);
+			elseif rRoll.bSpell then
+				bApply = not ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SPELL_SNIPER) and
+						not ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_CROSSBOW_EXPORT);
+			end
+			if bApply then
+				rRoll.bDIS = true;
+				table.insert(rRoll.tNotifications, "[RANGED ATTACK NEXT TO ENEMY]");
+			end
+		end
+
+		-- Check cover bypass
+		if rRoll.bSuperiorCover or rRoll.bCover then
+			if rRoll.bSpell then
+				if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_SPELL_SNIPER) then
+					rRoll.bSuperiorCover = false;
+					rRoll.bCover = false;
+					table.insert(rRoll.tNotifications, "[COVER BYPASSED]");
+				end
+			elseif rRoll.bWeapon then
+				if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_SHARPSHOOTER) then
+					rRoll.bSuperiorCover = false;
+					rRoll.bCover = false;
+					table.insert(rRoll.tNotifications, "[COVER BYPASSED]");
+				end
+			end
+		end
+
+		-- Apply range modifiers
+		if rRoll.bSpell then
+			if ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SPELL_SNIPER) then
+				if (rRoll.nRange or 0) >= 10 then
+					rRoll.nRange = rRoll.nRange + 60;
+				end
+			elseif ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_SPELL_SNIPER) then
+				if (rRoll.nRange or 0) > 0 then
+					rRoll.nRange = rRoll.nRange * 2;
+				end
+			end
+		elseif rRoll.bWeapon then
+			if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_SHARPSHOOTER) then
+				if ((rRoll.nRange or 0) > 0) and ((rRoll.nRangeLong or 0) > rRoll.nRange) then
+					rRoll.nRange = rRoll.nRangeLong;
+				end
+			end
+		end
+		if (rRoll.nRangeLong or 0) <= (rRoll.nRange or 0) then
+			rRoll.nRangeLong = rRoll.nRange;
+		end
+		local nTokenRange = ActorManager.getDistanceBetween(rSource, rTarget);
+		if nTokenRange then
+			if nTokenRange > (rRoll.nRangeLong or 0) then
+				rRoll.bOutOfRange = true;
+				table.insert(rRoll.tNotifications, "[OUT OF RANGE]");
+			elseif nTokenRange > (rRoll.nRange or 0) then
+				rRoll.bDIS = true;
+				table.insert(rRoll.tNotifications, "[LONG RANGE]");
 			end
 		end
 	end
@@ -387,17 +500,17 @@ function applyReliableEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	if EffectManager.hasText(rSource, "RELIABLE") then
+	if EffectManager.hasText(rSource, "RELIABLE", { tActionTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
-	elseif EffectManager.hasTextOrTag(rSource, "RELIABLEATK", { tFilter = rRoll.tAttackFilter, }) then
+	elseif EffectManager.hasTextOrTag(rSource, "RELIABLEATK", { tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
 	end
 end
 function applyDefenderEffectsToRollMod(rRoll, rSource, rTarget)
 	-- Handle defender ADV/DIS
-	local bDefADV, bDefDIS = ActorManager5E.getDefenseAdvantage(rSource, rTarget, rRoll.tAttackFilter);
+	local bDefADV, bDefDIS = ActorManager5E.getDefenseAdvantage(rSource, rTarget, rRoll);
 	if bDefADV then
 		rRoll.bADV = true;
 	end
@@ -408,8 +521,10 @@ end
 function finalizeRollMod(rRoll)
 	if rRoll.bSuperiorCover then
 		rRoll.nMod = rRoll.nMod - 5;
+		table.insert(rRoll.tNotifications, "[COVER -5]");
 	elseif rRoll.bCover then
 		rRoll.nMod = rRoll.nMod - 2;
+		table.insert(rRoll.tNotifications, "[COVER -2]");
 	end
 
 	rRoll.bOpportunity = nil;

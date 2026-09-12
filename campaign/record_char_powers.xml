@@ -48,11 +48,11 @@
 	<windowclass name="power_slots_cast">
 		<script file="campaign/scripts/power_slots_cast.lua" />
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
 			<label_charframetop name="slotstitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="3" postoffset="3" />
 					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
@@ -62,36 +62,37 @@
 
 			<label name="spellslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="3" />
+					<top parent="contentanchor" anchor="bottom" relation="current" offset="5" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_spellcastingslots" />
 			</label>
 			<power_slots_list name="spellslots">
 				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="3" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="3" />
 					<left offset="90" />
-					<right offset="-50" />
+					<right offset="-10" />
 				</anchored>
 			</power_slots_list>
 
 			<label name="pactmagicslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="3" />
+					<top parent="contentanchor" anchor="bottom" relation="current" offset="5" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_pactmagicslots" />
 			</label>
 			<power_slots_list name="pactmagicslots">
 				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="3" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="3" />
 					<left offset="90" />
-					<right offset="-50" />
+					<right offset="-10" />
 				</anchored>
 			</power_slots_list>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_slots_prep">
+		<margins control="0,0,0,5" />
 		<script>
 			function onInit()
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
@@ -101,11 +102,11 @@
 			end
 		</script>
 		<sheetdata>
-			<anchor_column name="columnanchor" />
+			<anchor_content_top />
 
 			<label_charframetop name="slotstitle">
-				<anchored height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="15" />
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="3" postoffset="3" />
 					<left offset="10" />
 					<right offset="-10" />
 				</anchored>
@@ -115,14 +116,14 @@
 
 			<label name="spellslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="17" />
+					<top parent="contentanchor" anchor="bottom" relation="current" offset="17" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_spellcastingslots" />
 			</label>
 			<genericcontrol name="anchor_spellslots">
 				<anchored width="0" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="17" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="17" />
 					<left parent="spellslots_label" anchor="right" offset="10,0" />
 				</anchored>
 				<disabled />
@@ -175,14 +176,14 @@
 
 			<label name="pactmagicslots_label">
 				<anchored width="80">
-					<top parent="columnanchor" anchor="bottom" relation="current" offset="17" />
+					<top parent="contentanchor" anchor="bottom" relation="current" offset="17" />
 					<left offset="10" />
 				</anchored>
 				<static textres="power_label_pactmagicslots" />
 			</label>
 			<genericcontrol name="anchor_pactmagicslots">
 				<anchored width="0" height="20">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="17" />
+					<top parent="contentanchor" anchor="bottom" relation="relative" offset="17" />
 					<left parent="pactmagicslots_label" anchor="right" offset="10,0" />
 				</anchored>
 				<disabled />
@@ -232,15 +233,6 @@
 				<anchored to="pactmagicslots9" />
 				<static>9</static>
 			</label_fieldtop>
-
-			<genericcontrol name="spacer">
-				<anchored height="0">
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="3" />
-					<left />
-					<right />
-				</anchored>
-				<disabled />
-			</genericcontrol>
 		</sheetdata>
 	</windowclass>
 
@@ -451,6 +443,36 @@
 	</windowclass>
 
 	<windowclass name="power_item" merge="join">
+		<script>
+			function onInit()
+				if super and super.onInit then
+					super.onInit();
+				end
+				DB.addHandler(DB.getPath(getDatabaseNode(), "upcast"), "onUpdate", self.onUpcastFieldUpdate);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "upcast"), "onDelete", self.onUpcastFieldUpdate);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "actions.*.autokeyselection"), "onUpdate", self.onUpcastFieldUpdate);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "actions.*.autokeyselection"), "onDelete", self.onUpcastFieldUpdate);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "actions.*.choicelist.*.selection"), "onUpdate", self.onChoiceSelectionUpdate);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "actions.*.choicelist.*.selection"), "onDelete", self.onChoiceSelectionUpdate);
+			end
+			function onClose()
+				if super and super.onClose then
+					super.onClose();
+				end
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "upcast"), "onUpdate", self.onUpcastFieldUpdate);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "upcast"), "onDelete", self.onUpcastFieldUpdate);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "actions.*.autokeyselection"), "onUpdate", self.onUpcastFieldUpdate);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "actions.*.autokeyselection"), "onDelete", self.onUpcastFieldUpdate);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "actions.*.choicelist.*.selection"), "onUpdate", self.onChoiceSelectionUpdate);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "actions.*.choicelist.*.selection"), "onDelete", self.onChoiceSelectionUpdate);
+			end
+			function onUpcastFieldUpdate()
+				WindowManager.callInnerWindowFunction(self, "onUpcastChanged");
+			end
+			function onChoiceSelectionUpdate()
+				WindowManager.callInnerWindowFunction(self, "onChoiceSelectionChanged");
+			end
+		</script>
 		<sheetdata>
 			<hs name="group" />
 			<hn name="level" />
@@ -479,6 +501,11 @@
 					<left relation="relative" offset="2" postoffset="2" />
 				</anchored>
 				<invisible />
+				<script>
+					function onHover(bOnControl)
+						PowerManager5E.onUsePowerHover(self, bOnControl);
+					end
+				</script>
 			</icon_usepower>
 			<buttongroup_counter_power name="counter">
 				<anchored to="leftanchor">
@@ -534,52 +561,107 @@
 			end
 			function onDataChanged()
 				local nodeAction = getDatabaseNode();
-
-				attackview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "atk" }));
-				saveview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "save" }));
+				allowupcast.setVisible((DB.getValue(nodeAction, "allowupcast", 0) == 1));
+				local bShowChoices = (DB.getValue(nodeAction, "autokeychoice", "") ~= "")
+				for _,nodeChoice in ipairs(DB.getChildList(nodeAction, "choicelist")) do
+					if (DB.getValue(nodeChoice, "tag", "") ~= "") and (DB.getValue(nodeChoice, "options", "") ~= "") then
+						bShowChoices = true;
+						break;
+					end
+				end
+				haschoices.setVisible(bShowChoices);
+				targetview.setValue(PowerActionManagerCore.getActionText(nodeAction));
+			end
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function onChoiceSelectionChanged()
+				self.onDataChanged();
 			end
 			function performAction(draginfo, sSubRoll)
 				PowerActionManagerCore.performAction(draginfo, getDatabaseNode(), { sSubRoll = sSubRoll });
 			end
 		</script>
 		<sheetdata>
+			<anchor_content_top />
+
 			<button_poweraction name="castbutton">
-				<anchored position="insidetopleft" offset="2,2" />
+				<anchored to="contentanchor">
+					<top parent="contentanchor" relation="relative" offset="2" postoffset="2" />
+					<left offset="2" />
+				</anchored>
 			</button_poweraction>
 			<label name="castlabel">
-				<anchored to="castbutton" position="righthigh" offset="5,0" width="40" />
+				<anchored to="castbutton" width="40">
+					<top />
+					<left relation="relative" offset="5" />
+				</anchored>
 				<static textres="power_label_cast" />
 			</label>
 
-			<button_poweraction name="attackbutton">
-				<anchored to="castlabel" position="righthigh" offset="5,0" />
-				<icon normal="button_action_attack" pressed="button_action_attack_down" />
-				<subroll>atk</subroll>
-			</button_poweraction>
-			<label name="attackviewlabel">
-				<anchored to="attackbutton" position="righthigh" offset="5,0" />
-				<static textres="power_label_atk" />
-			</label>
-			<string_poweractionview name="attackview">
-				<anchored to="attackviewlabel" position="righthigh" offset="10,0" width="70" />
-				<subroll>atk</subroll>
-			</string_poweractionview>
+			
+			<genericcontrol name="spacer">
+				<anchored to="castbutton" width="5" height="20">
+					<top />
+					<left relation="relative" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+			<buttoncontrol name="allowupcast">
+				<anchored to="castbutton" width="20" height="20">
+					<top />
+					<left relation="relative" offset="2" postoffset="2" />
+				</anchored>
+				<frame name="fieldlight" offset="5,5,5,5" />
+				<icon normal="button_toolbar_arrow_double_n" />
+				<tooltip textres="power_tooltip_allowupcast" />
+				<script>
+					function onInit()
+						setColor(Interface.getFontColor("sheettext"));
+					end
+				</script>
+			</buttoncontrol>
+			<buttoncontrol name="haschoices">
+				<anchored to="castbutton" width="20" height="20">
+					<top />
+					<left relation="relative" offset="2" postoffset="2" />
+				</anchored>
+				<frame name="fieldlight" offset="5,5,5,5" />
+				<icon normal="button_toolbar_question" />
+				<tooltip textres="power_tooltip_haschoices" />
+				<script>
+					function onInit()
+						setColor(Interface.getFontColor("sheettext"));
+					end
+				</script>
+			</buttoncontrol>
 
-			<button_poweraction name="savebutton">
-				<anchored to="attackview" position="righthigh" offset="15,0" />
-				<subroll>save</subroll>
-			</button_poweraction>
-			<label name="saveviewlabel">
-				<anchored to="savebutton" position="righthigh" offset="5,0" />
-				<static textres="power_label_save" />
-			</label>
-			<string_poweractionview name="saveview">
-				<anchored to="saveviewlabel" position="righthigh" offset="10,0" width="80" />
-				<subroll>save</subroll>
-			</string_poweractionview>
+			<buttoncontrol name="targetbutton">
+				<anchored to="castbutton" width="20" height="20">
+					<top />
+					<left relation="relative" offset="3" />
+				</anchored>
+				<frame name="fieldlight" offset="5,5,5,5" />
+				<icon normal="button_toolbar_target" />
+				<tooltip textres="power_tooltip_targeting" />
+				<script>
+					function onInit()
+						setColor(Interface.getFontColor("sheettext"));
+					end
+				</script>
+			</buttoncontrol>
+			<stringc_static name="targetview">
+				<anchored to="castbutton" height="20">
+					<top />
+					<left relation="relative" offset="5" />
+					<right parent="contentanchor" offset="-5" />
+				</anchored>
+				<center />
+				<nodrag />
+			</stringc_static>
 		</sheetdata>
 	</windowclass>
-	<windowclass name="power_action_damage">
+	<windowclass name="power_action_attack">
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
@@ -590,10 +672,90 @@
 				DB.removeHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
 			end
 			function onDataChanged()
+				attackview.setValue(PowerActionManagerCore.getActionText(getDatabaseNode()));
+			end
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function performAction(draginfo)
+				PowerActionManagerCore.performAction(draginfo, getDatabaseNode());
+			end
+		</script>
+		<sheetdata>
+			<button_poweraction name="attackbutton">
+				<anchored position="insidetopleft" offset="2,2" />
+				<icon normal="button_action_attack" pressed="button_action_attack_down" />
+			</button_poweraction>
+			<label name="attacklabel">
+				<anchored to="attackbutton" position="righthigh" offset="5,0" width="40" />
+				<static textres="power_label_atk" />
+			</label>
+			<string_poweractionview name="attackview">
+				<anchored to="attacklabel" position="righthigh" offset="10,0">
+					<right parent="" offset="-5" />
+				</anchored>
+			</string_poweractionview>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_powersave">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onDataChanged();
+				DB.addHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+			end
+			function onClose()
+				DB.removeHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+			end
+			function onDataChanged()
+				saveview.setValue(PowerActionManagerCore.getActionText(getDatabaseNode()));
+			end
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function performAction(draginfo)
+				PowerActionManagerCore.performAction(draginfo, getDatabaseNode());
+			end
+		</script>
+		<sheetdata>
+			<button_poweraction name="savebutton">
+				<anchored position="insidetopleft" offset="2,2" />
+				<icon normal="button_action_save" pressed="button_action_save_down" />
+			</button_poweraction>
+			<label name="savelabel">
+				<anchored to="savebutton" position="righthigh" offset="5,0" width="40" />
+				<static textres="power_label_save" />
+			</label>
+			<string_poweractionview name="saveview">
+				<anchored to="savelabel" position="righthigh" offset="10,0">
+					<right parent="" offset="-5" />
+				</anchored>
+			</string_poweractionview>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_damage">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onDataChanged();
+				DB.addHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "damagelist.*"), "onChildUpdate", self.onDataChanged);
+			end
+			function onClose()
+				DB.removeHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "damagelist.*"), "onChildUpdate", self.onDataChanged);
+			end
+			function onDataChanged()
 				damageview.setValue(PowerActionManagerCore.getActionText(getDatabaseNode()));
 			end
-			function performAction(draginfo, sSubRoll)
-				PowerActionManagerCore.performAction(draginfo, getDatabaseNode(), { sSubRoll = sSubRoll });
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function onChoiceSelectionChanged()
+				self.onDataChanged();
+			end
+			function performAction(draginfo)
+				PowerActionManagerCore.performAction(draginfo, getDatabaseNode());
 			end
 		</script>
 		<sheetdata>
@@ -618,15 +780,20 @@
 			function onInit()
 				self.onDataChanged();
 				DB.addHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+				DB.addHandler(DB.getPath(getDatabaseNode(), "heallist.*"), "onChildUpdate", self.onDataChanged);
 			end
 			function onClose()
 				DB.removeHandler(getDatabaseNode(), "onChildUpdate", self.onDataChanged);
+				DB.removeHandler(DB.getPath(getDatabaseNode(), "heallist.*"), "onChildUpdate", self.onDataChanged);
 			end
 			function onDataChanged()
 				healview.setValue(PowerActionManagerCore.getActionText(getDatabaseNode()));
 			end
-			function performAction(draginfo, sSubRoll)
-				PowerActionManagerCore.performAction(draginfo, getDatabaseNode(), { sSubRoll = sSubRoll });
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function performAction(draginfo)
+				PowerActionManagerCore.performAction(draginfo, getDatabaseNode());
 			end
 		</script>
 		<sheetdata>
@@ -663,8 +830,14 @@
 				effectview.setValue(PowerActionManagerCore.getActionText(nodeAction));
 				durationview.setValue(PowerActionManagerCore.getActionText(nodeAction, { sSubRoll = "duration" }));
 			end
-			function performAction(draginfo, sSubRoll)
-				PowerActionManagerCore.performAction(draginfo, getDatabaseNode(), { sSubRoll = sSubRoll });
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function onChoiceSelectionChanged()
+				self.onDataChanged();
+			end
+			function performAction(draginfo)
+				PowerActionManagerCore.performAction(draginfo, getDatabaseNode());
 			end
 		</script>
 		<sheetdata>
@@ -688,5 +861,16 @@
 				<anchored to="effectview" position="righthigh" offset="10,0" width="50" />
 			</string_poweractionview>
 		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_action_mini" merge="join">
+		<script>
+			function onUpcastChanged()
+				self.onDataChanged();
+			end
+			function onChoiceSelectionChanged()
+				self.onDataChanged();
+			end
+		</script>
 	</windowclass>
 </root>

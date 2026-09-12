@@ -8,34 +8,41 @@
 
 SPELL_LEVELS = 9;
 
+function onInit()
+	GameManager.setFunction("onActionGetRoll", PowerManager.onActionGetRoll);
+end
+
 --
 -- POWER MANAGEMENT
 --
 
 function resetPowers(nodeCaster, bLong)
-	local aListGroups = {};
-
+	PowerManager.resetPowersMain(nodeCaster, bLong);
+	PowerManager.resetPowersSlots(nodeCaster, bLong);
+end
+function resetPowersMain(nodeCaster, bLong)
 	-- Build list of power groups
-	for _,vGroup in ipairs(DB.getChildList(nodeCaster, "powergroup")) do
-		local sGroup = DB.getValue(vGroup, "name", "");
+	local aListGroups = {};
+	for _,nodeGroup in ipairs(DB.getChildList(nodeCaster, "powergroup")) do
+		local sGroup = DB.getValue(nodeGroup, "name", "");
 		if not aListGroups[sGroup] then
-			local rGroup = {};
-			rGroup.sName = sGroup;
-			rGroup.sType = DB.getValue(vGroup, "castertype", "");
-			rGroup.nUses = DB.getValue(vGroup, "uses", 0);
-			rGroup.sUsesPeriod = DB.getValue(vGroup, "usesperiod", "");
-			rGroup.nodeGroup = vGroup;
-
+			local rGroup = {
+				sName = sGroup,
+				sType = DB.getValue(nodeGroup, "castertype", ""),
+				nUses = DB.getValue(nodeGroup, "uses", 0),
+				sUsesPeriod = DB.getValue(nodeGroup, "usesperiod", ""),
+				nodeGroup = nodeGroup,
+			};
 			aListGroups[sGroup] = rGroup;
 		end
 	end
 
 	-- Reset power usage
-	for _,vPower in ipairs(DB.getChildList(nodeCaster, "powers")) do
+	for _,nodePower in ipairs(DB.getChildList(nodeCaster, "powers")) do
 		local bReset = true;
 		local bPartial = false;
 
-		local sGroup = DB.getValue(vPower, "group", "");
+		local sGroup = DB.getValue(nodePower, "group", "");
 		local rGroup = aListGroups[sGroup];
 		local bCaster = (rGroup and rGroup.sType ~= "");
 
@@ -52,7 +59,7 @@ function resetPowers(nodeCaster, bLong)
 					end
 				end
 			else
-				local sPowerUsesPeriod = DB.getValue(vPower, "usesperiod", "");
+				local sPowerUsesPeriod = DB.getValue(nodePower, "usesperiod", "");
 				if sPowerUsesPeriod == "once" then
 					bReset = false;
 				elseif not bLong then
@@ -67,13 +74,16 @@ function resetPowers(nodeCaster, bLong)
 		end
 
 		if bReset then
-			DB.setValue(vPower, "cast", "number", 0);
+			DB.setValue(nodePower, "cast", "number", 0);
 		elseif bPartial then
-			DB.setValue(vPower, "cast", "number", math.max(DB.getValue(vPower, "cast", 0) - 1, 0));
+			DB.setValue(nodePower, "cast", "number", math.max(DB.getValue(nodePower, "cast", 0) - 1, 0));
 		end
-	end
 
-	-- Reset spell slots
+		PowerManager5E.clearSpellUpcast(nodePower);
+		ActionsChoiceManager.deletePowerChoiceSelections(nodePower);
+	end
+end
+function resetPowersSlots(nodeCaster, bLong)
 	for i = 1, PowerManager.SPELL_LEVELS do
 		DB.setValue(nodeCaster, "powermeta.pactmagicslots" .. i .. ".used", "number", 0);
 	end
@@ -126,7 +136,7 @@ function addPower(sClass, nodeSource, nodeCreature, sGroup)
 
 	-- Parse power details to create actions
 	if DB.getChildCount(nodeNewPower, "actions") == 0 then
-		PowerManager.parsePCPower(nodeNewPower);
+		PowerManager.parsePCPower(nodeNewPower, { sClass = sClass, node = nodeSource, });
 	end
 
 	-- If PC, then make sure all spells are visible
@@ -141,7 +151,15 @@ end
 -- POWER ACTION DISPLAY
 --
 
-function getPCPowerActionOutputOrder(nodeAction)
+function isActorPowerAction(nodeAction)
+	if not nodeAction then
+		return false;
+	end
+	local nodePower = DB.getChild(nodeAction, "...");
+	local nodePowerList = DB.getChild(nodePower, "..");
+	return StringManager.contains({ "powers", "spells", "innatespells", }, DB.getName(nodePowerList));
+end
+function getPowerActionDisplayOrder(nodeAction)
 	if not nodeAction then
 		return 1;
 	end
@@ -166,200 +184,291 @@ function getPCPowerActionOutputOrder(nodeAction)
 
 	return nOutputOrder;
 end
-function getPCPowerAction(nodeAction, sSubRoll)
-	if not nodeAction then
-		return;
-	end
-	local nodePower = DB.getChild(nodeAction, "...");
-	local rActor = ActorManager.resolveActor(PowerManagerCore.getPowerActorNode(nodePower));
-	if not rActor then
-		return;
-	end
 
-	local rAction = PowerManager.getPCPowerActionHelper(rActor, nodeAction, sSubRoll);
-
-	return rAction, rActor;
+function getActionText(node, tData)
+	if tData.sType == "cast" then
+		return PowerManager.getCastActionText(node);
+	elseif tData.sType == "attack" then
+		return PowerManager.getAttackActionText(node);
+	elseif tData.sType == "powersave" then
+		return PowerManager.getSaveActionText(node);
+	elseif tData.sType == "damage" then
+		return PowerManager.getDamageActionText(node);
+	elseif tData.sType == "heal" then
+		return PowerManager.getHealActionText(node);
+	elseif tData.sType == "effect" then
+		return PowerActionManagerCore.getActionEffectText(node, tData);
+	end
+	return "";
 end
-function getPCPowerActionHelper(rActor, nodeAction, sSubRoll)
-	if not nodeAction then
-		return nil;
+function getCastActionText(nodeAction)
+	local tData = {};
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction then
+		return "";
 	end
 
-	local rAction = {
-		type = DB.getValue(nodeAction, "type", ""),
-		label = DB.getValue(nodeAction, "...name", ""),
-		order = PowerManager.getPCPowerActionOutputOrder(nodeAction),
-		nodeAction = nodeAction,
-	};
-
-	local nodePower = DB.getChild(nodeAction, "...");
-	local rPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-	if rPowerGroup then
-		rAction.bSpell = ((rPowerGroup.sCasterType or "") == "memorization");
+	if tData.rActor then
+		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
 	end
 
-	if rAction.type == "cast" then
-		rAction.subtype = sSubRoll;
-		rAction.onmissdamage = DB.getValue(nodeAction, "onmissdamage", "");
-
-		local sAttackType = DB.getValue(nodeAction, "atktype", "");
-		if sAttackType ~= "" then
-			if sAttackType == "melee" then
-				rAction.range = "M";
-			else
-				rAction.range = "R";
-			end
-
-			rAction.modifier = DB.getValue(nodeAction, "atkmod", 0);
-			local sAttackBase = DB.getValue(nodeAction, "atkbase", "");
-			if sAttackBase == "fixed" then
-				rAction.base = "fixed";
-			elseif sAttackBase == "ability" then
-				rAction.base = "";
-				rAction.stat = DB.getValue(nodeAction, "atkstat", "");
-				rAction.prof = DB.getValue(nodeAction, "atkprof", 1);
-				rAction.modifier = DB.getValue(nodeAction, "atkmod", 0);
-			else
-				rAction.base = "group";
+	local sTarget = "";
+	if (rAction.sTargeting or "") ~= "" then
+		sTarget = StringManager.capitalizeAll(rAction.sTargeting);
+		if (rAction.nTargeting or 0) ~= 0 then
+			sTarget = StringManager.append(sTarget, string.format("%d", rAction.nTargeting, " "), " ");
+			if (rAction.nTargetingH or 0) ~= 0 then
+				sTarget = StringManager.append(sTarget, string.format("x%d", rAction.nTargetingH, " "), "");
 			end
 		end
+		if rAction.sTargetScaleStat == "cantrip" then
+			sTarget = StringManager.append(sTarget, "(+CANTRIP", " ");
+			if math.max((rAction.nTargetScaleMult or 0), 1) ~= 1 then
+				sTarget = StringManager.append(sTarget, string.format("*%d", rAction.nTargetScaleMult), "");
+			end
+			sTarget = StringManager.append(sTarget, ")", "");
+		elseif rAction.sTargetScaleStat == "upcast" then
+			sTarget = StringManager.append(sTarget, "(+UPCAST", " ");
+			if math.max((rAction.nTargetScaleMult or 0), 1) ~= 1 then
+				sTarget = StringManager.append(sTarget, string.format("*%d", rAction.nTargetScaleMult), "");
+			end
+			sTarget = StringManager.append(sTarget, ")", "");
+		end
+	end
 
-		local sSaveType = DB.getValue(nodeAction, "savetype", "");
-		if sSaveType ~= "" then
-			rAction.save = sSaveType;
-			rAction.savemod = DB.getValue(nodeAction, "savedcmod", 0);
-			if DB.getValue(nodeAction, "savemagic", 0) == 1 then
-				rAction.magic = true;
-			end
-			local sSaveBase = DB.getValue(nodeAction, "savedcbase", "");
-			if sSaveBase == "fixed" then
-				rAction.savebase = "fixed";
-			elseif sSaveBase == "ability" then
-				rAction.savebase = "";
-				rAction.savestat = DB.getValue(nodeAction, "savedcstat", "");
-				rAction.saveprof = DB.getValue(nodeAction, "savedcprof", 1);
-				rAction.savemod = rAction.savemod + 8;
-			else
-				rAction.savebase = "group";
-				rAction.savemod = rAction.savemod + 8;
-			end
+	return sTarget;
+end
+function getAttackActionText(nodeAction)
+	local tData = {};
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction then
+		return "";
+	end
+	if (rAction.atktype or "") == "" then
+		return "";
+	end
+
+	if tData.rActor then
+		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
+	end
+
+	local sAttack = ((rAction.atktype == "ranged") and Interface.getString("ranged")) or Interface.getString("melee");
+	if tData.rActor then
+		if (rAction.modifier or 0) ~= 0 then
+			sAttack = StringManager.append(sAttack, string.format("%+d", rAction.modifier or 0), " ");
+		end
+	else
+		if rAction.base == "fixed" then
+			sAttack = StringManager.append(sAttack, string.format("%+d", rAction.modifier or 0), " ");
+		elseif rAction.base == "group" then
+			sAttack = StringManager.append(sAttack, "(+STANDARD)", " ");
 		else
-			rAction.save = "";
-		end
-
-	elseif rAction.type == "damage" then
-		rAction.clauses = {};
-		local aDamageNodes = UtilityManager.getNodeSortedChildren(nodeAction, "damagelist");
-		for _,v in ipairs(aDamageNodes) do
-			local sAbility = DB.getValue(v, "stat", "");
-			local nMult = DB.getValue(v, "statmult", 1);
-			local aDice = DB.getValue(v, "dice", {});
-			local nMod = DB.getValue(v, "bonus", 0);
-			local sDmgType = DB.getValue(v, "type", "");
-
-			table.insert(rAction.clauses, { dice = aDice, stat = sAbility, statmult = nMult, modifier = nMod, dmgtype = sDmgType });
-		end
-
-	elseif rAction.type == "heal" then
-		rAction.sTargeting = DB.getValue(nodeAction, "healtargeting", "");
-		rAction.subtype = DB.getValue(nodeAction, "healtype", "");
-
-		rAction.clauses = {};
-		local aHealNodes = UtilityManager.getNodeSortedChildren(nodeAction, "heallist");
-		for _,v in ipairs(aHealNodes) do
-			local sAbility = DB.getValue(v, "stat", "");
-			local nMult = DB.getValue(v, "statmult", 1);
-			local aDice = DB.getValue(v, "dice", {});
-			local nMod = DB.getValue(v, "bonus", 0);
-
-			table.insert(rAction.clauses, { dice = aDice, stat = sAbility, statmult = nMult, modifier = nMod });
-		end
-
-	elseif rAction.type == "effect" then
-		EffectManagerD20.getStandardEffectDataFromAction(nodeAction, rAction);
-	end
-
-	return rAction;
-end
-
-function performPCPowerAction(draginfo, nodeAction, sSubRoll)
-	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction, sSubRoll);
-	if rAction then
-		PowerManager.performAction(draginfo, rActor, rAction, DB.getChild(nodeAction, "..."));
-	end
-end
-
-function getPCPowerCastActionText(nodeAction)
-	local sAttack = "";
-	local sSave = "";
-
-	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
-	if rAction then
-		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
-
-		if (rAction.range or "") ~= "" then
-			if rAction.range == "R" then
-				sAttack = Interface.getString("ranged");
-			else
-				sAttack = Interface.getString("melee");
+			sAttack = StringManager.append(sAttack, string.format("%+d", rAction.modifier or 0), " ");
+			if rAction.stat ~= "" then
+				sAttack = StringManager.append(sAttack, string.format("(+%s)", StringManager.capitalize(rAction.stat:sub(1,3))), " ");
 			end
-			if rAction.modifier ~= 0 then
-				sAttack = string.format("%s %+d", sAttack, rAction.modifier);
-			end
-		end
-		if (rAction.save or "") ~= "" then
-			sSave = StringManager.capitalize(rAction.save:sub(1,3)) .. " DC " .. rAction.savemod;
-			if rAction.onmissdamage == "half" then
-				sSave = sSave .. " (H)";
+			if (rAction.prof or 0) == 1 then
+				sAttack = StringManager.append(sAttack, "(+PROF)", " ");
 			end
 		end
 	end
+	if rAction.onmissdamage == "half" then
+		sAttack = StringManager.append(sAttack, "(H)", " ");
+	end
 
-	return sAttack, sSave;
+	return sAttack;
 end
-function getPCPowerDamageActionText(nodeAction)
-	local aOutput = {};
-	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
-	if rAction then
-		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
+function getSaveActionText(nodeAction)
+	local tData = { bDebug = true, };
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction then
+		return "";
+	end
+	if (rAction.save or "") == "" then
+		return "";
+	end
 
-		for _,rDamage in ipairs(ActionCore.getCombinedClauses(rAction.clauses)) do
-			local sDice = StringManager.convertDiceToString(rDamage.aDice, rDamage.nMod);
-			if rDamage.sType ~= "" then
-				table.insert(aOutput, string.format("%s %s", sDice, rDamage.sType));
-			else
-				table.insert(aOutput, sDice);
+	if tData.rActor then
+		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
+	end
+
+	local sSaveStat = (rAction.save == "base") and StringManager.capitalize(rAction.save) or StringManager.capitalize(rAction.save:sub(1,3));
+
+	local sSave;
+	if tData.rActor then
+		sSave = string.format("%s DC %d", sSaveStat, rAction.savemod);
+	else
+		if rAction.savebase == "fixed" then
+			sSave = string.format("%s DC %d", sSaveStat, rAction.savemod);
+		elseif rAction.savebase == "group" then
+			sSave = string.format("%s DC (STANDARD)", sSaveStat);
+		else
+			sSave = string.format("%s DC %d", sSaveStat, rAction.savemod);
+			if rAction.savestat ~= "" then
+				sSave = StringManager.append(sSave, string.format("(+%s)", StringManager.capitalize(rAction.savestat:sub(1,3))), " ");
+			end
+			if (rAction.saveprof or 0) == 1 then
+				sSave = StringManager.append(sSave, "(+PROF)", " ");
 			end
 		end
 	end
-	return table.concat(aOutput, " + ");
+	if rAction.onmissdamage == "half" then
+		sSave = StringManager.append(sSave, "(H)", " ");
+	end
+
+	return sSave;
 end
-function getPCPowerHealActionText(nodeAction)
-	local sHeal = "";
+function getDamageActionText(nodeAction)
+	local tData = {};
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction then
+		return "";
+	end
 
-	local rAction, rActor = PowerManager.getPCPowerAction(nodeAction);
-	if rAction then
-		PowerManager.evalAction(rActor, DB.getChild(nodeAction, "..."), rAction);
+	if tData.rActor then
+		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
+	end
 
-		local aHealDice = {};
-		local nHealMod = 0;
-		for _,tClause in ipairs(rAction.clauses) do
-			for _,vDie in ipairs(tClause.dice) do
-				table.insert(aHealDice, vDie);
+	local tOutput = {};
+	for _,tClause in ipairs(rAction.clauses) do
+		local sDice = StringManager.convertDiceToString(tClause.dice, tClause.modifier);
+		if not tData.rActor then
+			local sScaleDice = StringManager.convertDiceToString(tClause.scaledice, tClause.scalebonus);
+			if tClause.scalestat == "cantrip" then
+				sDice = StringManager.append(sDice, string.format("(+CANTRIP*[%s])", sScaleDice), " ");
+			elseif tClause.scalestat == "upcast" then
+				sDice = StringManager.append(sDice, string.format("(+UPCAST*[%s])", sScaleDice), " ");
 			end
-			nHealMod = nHealMod + tClause.modifier;
 		end
+		if tClause.dmgtype ~= "" then
+			sDice = StringManager.append(sDice, tClause.dmgtype, " ");
+		end
+		table.insert(tOutput, sDice);
+	end
 
-		sHeal = StringManager.convertDiceToString(aHealDice, nHealMod);
+	return table.concat(tOutput, " + ");
+end
+function getHealActionText(nodeAction)
+	local tData = {};
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction then
+		return "";
+	end
+
+	if tData.rActor then
+		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
+	end
+
+	local tOutput = {};
+	for _,tClause in ipairs(rAction.clauses) do
+		local sDice = StringManager.convertDiceToString(tClause.dice, tClause.modifier);
+		if not tData.rActor then
+			local sScaleDice = StringManager.convertDiceToString(tClause.scaledice, tClause.scalebonus);
+			if tClause.scalestat == "cantrip" then
+				sDice = StringManager.append(sDice, string.format("(+CANTRIP*[%s])", sScaleDice), " ");
+			elseif tClause.scalestat == "upcast" then
+				sDice = StringManager.append(sDice, string.format("(+UPCAST*[%s])", sScaleDice), " ");
+			end
+		end
+		table.insert(tOutput, sDice);
+	end
+
+	local sHeal = table.concat(tOutput, " + ");
+	if sHeal ~= "" then
 		if DB.getValue(nodeAction, "healtype", "") == "temp" then
-			sHeal = sHeal .. " temporary";
+			sHeal = StringManager.append(sHeal, "[TEMP]", " ");
 		end
 		if DB.getValue(nodeAction, "healtargeting", "") == "self" then
-			sHeal = sHeal .. " [SELF]";
+			sHeal = StringManager.append(sHeal, "[SELF]", " ");
 		end
 	end
 
 	return sHeal;
+end
+
+function getActionTooltip(nodeAction, tData)
+	if tData.sType == "cast" then
+		return PowerManager.getCastActionTooltip(nodeAction, tData)
+	elseif tData.sType == "attack" then
+		return PowerManager.getAttackActionTooltip(nodeAction, tData)
+	elseif tData.sType == "powersave" then
+		return PowerManager.getSaveActionTooltip(nodeAction, tData)
+	elseif tData.sType == "damage" then
+		return PowerManager.getDamageActionTooltip(nodeAction, tData);
+	elseif tData.sType == "heal" then
+		return PowerManager.getHealActionTooltip(nodeAction, tData);
+	elseif tData.sType == "effect" then
+		return PowerActionManagerCore.getActionEffectTooltip(nodeAction, tData);
+	end
+	return "";
+end
+-- getCastActionTooltip(nodeAction, tData)
+function getCastActionTooltip(nodeAction, _)
+	local tTooltip = {};
+	local sAutoKey = StringManager.trim(DB.getValue(nodeAction, "autokey", ""));
+	if sAutoKey == "" then
+		if (DB.getValue(nodeAction, "allowupcast", 0) == 1) then
+			table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_cast"), Interface.getString("power_tooltip_allowupcast")));
+		else
+			table.insert(tTooltip, Interface.getString("power_tooltip_cast"));
+		end
+	else
+		table.insert(tTooltip, StringManager.capitalizeAll(sAutoKey));
+	end
+	local sCast = PowerManager.getCastActionText(nodeAction);
+	if sCast ~= "" then
+		table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_target"), sCast));
+	end
+	return table.concat(tTooltip, "\r");
+end
+function getAttackActionTooltip(nodeAction, tData)
+	local tTooltip = {};
+	local sAutoKey = StringManager.trim(DB.getValue(nodeAction, "autokey", ""));
+	if sAutoKey ~= "" then
+		table.insert(tTooltip, StringManager.capitalizeAll(sAutoKey));
+	end
+	table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_attack"), PowerActionManagerCore.getActionText(nodeAction, tData)));
+	return table.concat(tTooltip, "\r");
+end
+function getSaveActionTooltip(nodeAction, tData)
+	local tTooltip = {};
+	local sAutoKey = StringManager.trim(DB.getValue(nodeAction, "autokey", ""));
+	if sAutoKey ~= "" then
+		table.insert(tTooltip, StringManager.capitalizeAll(sAutoKey));
+	end
+	table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_save"), PowerActionManagerCore.getActionText(nodeAction, tData)));
+	return table.concat(tTooltip, "\r");
+end
+function getDamageActionTooltip(nodeAction, tData)
+	local tTooltip = {};
+	local sAutoKey = StringManager.trim(DB.getValue(nodeAction, "autokey", ""));
+	if sAutoKey ~= "" then
+		table.insert(tTooltip, StringManager.capitalizeAll(sAutoKey));
+	end
+	table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_damage"), PowerActionManagerCore.getActionText(nodeAction, tData)));
+	return table.concat(tTooltip, "\r");
+end
+function getHealActionTooltip(nodeAction, tData)
+	local tTooltip = {};
+	local sAutoKey = StringManager.trim(DB.getValue(nodeAction, "autokey", ""));
+	if sAutoKey ~= "" then
+		table.insert(tTooltip, StringManager.capitalizeAll(sAutoKey));
+	end
+	table.insert(tTooltip, string.format("%s: %s", Interface.getString("power_tooltip_heal"), PowerActionManagerCore.getActionText(nodeAction, tData)));
+	return table.concat(tTooltip, "\r");
+end
+
+function performPCPowerAction(draginfo, nodeAction, sSubRoll)
+	if not draginfo and ((sSubRoll or "") == "") then
+		PowerManager5E.performPowerAction(nodeAction);
+		return;
+	end
+
+	local tData = { sSubRoll = sSubRoll, };
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if tData.rActor and rAction then
+		PowerManager.performAction(draginfo, tData.rActor, rAction, DB.getChild(nodeAction, "..."));
+	end
 end
 
 --
@@ -505,9 +614,15 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 end
 
 function evalAction(rActor, nodePower, rAction)
+	ActionsChoiceManager.performActionChoicesSubstitution(rAction);
+
+	if not rAction then
+		return;
+	end
+
 	local aPowerGroup = nil;
 
-	if (rAction.type == "cast") or (rAction.type == "attack") then
+	if (rAction.type == "attack") then
 		if (rAction.base or "") == "group" then
 			if not aPowerGroup then
 				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
@@ -534,7 +649,7 @@ function evalAction(rActor, nodePower, rAction)
 		end
 	end
 
-	if (rAction.type == "cast") or (rAction.type == "powersave") then
+	if (rAction.type == "powersave") then
 		if (rAction.save or "") == "base" then
 			if not aPowerGroup then
 				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
@@ -579,19 +694,25 @@ function evalAction(rActor, nodePower, rAction)
 					if aPowerGroup then
 						local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, aPowerGroup.sStat);
 						local nMult = tClause.statmult or 1;
+						if ((aPowerGroup.sStat or "") ~= "") and (nMult == 0) then
+							nMult = 1;
+						end
 						if nAbilityBonus > 0 and nMult ~= 1 then
 							nAbilityBonus = math.floor(nMult * nAbilityBonus);
 						end
-						tClause.modifier = tClause.modifier + nAbilityBonus;
+						tClause.modifier = (tClause.modifier or 0) + nAbilityBonus;
 						tClause.stat = aPowerGroup.sStat;
 					end
 				else
 					local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, tClause.stat);
 					local nMult = tClause.statmult or 1;
+					if ((tClause.stat or "") ~= "") and (nMult == 0) then
+						nMult = 1;
+					end
 					if nAbilityBonus > 0 and nMult ~= 1 then
 						nAbilityBonus = math.floor(nMult * nAbilityBonus);
 					end
-					tClause.modifier = tClause.modifier + nAbilityBonus;
+					tClause.modifier = (tClause.modifier or 0) + nAbilityBonus;
 				end
 			end
 		end
@@ -608,6 +729,21 @@ function evalAction(rActor, nodePower, rAction)
 		end
 		ActorEffectManager.evalEffectTags(rActor, rAction);
 	end
+
+	if aPowerGroup and ((aPowerGroup.sCasterType or "") == "memorization") then
+		rAction.bSpell = true;
+	end
+
+	if not rAction.tActionTags and rAction.nodeAction then
+		rAction.tActionTags = PowerManager5E.getPowerTags(nodePower, DB.getValue(rAction.nodeAction, "autokey", ""));
+		if rAction.bSpell then
+			table.insert(rAction.tActionTags, "spell");
+			table.insert(rAction.tActionTags, string.format("l%d", DB.getValue(nodePower, "level", 0)));
+		end
+		if rAction.bWeapon then
+			table.insert(rAction.tActionTags, "weapon");
+		end
+	end
 end
 
 function performAction(draginfo, rActor, rAction, nodePower)
@@ -617,40 +753,9 @@ function performAction(draginfo, rActor, rAction, nodePower)
 
 	PowerManager.evalAction(rActor, nodePower, rAction);
 
-	local rRolls = {};
-	if rAction.type == "cast" then
-		rAction.subtype = (rAction.subtype or "");
-		if rAction.subtype == "" then
-			table.insert(rRolls, ActionPower.getPowerCastRoll(rActor, rAction));
-		end
-		if ((rAction.subtype == "") or (rAction.subtype == "atk")) and rAction.range then
-			table.insert(rRolls, ActionAttack.getRoll(rActor, rAction));
-		end
-		if ((rAction.subtype == "") or (rAction.subtype == "save")) and ((rAction.save or "") ~= "") then
-			table.insert(rRolls, ActionPower.getSaveVsRoll(rActor, rAction));
-		end
-
-	elseif rAction.type == "attack" then
-		table.insert(rRolls, ActionAttack.getRoll(rActor, rAction));
-
-	elseif rAction.type == "powersave" then
-		table.insert(rRolls, ActionPower.getSaveVsRoll(rActor, rAction));
-
-	elseif rAction.type == "damage" then
-		table.insert(rRolls, ActionDamageD20.getRoll(rActor, rAction));
-
-	elseif rAction.type == "heal" then
-		table.insert(rRolls, ActionHealD20.getRoll(rActor, rAction));
-
-	elseif rAction.type == "effect" then
-		local rRoll = ActionEffect.getRoll(draginfo, rActor, rAction);
-		if rRoll then
-			table.insert(rRolls, rRoll);
-		end
-	end
-
-	if #rRolls > 0 then
-		ActionsManager.performMultiAction(draginfo, rActor, rRolls[1].sType, rRolls);
+	local rRoll = PowerManager.getRollFromActionData(rActor, rAction);
+	if rRoll then
+		ActionsManager.performMultiAction(draginfo, rActor, rRoll.sType, { rRoll });
 	end
 	return true;
 end
@@ -681,9 +786,9 @@ function parseAttacks(sPowerName, aWords)
 						modifier = tonumber(aWords[nIndex]) or 0,
 					};
 					if StringManager.isWord(aWords[i - 1], "melee") then
-						rAttack.range = "M";
+						rAttack.atktype = "melee";
 					elseif StringManager.isWord(aWords[i - 1], "ranged") then
-						rAttack.range = "R";
+						rAttack.atktype = "ranged";
 					end
 					if StringManager.isWord(aWords[nIndex + 1], "reach") then
 						rAttack.rangedist = aWords[nIndex + 2];
@@ -715,10 +820,10 @@ function parseAttacks(sPowerName, aWords)
 					end
 
 					if StringManager.isWord(aWords[i-2], "melee") then
-						rAttack.range = "M";
+						rAttack.atktype = "melee";
 						rAttack.startindex = i - 2;
 					elseif StringManager.isWord(aWords[i-2], "ranged") then
-						rAttack.range = "R";
+						rAttack.atktype = "ranged";
 						rAttack.startindex = i - 2;
 					end
 
@@ -771,9 +876,9 @@ function parseAttacks(sPowerName, aWords)
 						end
 
 						if StringManager.isWord(aWords[i-2], "melee") then
-							rAttack.range = "M";
+							rAttack.atktype = "melee";
 						elseif StringManager.isWord(aWords[i-2], "ranged") then
-							rAttack.range = "R";
+							rAttack.atktype = "ranged";
 						end
 
 						rAttack.modifier = 0;
@@ -1029,6 +1134,9 @@ function parseDamages(sPowerName, aWords, bMagic)
 	local damages = {};
 
 	local bMagicAttack = false;
+	local bCantripUpgrade = false;
+	local bHigherLevels = false;
+	local tHigherLevelDice, nHigherLevelMod;
 
 	local i = 1;
 	while aWords[i] do
@@ -1049,9 +1157,9 @@ function parseDamages(sPowerName, aWords, bMagic)
 			if rDamage then
 				rDamage.label = sPowerName;
 				if StringManager.isWord(aWords[1], "ranged") then
-					rDamage.range = "R";
+					rDamage.atktype = "ranged";
 				elseif StringManager.isWord(aWords[1], "melee") then
-					rDamage.range = "M";
+					rDamage.atktype = "melee";
 				end
 
 				table.insert(damages, rDamage);
@@ -1067,6 +1175,16 @@ function parseDamages(sPowerName, aWords, bMagic)
 				sRange = "M";
 			elseif StringManager.isWord(aWords[i + 3], "feet") then
 				sRange = "R";
+			end
+		elseif StringManager.isWord(aWords[i], "cantrip") and StringManager.isWord(aWords[i + 1], "upgrade") then
+			bCantripUpgrade = true;
+		elseif StringManager.isWord(aWords[i], "using") and StringManager.isWord(aWords[i + 1], "a") and
+				StringManager.isWord(aWords[i], "higher") and StringManager.isWord(aWords[i + 1], "level") and
+				StringManager.isWord(aWords[i], "spell") and StringManager.isWord(aWords[i + 1], "slot") then
+			bHigherLevels = true;
+		elseif bHigherLevels and not tHigherLevelDice then
+			if StringManager.isDiceString(aWords[i + 2]) then
+				tHigherLevelDice, nHigherLevelMod = StringManager.convertStringToDice(aWords[i + 2]);
 			end
 		end
 
@@ -1093,6 +1211,27 @@ function parseDamages(sPowerName, aWords, bMagic)
 		end
 	end
 
+	-- HANDLE CANTRIP UPGRADE
+	if bCantripUpgrade then
+		for _,rDamage in ipairs(damages) do
+			for _, rClause in ipairs(rDamage.clauses) do
+				local sDamageDie = rClause.dice and rClause.dice[1];
+				if sDamageDie then
+					rClause.scaledice = { sDamageDie, };
+					rClause.scalestat = "cantrip";
+				end
+			end
+		end
+	-- HANDLE UPCAST
+	elseif tHigherLevelDice then
+		local tClause = damages[1] and damages[1].clauses[1];
+		if tClause then
+			tClause.scaledice = tHigherLevelDice;
+			tClause.scalebonus = nHigherLevelMod;
+			tClause.scalestat = "upcast";
+		end
+	end
+
 	-- RESULTS
 	return damages;
 end
@@ -1109,6 +1248,9 @@ end
 
 function parseHeals(sPowerName, aWords)
 	local heals = {};
+
+	local bHigherLevels = false;
+	local tHigherLevelDice, nHigherLevelMod;
 
 	-- Iterate through the words looking for clauses
 	local i = 1;
@@ -1312,10 +1454,28 @@ function parseHeals(sPowerName, aWords)
 			if rHeal then
 				table.insert(heals, rHeal);
 			end
+		elseif StringManager.isWord(aWords[i], "using") and StringManager.isWord(aWords[i + 1], "a") and
+				StringManager.isWord(aWords[i], "higher") and StringManager.isWord(aWords[i + 1], "level") and
+				StringManager.isWord(aWords[i], "spell") and StringManager.isWord(aWords[i + 1], "slot") then
+			bHigherLevels = true;
+		elseif bHigherLevels and not tHigherLevelDice then
+			if StringManager.isDiceString(aWords[i + 2]) then
+				tHigherLevelDice, nHigherLevelMod = StringManager.convertStringToDice(aWords[i + 2]);
+			end
 		end
 
 		-- Increment our counter
 		i = i + 1;
+	end
+
+	-- HANDLE UPCAST
+	if tHigherLevelDice then
+		local tClause = heals[1] and heals[1].clauses[1];
+		if tClause then
+			tClause.scaledice = tHigherLevelDice;
+			tClause.scalebonus = nHigherLevelMod;
+			tClause.scalestat = "upcast";
+		end
 	end
 
 	return heals;
@@ -1368,6 +1528,7 @@ function parseSaves(sPowerName, aWords, bPC, bMagic)
 			rSave.endindex = i+10;
 			rSave.label = sPowerName;
 			rSave.save = "base";
+			rSave.savedcbase = "ability";
 			rSave.savestat = aWords[i+5];
 			rSave.saveprof = 1;
 
@@ -1500,6 +1661,7 @@ function helperParseSaveStandard(sPowerName, aWords, _, _, nStart, nEnd, tSaves)
 			endindex = nEnd,
 			label = sPowerName,
 			save = sAbility,
+			savedcbase = "fixed",
 			savemod = nDC,
 		};
 
@@ -1550,7 +1712,14 @@ function parseEffectsAdd(aWords, _, rEffect, effects)
 			StringManager.isWord(aWords[nDurIndex + 4], { "its", "your" }) and
 			StringManager.isWord(aWords[nDurIndex + 5], "next") and
 			StringManager.isWord(aWords[nDurIndex + 6], "turn") then
-		rEffect.nDuration = 1;
+		if StringManager.isWord(aWords[nDurIndex + 2], "end") then
+			rEffect.sExpiration = "endnext";
+		else
+			rEffect.nDuration = 1;
+		end
+		if StringManager.isWord(aWords[nDurIndex + 4], "its") then
+			rEffect.sInitSource = "target";
+		end
 		rEffect.endindex = nDurIndex + 6;
 
 	elseif StringManager.isWord(aWords[nDurIndex], { "until", "at" }) and
@@ -1560,7 +1729,11 @@ function parseEffectsAdd(aWords, _, rEffect, effects)
 			StringManager.isWord(aWords[nDurIndex + 4], "the") and
 			StringManager.isWord(aWords[nDurIndex + 6], "next") and
 			StringManager.isWord(aWords[nDurIndex + 7], "turn") then
-		rEffect.nDuration = 1;
+		if StringManager.isWord(aWords[nDurIndex + 2], "end") then
+			rEffect.sExpiration = "endnext";
+		else
+			rEffect.nDuration = 1;
+		end
 		rEffect.endindex = nDurIndex + 7;
 
 	elseif StringManager.isWord(aWords[nDurIndex], "until") and
@@ -1568,6 +1741,7 @@ function parseEffectsAdd(aWords, _, rEffect, effects)
 			StringManager.isWord(aWords[nDurIndex + 2], "next") and
 			StringManager.isWord(aWords[nDurIndex + 3], "turn") then
 		rEffect.nDuration = 1;
+		rEffect.sInitSource = "target";
 		rEffect.endindex = nDurIndex + 3;
 
 	elseif StringManager.isWord(aWords[nDurIndex], "until") and
@@ -1643,7 +1817,11 @@ function parseEffects(sPowerName, aWords)
 						if v.dmgtype and v.dmgtype ~= "" then
 							sDmg = sDmg .. " " .. v.dmgtype;
 						end
-						table.insert(aName, "DMGO: " .. sDmg);
+						if StringManager.isWord(aWords[i+3], "end") then
+							table.insert(aName, "DMGOE: " .. sDmg);
+						else
+							table.insert(aName, "DMGO: " .. sDmg);
+						end
 					end
 					rCurrent.clauses = nil;
 					rCurrent.sName = table.concat(aName, "; ");
@@ -1896,9 +2074,9 @@ function parseEffects(sPowerName, aWords)
 				rCurrent.startindex = i-1;
 				rCurrent.endindex = i;
 			end
-		elseif StringManager.isWord(aWords[i], {"gain", "gains", "suffer", "suffers", "take"}) and 
+		elseif StringManager.isWord(aWords[i], {"gain", "gains", "suffer", "suffers", "take"}) and
 				StringManager.isWord(aWords[i + 2], { "level", "levels" }) and
-				StringManager.isWord(aWords[i + 3], "of") and 
+				StringManager.isWord(aWords[i + 3], "of") and
 				StringManager.isWord(aWords[i + 4], "exhaustion") then
 			local nLevel = CharBuildManager.convertSingleNumberTextToNumber(aWords[i + 1]);
 			if StringManager.isWord(aWords[i + 1], "another") then
@@ -2067,31 +2245,78 @@ function cleanNPCPowerName(s)
 	return StringManager.trim(sResult);
 end
 
-function getPowerActions(nodePower, bNPC)
+function getPowerActions(nodePower, bNPC, tData)
 	if not nodePower then
 		return nil;
 	end
 
-	local sPowerKey;
+	local sPowerName;
 	if bNPC then
-		sPowerKey = PowerManager.cleanNPCPowerName(DB.getValue(nodePower, "name", ""));
+		sPowerName = PowerManager.cleanNPCPowerName(DB.getValue(nodePower, "name", ""));
 	else
-		sPowerKey = DB.getValue(nodePower, "name", "");
+		sPowerName = DB.getValue(nodePower, "name", "");
 	end
 
-	if DB.getValue(nodePower, "version", "") == "2024" then
-		sPowerKey = StringManager.simplify(sPowerKey);
-		if DataSpell.tBuildDataSpell2024[sPowerKey] then
-			return UtilityManager.copyDeep(DataSpell.tBuildDataSpell2024[sPowerKey]);
+	local sClass = tData and tData.sClass or ""
+	if StringManager.contains({ "reference_spell", "power", "", }, sClass) then
+		local tFilters = {
+			{ sField = "name", sValue = sPowerName, bIgnoreCase = true, },
+			{ sField = "version", sValue = (OptionsManager.isOption("GAVE", "2024") and "2024" or ""), },
+		};
+		local tData = {};
+		RecordManager.callForEachRecordByFilter("spell", tFilters, PowerManager.helperGetPowerActions, tData);
+		if tData.tActions then
+			return tData.tActions;
 		end
-	else
-		sPowerKey = StringManager.simplify(sPowerKey);
-		if DataSpell.parsedata[sPowerKey] then
-			return UtilityManager.copyDeep(DataSpell.parsedata[sPowerKey]);
+	elseif (tData and tData.node) and StringManager.contains({ "reference_classfeature", "reference_classfeaturechoice", }, sClass) then
+		local sPowerKey = StringManager.simplify(sPowerName);
+		if DB.getValue(tData.node, "...version", "") == "2024" then
+			if CharWizardDataAction.tBuildDataClass2024[sPowerKey] and CharWizardDataAction.tBuildDataClass2024[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.tBuildDataClass2024[sPowerKey].actions);
+			end
+		else
+			if CharWizardDataAction.parsedata[sPowerKey] and CharWizardDataAction.parsedata[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.parsedata[sPowerKey].actions);
+			end
+		end
+	elseif (tData and tData.node) and StringManager.contains({ "reference_racialtrait", "reference_subracialtrait", }, sClass) then
+		local sPowerKey = StringManager.simplify(sPowerName);
+		if DB.getValue(tData.node, "...version", "") == "2024" then
+			if CharWizardDataAction.tBuildDataSpecies2024[sPowerKey] and CharWizardDataAction.tBuildDataSpecies2024[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.tBuildDataClass2024[sPowerKey].actions);
+			end
+		else
+			if CharWizardDataAction.parsedata[sPowerKey] and CharWizardDataAction.parsedata[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.parsedata[sPowerKey].actions);
+			end
+		end
+	elseif (tData and tData.node) and StringManager.contains({ "reference_feat", }, sClass) then
+		local sPowerKey = StringManager.simplify(sPowerName);
+		if DB.getValue(tData.node, "version", "") == "2024" then
+			if CharWizardDataAction.tBuildDataFeat2024[sPowerKey] and CharWizardDataAction.tBuildDataFeat2024[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.tBuildDataClass2024[sPowerKey].actions);
+			end
+		else
+			if CharWizardDataAction.parsedata[sPowerKey] and CharWizardDataAction.parsedata[sPowerKey].actions then
+				return UtilityManager.copyDeep(CharWizardDataAction.parsedata[sPowerKey].actions);
+			end
 		end
 	end
 
 	return nil;
+end
+function helperGetPowerActions(nodeRecord, tData)
+	if not tData then
+		return;
+	end
+	if tData.tActions then
+		return;
+	end
+	local tActions = PowerManager.getPowerActionsData(nodeRecord);
+	if #tActions <= 0 then
+		return;
+	end
+	tData.tActions = tActions;
 end
 
 function parseNPCPower(nodePower, bAllowSpellDataOverride)
@@ -2143,7 +2368,9 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 	-- Make sure correct duration applied to NPC spell effects
 	if bSpell then
 		for _,v in ipairs(tActions) do
-			v.bSpell = true;
+			if not v.bWeapon and not v.bSpell then
+				v.bSpell = true;
+			end
 		end
 
 		local sDuration, sUnits = sPowerDesc:lower():match("duration: concentration, up to (%d+) (%w+)");
@@ -2167,6 +2394,12 @@ function parseNPCPower(nodePower, bAllowSpellDataOverride)
 						end
 					end
 				end
+			end
+		end
+	else
+		for _,v in ipairs(tActions) do
+			if not v.bWeapon and not v.bSpell then
+				v.bWeapon = true;
 			end
 		end
 	end
@@ -2193,323 +2426,858 @@ function getNPCPowerVariables(nodePower)
 	};
 	return tVars;
 end
+function parseNPCPowerDesc(nodePower)
+	local tActions = PowerManager.parseNPCPower(nodePower);
+	local tPowerTags = PowerManager5E.getPowerTagsFromActions(tActions);
+	for _,tActionData in ipairs(tActions) do
+		tActionData.tActionTags = tPowerTags;
+	end
+	return tActions;
+end
 
-function parsePCPower(nodePower)
-	-- CLean out old actions
-	local nodeActions = DB.createChild(nodePower, "actions");
-	DB.deleteChildren(nodeActions);
-
-	-- Track whether cast action already created
-	local nodeCastAction = nil;
+function parsePCPower(nodePower, tData)
+	if not nodePower then
+		return;
+	end
 
 	-- Pull the actions from the spell data table (if available)
-	local tActions = PowerManager.getPowerActions(nodePower);
-	if tActions then
-		for _,vAction in ipairs(tActions) do
-			if vAction.type then
-				if vAction.type == "attack" then
-					if not nodeCastAction or (DB.getValue(nodeCastAction, "atktype", "") ~= "") then
-						nodeCastAction = DB.createChild(nodeActions);
-						DB.setValue(nodeCastAction, "type", "string", "cast");
-					end
-					if nodeCastAction then
-						if vAction.range == "R" then
-							DB.setValue(nodeCastAction, "atktype", "string", "ranged");
-						else
-							DB.setValue(nodeCastAction, "atktype", "string", "melee");
-						end
-
-						if vAction.modifier then
-							DB.setValue(nodeCastAction, "atkbase", "string", "fixed");
-							DB.setValue(nodeCastAction, "atkmod", "number", tonumber(vAction.modifier) or 0);
-						end
-					end
-
-				elseif vAction.type == "damage" then
-					local nodeAction = DB.createChild(nodeActions);
-					DB.setValue(nodeAction, "type", "string", "damage");
-
-					local nodeDmgList = DB.createChild(nodeAction, "damagelist");
-					for _,vDamage in ipairs(vAction.clauses) do
-						local nodeEntry = DB.createChild(nodeDmgList);
-
-						DB.setValue(nodeEntry, "dice", "dice", vDamage.dice);
-						DB.setValue(nodeEntry, "bonus", "number", vDamage.bonus);
-						if vDamage.stat then
-							DB.setValue(nodeEntry, "stat", "string", vDamage.stat);
-						end
-						if vDamage.statmult then
-							DB.setValue(nodeEntry, "statmult", "number", vDamage.statmult);
-						end
-						DB.setValue(nodeEntry, "type", "string", vDamage.dmgtype);
-					end
-
-				elseif vAction.type == "heal" then
-					local nodeAction = DB.createChild(nodeActions);
-					DB.setValue(nodeAction, "type", "string", "heal");
-
-					if (vAction.subtype or "") ~= "" then
-						DB.setValue(nodeAction, "healtype", "string", vAction.subtype);
-					end
-					if vAction.sTargeting then
-						DB.setValue(nodeAction, "healtargeting", "string", vAction.sTargeting);
-					end
-
-					local nodeHealList = DB.createChild(nodeAction, "heallist");
-					for _,vHeal in ipairs(vAction.clauses) do
-						local nodeEntry = DB.createChild(nodeHealList);
-
-						DB.setValue(nodeEntry, "dice", "dice", vHeal.dice);
-						DB.setValue(nodeEntry, "bonus", "number", vHeal.bonus);
-						if vHeal.stat then
-							DB.setValue(nodeEntry, "stat", "string", vHeal.stat);
-						end
-						if vHeal.statmult then
-							DB.setValue(nodeEntry, "statmult", "number", vHeal.statmult);
-						end
-					end
-
-				elseif vAction.type == "powersave" then
-					if not nodeCastAction or (DB.getValue(nodeCastAction, "savetype", "") ~= "") then
-						nodeCastAction = DB.createChild(nodeActions);
-						DB.setValue(nodeCastAction, "type", "string", "cast");
-					end
-					if nodeCastAction then
-						DB.setValue(nodeCastAction, "savetype", "string", vAction.save);
-						DB.setValue(nodeCastAction, "savemagic", "number", 1);
-
-						if vAction.savemod then
-							DB.setValue(nodeCastAction, "savedcbase", "string", "fixed");
-							DB.setValue(nodeCastAction, "savedcmod", "number", tonumber(vAction.savemod) or 8);
-						elseif vAction.savestat then
-							if vAction.savestat ~= "base" then
-								DB.setValue(nodeCastAction, "savedcbase", "string", "ability");
-								DB.setValue(nodeCastAction, "savedcstat", "string", vAction.savestat);
-							end
-						end
-						if vAction.onmissdamage == "half" then
-							DB.setValue(nodeCastAction, "onmissdamage", "string", "half");
-						end
-					end
-
-				elseif vAction.type == "effect" then
-					local nodeAction = DB.createChild(nodeActions);
-					DB.setValue(nodeAction, "type", "string", "effect");
-
-					DB.setValue(nodeAction, "label", "string", vAction.sName);
-
-					if vAction.sTargeting then
-						DB.setValue(nodeAction, "targeting", "string", vAction.sTargeting);
-					end
-					if vAction.sApply then
-						DB.setValue(nodeAction, "apply", "string", vAction.sApply);
-					end
-
-					local nDuration = tonumber(vAction.nDuration) or 0;
-					if nDuration ~= 0 then
-						DB.setValue(nodeAction, "durmod", "number", nDuration);
-						DB.setValue(nodeAction, "durunit", "string", vAction.sUnits);
-					end
-
-				end
-			end
-		end
 	-- Otherwise, parse the power description for actions
+	local tActions = PowerManager.getPowerActions(nodePower, false, tData) or PowerManager.parsePCPowerActions(nodePower);
+
+	-- Add any actions for the power
+	PowerManager.rebuildPowerActions(nodePower, tActions);
+end
+function parsePCPowerActions(nodePower)
+	if not nodePower then
+		return nil;
+	end
+
+	local sPowerName = DB.getValue(nodePower, "name", "");
+	local sPowerDesc = DB.getValue(nodePower, "description", "");
+
+	-- Get the power duration
+	local nDuration = 0;
+	local sDurationUnits = "";
+	local bConcentration = false;
+	local sPowerDuration = DB.getValue(nodePower, "duration", "");
+	local aDurationWords = StringManager.parseWords(sPowerDuration:lower());
+
+	local j = 1;
+	if StringManager.isWord(aDurationWords[j], "concentration") and StringManager.isWord(aDurationWords[j+1], "up") and StringManager.isWord(aDurationWords[j+2], "to") then
+		bConcentration = true;
+		j = j + 3;
+	elseif StringManager.isWord(aDurationWords[j], "up") and StringManager.isWord(aDurationWords[j+1], "to") then
+		j = j + 2;
+	end
+	if StringManager.isNumberString(aDurationWords[j]) and StringManager.isWord(aDurationWords[j+1], {"round", "rounds", "minute", "minutes", "hour", "hours", "day", "days"}) then
+		nDuration = tonumber(aDurationWords[j]) or 0;
+		if StringManager.isWord(aDurationWords[j+1], {"minute", "minutes"}) then
+			sDurationUnits = "minute";
+		elseif StringManager.isWord(aDurationWords[j+1], {"hour", "hours"}) then
+			sDurationUnits = "hour";
+		elseif StringManager.isWord(aDurationWords[j+1], {"day", "days"}) then
+			sDurationUnits = "day";
+		end
+	end
+
+	-- Determine whether this power is a spell
+	local bMagic = false;
+	local sGroup = DB.getValue(nodePower, "group", "");
+	local bFoundGroup = false;
+	local nodeActor = DB.getChild(nodePower, "...");
+	for _,v in ipairs(DB.getChildList(nodeActor, "powergroup")) do
+		if DB.getValue(v, "name", "") == sGroup then
+			bFoundGroup = true;
+			if DB.getValue(v, "castertype", "") == "memorization" then
+				bMagic = true;
+			end
+			break;
+		end
+	end
+	if not bFoundGroup then
+		bMagic = (sGroup == Interface.getString("char_spell_powergroup_base"));
+	end
+
+	-- Parse the description
+	local tData = {
+		sName = sPowerName,
+		sDesc = sPowerDesc,
+		bMagic = bMagic,
+		bPC = true,
+		nodePower = nodePower,
+	};
+	local tActions = PowerManager.parsePower(tData);
+
+	-- Handle effect duration based on spell
+	local bEffectFound = false;
+	local bConcEffectFound = false;
+	for _,v in ipairs(tActions) do
+		if v.type == "effect" then
+			if ((v.nDuration or 0) == 0) and (nDuration ~= 0) and (v.sName ~= "Prone") then
+				if bConcentration then
+					bConcEffectFound = true;
+					v.sName = v.sName .. "; (C)";
+				end
+				bEffectFound = true;
+				v.nDuration = nDuration;
+				v.sUnits = sDurationUnits;
+			end
+		end
+	end
+	if bConcentration then
+		if not bConcEffectFound then
+			table.insert(tActions, 1, { type = "effect", sName = sPowerName .. "; (C)", sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
+		end
 	else
-		local sPowerName = DB.getValue(nodePower, "name", "");
-		local sPowerDesc = DB.getValue(nodePower, "description", "");
-
-		-- Get the power duration
-		local nDuration = 0;
-		local sDurationUnits = "";
-		local bConcentration = false;
-		local sPowerDuration = DB.getValue(nodePower, "duration", "");
-		local aDurationWords = StringManager.parseWords(sPowerDuration:lower());
-
-		local j = 1;
-		if StringManager.isWord(aDurationWords[j], "concentration") and StringManager.isWord(aDurationWords[j+1], "up") and StringManager.isWord(aDurationWords[j+2], "to") then
-			bConcentration = true;
-			j = j + 3;
-		elseif StringManager.isWord(aDurationWords[j], "up") and StringManager.isWord(aDurationWords[j+1], "to") then
-			j = j + 2;
+		if not bEffectFound and (nDuration > 0) then
+			table.insert(tActions, 1, { type = "effect", sName = sPowerName, sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
 		end
-		if StringManager.isNumberString(aDurationWords[j]) and StringManager.isWord(aDurationWords[j+1], {"round", "rounds", "minute", "minutes", "hour", "hours", "day", "days"}) then
-			nDuration = tonumber(aDurationWords[j]) or 0;
-			if StringManager.isWord(aDurationWords[j+1], {"minute", "minutes"}) then
-				sDurationUnits = "minute";
-			elseif StringManager.isWord(aDurationWords[j+1], {"hour", "hours"}) then
-				sDurationUnits = "hour";
-			elseif StringManager.isWord(aDurationWords[j+1], {"day", "days"}) then
-				sDurationUnits = "day";
-			end
-		end
+	end
 
-		-- Determine whether this power is a spell
-		local bMagic = false;
-		local sGroup = DB.getValue(nodePower, "group", "");
-		local bFoundGroup = false;
+	return tActions;
+end
+
+--
+--	POWER ACTION STRUCTURE BUILD FROM DB
+--
+
+function getPowerAction(nodeAction, tData)
+	if not nodeAction then
+		return nil;
+	end
+	local rAction = PowerManager.getActionData(nodeAction);
+	if not rAction then
+		return nil;
+	end
+
+	tData = tData or {};
+	local nodePower = DB.getChild(nodeAction, "...");
+	if not tData.rActor and PowerManager.isActorPowerAction(nodeAction) then
 		local nodeActor = DB.getChild(nodePower, "...");
-		for _,v in ipairs(DB.getChildList(nodeActor, "powergroup")) do
-			if DB.getValue(v, "name", "") == sGroup then
-				bFoundGroup = true;
-				if DB.getValue(v, "castertype", "") == "memorization" then
-					bMagic = true;
-				end
-				break;
-			end
-		end
-		if not bFoundGroup then
-			bMagic = (sGroup == Interface.getString("char_spell_powergroup_base"));
-		end
+		tData.rActor = ActorManager.resolveActor(nodeActor);
+	end
 
-		-- Parse the description
-		local tData = {
-			sName = sPowerName,
-			sDesc = sPowerDesc,
-			bMagic = bMagic,
-			bPC = true,
-			nodePower = nodePower,
-		};
-		local aActions = PowerManager.parsePower(tData);
-
-		-- Handle effect duration based on spell
-		local bEffectFound = false;
-		local bConcEffectFound = false;
-		for _,v in ipairs(aActions) do
-			if v.type == "effect" then
-				if ((v.nDuration or 0) == 0) and (nDuration ~= 0) and (v.sName ~= "Prone") then
-					if bConcentration then
-						bConcEffectFound = true;
-						v.sName = v.sName .. "; (C)";
-					end
-					bEffectFound = true;
-					v.nDuration = nDuration;
-					v.sUnits = sDurationUnits;
-				end
+	if tData.rActor then
+		local rPowerGroup = PowerManager.getPowerGroupRecord(tData.rActor, nodePower);
+		if rPowerGroup then
+			rAction.bSpell = ((rPowerGroup.sCasterType or "") == "memorization");
+		end
+		if rAction.tActionTags then
+			if not StringManager.contains(rAction.tActionTags, "spell") then
+				table.insert(rAction.tActionTags, "spell")
 			end
 		end
-		if bConcentration then
-			if not bConcEffectFound then
-				table.insert(aActions, 1, { type = "effect", sName = sPowerName .. "; (C)", sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
-			end
-		else
-			if not bEffectFound and (nDuration > 0) then
-				table.insert(aActions, 1, { type = "effect", sName = sPowerName, sTargeting="self", nDuration = nDuration, sUnits = sDurationUnits });
+	end
+
+	if rAction.type == "cast" then
+		if rAction.targeting == "multihit" then
+			rAction.multihit = math.max(rAction.targetingval, 1);
+			if rAction.targetscalestat == "cantrip" then
+				rAction.multihit = rAction.multihit + (PowerManager5E.getSpellCantripBoost(tData.rActor) * math.max(rAction.targetscalemult, 1));
+			elseif rAction.targetscalestat == "upcast" then
+				rAction.multihit = rAction.multihit + (PowerManager5E.getSpellUpcast(nodePower) * math.max(rAction.targetscalemult, 1));
 			end
 		end
 
-		-- Translate parsed power records into entries in the PC Actions tab
-		local bAttackFound = false;
-		for _, v in ipairs(aActions) do
-			if v.type == "attack" then
-				if not bAttackFound then
-					bAttackFound = true;
-					if not nodeCastAction then
-						nodeCastAction = DB.createChild(nodeActions);
-						DB.setValue(nodeCastAction, "type", "string", "cast");
+	elseif rAction.type == "damage" then
+		for _,tClause in ipairs(rAction.clauses) do
+			local nScaleMult;
+			if (tClause.scalestat or "") == "cantrip" then
+				nScaleMult = PowerManager5E.getSpellCantripBoost(tData.rActor);
+			elseif (tClause.scalestat or "") == "upcast" then
+				nScaleMult = PowerManager5E.getSpellUpcast(nodePower);
+			end
+			if (nScaleMult or 0) > 0 then
+				for _ = 1, nScaleMult do
+					for _,vDie in ipairs(tClause.scaledice or {}) do
+						table.insert(tClause.dice, vDie);
 					end
-					if nodeCastAction then
-						if v.range == "R" then
-							DB.setValue(nodeCastAction, "atktype", "string", "ranged");
-						else
-							DB.setValue(nodeCastAction, "atktype", "string", "melee");
-						end
-
-						if v.bSpell then
-							-- Use group attack mod
-						else
-							DB.setValue(nodeCastAction, "atkbase", "string", "fixed");
-							DB.setValue(nodeCastAction, "atkmod", "number", v.modifier);
-						end
-					end
+					tClause.modifier = (tClause.modifier or 0) + (tClause.scalebonus or 0);
 				end
+			end
+		end
 
-			elseif v.type == "damage" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "damage");
-
-				local nodeDmgList = DB.createChild(nodeAction, "damagelist");
-				for _,vDamage in ipairs(v.clauses) do
-					local nodeEntry = DB.createChild(nodeDmgList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vDamage.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vDamage.modifier);
-					if vDamage.stat then
-						DB.setValue(nodeEntry, "stat", "string", vDamage.stat);
+	elseif rAction.type == "heal" then
+		for _,tClause in ipairs(rAction.clauses) do
+			local nScaleMult;
+			if (tClause.scalestat or "") == "cantrip" then
+				nScaleMult = PowerManager5E.getSpellCantripBoost(tData.rActor);
+			elseif (tClause.scalestat or "") == "upcast" then
+				nScaleMult = PowerManager5E.getSpellUpcast(nodePower);
+			end
+			if (nScaleMult or 0) > 0 then
+				for _ = 1, nScaleMult do
+					for _,vDie in ipairs(tClause.scaledice or {}) do
+						table.insert(tClause.dice, vDie);
 					end
-					if vDamage.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vDamage.statmult);
-					end
-					DB.setValue(nodeEntry, "type", "string", vDamage.dmgtype);
-				end
-
-			elseif v.type == "heal" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "heal");
-
-				if v.subtype == "temp" then
-					DB.setValue(nodeAction, "healtype", "string", "temp");
-				end
-				if v.sTargeting then
-					DB.setValue(nodeAction, "healtargeting", "string", v.sTargeting);
-				end
-
-				local nodeHealList = DB.createChild(nodeAction, "heallist");
-				for _,vHeal in ipairs(v.clauses) do
-					local nodeEntry = DB.createChild(nodeHealList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vHeal.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vHeal.modifier);
-					if vHeal.stat then
-						DB.setValue(nodeEntry, "stat", "string", vHeal.stat);
-					end
-					if vHeal.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vHeal.statmult);
-					end
-				end
-
-			elseif v.type == "powersave" then
-				if not nodeCastAction then
-					nodeCastAction = DB.createChild(nodeActions);
-					DB.setValue(nodeCastAction, "type", "string", "cast");
-				end
-				if nodeCastAction then
-					DB.setValue(nodeCastAction, "savetype", "string", v.save);
-					if v.magic then
-						DB.setValue(nodeCastAction, "savemagic", "number", 1);
-					end
-					if v.savestat then
-						if v.savestat ~= "base" then
-							DB.setValue(nodeCastAction, "savedcbase", "string", "ability");
-							DB.setValue(nodeCastAction, "savedcstat", "string", v.savestat);
-						end
-					elseif v.savemod then
-						DB.setValue(nodeCastAction, "savedcbase", "string", "fixed");
-						DB.setValue(nodeCastAction, "savedcmod", "number", v.savemod);
-					end
-					if v.onmissdamage == "half" then
-						DB.setValue(nodeCastAction, "onmissdamage", "string", "half");
-					end
-				end
-
-			elseif v.type == "effect" then
-				local nodeAction = DB.createChild(nodeActions);
-				if nodeAction then
-					DB.setValue(nodeAction, "type", "string", "effect");
-
-					DB.setValue(nodeAction, "label", "string", v.sName);
-					if v.sTargeting then
-						DB.setValue(nodeAction, "targeting", "string", v.sTargeting);
-					end
-					if v.sApply then
-						DB.setValue(nodeAction, "apply", "string", v.sApply);
-					end
-					if (v.nDuration or 0) ~= 0 then
-						DB.setValue(nodeAction, "durmod", "number", v.nDuration);
-						DB.setValue(nodeAction, "durunit", "string", v.sUnits);
-					end
+					tClause.modifier = (tClause.modifier or 0) + (tClause.scalebonus or 0);
 				end
 			end
 		end
 	end
+
+	return rAction;
+end
+function getPowerActionsData(nodePower)
+	if not nodePower then
+		return {};
+	end
+
+	local tActions = {};
+	for _, nodeAction in ipairs(DB.getChildList(nodePower, "actions")) do
+		table.insert(tActions, PowerManager.getActionData(nodeAction));
+	end
+	return tActions;
+end
+
+function getActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+	local sActionType = DB.getValue(nodeAction, "type", "");
+	if sActionType == "cast" then
+		return PowerManager.getCastActionData(nodeAction);
+	elseif sActionType == "attack" then
+		return PowerManager.getAttackActionData(nodeAction);
+	elseif sActionType == "powersave" then
+		return PowerManager.getSaveActionData(nodeAction);
+	elseif sActionType == "damage" then
+		return PowerManager.getDamageActionData(nodeAction);
+	elseif sActionType == "heal" then
+		return PowerManager.getHealActionData(nodeAction);
+	elseif sActionType == "effect" then
+		return PowerManager.getEffectActionData(nodeAction);
+	end
+	return nil;
+end
+function getCastActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+	local tActionData = {
+		type = "cast",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+		bAllowUpcast = (DB.getValue(nodeAction, "allowupcast", 0) == 1),
+		sTargeting = DB.getValue(nodeAction, "targeting", ""),
+		nTargeting = DB.getValue(nodeAction, "targetingval", 0),
+		nTargetingH = DB.getValue(nodeAction, "targetingval2", 0),
+		sTargetScaleStat = DB.getValue(nodeAction, "targetscalestat", ""),
+		nTargetScaleMult = DB.getValue(nodeAction, "targetscalemult", 0),
+		sAutoKeyChoice = DB.getValue(nodeAction, "autokeychoice", ""),
+		tChoices = {},
+	};
+
+	for _, nodeChoice in ipairs(DB.getChildList(nodeAction, "choicelist")) do
+		local sTag = DB.getValue(nodeChoice, "tag", "");
+		local sOptions = DB.getValue(nodeChoice, "options", "");
+		if (sTag ~= "") and (sOptions ~= "") then
+			table.insert(tActionData.tChoices, { sTag = sTag, sOptions = sOptions, bAllowMult = (DB.getValue(nodeChoice, "allowmult", 0) == 1), });
+		end
+	end
+	return tActionData;
+end
+function getAttackActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+
+	local sAttack = DB.getValue(nodeAction, "atktype", "");
+	if sAttack == "" then
+		return nil;
+	end
+
+	local tActionData = {
+		type = "attack",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+		atktype = sAttack,
+		atkbase = DB.getValue(nodeAction, "atkbase", ""),
+		range = ((sAttack == "ranged") and "R") or "M",
+		onmissdamage = (DB.getValue(nodeAction, "onmissdamage", "") == "half") and "half" or "",
+	};
+
+	if tActionData.range == "R" then
+		local nodePower = DB.getChild(nodeAction, "...");
+		tActionData.nRange = tonumber(DB.getValue(nodePower, "range", ""):lower():match("%d+")) or 0;
+		tActionData.nRangeLong = 0;
+	end
+
+	if tActionData.atkbase == "fixed" then
+		tActionData.base = "fixed";
+		tActionData.modifier = DB.getValue(nodeAction, "atkmod", 0);
+	elseif tActionData.atkbase == "ability" then
+		tActionData.base = "";
+		tActionData.stat = DB.getValue(nodeAction, "atkstat", "");
+		tActionData.prof = DB.getValue(nodeAction, "atkprof", 1);
+		tActionData.modifier = DB.getValue(nodeAction, "atkmod", 0);
+	else
+		tActionData.base = "group";
+	end
+
+	return tActionData;
+end
+function getSaveActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+
+	local sSave = DB.getValue(nodeAction, "savetype", "");
+	if sSave == "" then
+		return nil;
+	end
+
+	local tActionData = {
+		type = "powersave",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+		save = sSave,
+		savedcbase = DB.getValue(nodeAction, "savedcbase", ""),
+		savemod = DB.getValue(nodeAction, "savedcmod", 0),
+		magic = (DB.getValue(nodeAction, "savemagic", 0) == 1),
+		onmissdamage = (DB.getValue(nodeAction, "onmissdamage", "") == "half") and "half" or "",
+	};
+
+	if tActionData.savedcbase == "fixed" then
+		tActionData.savebase = "fixed";
+	elseif tActionData.savedcbase == "ability" then
+		tActionData.savebase = "";
+		tActionData.savestat = DB.getValue(nodeAction, "savestat", "");
+		tActionData.saveprof = DB.getValue(nodeAction, "saveprof", 1);
+		tActionData.savemod = tActionData.savemod + 8;
+	else
+		tActionData.savebase = "group";
+		tActionData.savemod = tActionData.savemod + 8;
+	end
+
+	return tActionData;
+end
+function getDamageActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+
+	local tActionData = {
+		type = "damage",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+		clauses = {};
+	};
+	for _,nodeClause in ipairs(DB.getChildList(nodeAction, "damagelist")) do
+		local tClause = {
+			dice = DB.getValue(nodeClause, "dice", {}),
+			modifier = DB.getValue(nodeClause, "bonus", 0),
+			dicestat = DB.getValue(nodeClause, "dicestat", ""),
+			stat = DB.getValue(nodeClause, "stat", ""),
+			statmult = DB.getValue(nodeClause, "statmult", 0),
+			scalestat = DB.getValue(nodeClause, "scalestat", ""),
+			scaledice = DB.getValue(nodeClause, "scaledice", {}),
+			scalebonus = DB.getValue(nodeClause, "scalebonus", 0),
+			dmgtype = DB.getValue(nodeClause, "type", ""),
+		};
+		table.insert(tActionData.clauses, tClause);
+	end
+	return tActionData;
+end
+function getHealActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+
+	local tActionData = {
+		type = "heal",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+		subtype = DB.getValue(nodeAction, "healtype", ""),
+		sTargeting = DB.getValue(nodeAction, "healtargeting", ""),
+		clauses = {};
+	};
+	for _,nodeClause in ipairs(DB.getChildList(nodeAction, "heallist")) do
+		local tClause = {
+			dice = DB.getValue(nodeClause, "dice", {}),
+			modifier = DB.getValue(nodeClause, "bonus", 0),
+			dicestat = DB.getValue(nodeClause, "dicestat", ""),
+			stat = DB.getValue(nodeClause, "stat", ""),
+			statmult = DB.getValue(nodeClause, "statmult", 0),
+			scalestat = DB.getValue(nodeClause, "scalestat", ""),
+			scaledice = DB.getValue(nodeClause, "scaledice", {}),
+			scalebonus = DB.getValue(nodeClause, "scalebonus", 0),
+		};
+		table.insert(tActionData.clauses, tClause);
+	end
+	return tActionData;
+end
+function getEffectActionData(nodeAction)
+	if not nodeAction then
+		return nil;
+	end
+
+	local tActionData = {
+		type = "effect",
+		nodeAction = nodeAction,
+		label = DB.getValue(nodeAction, "...name", ""),
+		order = PowerManager.getPowerActionDisplayOrder(nodeAction),
+		bPower = true,
+		sAuto = DB.getValue(nodeAction, "auto", ""),
+		sAutoKey = DB.getValue(nodeAction, "autokey", ""),
+	};
+	EffectManagerD20.getStandardEffectDataFromAction(nodeAction, tActionData);
+	return tActionData;
+end
+
+--
+--	POWER ACTION DB BUILD FROM ACTION STRUCTURES
+--
+
+function rebuildPowerActions(nodePower, tActions)
+	if not nodePower then
+		return;
+	end
+
+	-- Clean out old actions
+	DB.deleteChildren(DB.createChild(nodePower, "actions"));
+
+	-- Iterate through action structures
+	for _,tAction in ipairs(tActions or {}) do
+		PowerManager.createAction(nodePower, tAction);
+	end
+end
+function createAction(nodePower, tAction)
+	if ((tAction and tAction.type) or "") == "" then
+		return;
+	end
+	if tAction.type == "cast" then
+		PowerManager.createCastAction(nodePower, tAction);
+	elseif tAction.type == "attack" then
+		PowerManager.createAttackAction(nodePower, tAction);
+	elseif tAction.type == "powersave" then
+		PowerManager.createSaveAction(nodePower, tAction);
+	elseif tAction.type == "damage" then
+		PowerManager.createDamageAction(nodePower, tAction);
+	elseif tAction.type == "heal" then
+		PowerManager.createHealAction(nodePower, tAction);
+	elseif tAction.type == "effect" then
+		PowerManager.createEffectAction(nodePower, tAction);
+	end
+end
+function createCastAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "cast");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+	if tAction.bAllowUpcast then
+		DB.setValue(nodeAction, "allowupcast", "number", 1);
+	end
+
+	if (tAction.sTargeting or "") ~= "" then
+		DB.setValue(nodeAction, "targeting", "string", tAction.sTargeting);
+	end
+	if (tAction.nTargeting or 0) ~= 0 then
+		DB.setValue(nodeAction, "targetingval", "number", tAction.nTargeting);
+	end
+	if (tAction.nTargetingH or 0) ~= 0 then
+		DB.setValue(nodeAction, "targetingval2", "number", tAction.nTargetingH);
+	end
+	if (tAction.sTargetScaleStat or "") ~= "" then
+		DB.setValue(nodeAction, "targetscalestat", "string", tAction.sTargetScaleStat);
+	end
+	if (tAction.nTargetScaleMult or 0) ~= 0 then
+		DB.setValue(nodeAction, "targetscalemult", "number", tAction.nTargetScaleMult);
+	end
+
+	if (tAction.sAutoKeyChoice or "") ~= "" then
+		DB.setValue(nodeAction, "autokeychoice", "string", tAction.sAutoKeyChoice);
+	end
+	if #(tAction.tChoices or {}) > 0 then
+		local nodeChoiceList = DB.createChild(nodeAction, "choicelist");
+		for _,tChoice in ipairs(tAction.tChoices or {}) do
+			if ((tChoice.sTag or "") ~= "") and ((tChoice.sOptions or "") ~= "") then
+				local nodeEntry = DB.createChild(nodeChoiceList);
+				DB.setValue(nodeEntry, "tag", "string", tChoice.sTag);
+				DB.setValue(nodeEntry, "options", "string", tChoice.sOptions);
+				if tChoice.bAllowMult then
+					DB.setValue(nodeEntry, "allowmult", "number", 1);
+				end
+			end
+		end
+	end
+end
+function createAttackAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "attack");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+
+	if (tAction.atktype or "") ~= "" then
+		DB.setValue(nodeAction, "atktype", "string", tAction.atktype);
+	elseif tAction.range == "R" then
+		DB.setValue(nodeAction, "atktype", "string", "ranged");
+	elseif tAction.range == "M" then
+		DB.setValue(nodeAction, "atktype", "string", "melee");
+	end
+
+	if (tAction.atkbase or "") == "fixed" then
+		DB.setValue(nodeAction, "atkbase", "string", "fixed");
+		if (tAction.modifier or 0) ~= 0 then
+			DB.setValue(nodeAction, "atkmod", "number", tAction.modifier);
+		end
+	elseif (tAction.atkbase or "") == "ability" then
+		DB.setValue(nodeAction, "atkbase", "string", "ability");
+		DB.setValue(nodeAction, "atkstat", "string", tAction.stat);
+		DB.setValue(nodeAction, "atkprof", "string", tonumber(tAction.prof) or 1);
+		if (tAction.modifier or 0) ~= 0 then
+			DB.setValue(nodeAction, "atkmod", "number", tAction.modifier);
+		end
+	end
+
+	if tAction.onmissdamage == "half" then
+		DB.setValue(nodeAction, "onmissdamage", "string", "half");
+	end
+end
+function createSaveAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "powersave");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+
+	DB.setValue(nodeAction, "savetype", "string", tAction.save);
+	if tAction.magic then
+		DB.setValue(nodeAction, "savemagic", "number", 1);
+	end
+
+	if (tAction.savedcbase or "") == "fixed" then
+		DB.setValue(nodeAction, "savedcbase", "string", "fixed");
+		if (tAction.modifier or 0) ~= 0 then
+			DB.setValue(nodeAction, "savedcmod", "number", tAction.savemod);
+		end
+	elseif (tAction.savedcbase or "") == "ability" then
+		DB.setValue(nodeAction, "savedcbase", "string", "ability");
+		DB.setValue(nodeAction, "savedcstat", "string", tAction.savestat);
+		DB.setValue(nodeAction, "saveprof", "string", tonumber(tAction.prof) or 1);
+		if (tAction.modifier or 0) ~= 0 then
+			DB.setValue(nodeAction, "savedcmod", "number", tAction.savemod);
+		end
+	end
+
+	if tAction.onmissdamage == "half" then
+		DB.setValue(nodeAction, "onmissdamage", "string", "half");
+	end
+end
+function createDamageAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "damage");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+
+	local nodeDmgList = DB.createChild(nodeAction, "damagelist");
+	for _,tClause in ipairs(tAction.clauses or {}) do
+		local nodeEntry = DB.createChild(nodeDmgList);
+
+		if #(tClause.dice or {}) > 0 then
+			DB.setValue(nodeEntry, "dice", "dice", tClause.dice);
+		end
+		if (tClause.dicestat or "") ~= "" then
+			DB.setValue(nodeEntry, "dicestat", "string", tClause.dicestat);
+		end
+		if (tClause.modifier or 0) ~= 0 then
+			DB.setValue(nodeEntry, "bonus", "number", tClause.modifier);
+		end
+		if (tClause.stat or "") ~= "" then
+			DB.setValue(nodeEntry, "stat", "string", tClause.stat);
+		end
+		if (tClause.statmult or 0) ~= 0 then
+			DB.setValue(nodeEntry, "statmult", "number", tClause.statmult);
+		end
+		if (tClause.scalestat or "") ~= "" then
+			DB.setValue(nodeEntry, "scalestat", "string", tClause.scalestat);
+		end
+		if #(tClause.scaledice or {}) > 0 then
+			DB.setValue(nodeEntry, "scaledice", "dice", tClause.scaledice);
+		end
+		if (tClause.scalebonus or 0) ~= 0 then
+			DB.setValue(nodeEntry, "scalebonus", "number", tClause.scalebonus);
+		end
+		if (tClause.dmgtype or "") ~= "" then
+			DB.setValue(nodeEntry, "type", "string", tClause.dmgtype);
+		end
+	end
+end
+function createHealAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "heal");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+
+	if (tAction.subtype or "") ~= "" then
+		DB.setValue(nodeAction, "healtype", "string", tAction.subtype);
+	end
+	if tAction.sTargeting then
+		DB.setValue(nodeAction, "healtargeting", "string", tAction.sTargeting);
+	end
+
+	local nodeHealList = DB.createChild(nodeAction, "heallist");
+	for _,tClause in ipairs(tAction.clauses or {}) do
+		local nodeEntry = DB.createChild(nodeHealList);
+
+		if #(tClause.dice or {}) > 0 then
+			DB.setValue(nodeEntry, "dice", "dice", tClause.dice);
+		end
+		if (tClause.dicestat or "") ~= "" then
+			DB.setValue(nodeEntry, "dicestat", "string", tClause.dicestat);
+		end
+		if (tClause.modifier or 0) ~= 0 then
+			DB.setValue(nodeEntry, "bonus", "number", tClause.modifier);
+		end
+		if (tClause.stat or "") ~= "" then
+			DB.setValue(nodeEntry, "stat", "string", tClause.stat);
+		end
+		if (tClause.statmult or 0) ~= 0 then
+			DB.setValue(nodeEntry, "statmult", "number", tClause.statmult);
+		end
+		if (tClause.scalestat or "") ~= "" then
+			DB.setValue(nodeEntry, "scalestat", "string", tClause.scalestat);
+		end
+		if #(tClause.scaledice or {}) > 0 then
+			DB.setValue(nodeEntry, "scaledice", "dice", tClause.scaledice);
+		end
+		if (tClause.scalebonus or 0) ~= 0 then
+			DB.setValue(nodeEntry, "scalebonus", "number", tClause.scalebonus);
+		end
+	end
+end
+function createEffectAction(nodePower, tAction)
+	if not nodePower then
+		return;
+	end
+
+	local nodeAction = PowerManager.createActionOfType(nodePower, "effect");
+	if not nodeAction then
+		return;
+	end
+
+	if (tAction.sAuto or "") ~= "" then
+		DB.setValue(nodeAction, "auto", "string", tAction.sAuto);
+	end
+	if (tAction.sAutoKey or "") ~= "" then
+		DB.setValue(nodeAction, "autokey", "string", tAction.sAutoKey);
+	end
+
+	DB.setValue(nodeAction, "label", "string", tAction.sName);
+
+	if (tAction.sTargeting or "") ~= "" then
+		DB.setValue(nodeAction, "targeting", "string", tAction.sTargeting);
+	end
+	if (tAction.sApply or "") ~= "" then
+		EffectVarManager.setEffectVarToNode(nodeAction, "sApply", tAction.sApply);
+	end
+	if (tAction.sInitSource or "") ~= "" then
+		EffectVarManager.setEffectVarToNode(nodeAction, "sInitSource", tAction.sInitSource);
+	end
+	if (tAction.sExpiration or "") ~= "" then
+		EffectVarManager.setEffectVarToNode(nodeAction, "sExpiration", tAction.sExpiration);
+	end
+
+	local nDuration = tonumber(tAction.nDuration) or 0;
+	if nDuration ~= 0 then
+		DB.setValue(nodeAction, "durmod", "number", nDuration);
+		if (tAction.sUnits or "") ~= "" then
+			DB.setValue(nodeAction, "durunit", "string", tAction.sUnits);
+		end
+	end
+end
+
+function getFirstActionOfType(nodePower, sType, sAutoKey)
+	if not nodePower then
+		return nil;
+	end
+
+	for _, nodeAction in ipairs(DB.getChildList(nodePower, "actions")) do
+		if (DB.getValue(nodeAction, "type", "") == sType) and (DB.getValue(nodeAction, "autokey", "") == (sAutoKey or "")) then
+			return nodeAction;
+		end
+	end
+	return nil;
+end
+function createActionOfType(nodePower, sType)
+	if not nodePower then
+		return nil;
+	end
+
+	local nodeActions = DB.createChild(nodePower, "actions");
+	if not nodeActions then
+		return nil;
+	end
+
+	local nodeAction = DB.createChild(nodeActions);
+	DB.setValue(nodeAction, "type", "string", sType);
+	return nodeAction;
+end
+
+--
+--	POWER ACTION ROLLS
+--
+
+function onActionGetRoll(rActor, tTargets, tActionQueueEntry)
+	local rAction = PowerManager.onActionGetRollQueueEntryToAction(rActor, tTargets, tActionQueueEntry)
+	return PowerManager.getRollFromActionData(rActor, rAction, tTargets);
+end
+-- NOTE: Will only work for PC spell powers through linked actions
+-- 			If handling any action queues other than PC spell or weapon powers (such any NPC rolls or non spell/weapon PC rolls),
+--			then need to add action data to differentiate in original call and here
+function onActionGetRollQueueEntryToAction(rActor, tTargets, tActionQueueEntry)
+	if not tActionQueueEntry or ((tActionQueueEntry.sType or "") == "") then
+		return nil;
+	end	
+	if not ActorManager.isPC(rActor) then
+		return nil;
+	end
+
+	if tActionQueueEntry.bPower then
+		local nodePower = DB.getChild(tActionQueueEntry.node, "...");
+		local rAction = PowerManager.getPowerAction(tActionQueueEntry.node, { rActor = rActor, });
+		if not rAction then
+			return nil;
+		end
+		rAction.tChoiceSelections = tActionQueueEntry.tChoiceSelections;
+		rAction.tActionTags = tActionQueueEntry.tActionTags;
+		PowerManager.evalAction(rActor, nodePower, rAction);
+		return rAction;
+	elseif tActionQueueEntry.bWeapon then
+		if tActionQueueEntry.sType == "attack" then
+			local rAction = CharWeaponManager.buildAttackAction(rActor, tActionQueueEntry.node);
+			rAction.tChoiceSelections = tActionQueueEntry.tChoiceSelections;
+			rAction.tActionTags = tActionQueueEntry.tActionTags;
+			return rAction;
+		elseif tActionQueueEntry.sType == "damage" then
+			local rAction = CharWeaponManager.buildDamageAction(rActor, tActionQueueEntry.node);
+			rAction.tChoiceSelections = tActionQueueEntry.tChoiceSelections;
+			rAction.tActionTags = tActionQueueEntry.tActionTags;
+			return rAction;
+		end
+	end
+	return nil;
+end
+
+function getRollFromActionData(rActor, rAction, tTargets)
+	if (rAction and rAction.type or "") == "" then
+		return nil;
+	end
+	if rAction.type == "cast" then
+		return ActionCast.getRoll(rActor, rAction);
+	elseif rAction.type == "attack" then
+		return ActionAttack.getRoll(rActor, rAction);
+	elseif rAction.type == "powersave" then
+		return ActionPowerSave.getRoll(rActor, rAction);
+	elseif rAction.type == "damage" then
+		return ActionDamageD20.getRoll(rActor, rAction);
+	elseif rAction.type == "heal" then
+		return ActionHealD20.getRoll(rActor, rAction);
+	elseif rAction.type == "effect" then
+		return ActionEffect.getRoll(rActor, rAction, tTargets);
+	end
+	return nil;
+end
+
+--
+--	LEGACY (2026-08)
+--
+
+function getPCPowerActionOutputOrder(nodeAction)
+	return PowerManager.getPowerActionDisplayOrder(nodeAction);
+end
+function getPCPowerAction(nodeAction, sSubRoll)
+	local tData = { sSubRoll = sSubRoll, };
+	local rAction = PowerManager.getPowerAction(nodeAction, tData);
+	if not rAction or not tData.rActor then
+		return nil, nil;
+	end
+	return rAction, tData.rActor;
+end
+function getPCPowerActionHelper(rActor, nodeAction, sSubRoll)
+	return PowerManager.getPowerAction(nodeAction, { rActor = rActor, sSubRoll = sSubRoll, });
+end
+
+function getPCPowerCastActionText(nodeAction)
+	return PowerManager.getCastActionText(nodeAction);
+end
+function getPCPowerDamageActionText(nodeAction)
+	return PowerManager.getDamageActionText(nodeAction);
+end
+function getPCPowerHealActionText(nodeAction)
+	return PowerManager.getHealActionText(nodeAction);
 end

@@ -42,7 +42,7 @@ function performRoll(draginfo, rActor, nodeClass)
 		end
 	end
 	rRoll.nMod = rRoll.nMod + ActorManager5E.getAbilityBonus(rActor, sAbility);
-	
+
 	if sAbility2 ~= "" then
 		local sAbilityEffect2 = DataCommon.ability_ltos[sAbility2];
 		if sAbilityEffect2 then
@@ -63,7 +63,8 @@ function modRecovery(rSource, rTarget, rRoll)
 	ActionCore.applyModHalfEffects(rSource, rTarget, rRoll);
 	ActionCore.applyModTabletopButtons(rSource, rTarget, rRoll);
 end
-function applyModAbilityEffect(rSource, rTarget, rRoll)
+-- applyModAbilityEffect(rSource, rTarget, rRoll)
+function applyModAbilityEffect(rSource, _, rRoll)
 	if not rSource then
 		return;
 	end
@@ -84,7 +85,7 @@ function applyModAbilityEffect(rSource, rTarget, rRoll)
 		local nBonusStat2, nBonusEffects2 = ActorManagerD20.getAbilityEffectsBonus(rSource, sActionStat2);
 		if nBonusEffects2 > 0 then
 			rRoll.bEffects = true;
-			rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat;
+			rRoll.nEffectMod = rRoll.nEffectMod + nBonusStat2;
 		end
 	end
 end
@@ -98,19 +99,19 @@ function onRecovery(rSource, _, rRoll)
 
 	-- Handle minimum damage
 	if rRoll.nTotal < 0 and #(rRoll.aDice or {}) > 0 then
-		rMessage.text = rMessage.text .. " [MIN RECOVERY]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "[MIN RECOVERY]");
 		rMessage.diemodifier = rMessage.diemodifier - rRoll.nTotal;
 		rRoll.nTotal = 0;
 	end
 	if ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_DURABLE) then
 		local nDurableMin = math.max(ActorManager5E.getAbilityBonus(rSource, "constitution"), 1) * 2;
 		if rRoll.nTotal < nDurableMin then
-			rMessage.text = string.format("%s [DURABLE %+d]", rMessage.text, nDurableMin - rRoll.nTotal);
+			rMessage.text = StringManager.appendLine(rMessage.text, string.format("[DURABLE %+d]", nDurableMin - rRoll.nTotal));
 			rMessage.diemodifier = rMessage.diemodifier + (nDurableMin - rRoll.nTotal);
 			rRoll.nMod = rRoll.nMod + (nDurableMin - rRoll.nTotal);
-			rRoll.nTotal = nDurableMin; 
+			rRoll.nTotal = nDurableMin;
 		else
-			rMessage.text = rMessage.text .. " [DURABLE]";
+			rMessage.text = StringManager.appendLine(rMessage.text, "[DURABLE]");
 		end
 	end
 

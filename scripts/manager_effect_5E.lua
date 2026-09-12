@@ -97,24 +97,45 @@ function applySave(rActor, tCompData)
 		return;
 	end
 
-	local bMagic = false;
-	if tCompData.sRemainder:match("%(M%)") then
-		bMagic = true;
-	end
+	local bHalfOnSave = StringManager.contains(tCompData.remainder, "half");
+	local bExpireNone = StringManager.contains(tCompData.remainder, "expirenone");
+	local bExpireAny = StringManager.contains(tCompData.remainder, "expireany");
+	local bMagic = StringManager.contains(tCompData.remainder, "magic") or (tCompData.sRemainder:match("%(M%)") ~= nil);
 
 	local tSaveDesc = {};
-	local sLabel = EffectVarManager.getEffectVarFromNode(tCompData.node, "sName", "");
-	local tComps = EffectManager.parseEffect(sLabel);
-	table.insert(tSaveDesc, string.format("[EFFECT: %s]", tComps[1] or ""));
+	table.insert(tSaveDesc, ActionCore.encodeActionText({ label = Interface.getString("effect_special_SAVE"), }, "action_savevs_tag"));
 	if bMagic then
 		table.insert(tSaveDesc, "[MAGIC]");
 	end
+	if bHalfOnSave then
+		table.insert(tSaveDesc, "[HALF ON SAVE]");
+	end
 
 	local rRoll = ActionSave.getRoll(rActor, sSave);
-	rRoll.sEffectRecord = DB.getPath(tCompData.node);
-	rRoll.nTarget = tCompData.mod;
 	rRoll.sSaveDesc = table.concat(tSaveDesc, " ");
-	ActionsManager.performAction(draginfo, rActor, rRoll);
+	rRoll.nTarget = tCompData.mod;
+	rRoll.sEffectRecord = DB.getPath(tCompData.node);
+	if bExpireAny then
+		rRoll.sEffectExpire = "any";
+	elseif bExpireNone then
+		rRoll.sEffectExpire = "none";
+	else
+		rRoll.sEffectExpire = "success";
+	end
+	rRoll.tActionTags = {};
+	for _,sComp in ipairs(EffectManager.parseEffect(EffectVarManager.getEffectVarFromNode(tCompData.node, "sName", ""))) do
+		local sLower = sComp:lower();
+		if ActionCore.isCondition(sLower) then
+			table.insert(rRoll.tActionTags, sLower);
+		end
+	end
+
+	local rSource = EffectManager.getSourceActor(tCompData.node) or rActor;
+
+	-- Legacy (2026-08)
+	rRoll.sSource = ActorManager.getCTNodeName(rSource);
+
+	ActionsManager.actionDirect(rActor, rRoll.sType, { rRoll }, { { rSource } });
 end
 
 --
@@ -209,7 +230,7 @@ function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
 				break;
 			end
 		elseif ActionCore.isCondition(sLower) then
-			if not checkConditionalHelper(rActor, sLower, rTarget, aIgnore) then
+			if not EffectManager5E.checkConditionalHelper(rActor, sLower, rTarget, aIgnore) then
 				bReturn = false;
 				break;
 			end
@@ -234,7 +255,7 @@ function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
 					break;
 				end
 			elseif sCustomCheck then
-				if not checkConditionalHelper(rActor, sCustomCheck, rTarget, aIgnore) then
+				if not EffectManager5E.checkConditionalHelper(rActor, sCustomCheck, rTarget, aIgnore) then
 					bReturn = false;
 					break;
 				end
@@ -264,14 +285,14 @@ function checkConditionalHelper(rActor, sEffect, rTarget, aIgnore)
 
 				-- CHECK CONDITIONALS
 				if rEffectComp.type == "IF" then
-					if not checkConditional(rActor, v, rEffectComp.remainder, nil, aIgnore) then
+					if not EffectManager5E.checkConditional(rActor, v, rEffectComp.remainder, nil, aIgnore) then
 						break;
 					end
 				elseif rEffectComp.type == "IFT" then
 					if not rTarget then
 						break;
 					end
-					if not checkConditional(rTarget, v, rEffectComp.remainder, rActor, aIgnore) then
+					if not EffectManager5E.checkConditional(rTarget, v, rEffectComp.remainder, rActor, aIgnore) then
 						break;
 					end
 

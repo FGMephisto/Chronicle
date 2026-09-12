@@ -55,6 +55,7 @@ FEAT_WAR_CASTER = "War Caster"; -- 2024 / 2014
 
 FEAT_ALERT = "alert"; -- 2024
 FEAT_ARCHERY = "archery"; -- 2024
+FEAT_CROSSBOW_EXPORT = "crossbow expert"; -- 2014
 FEAT_DEFENSE = "defense"; -- 2024
 FEAT_DRAGON_HIDE = "dragon hide"; -- 2014
 FEAT_DUELING = "dueling"; -- 2024
@@ -62,6 +63,8 @@ FEAT_DURABLE = "durable"; -- 2014
 FEAT_GREAT_WEAPON_FIGHTING = "great weapon fighting"; -- 2024
 FEAT_HEAVY_ARMOR_MASTER = "heavy armor master";  -- 2024 / 2014
 FEAT_MEDIUM_ARMOR_MASTER = "medium armor master"; -- 2024 / 2014
+FEAT_SHARPSHOOTER = "sharpshooter"; -- 2024 / 2014
+FEAT_SPELL_SNIPER = "spell sniper"; -- 2024 / 2014
 FEAT_TOUGH = "tough"; -- 2024 / 2014
 FEAT_THROWN_WEAPON_FIGHTING = "thrown weapon fighting"; -- 2024
 FEAT_TWO_WEAPON_FIGHTING = "two-weapon fighting"; -- 2024

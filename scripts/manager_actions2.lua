@@ -6,6 +6,7 @@
 function onInit()
 	GameManager.setMultiKeyFunction("onActionPostModRoll", "", ActionsManager2.onActionPostModRoll);
 end
+
 function onActionPostModRoll(_, _, rRoll)
 	ActionsManager2.encodeDesktopMods(rRoll);
 end

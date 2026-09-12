@@ -36,51 +36,75 @@ function onTurnStart(nodeEntry)
 		return;
 	end
 
+	local rActor = ActorManager.resolveActor(nodeEntry);
+
 	-- Handle beginning of turn changes
 	DB.setValue(nodeEntry, "reaction", "number", 0);
 
-	local rActor = ActorManager.resolveActor(nodeEntry);
-	if ActorManager.isPC(rActor) then
-		-- Check for exhaustion levels for pre-2024 rules
-		local nExhaustLevel = ActorManager5E.getExhaustionLevel(rActor);
-		if OptionsManager.isOption("GAVE", "2024") then
-			if nExhaustLevel > 5 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
-			elseif nExhaustLevel > 0 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = string.format("Exhausted; Speed -%d (info only)", nExhaustLevel * 5), nDuration = 1, });
-			end
-		else
-			if nExhaustLevel > 5 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; DEATH", nDuration = 1, });
-			elseif nExhaustLevel > 4 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1, });
-			elseif nExhaustLevel > 3 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1, });
-			elseif nExhaustLevel > 1 then
-				EffectManager.addEffectByTable(nodeEntry, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1, });
-			end
-		end
+	CombatManager2.onTurnStartDeathSave(rActor);
+	CombatManager2.onTurnStartExhaustion(rActor);
+	CombatManager2.onTurnStartEncumbrance(rActor);
+end
+-- Check for death saves (based on option)
+function onTurnStartDeathSave(rActor)
+	if not ActorManager.isPC(rActor) then
+		return;
+	end
+	if not OptionsManager.isOption("HRST", "on") then
+		return;
+	end
 
-		-- Check for death saves (based on option)
-		if OptionsManager.isOption("HRST", "on") then
-			local nHP = GameManager.getRecordFieldValueLinked(rActor, "hptotal", 0);
-			if nHP > 0 then
-				local nWounds = GameManager.getRecordFieldValueLinked(rActor, "wounds", 0);
-				if nWounds >= nHP then
-					local nDeathSaveFail = GameManager.getRecordFieldValueLinked(rActor, "deathsavefail", 0);
-					if nDeathSaveFail < 3 then
-						if not EffectManager.hasCondition(rActor, "Stable") then
-							ActionSave.performDeathRoll(nil, rActor, true);
-						end
-					end
-				end
-			end
-		end
+	local nHP = GameManager.getRecordFieldValueLinked(rActor, "hptotal", 0);
+	if nHP <= 0 then
+		return;
+	end
+	local nWounds = GameManager.getRecordFieldValueLinked(rActor, "wounds", 0);
+	if nWounds < nHP then
+		return;
+	end
+	local nDeathSaveFail = GameManager.getRecordFieldValueLinked(rActor, "deathsavefail", 0);
+	if nDeathSaveFail >= 3 then
+		return;
+	end
+	if EffectManager.hasCondition(rActor, "Stable") then
+		return;
+	end
 
-		-- Encumbrance notification
-		if GameManager.getRecordFieldValue(rActor, "enclevel", 0) > 0 then
-			ChatManager.sendMessage(string.format("[%s]", GameManager.getRecordFieldValue(rActor, "encstate", ""):upper()), { sIcon = "action_weight", rActor = rActor, })
+	ActionSave.performDeathRoll(nil, rActor, true);
+end
+-- Check for exhaustion levels
+function onTurnStartExhaustion(rActor)
+	if not ActorManager.isPC(rActor) then
+		return;
+	end
+
+	local nExhaustLevel = ActorManager5E.getExhaustionLevel(rActor);
+	if OptionsManager.isOption("GAVE", "2024") then
+		if nExhaustLevel > 5 then
+			EffectManager.addEffectByTable(rActor, { sName = "Exhausted; DEATH", nDuration = 1, });
+		elseif nExhaustLevel > 0 then
+			EffectManager.addEffectByTable(rActor, { sName = string.format("Exhausted; Speed -%d (info only)", nExhaustLevel * 5), nDuration = 1, });
 		end
+	else
+		if nExhaustLevel > 5 then
+			EffectManager.addEffectByTable(rActor, { sName = "Exhausted; DEATH", nDuration = 1, });
+		elseif nExhaustLevel > 4 then
+			EffectManager.addEffectByTable(rActor, { sName = "Exhausted; Speed 0, HP MAX HALVED (info only)", nDuration = 1, });
+		elseif nExhaustLevel > 3 then
+			EffectManager.addEffectByTable(rActor, { sName = "Exhausted; Speed Halved, HP MAX HALVED (info only)", nDuration = 1, });
+		elseif nExhaustLevel > 1 then
+			EffectManager.addEffectByTable(rActor, { sName = "Exhausted; Speed Halved (info only)", nDuration = 1, });
+		end
+	end
+end
+-- Encumbrance notification
+function onTurnStartEncumbrance(rActor)
+	if not ActorManager.isPC(rActor) then
+		return;
+	end
+
+	if GameManager.getRecordFieldValue(rActor, "enclevel", 0) > 0 then
+		ChatManager.sendMessage(string.format("[%s]", GameManager.getRecordFieldValue(rActor, "encstate", ""):upper()), { sIcon = "action_weight", rActor = rActor, })
 	end
 end
 function onTurnEnd(nodeEntry)
@@ -294,17 +318,23 @@ function parseNPCPowerBuildValue(nodePower, rActor, bAllowSpellDataOverride)
 		PowerManager.evalAction(rActor, nodePower, v);
 
 		if v.type == "attack" then
-			if v.range then
-				table.insert(tDisplayOptions, string.format("[%s]", v.range));
-				if v.rangedist and v.rangedist ~= "5" then
-					table.insert(tDisplayOptions, string.format("[RNG: %s]", v.rangedist));
-				end
-			end
-			if v.nomod then
-				table.insert(tDisplayOptions, "[ATK]");
+			if (v.atktype or "") == "ranged" then
+				table.insert(tDisplayOptions, "[R]");
 			else
-				table.insert(tDisplayOptions, string.format("[ATK: %+d]", v.modifier or 0));
+				table.insert(tDisplayOptions, "[M]");
 			end
+			if v.rangedist and v.rangedist ~= "5" then
+				table.insert(tDisplayOptions, string.format("[RNG: %s]", v.rangedist));
+			end
+			local sAtk = "[ATK";
+			if not v.nomod then
+				sAtk = string.format("%s: %+d", sAtk, v.modifier or 0);
+			end
+			if v.onmissdamage == "half" then
+				sAtk = string.format("%s (H)", sAtk);
+			end
+			sAtk = sAtk .. "]";
+			table.insert(tDisplayOptions, sAtk);
 
 		elseif v.type == "powersave" then
 			local sSaveVs = string.format("[SAVEVS: %s", v.save);
@@ -433,16 +463,19 @@ end
 -- PARSE CT ATTACK LINE
 --
 
-function parseAttackLine(sLine)
+function parseAttackLine(sLine, nodePower)
 	local nIntroStart, nIntroEnd, sName = sLine:find("([^%[]*)[%[]?");
 	if not nIntroStart then
 		return nil;
 	end
 
-	local rPower = {};
-	rPower.name = PowerManager.cleanNPCPowerName(sName);
-	rPower.aAbilities = {};
+	local rPower = {
+		name = PowerManager.cleanNPCPowerName(sName),
+		aAbilities = {},
+	};
 	nIndex = nIntroEnd;
+
+	local tPowerTags = CombatManager2.parseAttackLineGetPowerTags(nodePower);
 
 	local nAbilityStart, nAbilityEnd, sAbility = sLine:find("%[([^%]]+)%]", nIntroEnd);
 	while nAbilityStart do
@@ -456,6 +489,8 @@ function parseAttackLine(sLine)
 			rAttack.nEnd = nAbilityEnd;
 			rAttack.label = rPower.name;
 			rAttack.range = rPower.range;
+			rAttack.atkbase = "fixed";
+			rAttack.tActionTags = tPowerTags;
 			local sAttack, sCritRange = sAbility:sub(7):match("([+-]?%d+)%s*%((%d+)%)");
 			if sAttack then
 				rAttack.modifier = tonumber(sAttack) or 0;
@@ -465,6 +500,15 @@ function parseAttackLine(sLine)
 				end
 			else
 				rAttack.modifier = tonumber(sAbility:sub(5)) or 0;
+			end
+			if rAttack.range == "R" then
+				local sText = DB.getValue(nodePower, "desc", ""):lower();
+				local sRange, sRangeLong = sText:match("range (%d+)[\\/](%d+)");
+				if not sRange then
+					sRange = sText:match("range (%d+)");
+				end
+				rAttack.nRange = tonumber(sRange) or 0;
+				rAttack.nRangeLong = tonumber(sRangeLong) or 0;
 			end
 			table.insert(rPower.aAbilities, rAttack);
 
@@ -477,7 +521,9 @@ function parseAttackLine(sLine)
 			rSave.nEnd = nAbilityEnd;
 			rSave.label = rPower.name;
 			rSave.save = aWords[1];
+			rSave.savedcbase = "fixed";
 			rSave.savemod = tonumber(aWords[2]) or 0;
+			rSave.tActionTags = tPowerTags;
 			if StringManager.isWord(aWords[3], "H") then
 				rSave.onmissdamage = "half";
 			end
@@ -493,6 +539,7 @@ function parseAttackLine(sLine)
 			rDamage.nEnd = nAbilityEnd;
 			rDamage.label = rPower.name;
 			rDamage.range = rPower.range;
+			rDamage.tActionTags = tPowerTags;
 			rDamage.clauses = {};
 
 			local tPowerWords = StringManager.parseWords(sAbility:sub(5));
@@ -528,6 +575,7 @@ function parseAttackLine(sLine)
 			rHeal.nStart = nAbilityStart + 1;
 			rHeal.nEnd = nAbilityEnd;
 			rHeal.label = rPower.name;
+			rHeal.tActionTags = tPowerTags;
 			rHeal.clauses = {};
 
 			local tPowerWords = StringManager.parseWords(sAbility:sub(6));
@@ -551,6 +599,7 @@ function parseAttackLine(sLine)
 		elseif sAbility:sub(1,4) == "EFF:" and #sAbility > 4 then
 			local rEffect = EffectManagerD20.decodeEffectFromCT(sAbility);
 			if rEffect then
+				rEffect.tActionTags = tPowerTags;
 				rEffect.nStart = nAbilityStart + 1;
 				rEffect.nEnd = nAbilityEnd;
 				table.insert(rPower.aAbilities, rEffect);
@@ -591,6 +640,40 @@ function parseAttackLine(sLine)
 
 	return rPower;
 end
+function parseAttackLineGetPowerTags(nodePower)
+	if not nodePower then
+		return {};
+	end
+
+	local tActions = PowerManager.parseNPCPower(nodePower, true);
+	local tPowerTags = PowerManager5E.getPowerTagsFromActions(tActions);
+
+	local sSchool = CombatManager2.parseAttackLineGetPowerSchool(nodePower);
+	if sSchool ~= "" then
+		table.insert(tPowerTags, 1, sSchool);
+	end
+
+	return tPowerTags;
+end
+function parseAttackLineGetPowerSchool(nodePower)
+	if not nodePower then
+		return "";
+	end
+	local nodePowerList = DB.getChild(nodePower, "..");
+	if not StringManager.contains({ "spells", "innatespells", }, DB.getName(nodePowerList)) then
+		return "";
+	end
+	local sText = DB.getText(nodePower, "desc", "");
+	local sSchool = sText:match("School: (%w+)");
+	if not sSchool then
+		return "";
+	end
+	sSchool = sSchool:lower();
+	if not StringManager.contains(DataCommon.spellschools, sSchool) then
+		return "";
+	end
+	return sSchool;
+end
 
 function onNPCSummonPowerDataChanged(nodeRecord)
 	local rActor = ActorManager.resolveActor(nodeRecord);
@@ -607,11 +690,7 @@ end
 --
 
 function resetInit()
-	function resetCombatantInit(nodeCT)
-		DB.setValue(nodeCT, "initresult", "number", 0);
-		DB.setValue(nodeCT, "reaction", "number", 0);
-	end
-	CombatManager.callForEachCombatant(CombatManager2.resetCombatantInit);
+	CombatManager.callForEachCombatant(CombatManager.resetCombatantInit);
 end
 
 --
@@ -622,8 +701,7 @@ function isInitSwapPlayerAllowed(nodeCT)
 	if not ActorManager.isOwner(nodeCT) then
 		return false;
 	end
-	local _,sRecord = DB.getValue(nodeCT, "link", "", "");
-	return CharManager.hasFeat2024(DB.findNode(sRecord), CharManager.FEAT_ALERT);
+	return ActorManager5E.hasFeat(ActorManager.resolveActor(nodeCT), CharManager.FEAT_ALERT);
 end
 
 function rollInit(sType)

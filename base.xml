@@ -5,8 +5,8 @@
   attribution and copyright information.
 -->
 
-<root version="3.0" release="9" logo="logo.png">
-	<announcement text="Dungeons and Dragons (5E) ruleset (2026-07-14)\rCopyright 2026 Smiteworks USA, LLC" font="emotefont" icon="rulesetlogo_CoreRPG" />
+<root version="3.0" release="10" logo="logo.png">
+	<announcement text="Dungeons and Dragons (5E) ruleset (2026-09-29)\rCopyright 2026 Smiteworks USA, LLC" font="emotefont" icon="rulesetlogo_CoreRPG" />
 
 	<!-- Attributes -->
 	<description>
@@ -132,7 +132,6 @@
 	<script name="DataCommon" file="scripts/data_common.lua" />
 	<script name="GameSystem" file="scripts/manager_gamesystem.lua" />
 	<script name="CampaignDataManager2" file="scripts/manager_campaigndata2.lua" />
-	<script name="DataSpell" file="scripts/data_spell.lua" />
 
 	<script name="CharacterListManager_Inspiration" file="scripts/manager_charlist_inspiration.lua" />
 
@@ -149,6 +148,7 @@
 	<script name="RecordManager5E"  file="scripts/manager_record_5E.lua" />
 	<script name="RecordShareManager5E" file="scripts/manager_record_share_5E.lua" />
 	<script name="TokenManager2" file="scripts/manager_token2.lua" />
+	<script name="VersionCharManager" file="scripts/manager_version_char.lua" />
 	<script name="VersionManager2" file="scripts/manager_version2.lua" />
 
 	<script name="CharManager" file="scripts/manager_char.lua" />
@@ -169,12 +169,13 @@
 	<script name="ActionGeneral" file="scripts/manager_action_general.lua" />
 
 	<script name="ActionAttack" file="scripts/manager_action_attack.lua" />
+	<script name="ActionCast" file="scripts/manager_action_cast.lua" />
 	<script name="ActionCheck" file="scripts/manager_action_check.lua" />
 	<script name="ActionDamage" file="scripts/manager_action_damage.lua" />
 	<script name="ActionInit" file="scripts/manager_action_init.lua" />
-	<script name="ActionPower" file="scripts/manager_action_power.lua" />
 	<script name="ActionRecharge" file="scripts/manager_action_recharge.lua" />
 	<script name="ActionRecovery" file="scripts/manager_action_recovery.lua" />
+	<script name="ActionPowerSave" file="scripts/manager_action_powersave.lua" />
 	<script name="ActionSave" file="scripts/manager_action_save.lua" />
 	<script name="ActionSkill" file="scripts/manager_action_skill.lua" />
 </root>

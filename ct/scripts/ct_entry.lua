@@ -15,9 +15,16 @@ function onHealthChanged()
 	wounds.setColor(sColor);
 	status.setValue(sStatus);
 
-	if not self.isPC() then
+	if self.isPC() then
+		local sClass, sRecord = link.getValue();
+		local w = Interface.findWindow(sClass, sRecord);
+		if w then
+			WindowManager.callInnerWindowFunction(w.main, "onHealthChanged");
+		end
+	else
 		idelete.setVisible(ActorHealthManager.isDyingOrDeadStatus(sStatus));
 	end
+
 end
 
 function linkPCFields()

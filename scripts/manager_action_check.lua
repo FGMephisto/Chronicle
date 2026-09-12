@@ -43,7 +43,8 @@ function modRoll(rSource, rTarget, rRoll)
 	return true;
 end
 
-function onRoll(rSource, rTarget, rRoll)
+-- onRoll(rSource, rTarget, rRoll)
+function onRoll(rSource, _, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
@@ -53,9 +54,9 @@ function onRoll(rSource, rTarget, rRoll)
 
 		rMessage.text = rMessage.text .. " [vs. DC " .. nTargetDC .. "]";
 		if nTotal >= nTargetDC then
-			rMessage.text = rMessage.text .. " [SUCCESS]";
+			rMessage.text = StringManager.appendLine(rMessage.text, "[SUCCESS]");
 		else
-			rMessage.text = rMessage.text .. " [FAILURE]";
+			rMessage.text = StringManager.appendLine(rMessage.text, "[FAILURE]");
 		end
 	end
 	Comm.deliverChatMessage(rMessage);
@@ -135,7 +136,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 		end
 	end
 
-	local tSrcEffData = { tFilter = rRoll.tCheckFilter, };
+	local tSrcEffData = { tFilter = rRoll.tCheckFilter, tActionsTags = rRoll.tActionTags, };
 
 	-- Get roll effect modifiers
 	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "CHECK", tSrcEffData);
@@ -162,14 +163,14 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if rRoll.sType == "init" then
 		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "INIT");
 
-		if EffectManager.hasText(rSource, "ADVINIT") then
+		if EffectManager.hasText(rSource, "ADVINIT", { tActionsTags = rRoll.tActionTags, }) then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
-		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager.hasCondition(rSource, "Invisible") then
+		elseif OptionsManager.isOption("GAVE", "2024") and EffectManager.hasCondition(rSource, "Invisible") and not EffectManager.hasCondition(rSource, "NOINVISIBLE") then
 			rRoll.bEffects = true;
 			rRoll.bADV = true;
 		end
-		if EffectManager.hasText(rSource, "DISINIT") then
+		if EffectManager.hasText(rSource, "DISINIT", { tActionsTags = rRoll.tActionTags, }) then
 			rRoll.bEffects = true;
 			rRoll.bDIS = true;
 		elseif OptionsManager.isOption("GAVE", "2024") then
@@ -194,7 +195,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, _)
 			end
 		end
 	elseif rRoll.sType == "skill" then
-		local tSrcSkillEffData = { tFilter = rRoll.tSkillFilter, };
+		local tSrcSkillEffData = { tFilter = rRoll.tSkillFilter, tActionsTags = rRoll.tActionTags, };
 
 		ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "SKILL", tSrcSkillEffData);
 
@@ -213,21 +214,21 @@ function applyReliableEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	if EffectManager.hasText(rSource, "RELIABLE") then
+	if EffectManager.hasText(rSource, "RELIABLE", { tActionsTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
-	elseif EffectManager.hasTextOrTag(rSource, "RELIABLECHK", { tFilter = rRoll.tCheckFilter, }) then
+	elseif EffectManager.hasTextOrTag(rSource, "RELIABLECHK", { tFilter = rRoll.tCheckFilter, tActionsTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
 	end
 
 	if rRoll.sType == "init" then
-		if EffectManager.hasText(rSource, "RELIABLEINIT") then
+		if EffectManager.hasText(rSource, "RELIABLEINIT", { tActionsTags = rRoll.tActionTags, }) then
 			rRoll.bEffects = true;
 			rRoll.bReliable = true;
 		end
 	elseif rRoll.sType == "skill" then
-		if EffectManager.hasTextOrTag(rSource, "RELIABLESKILL", { tFilter = rRoll.tSkillFilter, }) then
+		if EffectManager.hasTextOrTag(rSource, "RELIABLESKILL", { tFilter = rRoll.tSkillFilter, tActionsTags = rRoll.tActionTags, }) then
 			rRoll.bEffects = true;
 			rRoll.bReliable = true;
 		elseif rRoll.sDesc:match("%[PROF%]") or rRoll.sDesc:match("%[PROF x2%]") then

@@ -6,16 +6,202 @@
 -->
 
 <root>
+	<template name="power_scalestat">
+		<stringcycler_listitem_left name="scalestat">
+			<anchored width="40" />
+			<parameters>
+				<defaultlabelres>dash</defaultlabelres>
+				<labelsres>power_label_scalestat_cantrip|power_label_scalestat_upcast</labelsres>
+				<values>cantrip|upcast</values>
+			</parameters>
+		</stringcycler_listitem_left>
+	</template>
+
+	<windowclass name="power_action_editor_sub_auto">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<header_content_framed_headersimple name="header">
+				<static textres="power_header_auto" />
+			</header_content_framed_headersimple>
+
+			<label_content_column name="auto_label">
+				<static textres="power_label_auto" />
+			</label_content_column>
+			<string_content_column name="auto" />
+
+			<label_content_column name="autokey_label">
+				<static textres="power_label_autokey" />
+			</label_content_column>
+			<string_content_column name="autokey" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_editor_sub_result">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="header">
+				<static textres="power_header_result" />
+			</header_content_framed_headersimple>
+
+			<label_content_column name="onmissdamage_label">
+				<static textres="power_label_onmissdamage" />
+			</label_content_column>
+			<cycler_power_onmissdamage name="onmissdamage">
+				<anchored to="contentanchor">
+					<top relation="relative" offset="3" postoffset="3" />
+					<left offset="110" />
+				</anchored>
+			</cycler_power_onmissdamage>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="power_action_editor_cast">
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="name_label">
+				<static textres="power_label_name" />
+			</label_column>
+			<stringc_column name="name" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_cast_auto</class>
+			</sub_column>
+
+			<sub_column name="sub_targeting">
+				<class>power_action_editor_cast_targeting</class>
+			</sub_column>
+
+			<sub_column name="sub_choices">
+				<class>power_action_editor_cast_choices</class>
+			</sub_column>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_editor_cast_auto" copy="power_action_editor_sub_auto">
+		<sheetdata>
+			<label_content_column name="allowupcast_label" insertbefore="auto_label">
+				<static textres="power_label_allowupcast" />
+			</label_content_column>
+			<button_checkbox_content_column name="allowupcast" insertbefore="auto_label" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_editor_cast_targeting">
 		<script>
 			function onInit()
-				updateDisplay();
+				self.onDataChanged();
 			end
+			function onDataChanged()
+				local sTargeting = targeting.getValue();
+				targetingval.setVisible(not StringManager.contains({ "self", "", }, sTargeting));
+				targetingval2.setVisible(StringManager.contains({ "cube", "cylinder", "line", }, sTargeting));
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
 
+			<header_content_framed_headersimple name="header">
+				<static textres="power_header_cast_targeting" />
+			</header_content_framed_headersimple>
+
+			<area_content_top name="area_targeting">
+				<anchored height="30" />
+			</area_content_top>
+			<anchor_listitem_left>
+				<anchored to="area_targeting" />
+			</anchor_listitem_left>
+			<anchor_listitem_right>
+				<anchored to="area_targeting" />
+			</anchor_listitem_right>
+
+			<cycler_listitem_power_targeting name="targeting" />
+			<number_listitem_left name="targetingval">
+				<anchored width="30" />
+				<min>0</min>
+			</number_listitem_left>
+			<number_listitem_left name="targetingval2">
+				<anchored width="30" />
+				<min>0</min>
+			</number_listitem_left>
+
+			<spacer_listitem_left name="spacer_scaling">
+				<anchored width="20" />
+			</spacer_listitem_left>
+			<label_listitem_left name="label_scaling">
+				<static textres="power_label_scalestat" />
+			</label_listitem_left>
+			<power_scalestat name="targetscalestat" />
+			<label_listitem_left name="label_targetscalemult">
+				<static>x</static>
+			</label_listitem_left>
+			<number_listitem_left name="targetscalemult">
+				<anchored width="35" />
+				<hideonvalue>0</hideonvalue>
+				<min>0</min>
+			</number_listitem_left>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_editor_cast_choices">
+		<sheetdata>
+			<anchor_content_top />
+
+			<header_content_framed_headersimple name="header">
+				<static textres="power_header_cast_choices" />
+			</header_content_framed_headersimple>
+			<button_iedit name="list_iedit">
+				<anchored to="header" position="insidetopright" offset="-5,0" />
+				<edittarget>list</edittarget>
+			</button_iedit>
+			<button_iadd name="list_iadd">
+				<anchored to="list_iedit" position="lefthigh" offset="5,0" />
+			</button_iadd>
+
+			<label_content_column name="label_autokeychoice">
+				<static textres = "power_label_autokeychoice" />
+			</label_content_column>
+			<string_content_column name="autokeychoice">
+				<tooltip textres="power_tooltip_choice_options" />
+			</string_content_column>
+
+			<list_content_noscroll_alternating_top name="list">
+				<datasource>.choicelist</datasource>
+				<class>power_action_editor_cast_choice_entry</class>
+			</list_content_noscroll_alternating_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_action_editor_cast_choice_entry">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete">
+				<editmode>list_iedit</editmode>
+			</button_listitem_idelete_left>
+
+			<string_listitem_left name="tag">
+				<anchored width="80" />
+				<tooltip textres="power_tooltip_choice_tag" />
+			</string_listitem_left>
+			
+			<button_listitem_checkbox_right name="allowmult" />
+
+			<string_listitem_center name="options">
+				<tooltip textres="power_tooltip_choice_options" />
+			</string_listitem_center>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_action_editor_attack">
+		<script>
+			function onInit()
+				self.updateDisplay();
+			end
 			function updateDisplay()
 				local node = getDatabaseNode();
 				local bAtkAbilityMode = (DB.getValue(node, "atkbase", "") == "ability");
-				local bSaveAbilityMode = (DB.getValue(node, "savedcbase", "") == "ability");
 
 				atkstat.setVisible(bAtkAbilityMode);
 				label_atkstat.setVisible(bAtkAbilityMode);
@@ -28,18 +214,6 @@
 				else
 					atkmod.setAnchor("left", "atkbase", "right", "absolute", 10);
 				end
-
-				savedcstat.setVisible(bSaveAbilityMode);
-				label_savedcstat.setVisible(bSaveAbilityMode);
-				savedcplus.setVisible(bSaveAbilityMode);
-				savedcprof.setVisible(bSaveAbilityMode);
-				label_savedcprof.setVisible(bSaveAbilityMode);
-				savedcplus2.setVisible(bSaveAbilityMode);
-				if bSaveAbilityMode then
-					savedcmod.setAnchor("left", "savedcplus2", "right", "absolute", 5);
-				else
-					savedcmod.setAnchor("left", "savedcbase", "right", "absolute", 10);
-				end
 			end
 		</script>
 		<sheetdata>
@@ -50,6 +224,10 @@
 			</label_column>
 			<stringc_column name="name" />
 
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
+
 			<header_column name="header_attack">
 				<static textres="power_header_attack" />
 				<center />
@@ -57,7 +235,7 @@
 			<button_stringcycler name="atktype">
 				<anchored width="60" height="20">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
-					<left offset="5" />
+					<left offset="10" />
 				</anchored>
 				<parameters>
 					<defaultlabelres>dash</defaultlabelres>
@@ -70,7 +248,7 @@
 				<static textres="power_label_atktype" />
 			</label_fieldtop>
 			<button_stringcycler name="atkbase">
-				<anchored to="atktype" position="righthigh" offset="10,0" width="80" height="20" />
+				<anchored to="atktype" position="righthigh" offset="15,0" width="80" height="20" />
 				<parameters>
 					<defaultlabelres>power_label_atkbase_group</defaultlabelres>
 					<labelsres>power_label_atkbase_ability|power_label_atkbase_fixed</labelsres>
@@ -120,6 +298,46 @@
 				<static textres="power_label_atkmod" />
 			</label_fieldtop>
 
+			<sub_column name="sub_result">
+				<class>power_action_editor_sub_result</class>
+			</sub_column>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_action_editor_powersave">
+		<script>
+			function onInit()
+				self.updateDisplay();
+			end
+			function updateDisplay()
+				local node = getDatabaseNode();
+				local bSaveAbilityMode = (DB.getValue(node, "savedcbase", "") == "ability");
+
+				savedcstat.setVisible(bSaveAbilityMode);
+				label_savedcstat.setVisible(bSaveAbilityMode);
+				savedcplus.setVisible(bSaveAbilityMode);
+				savedcprof.setVisible(bSaveAbilityMode);
+				label_savedcprof.setVisible(bSaveAbilityMode);
+				savedcplus2.setVisible(bSaveAbilityMode);
+				if bSaveAbilityMode then
+					savedcmod.setAnchor("left", "savedcplus2", "right", "absolute", 5);
+				else
+					savedcmod.setAnchor("left", "savedcbase", "right", "absolute", 10);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<label_column name="name_label">
+				<static textres="power_label_name" />
+			</label_column>
+			<stringc_column name="name" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
+
 			<header_column name="header_save">
 				<static textres="power_header_save" />
 				<center />
@@ -127,7 +345,7 @@
 			<cycler_power_savetype name="savetype">
 				<anchored>
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
-					<left offset="5" />
+					<left offset="10" />
 				</anchored>
 			</cycler_power_savetype>
 			<label_fieldtop>
@@ -193,20 +411,9 @@
 			</label_column>
 			<button_checkbox_column name="savemagic" />
 
-			<header_column name="header_onmiss">
-				<static textres="power_header_onsave" />
-				<center />
-			</header_column>
-			<cycler_power_onmissdamage name="onmissdamage">
-				<anchored>
-					<top parent="columnanchor" anchor="bottom" relation="relative" offset="20" />
-					<left offset="5" />
-				</anchored>
-			</cycler_power_onmissdamage>
-			<label_fieldtop>
-				<anchored to="onmissdamage" />
-				<static textres="power_label_onmissdamage" />
-			</label_fieldtop>
+			<sub_column name="sub_result">
+				<class>power_action_editor_sub_result</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 
@@ -235,6 +442,10 @@
 				<static textres="power_label_name" />
 			</label_column>
 			<stringc_column name="name" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 
 			<header_column name="header_damage">
 				<static textres="power_header_damage" />
@@ -274,7 +485,7 @@
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_action_editor_damage_entry">
-		<margins control="0,0,0,5" />
+		<margins control="0,0,0,2" />
 		<sheetdata>
 			<anchor_listitem_left_sm />
 			<anchor_listitem_right_sm />
@@ -291,9 +502,8 @@
 			</label_listitem_left>
 			<number_listitem_left name="statmult">
 				<anchored width="20" />
-				<default>1</default>
 				<min>0</min>
-				<hideonvalue>1</hideonvalue>
+				<hideonvalue>0</hideonvalue>
 				<tooltip textres="power_tooltip_statmult" />
 			</number_listitem_left>
 			<label_listitem_left name="label_statmultx">
@@ -309,6 +519,8 @@
 			</number_listitem_left>
 			
 			<string_listitem_center_underline name="type" />
+
+			<sub_action_editor_scale_entry name="sub_scale" />
 		</sheetdata>
 	</windowclass>
 
@@ -337,6 +549,10 @@
 				<static textres="power_label_name" />
 			</label_column>
 			<stringc_column name="name" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 
 			<header_column name="header_other">
 				<static textres="power_header_heal_other" />
@@ -412,9 +628,8 @@
 			</label_listitem_left>
 			<number_listitem_left name="statmult">
 				<anchored width="20" />
-				<default>1</default>
 				<min>0</min>
-				<hideonvalue>1</hideonvalue>
+				<hideonvalue>0</hideonvalue>
 				<tooltip textres="power_tooltip_statmult" />
 			</number_listitem_left>
 			<label_listitem_left name="label_statmultx">
@@ -428,6 +643,77 @@
 				<anchored width="35" />
 				<hideonvalue>0</hideonvalue>
 			</number_listitem_left>
+
+			<sub_action_editor_scale_entry name="sub_scale" />
+		</sheetdata>
+	</windowclass>
+
+	<template name="sub_action_editor_scale_entry">
+		<subwindow name="sub_scale">
+			<anchored position="insidetop" offset="0,24" />
+			<script>
+				function onInit()
+					self.updateDisplay();
+				end
+				function updateDisplay()
+					local nodeAction = DB.getChild(window.getDatabaseNode(), "...");
+					local nodePower = DB.getChild(nodeAction, "...");
+					local nodePowerList = DB.getChild(nodePower, "..");
+					if StringManager.contains({ "spell", "spelldata", "powers", "spells", "innatespells", }, DB.getName(nodePowerList)) then
+						setValue("power_action_editor_scale_entry", window.getDatabasePath());
+						setVisible(true);
+					else
+						setValue("", "");
+						setVisible(false);
+					end
+				end
+			</script>
+		</subwindow>
+	</template>
+	<windowclass name="power_action_editor_scale_entry">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onDataChanged();
+			end
+			function onDataChanged()
+				local tFields = { "label_scalestat_start", "scaledice", "label_scalestat_mid", "scalebonus", "label_scalestat_end", };
+				WindowManager.callSafeControlsSetVisible(self, tFields, (scalestat.getValue() ~= ""));
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<spacer_listitem_left name="spacer_scaling">
+				<anchored width="20" />
+			</spacer_listitem_left>
+			<label_listitem_left name="label_scaling">
+				<static textres="power_label_scalestat" />
+			</label_listitem_left>
+			<power_scalestat name="scalestat">
+				<script>
+					function onValueChanged()
+						window.onDataChanged();
+					end
+				</script>
+			</power_scalestat>
+			<label_listitem_left name="label_scalestat_start">
+				<static>x (</static>
+			</label_listitem_left>
+			<dice_listitem_left name="scaledice">
+				<anchored width="60" />
+			</dice_listitem_left>
+			<label_listitem_left name="label_scalestat_mid">
+				<static>+</static>
+			</label_listitem_left>
+			<number_listitem_left name="scalebonus">
+				<anchored width="35" />
+				<hideonvalue>0</hideonvalue>
+			</number_listitem_left>
+			<label_listitem_left name="label_scalestat_end">
+				<static>)</static>
+			</label_listitem_left>
 		</sheetdata>
 	</windowclass>
 
@@ -453,6 +739,10 @@
 				<static textres="power_label_name" />
 			</label_column>
 			<stringc_column name="name" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 
 			<header_column name="header_label">
 				<static textres="power_header_effect" />

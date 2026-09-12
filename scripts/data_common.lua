@@ -314,6 +314,20 @@ specialdmgtypes = {
 	"critical",
 };
 
+spellschools = {
+	"abjuration",
+	"conjuration",
+	"divination",
+	"enchantment",
+	"evocation",
+	"illusion",
+	"necromancy",
+	"transmutation",
+};
+
+class_nametovalue = {};
+class_valuetoname = {};
+
 function onInit()
 	-- Classes
 	class_nametovalue = {

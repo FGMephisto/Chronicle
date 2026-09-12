@@ -17,7 +17,7 @@ function onInit()
 	GameManager.setOption("dmgthreshold", "5E");
 	GameManager.setOption("regeneration", "5E");
 	GameManager.setOption("systemshock", "5E");
-	
+
 	ActionDamageD20.registerStandardDamageHealHandlers();
 end
 
@@ -28,7 +28,8 @@ end
 function onDamagePostGetRoll(rActor, rAction, rRoll)
 	ActionDamage.applyCritMetaToRoll(rActor, rAction, rRoll);
 end
-function applyCritMetaToRoll(rActor, rAction, rRoll)
+-- applyCritMetaToRoll(rActor, rAction, rRoll)
+function applyCritMetaToRoll(rActor, _, rRoll)
 	if not rRoll or not rRoll.clauses or not rRoll.clauses[1] then
 		return;
 	end
@@ -49,7 +50,8 @@ function applyCritMetaToRoll(rActor, rAction, rRoll)
 	end
 end
 
-function onHealPreResolve(rSource, rTarget, rRoll)
+-- onHealPreResolve(rSource, rTarget, rRoll)
+function onHealPreResolve(rSource, _, rRoll)
 	ActionsManager2.handleHealerFeat(rSource, rRoll);
 end
 
@@ -92,9 +94,9 @@ function onPostApply(rSource, rTarget, rRoll, tApplyData)
 	ActionHealthD20.onPostApplyDefault(rSource, rTarget, rRoll, tApplyData);
 
 	if tApplyData.sType == "damage" then
-		onDamagePostApply(rSource, rTarget, rRoll, tApplyData);
+		ActionDamage.onDamagePostApply(rSource, rTarget, rRoll, tApplyData);
 	elseif tApplyData.sType == "heal" then
-		onHealPostApply(rSource, rTarget, rRoll, tApplyData);
+		ActionDamage.onHealPostApply(rSource, rTarget, rRoll, tApplyData);
 	end
 end
 function onDamagePostApply(rSource, rTarget, rRoll, tApplyData)
@@ -105,7 +107,8 @@ function onHealPostApply(rSource, rTarget, rRoll, tApplyData)
 	ActionDamage.handleExhaustionOnHeal(rSource, rTarget, rRoll, tApplyData);
 end
 
-function handleConcentrationOnDamage(rSource, rTarget, rRoll, tApplyData)
+-- handleConcentrationOnDamage(rSource, rTarget, rRoll, tApplyData)
+function handleConcentrationOnDamage(rSource, rTarget, _, tApplyData)
 	-- Check for required concentration checks
 	if (tApplyData.nConcentrationDamage or 0) <= 0 or not ActionSave.hasConcentrationEffects(rTarget) then
 		return;
@@ -122,7 +125,8 @@ function handleConcentrationOnDamage(rSource, rTarget, rRoll, tApplyData)
 		ActionSave.performConcentrationRoll(nil, rTarget, nTargetDC, tData);
 	end
 end
-function handleExhaustionOnHeal(rSource, rTarget, rRoll, tApplyData)
+-- handleExhaustionOnHeal(rSource, rTarget, rRoll, tApplyData)
+function handleExhaustionOnHeal(_, rTarget, _, tApplyData)
 	if OptionsManager.isOption("HRHE", "off") then
 		return;
 	end
@@ -133,7 +137,8 @@ function handleExhaustionOnHeal(rSource, rTarget, rRoll, tApplyData)
 	EffectManager.addEffectByText(rTarget, "EXHAUSTION: " .. OptionsManager.getOption("HRHE"));
 end
 
-function handleFortitudeTraitOnDamage(rSource, rTarget, rRoll, tApplyData)
+-- handleFortitudeTraitOnDamage(rSource, rTarget, rRoll, tApplyData)
+function handleFortitudeTraitOnDamage(_, rTarget, _, tApplyData)
 	-- CHECK TO SEE IF DAMAGE PUSHED INTO DEATH STATUS
 	if not tApplyData.tHealth or ActorHealthManager.isDyingOrDeadStatus(tApplyData.tHealth.sOriginalStatus) or
 			not	ActorHealthManager.isDyingOrDeadStatus(tApplyData.tHealth.sNewStatus) then
@@ -141,7 +146,7 @@ function handleFortitudeTraitOnDamage(rSource, rTarget, rRoll, tApplyData)
 	end
 
 	-- CHECK TO SEE IF ACTOR HAS FORTITUDE TRAIT
-	local tFortitudeData = getFortitudeTraitData(rTarget);
+	local tFortitudeData = ActionDamage.getFortitudeTraitData(rTarget);
 	if not tFortitudeData then
 		return;
 	end
@@ -175,7 +180,7 @@ function getFortitudeTraitData(rActor)
 		return nil;
 	end
 	for _, nodeTrait in pairs(DB.getChildList(ActorManager.getCreatureNode(rActor), sListPath)) do
-		local tData = getFortitudeTraitDataHelper(rActor, nodeTrait);
+		local tData = ActionDamage.getFortitudeTraitDataHelper(rActor, nodeTrait);
 		if tData then
 			return tData;
 		end

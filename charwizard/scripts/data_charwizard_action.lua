@@ -7475,18 +7475,12 @@ tBuildDataClass2024 = {
 	},
 	-- Sorcerer - Spellfire Sorcery
 	["spellfireburst"] = {
-		multiple_actions = {
-			["Bolstering Flames (Spellfire Burst)"] = {
-				actions = {
-					{ type = "heal", subtype = "temp", clauses = { { dice = { "d4" }, stat = "charisma" }, }, },
-				},
-			},
-			["Radiant Fire (Spellfire Burst)"] = {
-				actions = {
-					{ type = "damage", clauses = { { dice = { "d4" }, dmgtype = "fire", stat = "charisma" }, }, },
-					{ type = "damage", clauses = { { dice = { "d4" }, dmgtype = "radiant", stat = "charisma" }, }, },
-				},
-			},
+		actions = {
+			{ type = "cast", sTargeting = "targets", nTargeting = 1, sAutoKeyChoice = "bolstering flames|radiant fire", },
+			{ type = "cast", sAutoKey = "bolstering flames", },
+			{ type = "heal", sAutoKey = "bolstering flames", subtype = "temp", clauses = { { dice = { "d4" }, stat = "charisma" }, }, },
+			{ type = "cast", sAutoKey = "radiant fire", tChoices = { { sTag = "DMGTYPE", sOptions = "fire|radiant", }, }, },
+			{ type = "damage", sAutoKey = "radiant fire", clauses = { { dice = { "d4" }, dmgtype = "[DMGTYPE]", stat = "charisma" }, }, },
 		},
 	},
 	["spellfirespells"] = {
@@ -7533,27 +7527,17 @@ tBuildDataClass2024 = {
 		},
 	},
 	["honedspellfire"] = {
-		multiple_actions = {
-			["Bolstering Flames (Honed Spellfire)"] = {
-				actions = {
-					{ type = "heal", subtype = "temp", clauses = { { dice = { "d4" }, stat = "charisma" }, }, { stat = "sorcerer" }, },
-				},
-			},
-			["Radiant Fire (Honed Spellfire)"] = {
-				actions = {
-					{ type = "damage", clauses = { { dice = { "d8" }, dmgtype = "fire", stat = "charisma" }, }, },
-					{ type = "damage", clauses = { { dice = { "d8" }, dmgtype = "radiant", stat = "charisma" }, }, },
-				},
-			},
+		actions = {
+			{ type = "cast", sTargeting = "targets", nTargeting = 1, sAutoKeyChoice = "bolstering flames|radiant fire", },
+			{ type = "cast", sAutoKey = "bolstering flames", },
+			{ type = "heal", sAutoKey = "bolstering flames", subtype = "temp", clauses = { { dice = { "d4" }, stat = "charisma" }, { stat = "sorcerer" }, }, },
+			{ type = "cast", sAutoKey = "radiant fire", tChoices = { { sTag = "DMGTYPE", sOptions = "fire|radiant", }, }, },
+			{ type = "damage", sAutoKey = "radiant fire", clauses = { { dice = { "d8" }, dmgtype = "[DMGTYPE]", stat = "charisma" }, }, },
 		},
 	},
 	["crownofspellfire"] = {
-		multiple_actions = {
-			["Flight (Crown of Spellfire)"] = {
-				actions = {
-					{ type = "effect", sName = "Flight (Crown of Spellfire); SPEED: 60 fly", sTargeting = "self" },
-				},
-			},
+		actions = {
+			{ type = "effect", sName = "Crown of Spellfire; SPEED: 60 fly,hover", sTargeting = "self" },
 		},
 	},
 
@@ -8700,19 +8684,6 @@ tBuildDataFeat2024 = {
 			},
 		},
 	},
-	["crossbowexpert"] = {
-		multiple_actions = {
-			["Crossbow Expert (Ignore Loading)"] = {
-				actions = {},
-			},
-			["Crossbow Expert (Firing in Melee)"] = {
-				actions = {},
-			},
-			["Crossbow Expert (Dual Wielding)"] = {
-				actions = {},
-			},
-		},
-	},
 	["crusher"] = {
 		multiple_actions = {
 			["Crusher (Push)"] = {
@@ -8917,19 +8888,6 @@ tBuildDataFeat2024 = {
 			},
 		},
 	},
-	["sharpshooter"] = {
-		multiple_actions = {
-			["Sharpshooter (Bypass Cover)"] = {
-				actions = {},
-			},
-			["Sharpshooter (Firing in Melee)"] = {
-				actions = {},
-			},
-			["Sharpshooter (Long Shots)"] = {
-				actions = {},
-			},
-		},
-	},
 	["shieldmaster"] = {
 		multiple_actions = {
 			["Shield Master (Shield Bash)"] = {
@@ -8978,19 +8936,6 @@ tBuildDataFeat2024 = {
 				actions = {
 					{ type = "effect", sName = "Speedy (Agile Movement); @DISATK", nDuration = 1, },
 				},
-			},
-		},
-	},
-	["spellsniper"] = {
-		multiple_actions = {
-			["Spell Sniper (Bypass Cover)"] = {
-				actions = {},
-			},
-			["Spell Sniper (Casting in Melee)"] = {
-				actions = {},
-			},
-			["Spell Sniper (Increased Range)"] = {
-				actions = {},
 			},
 		},
 	},

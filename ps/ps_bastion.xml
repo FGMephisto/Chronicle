@@ -198,9 +198,6 @@
 
 	<windowclass name="ps_bastion_log">
 		<frame>utilitybox</frame>
-		<placement>
-			<nosave />
-		</placement>
 		<sizelimits>
 			<minimum width="500" height="400"/>
 			<dynamic/>

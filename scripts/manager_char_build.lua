@@ -175,7 +175,7 @@ function filterSkills(tOptions)
 	if not tOptions then
 		return {};
 	end
-	local tAll = CharWizardManager.getSkillNames();
+	local tAll = CharBuildManager.getSkillNames();
 	local tFinal = {};
 	for _,sOption in ipairs(tOptions) do
 		local sOptionLower = StringManager.trim(sOption):lower();
@@ -249,6 +249,7 @@ function getSkillsFromText2024(s)
 	end
 
 	-- EFOTA - Species - Changeling/Shifter
+	local nMatchEnd;
 	sPicks, nMatchEnd = s:match("proficiency in (%w+) of the following skills of your choice.()")
 	if sPicks then
 		return {}, CharBuildManager.parseOptionsFromText(s:sub(nMatchEnd)), CharBuildManager.convertSingleNumberTextToNumber(sPicks);

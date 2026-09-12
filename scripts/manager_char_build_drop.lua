@@ -711,8 +711,6 @@ function helperCheckActionsAdd2(rActionsAdd)
 
 	-- Clean up
 	DB.deleteChild(nodeNewPower, "level");
-	local nodeActions = DB.createChild(nodeNewPower, "actions");
-	DB.deleteChildren(nodeActions);
 
 	-- Convert text to description
 	local nodeText = DB.getChild(nodeNewPower, "text");
@@ -722,129 +720,8 @@ function helperCheckActionsAdd2(rActionsAdd)
 		DB.deleteNode(nodeText);
 	end
 
-	-- See if we have specific actions to add
-	if not rActionsAdd.tPowerActions then
-		return;
-	end
-
-	local nodeCastAction = nil;
-	for _,vAction in pairs(rActionsAdd.tPowerActions) do
-		if vAction.type then
-			if vAction.type == "attack" then
-				if not nodeCastAction then
-					nodeCastAction = DB.createChild(nodeActions);
-					DB.setValue(nodeCastAction, "type", "string", "cast");
-				end
-				if nodeCastAction then
-					if vAction.range == "R" then
-						DB.setValue(nodeCastAction, "atktype", "string", "ranged");
-					else
-						DB.setValue(nodeCastAction, "atktype", "string", "melee");
-					end
-
-					if vAction.stat then
-						DB.setValue(nodeCastAction, "atkbase", "string", "ability");
-						DB.setValue(nodeCastAction, "atkstat", "string", vAction.stat);
-						if vAction.prof then
-							DB.setValue(nodeCastAction, "atkprof", "number", 1);
-						end
-						if vAction.modifier then
-							DB.setValue(nodeCastAction, "atkmod", "number", tonumber(vAction.modifier) or 0);
-						end
-					elseif vAction.modifier then
-						DB.setValue(nodeCastAction, "atkbase", "string", "fixed");
-						DB.setValue(nodeCastAction, "atkmod", "number", tonumber(vAction.modifier) or 0);
-					end
-				end
-
-			elseif vAction.type == "damage" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "damage");
-
-				local nodeDmgList = DB.createChild(nodeAction, "damagelist");
-				for _,vDamage in ipairs(vAction.clauses) do
-					local nodeEntry = DB.createChild(nodeDmgList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vDamage.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vDamage.bonus);
-					if vDamage.stat then
-						DB.setValue(nodeEntry, "stat", "string", vDamage.stat);
-					end
-					if vDamage.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vDamage.statmult);
-					end
-					DB.setValue(nodeEntry, "type", "string", vDamage.dmgtype);
-				end
-
-			elseif vAction.type == "heal" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "heal");
-
-				if vAction.subtype == "temp" then
-					DB.setValue(nodeAction, "healtype", "string", "temp");
-				end
-				if vAction.sTargeting then
-					DB.setValue(nodeAction, "healtargeting", "string", vAction.sTargeting);
-				end
-
-				local nodeHealList = DB.createChild(nodeAction, "heallist");
-				for _,vHeal in ipairs(vAction.clauses) do
-					local nodeEntry = DB.createChild(nodeHealList);
-
-					DB.setValue(nodeEntry, "dice", "dice", vHeal.dice);
-					DB.setValue(nodeEntry, "bonus", "number", vHeal.bonus);
-					if vHeal.stat then
-						DB.setValue(nodeEntry, "stat", "string", vHeal.stat);
-					end
-					if vHeal.statmult then
-						DB.setValue(nodeEntry, "statmult", "number", vHeal.statmult);
-					end
-				end
-
-			elseif vAction.type == "powersave" then
-				if not nodeCastAction then
-					nodeCastAction = DB.createChild(nodeActions);
-					DB.setValue(nodeCastAction, "type", "string", "cast");
-				end
-				if nodeCastAction then
-					DB.setValue(nodeCastAction, "savetype", "string", vAction.save);
-					DB.setValue(nodeCastAction, "savemagic", "number", 1);
-
-					if vAction.savemod then
-						DB.setValue(nodeCastAction, "savedcbase", "string", "fixed");
-						DB.setValue(nodeCastAction, "savedcmod", "number", tonumber(vAction.savemod) or 8);
-					elseif vAction.savestat then
-						if vAction.savestat ~= "base" then
-							DB.setValue(nodeCastAction, "savedcbase", "string", "ability");
-							DB.setValue(nodeCastAction, "savedcstat", "string", vAction.savestat);
-						end
-					end
-					if vAction.onmissdamage == "half" then
-						DB.setValue(nodeCastAction, "onmissdamage", "string", "half");
-					end
-				end
-
-			elseif vAction.type == "effect" then
-				local nodeAction = DB.createChild(nodeActions);
-				DB.setValue(nodeAction, "type", "string", "effect");
-
-				DB.setValue(nodeAction, "label", "string", vAction.sName);
-
-				if vAction.sTargeting then
-					DB.setValue(nodeAction, "targeting", "string", vAction.sTargeting);
-				end
-				if vAction.sApply then
-					DB.setValue(nodeAction, "apply", "string", vAction.sApply);
-				end
-
-				local nDuration = tonumber(vAction.nDuration) or 0;
-				if nDuration ~= 0 then
-					DB.setValue(nodeAction, "durmod", "number", nDuration);
-					DB.setValue(nodeAction, "durunit", "string", vAction.sUnits);
-				end
-			end
-		end
-	end
+	-- Add any actions for the power
+	PowerManager.rebuildPowerActions(nodeNewPower, rActionsAdd.tPowerActions);
 end
 
 function handleClassFeatureChoices(rAdd)
@@ -1005,7 +882,7 @@ function pickInitialAbilityAdjust(nodeChar, tAbilities, bSource2024)
 		return;
 	end
 	if #tAbilities == 2 then
-		CharBuildDropManager.helperAddBackgroundAdjBy2Then1(nodeChar, tAbilities);
+		CharBuildDropManager.helperInitialAbilityAdjBy2Then1(nodeChar, tAbilities);
 		return;
 	end
 

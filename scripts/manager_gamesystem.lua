@@ -5,33 +5,24 @@
 
 -- Ruleset action types
 actions = {
-	["dice"] = { bUseModStack = true },
-	["table"] = { },
-	["cast"] = { sTargeting = "each" },
-	["death"] = { bUseModStack = true },
-	["death_auto"] = { },
+	["dice"] = { bUseModStack = true, },
+	["table"] = { sIcon = "action_table", },
+	["attack"] = { sIcon = "action_attack", sTargeting = "each", bUseModStack = true, },
+	["cast"] = { sIcon = "action_roll", },
+	["check"] = { sIcon = "action_roll", bUseModStack = true, },
 	["concentration"] = { },
-	["powersave"] = { sTargeting = "each" },
-	["attack"] = { sIcon = "action_attack", sTargeting = "each", bUseModStack = true },
-	["damage"] = { sIcon = "action_damage", sTargeting = "all", bUseModStack = true },
-	["heal"] = { sIcon = "action_heal", sTargeting = "all", bUseModStack = true },
-	["effect"] = { sIcon = "action_effect", sTargeting = "all" },
-	["init"] = { bUseModStack = true },
-	["save"] = { bUseModStack = true },
-	["save_auto"] = { },
-	["check"] = { bUseModStack = true },
+	["damage"] = { sIcon = "action_damage", sTargeting = "all", bUseModStack = true, },
+	["death"] = { bUseModStack = true, },
+	["death_auto"] = { },
+	["heal"] = { sIcon = "action_heal", sTargeting = "all", bUseModStack = true, },
+	["effect"] = { sIcon = "action_effect", sTargeting = "all", },
+	["init"] = { sIcon = "action_roll", bUseModStack = true, },
+	["powersave"] = { sIcon = "action_save", sTargeting = "each", sOpposed = "save", },
 	["recharge"] = { },
-	["recovery"] = { bUseModStack = true },
-	["skill"] = { bUseModStack = true },
-};
-
-targetactions = {
-	"cast",
-	"powersave",
-	"attack",
-	"damage",
-	"heal",
-	"effect"
+	["recovery"] = { bUseModStack = true, },
+	["save"] = { sIcon = "action_save", bUseModStack = true, },
+	["save_auto"] = { },
+	["skill"] = { sIcon = "action_roll", bUseModStack = true, },
 };
 
 currencies = {

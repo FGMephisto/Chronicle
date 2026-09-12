@@ -66,10 +66,21 @@
 				</parameters>
 				<script>
 					function onValueChanged()
-						window.content.subwindow.onModeChanged();
+						WindowManager.callInnerWindowFunction(window, "onModeChanged", getValue());
 					end
 				</script>
 			</button_stringcycler>
+
+			<sub_content_framed_groupbox_bottom name="spellslots_prep">
+				<class>power_slots_prep</class>
+				<invisible />
+			</sub_content_framed_groupbox_bottom>
+			<sub_content_framed_groupbox_bottom name="spellslots_cast">
+				<class>power_slots_cast</class>
+				<invisible />
+			</sub_content_framed_groupbox_bottom>
+
+			<sub_content_framed_groupbox_hidden_bottom name="sub_query" />
 
 			<sub_content_framed_groupbox name="content">
 				<class>charsheet_actions_contents</class>
@@ -85,9 +96,7 @@
 				weapons.applyFilter();
 			end
 			function onModeChanged()
-				weapons.onModeChanged();
-				spellslots_cast.subwindow.onModeChanged();
-				actions.subwindow.onModeChanged();
+				weapons.applyFilter();
 			end
 		</script>
 		<sheetdata>
@@ -157,14 +166,6 @@
 				<script file="campaign/scripts/char_weaponlist.lua" />
 			</list_content_noscroll_top>
 
-			<sub_content_top name="spellslots_prep">
-				<class>power_slots_prep</class>
-				<invisible />
-			</sub_content_top>
-			<sub_content_top name="spellslots_cast">
-				<class>power_slots_cast</class>
-				<invisible />
-			</sub_content_top>
 			<sub_content_top name="actions">
 				<class>power_page</class>
 			</sub_content_top>

@@ -62,7 +62,7 @@ function actionAbility(draginfo, rAction)
 		ActionAttack.performRoll(draginfo, self.getActor(), rAction);
 		self.usePower(rPower);
 	elseif rAction.sType == "powersave" then
-		ActionPower.performSaveVsRoll(draginfo, self.getActor(), rAction);
+		ActionPowerSave.performRoll(draginfo, self.getActor(), rAction);
 		self.usePower(rPower);
 	elseif rAction.sType == "damage" then
 		ActionDamageD20.performRoll(draginfo, self.getActor(), rAction);
@@ -99,7 +99,7 @@ function onHoverUpdate(x, y)
 	local nMouseIndex = getIndexAt(x, y);
 	if not parsed then
 		parsed = true;
-		rPower = CombatManager2.parseAttackLine(getValue());
+		rPower = CombatManager2.parseAttackLine(getValue(), window.getDatabaseNode());
 	end
 
 	-- Clear any memory of the last hover update

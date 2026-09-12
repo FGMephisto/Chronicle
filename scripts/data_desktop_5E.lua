@@ -5,14 +5,6 @@
 
 --luacheck: globals _tDataModuleSets _tModifierExclusionSets _tModifierWindowPresets
 
-function onInit()
-	CampaignSetupManager.addAutoLoadRules(_tAutoLoadRules);
-	CampaignSetupManager.addModuleSetsByMode(_tDataModuleSets);
-
-	ModifierManager.addModWindowPresets(_tModifierWindowPresets);
-	ModifierManager.addKeyExclusionSets(_tModifierExclusionSets);
-end
-
 _tAutoLoadRules = {
 	{ key = "PHB", load = { "WOTC50PHB", }, playerload = { "WOTC50PHB", }, },
 	{ key = "PHB", load = { "WOTC5EPHB", }, playerload = { "WOTC5EPHB", }, },
@@ -30,7 +22,7 @@ _tAutoLoadRules = {
 	{ load = { "Fizban's Treasury of Dragon", "DD Fizban's Treasury of Dragons Players", }, playerload = { "DD Fizban's Treasury of Dragons Players", }, },
 	{ load = { "WOTC50FRAIF", }, },
 	{ load = { "WOTC50FRHOF", }, playerload = { "WOTC50FRHOF", }, },
-	{ load = { "WOTC50SSHOTBDM", "WOTC50SSHOTBP", }, playerload = { "WOTC50SSHOTBP", }, }, 
+	{ load = { "WOTC50SSHOTBDM", "WOTC50SSHOTBP", }, playerload = { "WOTC50SSHOTBP", }, },
 	{ load = { "DD Monsters of the Multiverse", "DD Monsters of the Multiverse Players", }, playerload = { "DD Monsters of the Multiverse Players", }, },
 	{ load = { "DD Mordenkainen's Tome of Foes", "DD Mordenkainen's Tome of Foes Players", }, playerload = { "DD Mordenkainen's Tome of Foes Players", }, },
 	--{ load = { "DD Sword Coast Adventurer's Guide - Campaign Guide", "DD Sword Coast Adventurer's Guide - Player's Guide", }, playerload = { "DD Sword Coast Adventurer's Guide - Player's Guide", }, },
@@ -213,3 +205,11 @@ _tModifierExclusionSets =
 {
 	{ "DEF_COVER", "DEF_SCOVER" },
 };
+
+function onInit()
+	CampaignSetupManager.addAutoLoadRules(Desktop5E._tAutoLoadRules);
+	CampaignSetupManager.addModuleSetsByMode(Desktop5E._tDataModuleSets);
+
+	ModifierManager.addModWindowPresets(Desktop5E._tModifierWindowPresets);
+	ModifierManager.addKeyExclusionSets(Desktop5E._tModifierExclusionSets);
+end

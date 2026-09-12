@@ -169,11 +169,11 @@ function setEncumbranceLevel(rActor, nLevel)
 	local sState = "";
 	if nLevel == 4 then
 		sState = Interface.getString("encumbrance_overmax");
-	elseif nLevel == 3 then		
+	elseif nLevel == 3 then
 		sState = Interface.getString("encumbrance_overcap");
-	elseif nLevel == 2 then		
+	elseif nLevel == 2 then
 		sState = Interface.getString("encumbrance_encumbered_heavy");
-	elseif nLevel == 1 then		
+	elseif nLevel == 1 then
 		sState = Interface.getString("encumbrance_encumbered");
 	end
 	GameManager.setRecordFieldValue(rActor, "enclevel", "number", nLevel);

@@ -105,6 +105,12 @@ function getAbilityScore(rActor, sAbility, rEffect)
 		end
 	elseif sShort == "sdc" then
 		nStatScore = ActorManager5E.getEffectSpellDC(rActor, rEffect);
+	elseif sAbility == "slvl" then
+		nStatScore = ActorManager5E.getEffectSpellLevel(rActor, rEffect);
+	elseif sAbility == "upcast" then
+		nStatScore = ActorManager5E.getEffectSpellUpcast(rActor, rEffect);
+	elseif sAbility == "cantrip" then
+		nStatScore = ActorManager5E.getEffectSpellCantripBoost(rActor, rEffect);
 	elseif StringManager.contains(DataCommon.classes, sAbility:lower()) then
 		nStatScore = ActorManager5E.getClassLevel(nodeActor, sAbility:lower());
 	end
@@ -159,7 +165,7 @@ function getAbilityBonus(rActor, sAbility, rEffect)
 end
 
 function getEffectSpellDC(rActor, rEffect)
-	local nDCMod = EffectManager.getBonusMod(rActor, "DC", { tActionTags = rEffect and rEffect.tActionTags, });
+	local nDCMod = EffectManager.getBonusMod(rActor, "SAVEDC", { tActionTags = rEffect and rEffect.tActionTags, });
 
 	if rEffect and rEffect.nodeAction then
 		return ActorManager5E.getEffectSpellDCFromAction(rActor, rEffect.nodeAction) + nDCMod;
@@ -172,16 +178,16 @@ function getEffectSpellDCFromAction(rActor, nodeAction)
 	end
 	local nodePower = DB.getChild(nodeAction, "...");
 
-	local rCastAction;
+	local tActionData;
 	for _, v in ipairs(DB.getChildList(nodePower, "actions")) do
-		if DB.getValue(v, "type", "") == "cast" then
-			rCastAction = PowerManager.getPCPowerActionHelper(rActor, v); 
+		if DB.getValue(v, "type", "") == "powersave" then
+			tActionData = PowerManager.getPowerAction(v, { rActor = rActor, });
 			break;
 		end
 	end
-	if rCastAction then
-		PowerManager.evalAction(rActor, nodePower, rCastAction);
-		return rCastAction.savemod;
+	if tActionData and ((tActionData.save or "") ~= "") then
+		PowerManager.evalAction(rActor, nodePower, tActionData);
+		return (tActionData.savemod or 0);
 	end
 
 	local nDC = 8;
@@ -197,7 +203,8 @@ function getEffectSpellDCFromAction(rActor, nodeAction)
 	end
 	return nDC;
 end
-function getEffectSpellDCFromActor(rActor, rEffect)
+-- getEffectSpellDCFromActor(rActor, rEffect)
+function getEffectSpellDCFromActor(rActor, _)
 	local sAbility = ActorManager5E.getSpellcastingAbility(rActor);
 	if ((sAbility or "") == "") then
 		local nSpellcastDC = ActorManager5E.getSpellcastingDC(rActor);
@@ -207,7 +214,6 @@ function getEffectSpellDCFromActor(rActor, rEffect)
 	end
 	return 8 + ActorCommonManager.getBonus(rActor, "prf") + ActorCommonManager.getBonus(rActor, sAbility);
 end
-
 function getSpellcastingAbility(rActor)
 	if ActorManager.isPC(rActor) then
 		for _,v in ipairs(DB.getChildList(ActorManager.getCreatureNode(rActor), "featurelist")) do
@@ -234,15 +240,13 @@ function getSpellcastingAbility(rActor)
 				end
 			end
 		end
-		if not nSpellcastAbilityBonus then
-			for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
-				local s = StringManager.simplify(DB.getValue(v, "name", ""));
-				if StringManager.startsWith(s, "spellcasting") then
-					local sDesc = DB.getText(v, "desc", ""):lower();
-					local sAbility = ActorManager5E.getSpellcastingAbilityFromText(sDesc);
-					if sAbility then
-						return sAbility;
-					end
+		for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
+			local s = StringManager.simplify(DB.getValue(v, "name", ""));
+			if StringManager.startsWith(s, "spellcasting") then
+				local sDesc = DB.getText(v, "desc", ""):lower();
+				local sAbility = ActorManager5E.getSpellcastingAbilityFromText(sDesc);
+				if sAbility then
+					return sAbility;
 				end
 			end
 		end
@@ -283,19 +287,41 @@ function getSpellcastingDC(rActor)
 			end
 		end
 	end
-	if not nSpellcastAbilityBonus then
-		for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
-			local s = StringManager.simplify(DB.getValue(v, "name", ""));
-			if StringManager.startsWith(s, "spellcasting") then
-				local sDesc = DB.getText(v, "desc", ""):lower();
-				local sDC = sDesc:match("spell save dc (%d+)");
-				if sDC then
-					return tonumber(sDC);
-				end
+	for _,v in ipairs(DB.getChildList(nodeActor, "actions")) do
+		local s = StringManager.simplify(DB.getValue(v, "name", ""));
+		if StringManager.startsWith(s, "spellcasting") then
+			local sDesc = DB.getText(v, "desc", ""):lower();
+			local sDC = sDesc:match("spell save dc (%d+)");
+			if sDC then
+				return tonumber(sDC);
 			end
 		end
 	end
 	return nil;
+end
+
+-- getEffectSpellLevel(rActor, rEffect)
+function getEffectSpellLevel(_, rEffect)
+	if rEffect and rEffect.nodeAction then
+		local nodePower = DB.getChild(rEffect.nodeAction, "...");
+		return DB.getValue(nodePower, "level", 0);
+	end
+	return 0;
+end
+
+-- getEffectSpellUpcast(rActor, rEffect)
+function getEffectSpellUpcast(_, rEffect)
+	if rEffect and rEffect.nodeAction then
+		local nodePower = DB.getChild(rEffect.nodeAction, "...");
+		return PowerManager5E.getSpellUpcast(nodePower);
+	end
+	return 0;
+end
+function getEffectSpellCantripBoost(rActor, rEffect)
+	if rEffect and rEffect.nodeAction then
+		return PowerManager5E.getSpellCantripBoost(rActor);
+	end
+	return 0;
 end
 
 --
@@ -536,7 +562,7 @@ function getCheck(rActor, sCheck, sSkill)
 	return nValue, bADV, bDIS, table.concat(aAddText, " ");
 end
 
-function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
+function getDefenseAdvantage(rAttacker, rDefender, rRoll)
 	if not rDefender then
 		return false, false;
 	end
@@ -547,14 +573,13 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 	-- Check effects
 	local bADV = false;
 	local bDIS = false;
-	local bProne = false;
 
 	local bDefenderFrozen = EffectManager.hasCondition(rDefender, "Paralyzed") or
 			EffectManager.hasCondition(rDefender, "Petrified") or
 			EffectManager.hasCondition(rDefender, "Stunned") or
 			EffectManager.hasCondition(rDefender, "Unconscious");
-	local tAttEffData = { rTarget = rDefender, bTargetedOnly = true, tFilter = tAttackFilter, };
-	local tDefEffData = { rTarget = rAttacker, tFilter = tAttackFilter, };
+	local tAttEffData = { rTarget = rDefender, bTargetedOnly = true, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
+	local tDefEffData = { rTarget = rAttacker, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
 
 	if bDefenderFrozen then
 		bADV = true;
@@ -564,7 +589,7 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 		bADV = true;
 	elseif EffectManager.hasTextOrTag(rDefender, "GRANTADVATK", tDefEffData) then
 		bADV = true;
-	elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) then
+	elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) and not EffectManager.hasCondition(rAttacker, "NOINVISIBLE") then
 		bADV = true;
 	elseif EffectManager.hasCondition(rDefender, "Blinded") then
 		bADV = true;
@@ -578,26 +603,15 @@ function getDefenseAdvantage(rAttacker, rDefender, tAttackFilter)
 		bDIS = true;
 	elseif EffectManager.hasTextOrTag(rDefender, "GRANTDISATK", tDefEffData) then
 		bDIS = true;
-	elseif EffectManager.hasText(rDefender, "Invisible", tDefEffData) then
+	elseif EffectManager.hasText(rDefender, "Invisible", tDefEffData) and not EffectManager.hasCondition(rDefender, "NOINVISIBLE") then
 		bDIS = true;
 	end
 
-	if EffectManager.hasCondition(rDefender, "Prone") then
-		bProne = true;
-	end
 	if EffectManager.hasText(rDefender, "Dodge", tDefEffData) and
 			not (bDefenderFrozen or
 			EffectManager.hasCondition(rDefender, "Grappled") or
 			EffectManager.hasCondition(rDefender, "Restrained")) then
 		bDIS = true;
-	end
-
-	if bProne then
-		if StringManager.contains(tAttackFilter, "melee") then
-			bADV = true;
-		elseif StringManager.contains(tAttackFilter, "ranged") then
-			bDIS = true;
-		end
 	end
 
 	return bADV, bDIS;
@@ -617,7 +631,6 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 
 	local sAttackType = ActionAttackCore.decodeRangeText(sAttack);
 	local bOpportunity = sAttack:match("%[OPPORTUNITY%]");
-	local nCover = tonumber(sAttack:match("%[COVER %-(%d)%]")) or 0;
 
 	local nDefense;
 	local sDefenseStat = "dexterity";
@@ -644,10 +657,8 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 	local bDIS = false;
 	if ActorManager.hasCT(rDefender) then
 		local tAttackFilter = ActionCore.buildEffectFilter({ sRange = sAttackType, bOpportunity = bOpportunity, });
-		local tAttEffData = { rTarget = rDefender, bTargetedOnly = true, tFilter = tAttackFilter, };
-		local tDefEffData = { rTarget = rAttacker, tFilter = tAttackFilter, };
-		
-		local nBonusAC = EffectManager.getBonusMod(rDefender, "AC", tDefEffData);
+		local tAttEffData = { rTarget = rDefender, bTargetedOnly = true, tFilter = tAttackFilter, tActionTags = rRoll.tActionTags, };
+		local tDefEffData = { rTarget = rAttacker, tFilter = tAttackFilter, tActionTags = rRoll.tActionTags, };
 
 		local nBonusStat = ActorManagerD20.getAbilityEffectsBonus(rDefender, sDefenseStat);
 		if ActorManager.isPC(rDefender) and (nBonusStat > 0) then
@@ -661,6 +672,8 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			end
 		end
 
+		local nBonusAC = EffectManager.getBonusMod(rDefender, "AC", tDefEffData);
+
 		local bDefenderFrozen = EffectManager.hasCondition(rDefender, "Paralyzed") or
 				EffectManager.hasCondition(rDefender, "Petrified") or
 				EffectManager.hasCondition(rDefender, "Stunned") or
@@ -672,7 +685,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			bADV = true;
 		elseif EffectManager.hasText(rDefender, "GRANTADVATK", tDefEffData) then
 			bADV = true;
-		elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) then
+		elseif EffectManager.hasText(rAttacker, "Invisible", tAttEffData) and not EffectManager.hasCondition(rAttacker, "NOINVISIBLE") then
 			bADV = true;
 		elseif EffectManager.hasCondition(rDefender, "Restrained") then
 			bADV = true;
@@ -682,7 +695,7 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			bDIS = true;
 		elseif EffectManager.hasText(rDefender, "GRANTDISATK", tDefEffData) then
 			bDIS = true;
-		elseif EffectManager.hasText(rDefender, "Invisible", tDefEffData) then
+		elseif EffectManager.hasText(rDefender, "Invisible", tDefEffData) and not EffectManager.hasCondition(rDefender, "NOINVISIBLE") then
 			bDIS = true;
 		end
 
@@ -694,18 +707,15 @@ function getDefenseValue(rAttacker, rDefender, rRoll)
 			end
 		end
 
-		local nBonusSituational = 0;
-		if nCover < 5 then
-			if EffectManager.hasTextOrTag(rDefender, "SCOVER", tDefEffData) then
-				nBonusSituational = nBonusSituational + 5 - nCover;
-			elseif nCover < 2 then
-				if EffectManager.hasTextOrTag(rDefender, "COVER", tDefEffData) then
-					nBonusSituational = nBonusSituational + 2 - nCover;
-				end
+		nDefenseEffectMod = nBonusAC + nBonusStat;
+
+		local nACMin = EffectManager.getMaxMod(rDefender, "ACMIN", tDefEffData);
+		if nACMin then
+			local nDiff = nACMin - (nDefense + nDefenseEffectMod);
+			if nDiff > 0 then
+				nDefenseEffectMod = nDefenseEffectMod + nDiff;
 			end
 		end
-
-		nDefenseEffectMod = nBonusAC + nBonusStat + nBonusSituational;
 	end
 
 	-- Results
@@ -894,7 +904,7 @@ function getDamageAdjustEffectsFromField(rActor, sField, sEffectTag)
 	end
 	return tEffects;
 end
-function getDamageAdjustEffectsVehicle(tOutput, rActor)
+function getDamageAdjustEffectsVehicle(rActor)
 	if ActorManager.getRecordType(rActor) ~= "vehicle" then
 		return {};
 	end
@@ -914,8 +924,8 @@ function getDamageAdjustEffectsVehicle(tOutput, rActor)
 	return tEffects;
 end
 
-function getConditionImmunities(rActor, rSource)
-	local tResults = ActorCommonManager.getEffectsConditionImmunitiesDefault(rActor, rSource);
+function getConditionImmunities(rActor, rSource, tEffectConditions)
+	local tResults = ActorCommonManager.getEffectsConditionImmunitiesDefault(rActor, rSource, tEffectConditions);
 
 	local sActorType = ActorManager.getRecordType(rActor);
 	if (sActorType == "npc") or (sActorType == "vehicle") then
@@ -1014,6 +1024,8 @@ function restPC(rActor, sRestType)
 			end
 		end
 	end
+
+	EffectManagerD20.clearRestExpiringEffectsByActor(rActor, sRestType);
 	return true;
 end
 function resetHealthPC(rActor, sRestType)

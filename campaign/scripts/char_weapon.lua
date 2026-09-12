@@ -101,9 +101,10 @@ end
 function onAttackAction(draginfo)
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...")
+	local rActor = ActorManager.resolveActor(nodeChar);
 
 	-- Build basic attack action record
-	local rAction = CharWeaponManager.buildAttackAction(nodeChar, nodeWeapon);
+	local rAction = CharWeaponManager.buildAttackAction(rActor, nodeWeapon);
 
 	-- Decrement ammo
 	if rAction.range == "R" then
@@ -111,7 +112,6 @@ function onAttackAction(draginfo)
 	end
 
 	-- Perform action
-	local rActor = ActorManager.resolveActor(nodeChar);
 	ActionAttack.performRoll(draginfo, rActor, rAction);
 	return true;
 end

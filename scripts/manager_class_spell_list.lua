@@ -7,7 +7,6 @@ function onInit()
 	Interface.addKeyedEventHandler("onLinkActivate", "class_spell_view", ClassSpellListManager.handleSpellViewLink);
 
 	ExportManager.registerPreExportCallback(ClassSpellListManager.callbackSetupCSLViews);
-	ExportManager.registerPostExportCallback(ClassSpellListManager.callbackAddCSLViews);
 end
 function onClose()
 	if ClassSpellListManager.isInitialized() then

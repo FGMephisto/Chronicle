@@ -72,6 +72,8 @@ function onNewSpell(nodeRecord)
 	if OptionsManager.isOption("GAVE", "2024") then
 		DB.setValue(nodeRecord, "version", "string", "2024");
 	end
+	PowerManager5E.deleteSpellUpcast(nodeRecord);
+	ActionsChoiceManager.deletePowerChoiceSelections(nodeRecord);
 end
 function onNewVehicle(nodeRecord)
 	if OptionsManager.isOption("GAVE", "2024") then

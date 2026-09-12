@@ -771,6 +771,7 @@
 	<string name="power_label_atkstat">Stat</string>
 	<string name="power_label_atkprof">Prof</string>
 	<string name="power_label_atkmod">Bonus</string>
+	<string name="power_label_multihit">Multi-Hit</string>
 	<string name="power_label_savetype">Type</string>
 	<string name="power_label_savedcbase">Base</string>
 	<string name="power_label_savebase_group">Group DC + </string>
@@ -781,7 +782,19 @@
 	<string name="power_label_savedcmod">Bonus</string>
 	<string name="power_label_savemagic">Magic?</string>
 	<string name="power_label_onmissdamage">Damage</string>
-	<string name="power_label_onmissdamage_half">Half on Success</string>
+	<string name="power_label_onmissdamage_half">Half on Success/Miss</string>
+
+	<string name="power_label_scalestat">Scale By:</string>
+	<string name="power_label_scalestat_cantrip">Cantrip</string>
+	<string name="power_label_scalestat_upcast">Upcast</string>
+	<string name="power_tooltip_use_upcast">Current Upcast</string>
+	<string name="power_tooltip_use_choice">Current Choices</string>
+	<string name="power_message_upcast">Upcast</string>
+	<string name="power_message_choice">Choices</string>
+	<string name="power_label_autokeychoice">Auto Key Choice</string>
+	<string name="power_tooltip_choice_tag">Bracketed tag to replace\rin damage or effect</string>
+	<string name="power_tooltip_choice_options">Choices to offer\rUse | character to separate options</string>
+	<string name="power_tooltip_choice_allowmult">Allow multiple choices</string>
 
 	<string name="power_label_healtype">Type</string>
 	<string name="power_label_healtypenormal">HP</string>
@@ -859,4 +872,15 @@
 	<string name="ps_tooltip_bastion_log_clear">Clear Bastion Log</string>
 	<string name="ps_tooltip_bastion_log_turn_reset">Reset Bastion Turn Counter</string>
 	<string name="ps_label_bastion_log_turn">Turn</string>
+
+	<!-- Misc -->
+	<string name="power_upcast_header">SELECT SPELL SLOT</string>
+	<string name="power_choice_header">SELECT SPELL CHOICE</string>
+	<string name="message_actor_cast_noslots">No valid spell slots to cast '%s'\rRequires %s-level or higher spell slot</string>
+	<string name="message_actor_cast_notargets">No valid targets for spell '%s'</string>
+	<string name="message_actor_cast_dropconc">Existing concentration dropped to cast new spell</string>
+	<string name="error_actor_cast_noslots">Failed to consume %s-level spell slot</string>
+
+	<string name="chardbversion2_title_migration">MIGRATE SPELLS</string>
+	<string name="chardbversion2_message_migration">Spell actions have been significantly reworked in the latest version of FG. FG can attempt to match existing spell names with records from currently loaded modules.\r\rWould you like to re-import any spells found on this character?\r\rName: %s</string>
 </root>

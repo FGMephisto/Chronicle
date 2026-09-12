@@ -5,17 +5,11 @@
 
 function onInit()
 	DB.addHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", self.onProfChanged);
-
-	self.onModeChanged();
 end
 function onClose()
 	DB.removeHandler(DB.getPath(window.getDatabaseNode(), "profbonus"), "onUpdate", self.onProfChanged);
 end
 
-function onModeChanged()
-	applyFilter();
-	WindowManager.callInnerWindowFunction(self, "onModeChanged");
-end
 function onProfChanged()
 	WindowManager.callInnerWindowFunction(self, "onProfChanged");
 end

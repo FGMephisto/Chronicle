@@ -98,7 +98,7 @@
 	</template>
 	<template name="cycler_power_onmissdamage">
 		<button_stringcycler>
-			<anchored width="100" height="20" />
+			<anchored width="140" height="20" />
 			<parameters>
 				<defaultlabelres>dash</defaultlabelres>
 				<labelsres>power_label_onmissdamage_half</labelsres>
@@ -115,5 +115,21 @@
 				<values>enc|dual|once</values>
 			</parameters>
 		</button_stringcycler>
+	</template>
+	<template name="cycler_listitem_power_targeting">
+		<stringcycler_listitem_left name="targeting">
+			<parameters>
+				<defaultlabelres>dash</defaultlabelres>
+				<labelsres>power_label_targeting_normal|power_label_targeting_self|power_label_targeting_cone|power_label_targeting_cube|power_label_targeting_cylinder|power_label_targeting_emanation|power_label_targeting_line|power_label_targeting_sphere|power_label_targeting_multihit</labelsres>
+				<values>targets|self|cone|cube|cylinder|emanation|line|sphere|multihit</values>
+			</parameters>
+			<script>
+				function onValueChanged()
+					if window.onDataChanged then
+						window.onDataChanged();
+					end
+				end
+			</script>
+		</stringcycler_listitem_left>
 	</template>
 </root>

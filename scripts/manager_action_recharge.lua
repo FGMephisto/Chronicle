@@ -18,6 +18,7 @@ function performRoll(draginfo, rActor, sRecharge, nRecharge, bGMOnly, nodeEffect
 	rRoll.bSecret = bGMOnly;
 
 	if nodeEffect then
+		rRoll.sEffectExpire = "success";
 		rRoll.sEffectRecord = DB.getPath(nodeEffect);
 	end
 
@@ -60,7 +61,7 @@ function onRecharge(rSource, _, rRoll)
 		local nTotal = ActionsManager.total(rRoll);
 		if nRecharge and nTotal >= nRecharge then
 			-- Add notification
-			rMessage.text = rMessage.text .. " [RECHARGED]";
+			rMessage.text = StringManager.appendLine(rMessage.text, "[RECHARGED]");
 
 			-- Delete effect
 			local nodeEffectsList = DB.getParent(nodeTargetEffect);

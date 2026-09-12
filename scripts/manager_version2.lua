@@ -4,7 +4,7 @@
 --
 
 local rsname = "5E";
-local rsmajorversion = 9;
+local rsmajorversion = 10;
 
 function onInit()
 	if Session.IsHost then
@@ -52,6 +52,9 @@ function updateChar(nodePC, nVersion)
 		if nVersion < 8 then
 			VersionManager2.migrateChar8(nodePC);
 		end
+		if nVersion < 10 then
+			VersionManager2.migrateChar10(nodePC);
+		end
 	end
 end
 
@@ -88,6 +91,9 @@ function updateCampaign()
 		if major < 9 then
 			VersionManager2.convertRegistry9();
 		end
+		if major < 10 then
+			VersionManager2.convertCharacters10();
+		end
 	end
 end
 
@@ -114,6 +120,118 @@ function updateModule(sModule, nVersion)
 			VersionManager2.convertPregenCharacters8(nodeRoot);
 			VersionManager2.convertItems8(nodeRoot);
 		end
+		if nVersion < 10 then
+			VersionManager2.convertPregenCharacters10(nodeRoot);
+		end
+	end
+end
+
+function convertPregenCharacters10(nodeRoot)
+	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
+		VersionManager2.migrateChar10(nodeChar);
+	end
+end
+function convertCharacters10()
+	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
+		VersionManager2.migrateChar10(nodeChar);
+	end
+end
+function migrateChar10(nodeChar)
+	-- Migrate PC spell actions to support separate cast/action/powersave action, instead of single cast action
+	for _,nodePower in ipairs(DB.getChildList(nodeChar, "powers")) do
+		VersionManager2.migrateCharPower10(nodePower);
+	end
+end
+function migrateCharPower10(nodePower)
+	local nodeActionList = DB.getChild(nodePower, "actions");
+	if not nodeActionList then
+		return;
+	end
+
+	local tOrderedActions = {};
+	for _,nodeAction in ipairs(DB.getChildList(nodeActionList)) do
+		table.insert(tOrderedActions, nodeAction);
+	end
+	local function sortOrdered(a, b)
+		local nOrderA = DB.getValue(a, "order", 0);
+		local nOrderB = DB.getValue(b, "order", 0);
+		if nOrderA ~= nOrderB then
+			return nOrderA < nOrderB;
+		end
+		return DB.getPath(a) < DB.getPath(b);
+	end
+	table.sort(tOrderedActions, sortOrdered);
+
+	local tActionCount = {};
+	local tNewOrderedActions = {};
+	for _,nodeOrderedAction in ipairs(tOrderedActions) do
+		local sActionType = DB.getValue(nodeOrderedAction, "type", "");
+		tActionCount[sActionType] = (tActionCount[sActionType] or 0) + 1;
+
+		local sAutoKey = ((tActionCount["cast"] or 0) > 1) and ("cast" .. tActionCount["cast"]) or "";
+		if sActionType == "cast" then
+			for k,_ in pairs(tActionCount) do
+				if k ~= "cast" then
+					tActionCount[k] = 0;
+				end
+			end
+		else
+			if tActionCount[sActionType] > 1 then
+				sAutoKey = sAutoKey .. "action" .. tActionCount[sActionType];
+			end
+		end
+
+		DB.setValue(nodeOrderedAction, "autokey", "string", sAutoKey);
+		table.insert(tNewOrderedActions, nodeOrderedAction);
+
+		if DB.getValue(nodeOrderedAction, "type", "") == "cast" then
+			if (DB.getValue(nodeOrderedAction, "atktype", "") ~= "") then
+				local nodeNewAction = DB.createChild(nodeActionList);
+				if nodeNewAction then
+					DB.setValue(nodeNewAction, "type", "string", "attack");
+					DB.setValue(nodeNewAction, "autokey", "string", sAutoKey);
+					DB.setValue(nodeNewAction, "atktype", "string", DB.getValue(nodeOrderedAction, "atktype", ""));
+					DB.deleteChild(nodeOrderedAction, "atktype");
+					DB.setValue(nodeNewAction, "atkbase", "string", DB.getValue(nodeOrderedAction, "atkbase", ""));
+					DB.deleteChild(nodeOrderedAction, "atkbase");
+					DB.setValue(nodeNewAction, "atkstat", "string", DB.getValue(nodeOrderedAction, "atkstat", ""));
+					DB.deleteChild(nodeOrderedAction, "atkstat");
+					DB.setValue(nodeNewAction, "atkprof", "number", DB.getValue(nodeOrderedAction, "atkprof", 1));
+					DB.deleteChild(nodeOrderedAction, "atkprof");
+					DB.setValue(nodeNewAction, "atkmod", "number", DB.getValue(nodeOrderedAction, "atkmod", 0));
+					DB.deleteChild(nodeOrderedAction, "atkmod");
+
+					table.insert(tNewOrderedActions, nodeNewAction);
+				end
+			end
+			if (DB.getValue(nodeOrderedAction, "savetype", "") ~= "") then
+				local nodeNewAction = DB.createChild(nodeActionList);
+				if nodeNewAction then
+					DB.setValue(nodeNewAction, "type", "string", "powersave");
+					DB.setValue(nodeNewAction, "autokey", "string", sAutoKey);
+					DB.setValue(nodeNewAction, "savetype", "string", DB.getValue(nodeOrderedAction, "savetype", ""));
+					DB.deleteChild(nodeOrderedAction, "savetype");
+					DB.setValue(nodeNewAction, "savedcbase", "string", DB.getValue(nodeOrderedAction, "savedcbase", ""));
+					DB.deleteChild(nodeOrderedAction, "savedcbase");
+					DB.setValue(nodeNewAction, "savedcstat", "string", DB.getValue(nodeOrderedAction, "savedcstat", ""));
+					DB.deleteChild(nodeOrderedAction, "savedcstat");
+					DB.setValue(nodeNewAction, "savedcprof", "number", DB.getValue(nodeOrderedAction, "savedcprof", 1));
+					DB.deleteChild(nodeOrderedAction, "savedcprof");
+					DB.setValue(nodeNewAction, "savedcmod", "number", DB.getValue(nodeOrderedAction, "savedcmod", 0));
+					DB.deleteChild(nodeOrderedAction, "savedcmod");
+					DB.setValue(nodeNewAction, "savemagic", "number", DB.getValue(nodeOrderedAction, "savemagic", 0));
+					DB.deleteChild(nodeOrderedAction, "savemagic");
+					DB.setValue(nodeNewAction, "onmissdamage", "string", DB.getValue(nodeOrderedAction, "onmissdamage", ""));
+					DB.deleteChild(nodeOrderedAction, "onmissdamage");
+
+					table.insert(tNewOrderedActions, nodeNewAction);
+				end
+			end
+		end
+	end
+
+	for k,nodeAction in ipairs(tNewOrderedActions) do
+		DB.setValue(nodeAction, "order", "number", k);
 	end
 end
 
@@ -121,6 +239,20 @@ function convertRegistry9()
 	CampaignSetupManager.disableAutoLoad();
 end
 
+function convertItems8(nodeRoot)
+	if nodeRoot then
+		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "item")) do
+			VersionManager2.migrateItem8(nodeItem, nodeRoot);
+		end
+		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "reference.equipmentdata")) do
+			VersionManager2.migrateItem8(nodeItem, nodeRoot);
+		end
+	else
+		for _,nodeItem in ipairs(DB.getChildList("item")) do
+			VersionManager2.migrateItem8(nodeItem);
+		end
+	end
+end
 function migrateItem8(nodeItem, nodeRoot)
 	if DB.getValue(nodeItem, "istemplate", 0) ~= 1 then
 		return;
@@ -142,21 +274,16 @@ function migrateItem8(nodeItem, nodeRoot)
 	DB.deleteNode(nodeItem);
 end
 
-function convertItems8(nodeRoot)
-	if nodeRoot then
-		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "item")) do
-			VersionManager2.migrateItem8(nodeItem, nodeRoot);
-		end
-		for _,nodeItem in ipairs(DB.getChildList(nodeRoot, "reference.equipmentdata")) do
-			VersionManager2.migrateItem8(nodeItem, nodeRoot);
-		end
-	else
-		for _,nodeItem in ipairs(DB.getChildList("item")) do
-			VersionManager2.migrateItem8(nodeItem);
-		end
+function convertPregenCharacters8(nodeRoot)
+	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
+		VersionManager2.migrateChar8(nodeChar);
 	end
 end
-
+function convertCharacters8()
+	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
+		VersionManager2.migrateChar8(nodeChar);
+	end
+end
 function migrateChar8(nodeChar)
 	-- Migrate PC spells to specify "magic" save type in order to support Magic Resistance trait
 	local aSpellGroups = {};
@@ -179,18 +306,16 @@ function migrateChar8(nodeChar)
 	end
 end
 
-function convertPregenCharacters8(nodeRoot)
+function convertPregenCharacters7(nodeRoot)
 	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		VersionManager2.migrateChar8(nodeChar);
+		VersionManager2.migrateChar7(nodeChar);
 	end
 end
-
-function convertCharacters8()
+function convertCharacters7()
 	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		VersionManager2.migrateChar8(nodeChar);
+		VersionManager2.migrateChar7(nodeChar);
 	end
 end
-
 function migrateChar7(nodeChar)
 	-- Migrate warlock spell slots from standard spell slots
 	-- NOTE: Don't do anything if multiclass with both pact magic and spellcasting
@@ -219,18 +344,6 @@ function migrateChar7(nodeChar)
 	end
 end
 
-function convertPregenCharacters7(nodeRoot)
-	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		VersionManager2.migrateChar7(nodeChar);
-	end
-end
-
-function convertCharacters7()
-	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		VersionManager2.migrateChar7(nodeChar);
-	end
-end
-
 function migrateEncounter6(nodeRecord)
 	for _,nodeNPC in ipairs(DB.getChildList(nodeRecord, "npclist")) do
 		local sClass, sRecord = DB.getValue(nodeNPC, "link", "", "");
@@ -247,6 +360,16 @@ function convertEncounters6()
 	end
 end
 
+function convertPregenCharacters5(nodeRoot)
+	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
+		VersionManager2.migrateChar5(nodeChar);
+	end
+end
+function convertCharacters5()
+	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
+		VersionManager2.migrateChar5(nodeChar);
+	end
+end
 function migrateChar5(nodeChar)
 	-- Feature list can either be set up by source and level or by link, depending usually on whether they are pregens
 	local aSpellCastFeatureBySource = {};
@@ -294,24 +417,17 @@ function migrateChar5(nodeChar)
 	end
 end
 
-function convertPregenCharacters5(nodeRoot)
-	for _,nodeChar in ipairs(DB.getChildList(nodeRoot, "pregencharsheet")) do
-		VersionManager2.migrateChar5(nodeChar);
-	end
-end
-
-function convertCharacters5()
-	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		VersionManager2.migrateChar5(nodeChar);
-	end
-end
-
 function convertPSEnc4()
 	for _,vEnc in ipairs(DB.getChildList("partysheet.encounters")) do
 		DB.setValue(vEnc, "exp", "number", DB.getValue(vEnc, "xp", "number"));
 	end
 end
 
+function convertCharacters2()
+	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
+		VersionManager2.migrateChar2(nodeChar);
+	end
+end
 function migrateChar2(nodeChar)
 	for _,nodeAbility in ipairs(DB.getChildList(nodeChar, "abilitylist")) do
 		local nodeFeatureList = DB.createChild(nodeChar, "featurelist");
@@ -396,11 +512,5 @@ function migrateChar2(nodeChar)
 				end
 			end
 		end
-	end
-end
-
-function convertCharacters2()
-	for _,nodeChar in ipairs(DB.getChildList("charsheet")) do
-		VersionManager2.migrateChar2(nodeChar);
 	end
 end

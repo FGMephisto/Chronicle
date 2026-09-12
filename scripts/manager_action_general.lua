@@ -15,6 +15,7 @@ function modRoll(_, _, rRoll)
 	return true;
 end
 
-function onRoll(rSource, rRoll)
+-- onRoll(rSource, rRoll)
+function onRoll(_, rRoll)
 	ActionD20.decodeAdvantage(rRoll);
 end
