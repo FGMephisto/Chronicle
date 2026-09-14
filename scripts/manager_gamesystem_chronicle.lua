@@ -9,37 +9,25 @@
 -- Adjusted
 -- ===================================================================================================================
 actions = {
-	["dice"] = { bUseModStack = true },
-	["table"] = { },
-	["cast"] = { sTargeting = "each" },
-	["castsave"] = { sTargeting = "each" },
-	["death"] = { },
-	["death_auto"] = { },
+	["dice"] = { bUseModStack = true, },
+	["table"] = { sIcon = "action_table", },
+	["attack"] = { sIcon = "action_attack", sTargeting = "each", bUseModStack = true, },
+	["cast"] = { sIcon = "action_roll", sTargeting = "each", },
+	["castsave"] = { sTargeting = "each", },
+	["check"] = { sIcon = "action_roll", bUseModStack = true, },
 	["concentration"] = { },
-	["powersave"] = { sTargeting = "each" },
-	["attack"] = { sIcon = "action_attack", sTargeting = "each", bUseModStack = true },
-	["damage"] = { sIcon = "action_damage", sTargeting = "all", bUseModStack = true },
-	["heal"] = { sIcon = "action_heal", sTargeting = "all", bUseModStack = true },
-	["effect"] = { sIcon = "action_effect", sTargeting = "all" },
-	["init"] = { bUseModStack = true },
-	["save"] = { bUseModStack = true },
-	["check"] = { bUseModStack = true },
+	["damage"] = { sIcon = "action_damage", sTargeting = "all", bUseModStack = true, },
+	["death"] = { bUseModStack = true, },
+	["death_auto"] = { },
+	["heal"] = { sIcon = "action_heal", sTargeting = "all", bUseModStack = true, },
+	["effect"] = { sIcon = "action_effect", sTargeting = "all", },
+	["init"] = { sIcon = "action_roll", bUseModStack = true, },
+	["powersave"] = { sIcon = "action_save", sTargeting = "each", sOpposed = "save", },
 	["recharge"] = { },
-	["recovery"] = { bUseModStack = true },
-	["skill"] = { bUseModStack = true },
-};
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-targetactions = {
-	"cast",
-	-- "castsave",
-	-- "powersave",
-	"attack",
-	"damage",
-	"heal",
-	"effect"
+	["recovery"] = { bUseModStack = true, },
+	["save"] = { sIcon = "action_save", bUseModStack = true, },
+	["save_auto"] = { },
+	["skill"] = { sIcon = "action_roll", bUseModStack = true, },
 };
 
 currencies = { 
@@ -49,15 +37,10 @@ currencies = {
 };
 currencyDefault = "Silver";
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onInit()	
-	-- Add ruleset to supported rulesets for Encumberance calculation
-	CharEncumbranceManager.addStandardCalc("Chronicle")
+	CharEncumbranceManager.addStandardCalc("Chronicle");
+	CombatListManager.registerStandardInitSupport();
 	
-	-- Add death marker manager
-	-- ImageDeathMarkerManager.registerStandardDeathMarkersDnD();
 	ImageDeathMarkerManager.setEnabled(true);
 	ImageDeathMarkerManager.registerGetCreatureTypeFunction(ActorCommonManager.getCreatureTypeDnD);
 	ImageDeathMarkerManager.registerCreatureTypes(DataCommon.creaturetype);
@@ -65,7 +48,7 @@ function onInit()
 	-- Languages
 	languages = {
 		[Interface.getString("language_value_common")] = "",
-	}
+	};
 
 	languagefonts = {
 		[Interface.getString("language_value_celestial")] = "Celestial",
@@ -74,7 +57,7 @@ function onInit()
 		[Interface.getString("language_value_elvish")] = "Elven",
 		[Interface.getString("language_value_infernal")] = "Infernal",
 		[Interface.getString("language_value_primordial")] = "Primordial",
-	}
+	};
 end
 
 -- ===================================================================================================================

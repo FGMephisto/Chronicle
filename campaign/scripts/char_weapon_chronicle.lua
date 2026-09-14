@@ -15,19 +15,19 @@ function onInit()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
 	DB.addHandler(DB.getPath(nodeWeapon, "shortcut"), "onUpdate", self.onLinkChanged);
-	DB.addHandler(DB.getPath(nodeWeapon, "type"), "onUpdate", self.onTypeChanged);																			   
+	DB.addHandler(DB.getPath(nodeWeapon, "type"), "onUpdate", self.onTypeChanged);
 	DB.addHandler(nodeWeapon, "onChildUpdate", self.onDataChanged);
-	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
-	DB.addHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", self.onDataChanged);
+	DB.addHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", self.onDataChanged);
 end
 function onClose()
 	local nodeWeapon = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeWeapon, "...");
-	DB.removeHandler(DB.getPath(nodeWeapon, "shortcut"), "onUpdate", onLinkChanged);
-	DB.removeHandler(DB.getPath(nodeWeapon, "type"), "onUpdate", self.onTypeChanged);																				  
-	DB.removeHandler(nodeWeapon, "onChildUpdate", onDataChanged);
-	DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onDataChanged);
-	DB.removeHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", onDataChanged);
+	DB.removeHandler(DB.getPath(nodeWeapon, "shortcut"), "onUpdate", self.onLinkChanged);
+	DB.removeHandler(DB.getPath(nodeWeapon, "type"), "onUpdate", self.onTypeChanged);
+	DB.removeHandler(nodeWeapon, "onChildUpdate", self.onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", self.onDataChanged);
+	DB.removeHandler(DB.getPath(nodeChar, "skilllist"), "onChildUpdate", self.onDataChanged);
 end
 
 function onLockModeChanged(bReadOnly)

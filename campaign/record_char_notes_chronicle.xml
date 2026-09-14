@@ -147,7 +147,7 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				local tFields = { "dpbase", "dpawarded", "dpinvested", "dpburned", "dpsent", "spawarded", "spinvestedy", "spburned", "xpawarded", "xpinvested", };
+				local tFields = { "dpbase", "dpawarded", "dpinvested", "dpburned", "dpspent", "spawarded", "spinvested", "spburned", "xpawarded", "xpinvested", };
 				WindowManager.callSafeControlsSetLockMode(self, tFields, bReadOnly);
 			end
 		</script>

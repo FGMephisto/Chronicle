@@ -41,9 +41,9 @@ function notifyApplySave(rSource, rRoll)
 end
 function handleApplySave(msgOOB)
 	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
-	local rOrigin = ActorManager.resolveActor(msgOOB.sTargetNode);
+	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
 	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
-	ActionSave.applySave(rSource, rOrigin, rRoll);
+	ActionSave.applySave(rSource, rTarget, rRoll);
 end
 
 --
@@ -75,25 +75,6 @@ function performPartySheetRoll(draginfo, rActor, sSave)
 
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
-function performVsRoll(draginfo, rActor, sSave, nTargetDC, bSecretRoll, rSource, bRemoveOnMiss, sSaveDesc)
-	local rRoll = ActionSave.getRoll(rActor, sSave);
-
-	if bSecretRoll then
-		rRoll.bSecret = true;
-	end
-	rRoll.nTarget = nTargetDC;
-	local nTotal, nEffectCount = EffectManager.getBonusMod(rSource, "SAVEDC", { rTarget = rActor, });
-	if nEffectCount > 0 then
-		rRoll.nTarget = rRoll.nTarget + nTotal;
-	end
-	rRoll.bRemoveOnMiss = bRemoveOnMiss;
-	rRoll.sSaveDesc = sSaveDesc;
-	if rSource then
-		rRoll.sSource = ActorManager.getCTNodeName(rSource);
-	end
-
-	ActionsManager.performAction(draginfo, rActor, rRoll);
-end
 
 function modSave(rSource, rTarget, rRoll)
 	ActionsManager2.setupD20RollMod(rRoll);
@@ -107,26 +88,26 @@ end
 function onSave(rSource, rTarget, rRoll)
 	ActionsManager2.setupD20RollResolve(rRoll, rSource);
 
+	ActionSave.onPreSaveResolve(rSource, rTarget, rRoll);
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
-
-	ActionSave.onPreSaveResolve(rSource, rRoll, rMessage);
-	ActionSave.onSaveResolve(rSource, rRoll, rMessage);
-	ActionSave.handleFortitudeTraitOnSave(rSource, rTarget, rRoll);
-	ActionSave.onPostSaveResolve(rSource, rRoll, rMessage);
+	ActionSave.onSaveResolve(rSource, rTarget, rRoll, rMessage);
+	ActionSave.onPostSaveResolve(rSource, rTarget, rRoll, rMessage);
 end
--- onPreSaveResolve(rSource, rRoll, rMessage)
+-- onPreSaveResolve(rSource, rTarget, rRoll)
 function onPreSaveResolve()
 	-- Do nothing; location to override
 end
-function onSaveResolve(rSource, rRoll, rMessage)
+function onSaveResolve(rSource, rTarget, rRoll, rMessage)
 	Comm.deliverChatMessage(rMessage);
 
 	local bAutoFail = rRoll.sDesc:match("%[AUTOFAIL%]");
 	if not bAutoFail and rRoll.nTarget then
 		ActionSave.notifyApplySave(rSource, rRoll);
 	end
+
+	ActionSave.handleFortitudeTraitOnSave(rSource, rTarget, rRoll);
 end
--- onPostSaveResolve(rSource, rRoll, rMessage)
+-- onPostSaveResolve(rSource, rTarget, rRoll, rMessage)
 function onPostSaveResolve()
 	-- Do nothing; location to override
 end
@@ -156,7 +137,7 @@ function applySave(rSource, rOrigin, rRoll)
 		if rRoll.nTotal >= rRoll.nTarget then
 			rRoll.sResult = "success";
 			table.insert(tApplyData.tNotifications, "[SUCCESS]");
-			
+
 			if rSource then
 				if bAvoidance or bEvasion then
 					rRoll.sResult = "none";
@@ -165,13 +146,16 @@ function applySave(rSource, rOrigin, rRoll)
 					rRoll.sResult = "half_success";
 					rRoll.bRemoveOnMiss = false;
 				end
-				
-				if rOrigin and rRoll.bRemoveOnMiss then
-					TargetingManager.removeTarget(ActorManager.getCTNodeName(rOrigin), ActorManager.getCTNodeName(rSource));
+
+				if rOrigin then
+					if rRoll.bRemoveOnMiss then
+						TargetingManager.removeTarget(ActorManager.getCTNodeName(rOrigin), ActorManager.getCTNodeName(rSource));
+					end
+					ActionsPerformManager.setActionResultState(rOrigin, rSource, { sAuto = "success", sDamageLabel = sAttack, sDamageResult = rRoll.sResult, });
 				end
 			end
 
-			ActionSaveCore.handleSaveSuccess(rSource, rRoll);
+			ActionSaveCore.handleSaveSuccess(rSource, rOrigin, rRoll);
 		else
 			rRoll.sResult = "failure";
 			table.insert(tApplyData.tNotifications, "[FAILURE]");
@@ -180,16 +164,19 @@ function applySave(rSource, rOrigin, rRoll)
 				if bAvoidance or bEvasion then
 					rRoll.sResult = "half_failure";
 				end
+				if rOrigin then
+					ActionsPerformManager.setActionResultState(rOrigin, rSource, { sAuto = "failure", sDamageLabel = sAttack, sDamageResult = rRoll.sResult, });
+				end
 			end
 
-			ActionSaveCore.handleSaveFail(rSource, rRoll);
+			ActionSaveCore.handleSaveFail(rSource, rOrigin, rRoll);
 		end
 	end
 
 	ActionCore.applyMessage(rSource, rOrigin, rRoll, tApplyData);
-	
+
 	if rSource and rOrigin then
-		ActionDamageCore.setDamageState(rOrigin, rSource, StringManager.trim(sAttack), rRoll.sResult);
+		ActionDamageCore.setDamageState(rOrigin, rSource, sAttack, rRoll.sResult);
 	end
 
 	ActionSave.onPostSaveApply(rSource, rOrigin, rRoll);
@@ -201,7 +188,8 @@ function onPostSaveApply()
 	-- Do nothing; location to override
 end
 
-function handleFortitudeTraitOnSave(rSource, rTarget, rRoll)
+-- handleFortitudeTraitOnSave(rSource, rTarget, rRoll)
+function handleFortitudeTraitOnSave(rSource, _, rRoll)
 	if (rRoll.sSubType or "") ~= "fortitude" then
 		return;
 	end
@@ -311,7 +299,8 @@ function applyEffectsToRollMod(rRoll, rSource, rTarget)
 	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionSave.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 end
-function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
+-- applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
+function applyStandardEffectsToRollMod(rRoll, rSource, _)
 	if not rSource then
 		return;
 	end
@@ -332,8 +321,8 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	if rRoll.sSource then
 		rSaveSource = ActorManager.resolveActor(rRoll.sSource);
 	end
-	local tSrcEffData = { rTarget = rSaveSource, tFilter = rRoll.tSaveFilter, };
-	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tSaveFilter, };
+	local tSrcEffData = { rTarget = rSaveSource, tFilter = rRoll.tSaveFilter, tActionTags = rRoll.tActionTags, };
+	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tSaveFilter, tActionTags = rRoll.tActionTags, };
 
 	-- Get roll effect modifiers
 	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "SAVE", tSrcEffData);
@@ -443,10 +432,10 @@ function applyReliableEffectsToRollMod(rRoll, rSource, _)
 		return;
 	end
 
-	if EffectManager.hasText(rSource, "RELIABLE") then
+	if EffectManager.hasText(rSource, "RELIABLE", { tActionTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
-	elseif EffectManager.hasTextOrTag(rSource, "RELIABLESAV", { tFilter = rRoll.tSaveFilter, }) then
+	elseif EffectManager.hasTextOrTag(rSource, "RELIABLESAV", { tFilter = rRoll.tSaveFilter, tActionTags = rRoll.tActionTags, }) then
 		rRoll.bEffects = true;
 		rRoll.bReliable = true;
 	end
@@ -518,7 +507,8 @@ function onSystemShockRollResolve(rSource, rRoll, rMessage)
 	ActionSave.notifyApplySystemShock(rSource, rMessage.secret, rRoll);
 end
 
-function notifyApplySystemShock(rSource, bSecret, rRoll)
+-- notifyApplySystemShock(rSource, bSecret, rRoll)
+function notifyApplySystemShock(rSource, _, rRoll)
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionSave.OOB_MSGTYPE_APPLYSS;
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
@@ -584,14 +574,14 @@ function onSystemShockResultRollResolve(rSource, rRoll, rMessage)
 		EffectManager.removeCondition(rSource, "Stable");
 		EffectManager.addCondition(rSource, "Unconscious");
 		EffectManager.addCondition(rSource, "Prone");
-		rMessage.text = rMessage.text .. " -> [DROPPED TO ZERO]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "-> [DROPPED TO ZERO]");
 
 	elseif ((nTotal == 2) or (nTotal == 3)) then
 		GameManager.setRecordFieldValue(rSource, "wounds", "number", GameManager.getRecordFieldValue(rSource, "hptotal", 0));
 		EffectManager.addCondition(rSource, "Stable");
 		EffectManager.addCondition(rSource, "Unconscious");
 		EffectManager.addCondition(rSource, "Prone");
-		rMessage.text = rMessage.text .. " -> [DROPPED TO ZERO, BUT STABLE]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "-> [DROPPED TO ZERO, BUT STABLE]");
 
 	elseif ((nTotal == 4) or (nTotal == 5)) then
 		local rEffect = { sName = "System Shock; Stunned", nDuration = 1 };
@@ -599,7 +589,7 @@ function onSystemShockResultRollResolve(rSource, rRoll, rMessage)
 			rEffect.nGMOnly = 1;
 		end
 		EffectManager.addEffectByTable(rSource, rEffect);
-		rMessage.text = rMessage.text .. " -> [STUNNED]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "-> [STUNNED]");
 
 	elseif ((nTotal == 6) or (nTotal == 7)) then
 		local rEffect = { sName = "System Shock; NOTE: No reactions; DISATK; DISCHK", nDuration = 1 };
@@ -607,7 +597,7 @@ function onSystemShockResultRollResolve(rSource, rRoll, rMessage)
 			rEffect.nGMOnly = 1;
 		end
 		EffectManager.addEffectByTable(rSource, rEffect);
-		rMessage.text = rMessage.text .. " -> [NO REACTIONS, AND DISADVANTAGE]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "-> [NO REACTIONS, AND DISADVANTAGE]");
 
 	else -- if (nTotal >= 8) then
 		local rEffect = { sName = "System Shock; NOTE: No reactions", nDuration = 1 };
@@ -615,7 +605,7 @@ function onSystemShockResultRollResolve(rSource, rRoll, rMessage)
 			rEffect.nGMOnly = 1;
 		end
 		EffectManager.addEffectByTable(rSource, rEffect);
-		rMessage.text = rMessage.text .. " -> [NO REACTIONS]";
+		rMessage.text = StringManager.appendLine(rMessage.text, "-> [NO REACTIONS]");
 	end
 
 	Comm.deliverChatMessage(rMessage);
@@ -805,7 +795,8 @@ function getConcentrationEffects(rActor)
 	return aEffects;
 end
 
-function notifyApplyConc(rSource, bSecret, rRoll)
+-- notifyApplyConc(rSource, bSecret, rRoll)
+function notifyApplyConc(rSource, _, rRoll)
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionSave.OOB_MSGTYPE_APPLYCONC;
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
@@ -832,7 +823,7 @@ function applyConcentrationRoll(rSource, rRoll)
 			ActionSave.expireConcentrationEffects(rSource);
 		end
 	end
-	
+
 	ActionCore.applyMessage(rSource, nil, rRoll, tApplyData);
 
 	-- On failed concentration check, remove all effects with the same source creature
@@ -855,4 +846,29 @@ end
 -- onPostConcentrationApply(rSource, rRoll)
 function onPostConcentrationApply()
 	-- Do nothing; location to override
+end
+
+--
+--	LEGACY (2026-08)
+--
+
+-- performVsRoll(draginfo, rActor, sSave, nTargetDC, bSecretRoll, rSource, bRemoveOnMiss, sSaveDesc)
+function performVsRoll(_, rActor, sSave, nTargetDC, bSecretRoll, rSource, bRemoveOnMiss, sSaveDesc)
+	local rRoll = ActionSave.getRoll(rActor, sSave);
+
+	if bSecretRoll then
+		rRoll.bSecret = true;
+	end
+	rRoll.nTarget = nTargetDC;
+	local nTotal, nEffectCount = EffectManager.getBonusMod(rSource, "SAVEDC", { rTarget = rActor, tActionTags = rRoll.tActionTags, });
+	if nEffectCount > 0 then
+		rRoll.nTarget = rRoll.nTarget + nTotal;
+	end
+	rRoll.bRemoveOnMiss = bRemoveOnMiss;
+	rRoll.sSaveDesc = sSaveDesc;
+
+	-- Legacy (2026-08)
+	rRoll.sSource = ActorManager.getCTNodeName(rSource);
+
+	ActionsManager.actionDirect(rActor, rRoll.sType, { rRoll }, { { rSource } });
 end

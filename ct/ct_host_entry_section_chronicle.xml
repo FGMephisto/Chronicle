@@ -21,7 +21,7 @@
 			<string_listitem_center_underline_multiline name="value">
 				<nodragselect />
 				<actorpath>....</actorpath>
-				<script file="ct/scripts/ct_power_chronicle.lua" />
+				<script file="ct/scripts/ct_power.lua" />
 			</string_listitem_center_underline_multiline>
 		</sheetdata>
 	</windowclass>
@@ -459,7 +459,7 @@
 			<string_listitem_center_underline_multiline name="value">
 				<nodragselect />
 				<actorpath>......</actorpath>
-				<script file="ct/scripts/ct_power_chronicle.lua" />
+				<script file="ct/scripts/ct_power.lua" />
 			</string_listitem_center_underline_multiline>
 		</sheetdata>
 	</windowclass>

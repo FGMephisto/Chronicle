@@ -19,6 +19,11 @@
 			<class>record_content_pictures</class>
 			<embed />
 		</tab>
+		<tab merge="add">
+			<name>actions</name>
+			<resource>tab_actions</resource>
+			<class>power_actions</class>
+		</tab>
 		<sheetdata>
 			<sub_content_framed_groupbox_top name="header">
 				<class>power_header</class>
@@ -118,6 +123,327 @@
 					end
 				</script>
 			</string_content_columnh>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_actions">
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function handleActionAdd(sType)
+				PowerManagerCore.createPowerAction(self, sType);
+			end
+			function onLockModeChanged(bReadOnly)
+				sub_add_buttons.setVisible(not bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_framed_groupbox_bottom name="sub_add_buttons">
+				<class>power_actions_add_buttons</class>
+			</sub_content_framed_groupbox_bottom>
+
+			<list_content_framed_groupbox name="list">
+				<datasource>.actions</datasource>
+				<class>power_action</class>
+				<sortby><field>order</field></sortby>
+			</list_content_framed_groupbox>
+			<scrollbar_content_list />
+		</sheetdata>
+	</windowclass>
+	<template name="power_action_add_button">
+		<buttoncontrol>
+			<anchored to="rightanchor" width="20" height="20">
+				<top />
+				<right relation="relative" offset="-2" postoffset="-2" />
+			</anchored>
+			<icon normal="button_add" pressed="button_add_down" />
+			<tooltip textres="button_add" />
+			<script>
+				local _sType;
+				function setData(sType)
+					_sType = sType;
+					setIcons("button_action_" .. sType, "button_action_" .. sType .. "_down");
+					setTooltipText(Interface.getString("power_menu_action_add_" .. sType));
+				end
+				function onButtonPress()
+					WindowManager.callOuterWindowFunction(window, "handleActionAdd", _sType);
+				end
+			</script>
+		</buttoncontrol>
+	</template>
+	<windowclass name="power_actions_add_buttons">
+		<margins control="0,0,0,5" />
+		<script>
+			function onInit()
+				for _,sType in ipairs(PowerActionManagerCore.getSortedActionTypes()) do
+					local c = createControl("power_action_add_button", "actions_iadd_" .. sType);
+					c.setData(sType);
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left />
+			<anchor_listitem_right />
+
+			<label_listitem_left name="label_add">
+				<static textres="power_menu_action_add" />
+			</label_listitem_left>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_upcast">
+		<frame>utilitybox</frame>
+		<sizelimits>
+			<minimum width="320" height="320" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			function setData(rActor, tData)
+				content.subwindow.setData(rActor, tData);
+			end
+		</script>
+		<sheetdata>
+			<windowmenubar_utilitybox name="menubar" />
+
+			<anchor_content_utilitybox_top />
+			<anchor_content_utilitybox_bottom />
+
+			<sub_content_framed_groupbox name="content">
+				<class>power_upcast_content</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+
+			<resize_utilitybox />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_upcast_content">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/power_upcast.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<header_content_framed_headersimple name="list_header">
+				<static textres="power_upcast_header" />
+			</header_content_framed_headersimple>
+
+			<area_content_top name="area_spell">
+				<anchored height="30" />
+			</area_content_top>
+			<linkcontrol_record name="link">
+				<anchored to="area_spell" position="insidetopleft" offset="5,5" width="20" height="20" />
+			</linkcontrol_record>
+			<label name="name">
+				<anchored to="area_spell" position="insidetopleft" offset="30,5" />
+			</label>
+
+			<area_content_top name="area_slots">
+				<anchored height="30" />
+			</area_content_top>
+			<anchor_listitem_left>
+				<anchored to="area_slots" />
+			</anchor_listitem_left>
+			<anchor_listitem_right>
+				<anchored to="area_slots" />
+			</anchor_listitem_right>
+
+			<button_listitem_text_left name="slot1">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 1);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot2">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 2);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot3">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 3);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot4">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 4);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot5">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 5);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot6">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 6);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot7">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 7);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot8">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 8);
+					end
+				</script>
+			</button_listitem_text_left>
+			<button_listitem_text_left name="slot9">
+				<anchored width="30" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", 9);
+					end
+				</script>
+			</button_listitem_text_left>
+
+			<button_listitem_icon_right name="cancel">
+				<anchored width="20" />
+				<state icon="button_toolbar_window_close" tooltipres="button_dialog_cancel" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processCancel");
+					end
+				</script>
+			</button_listitem_icon_right>
+			<button_listitem_text_right name="ritual">
+				<anchored width="60" />
+				<state textres="spell_label_ritual" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processSlot", -1);
+					end
+				</script>
+			</button_listitem_text_right>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="power_choice">
+		<frame>utilitybox</frame>
+		<sizelimits>
+			<minimum width="320" height="320" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			function setData(rActor, tData)
+				content.subwindow.setData(rActor, tData);
+			end
+		</script>
+		<sheetdata>
+			<windowmenubar_utilitybox name="menubar" />
+
+			<anchor_content_utilitybox_top />
+			<anchor_content_utilitybox_bottom />
+
+			<sub_content_framed_groupbox name="content">
+				<class>power_choice_content</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+
+			<resize_utilitybox />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_choice_content">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/power_choice.lua" />
+		<sheetdata>
+			<anchor_content_top />
+			
+			<header_content_framed_headersimple name="list_header">
+				<static textres="power_choice_header" />
+			</header_content_framed_headersimple>
+
+			<area_content_top name="area_spell">
+				<anchored height="30" />
+			</area_content_top>
+			<linkcontrol_record name="link">
+				<anchored to="area_spell" position="insidetopleft" offset="5,5" width="20" height="20" />
+			</linkcontrol_record>
+			<label name="name">
+				<anchored to="area_spell" position="insidetopleft" offset="30,5" />
+			</label>
+
+			<anchor_listitem_right>
+				<anchored offset="0,65" />
+			</anchor_listitem_right>
+			<button_listitem_icon_right name="cancel">
+				<state icon="button_toolbar_window_close" tooltipres="button_dialog_cancel" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processCancel");
+					end
+				</script>
+			</button_listitem_icon_right>
+			<button_listitem_icon_right name="accept">
+				<state icon="button_toolbar_accept" tooltipres="button_dialog_ok" />
+				<script>
+					function onButtonPress()
+						WindowManager.callOuterWindowFunction(window, "processAccept");
+					end
+				</script>
+			</button_listitem_icon_right>
+
+			<list_content_top name="list">
+				<anchored>
+					<right parent="rightanchor" relation="current" />
+					<sizelimits><minimum height="30" /></sizelimits>
+				</anchored>
+				<class>power_choice_item</class>
+				<columns width="110" fillwidth="true" />
+			</list_content_top>
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_choice_item">
+		<margins control="0,0,5,5" />
+		<script>
+			local _sChoice;
+			function setData(s)
+				_sChoice = s;
+				button.setStateText(0, StringManager.capitalizeAll(_sChoice));
+			end
+			function onButtonPress()
+				if button.getValue() == 1 then
+					WindowManager.callOuterWindowFunction(windowlist, "addChoice", _sChoice);
+				else
+					WindowManager.callOuterWindowFunction(windowlist, "removeChoice", _sChoice);
+				end
+			end
+		</script>
+		<sheetdata>
+			<button_text_toggle name="button">
+				<anchored position="insidetop" offset="-5,5" />
+				<script>
+					function onButtonPress()
+						window.onButtonPress();
+					end
+				</script>
+			</button_text_toggle>
 		</sheetdata>
 	</windowclass>
 </root>

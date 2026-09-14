@@ -1,4 +1,4 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
 --
@@ -15,12 +15,18 @@ function onHealthChanged()
 	wounds.setColor(sColor);
 	status.setValue(sStatus);
 
-	if not self.isPC() then
-		idelete.setVisibility(ActorHealthManager.isDyingOrDeadStatus(sStatus));
+	if self.isPC() then
+		local sClass, sRecord = link.getValue();
+		local w = Interface.findWindow(sClass, sRecord);
+		if w then
+			WindowManager.callInnerWindowFunction(w.main, "onHealthChanged");
+		end
+	else
+		idelete.setVisible(ActorHealthManager.isDyingOrDeadStatus(sStatus));
 	end
+
 end
 
--- Adjusted
 function linkPCFields()
 	super.linkPCFields();
 
@@ -40,7 +46,7 @@ function linkPCFields()
 
 		type.setLink(DB.createChild(nodeChar, "race", "string"));
 		size.setLink(DB.createChild(nodeChar, "size", "string"));
-		alignment.setLink(DB.createChild(nodeChar, "alignment", "string"));
+		-- alignment.setLink(DB.createChild(nodeChar, "alignment", "string"));
 
 		agility.setLink(DB.createChild(nodeChar, "abilities.agility.score", "number"), true);
 		animalhandling.setLink(DB.createChild(nodeChar, "abilities.animalhandling.score", "number"), true);
@@ -70,8 +76,9 @@ function linkPCFields()
 		
 		-- Create Link to PC Skilllist items
 		for _, v in pairs(DB.getChildren(nodeChar, "skilllist")) do
-			if DB.getValue(v, "name", "") == sSkill then
+			if DB.getValue(v, "name", ""):lower() == sSkill:lower() then
 				init_skill_misc.setLink(DB.createChild(v, "misc", "number"), true);
+				break;
 			end
 		end
 	end

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <!-- 
-  Please see the license.html file included with this distribution for
+  Please see the license.html file included with this distribution for 
   attribution and copyright information.
-  File adjusted for Chronicle System
 -->
 
 <root version="3.0" release="9" logo="logo.png">
@@ -12,6 +11,7 @@
 	<!-- Attributes -->
 	<description>
 		<displayname>Chronicle System</displayname>
+		<displayversion>1E</displayversion>
 		<text>Chronicle System by Green Ronin</text>
 		<author>Mephisto</author>
 	</description>
@@ -32,9 +32,9 @@
 	<includefile source="strings/strings_chronicle.xml" />
 
 	<!-- Desktop -->
-	<script name="Desktop5E" file="scripts/data_desktop_chronicle.lua" />
-	<script name="LibraryData5E" file="scripts/data_library_chronicle.lua" />
-	<script name="Options5E" file="scripts/data_options_chronicle.lua" />
+	<script name="Desktop5E" file="scripts/data_desktop_5E_chronicle.lua" />
+	<script name="LibraryData5E" file="scripts/data_library_5E_chronicle.lua" />
+	<script name="Options5E" file="scripts/data_options_5E_chronicle.lua" />
 	<includefile source="desktop/desktop_classes_chronicle.xml" />
 
 	<!-- Reference -->
@@ -46,30 +46,24 @@
 	<includefile source="campaign/template_char_chronicle.xml" />
 	<includefile source="campaign/template_power.xml" />
 
-	<!-- <includefile source="campaign/campaign_chars.xml" /> -->
 	<includefile source="campaign/record_char_chronicle.xml" />
 	<includefile source="campaign/record_char_abilities_chronicle.xml" />
-	<includefile source="campaign/record_ability.xml" />
 	<includefile source="campaign/record_char_actions_chronicle.xml" />
 	<includefile source="campaign/record_char_inventory_chronicle.xml" />
-	<!-- <includefile source="campaign/record_char_logs.xml" /> -->
 	<includefile source="campaign/record_char_main.xml" />
 	<includefile source="campaign/record_char_notes_chronicle.xml" />
 	<includefile source="campaign/record_char_powers.xml" />
 	<includefile source="campaign/record_char_skills_chronicle.xml" />
 	<includefile source="campaign/record_char_weapon_chronicle.xml" />
-
 	<includefile source="campaign/record_char_stats_chronicle.xml" />
 
 	<includefile source="campaign/record_battle_chronicle.xml" />
 	<includefile source="campaign/record_item_chronicle.xml" />	
-	<!-- <includefile source="campaign/record_itemtemplate.xml" /> -->
 	<includefile source="campaign/record_location.xml" />
 	<includefile source="campaign/record_npc_chronicle.xml" />
 	<includefile source="campaign/record_quest_chronicle.xml" />
-	<!-- <includefile source="campaign/record_vehicle.xml" /> -->
 
-	<!-- <includefile source="campaign/record_adventure.xml" /> -->
+	<includefile source="campaign/record_ability.xml" />
 	<includefile source="campaign/record_background.xml" />
 	<includefile source="campaign/record_class.xml" />
 	<includefile source="campaign/record_class_specialization.xml" />
@@ -81,11 +75,6 @@
 	<includefile source="campaign/record_race.xml" />
 	<includefile source="campaign/record_race_subrace.xml" />
 	<includefile source="campaign/record_skill.xml" />
-
-	<!-- Import Windows -->
-	<!-- <includefile source="campaign/import_item.xml" /> -->
-	<!-- <includefile source="campaign/import_npc.xml" /> -->
-	<!-- <includefile source="campaign/import_species.xml" /> -->
 	<!-- <script name="ImportItemManager" file="scripts/manager_import_item.lua" /> -->
 	<!-- <script name="ImportNPCManager" file="scripts/manager_import_npc.lua" /> -->
 	<!-- <script name="ImportSpeciesManager" file="scripts/manager_import_species.lua" /> -->
@@ -135,15 +124,14 @@
 	<script name="DataCommon" file="scripts/data_common_chronicle.lua" />
 	<script name="GameSystem" file="scripts/manager_gamesystem_chronicle.lua" />
 	<script name="CampaignDataManager2" file="scripts/manager_campaigndata2.lua" />
-	<script name="DataSpell" file="scripts/data_spell.lua" />
 
 	<script name="CharacterListManager_Inspiration" file="scripts/manager_charlist_inspiration.lua" />
 
-	<script name="ActorManager5E" file="scripts/manager_actor_chronicle.lua" />
+	<script name="ActorManager5E" file="scripts/manager_actor_5E_chronicle.lua" />
 	<script name="ClassSpellListManager" file="scripts/manager_class_spell_list.lua" />
 	<script name="CombatManager2" file="scripts/manager_combat2_chronicle.lua" />
-	<script name="DiceManager5E" file="scripts/manager_dice_5E.lua" />
-	<script name="EffectManager5E" file="scripts/manager_effect_chronicle.lua" />
+	<script name="DiceManager5E" file="scripts/manager_dice_5E_chronicle.lua" />
+	<script name="EffectManager5E" file="scripts/manager_effect_5E_chronicle.lua" />
 	<!-- <script name="ForgeManagerItem" file="scripts/manager_forge_item.lua" /> -->
 	<script name="ItemManager2" file="scripts/manager_item2.lua" />
 	<script name="PartyManager2" file="scripts/manager_ps2_chronicle.lua" />
@@ -152,6 +140,7 @@
 	<script name="RecordManager5E"  file="scripts/manager_record_5E.lua" />
 	<script name="RecordShareManager5E" file="scripts/manager_record_share_5E.lua" />
 	<script name="TokenManager2" file="scripts/manager_token2_chronicle.lua" />
+	<script name="VersionCharManager" file="scripts/manager_version_char_chronicle.lua" />
 	<script name="VersionManager2" file="scripts/manager_version2_chronicle.lua" />
 
 	<script name="CharManager" file="scripts/manager_char_chronicle.lua" />
@@ -162,30 +151,30 @@
 	<script name="CharBuildManager" file="scripts/manager_char_build.lua" />
 	<script name="CharBuildDropManager" file="scripts/manager_char_build_drop.lua" />
 	<script name="CharClassManager" file="scripts/manager_char_class.lua" />
-	<script name="CharEncumbranceManager5E" file="scripts/manager_char_encumbrance_chronicle.lua" />
+	<script name="CharEncumbranceManager5E" file="scripts/manager_char_encumbrance_5E_chronicle.lua" />
 	<script name="CharFeatManager" file="scripts/manager_char_feat.lua" />
 	<script name="CharPowerManager" file="scripts/manager_char_power.lua" />
 	<script name="CharSpeciesManager" file="scripts/manager_char_species.lua" />
-	<script name="CharWeaponManager" file="scripts/manager_char_weapon_chronicle.lua" />
+	<script name="CharWeaponManager" file="scripts/manager_char_weapon_5E_chronicle.lua" />
 
 	<script name="ActionsManager2" file="scripts/manager_actions2_chronicle.lua" />
 	<script name="ActionGeneral" file="scripts/manager_action_general_chronicle.lua" />
 
 	<script name="ActionAttack" file="scripts/manager_action_attack_chronicle.lua" />
+	<script name="ActionCast" file="scripts/manager_action_cast.lua" />
 	<script name="ActionCheck" file="scripts/manager_action_check_chronicle.lua" />
-	<script name="ActionDamageD20" file="scripts/manager_action_damage_chronicle.lua" />
+	<script name="ActionDamage" file="scripts/manager_action_damage_chronicle.lua" />
 	<script name="ActionInit" file="scripts/manager_action_init_chronicle.lua" />
-	<script name="ActionPower" file="scripts/manager_action_power.lua" />
 	<script name="ActionRecharge" file="scripts/manager_action_recharge.lua" />
 	<script name="ActionRecovery" file="scripts/manager_action_recovery.lua" />
+	<script name="ActionPowerSave" file="scripts/manager_action_powersave.lua" />
 	<script name="ActionSave" file="scripts/manager_action_save.lua" />
 	<script name="ActionSkill" file="scripts/manager_action_skill_chronicle.lua" />
-
-	<script name="ActionResult" file="scripts/manager_action_result_chronicle.lua" />
 
 	<!-- Custom -->
 	<includefile source="custom/template_dicecontrol_chronicle.xml" />
 
 	<!-- Custom High-level scripts -->
 	<script name="ListManagerGroups" file="scripts/manager_list_groups_chronicle.lua" />
+	<script name="ActionResult" file="scripts/manager_action_result_chronicle.lua" />
 </root>

@@ -16,8 +16,8 @@
 		<button_stringcycler>
 			<parameters>
 				<defaultlabelres mergerule="replace">dash</defaultlabelres>
-				<labelsres>str|dex|con|int|wis|cha</labelsres>
-				<values>strength|dexterity|constitution|intelligence|wisdom|charisma</values>
+				<labelsres>AGI|ANI|ATH|AWA|CUN|DEC|END|FIG|HEA|KNO|LAN|MAR|PER|STA|STE|SUR|THI|WAR|WIL</labelsres>
+				<values>agility|animalhandling|athletics|awareness|cunning|deception|endurance|fighting|healing|knowledge|language|marksmanship|persuasion|status|stealth|survival|thievery|warfare|will</values>
 			</parameters>
 		</button_stringcycler>
 	</template>
@@ -314,36 +314,28 @@
 			</script>
 		</basicnumber>
 	</template>
-
-	<template name="scrollbar_charcontents">
-		<scrollbar>
-			<anchored to="contents" />
-			<target>contents</target>
-		</scrollbar>
-	</template>
-
 	<template name="number_charinit">
 		<number_chartotal>
 			<font>reference-b-large</font>
+			<rollable />
 			<displaysign />
+			<modifiersize>mini</modifiersize>
 			<modifierfield>initiative.temporary</modifierfield>
 			<source><name>initiative.misc</name><op>+</op></source>
 			<source><name>abilities.dexterity.bonus</name><op>+</op></source>
 			<script>
-				function onInit()
-					self.addSource("initiative.prof");
-					super.onInit();
+				function action(draginfo)
+					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
+					ActionInit.performRoll(draginfo, rActor);
+					return true;
 				end
-				function onSourceUpdate()
-					local nValue = self.calculateSources();
-					local node = window.getDatabaseNode();
-					if DB.getValue(node, "initiative.prof", 0) == 1 then
-						nValue = nValue + DB.getValue(node, "profbonus", 2);
-					end
-					setValue(nValue);
-				end
+				
 				function onDragStart(button, x, y, draginfo)
-					return WindowManager.callOuterWindowFunction(window, "onInitAction", draginfo);
+					return action(draginfo);
+				end
+					
+				function onDoubleClick(x,y)
+					return action();
 				end
 			</script>
 		</number_chartotal>
@@ -422,72 +414,12 @@
 	<!-- Adjusted -->
 	<template name="number_charskilltotal">
 		<number_listitem_linked_right>
-			<script>
-				function onInit()
-					local nodeChar = DB.getChild(window.getDatabaseNode(), "...");
-					DB.addHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
-					DB.addHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
-
-					addSource("stat", "string");
-					addSource("prof");
-					addSourceWithOp("misc", "+");
-
-					super.onInit();
-				end
-				
-				function onClose()
-					local nodeChar = DB.getChild(window.getDatabaseNode(), "...");
-					DB.removeHandler(DB.getPath(nodeChar, "abilities.*.score"), "onUpdate", onSourceUpdate);
-					DB.removeHandler(DB.getPath(nodeChar, "profbonus"), "onUpdate", onSourceUpdate);
-				end
-
-				function onSourceUpdate(node)
-					local nValue = calculateSources();
-
-					local nodeSkill = window.getDatabaseNode();
-					local nodeChar = DB.getChild(nodeSkill, "...");
-
-					local sAbility = DB.getValue(nodeSkill, "stat", "");
-					if sAbility ~= "" then
-						local nScore = DB.getValue(nodeChar, "abilities." .. sAbility .. ".score", 0)
-						nValue = nValue + math.floor((nScore - 10) / 2);
-					end
-					
-					local nProf = DB.getValue(nodeSkill, "prof", 0);
-					if nProf == 1 then
-						nValue = nValue + DB.getValue(nodeChar, "profbonus", 0);
-					elseif nProf == 2 then
-						nValue = nValue + (2 * DB.getValue(nodeChar, "profbonus", 0));
-					elseif nProf == 3 then
-						nValue = nValue + math.floor(DB.getValue(nodeChar, "profbonus", 0) / 2);
-					end
-					
-					setValue(nValue);
-				end
-				
-				function action(draginfo)
-					local nodeSkill = window.getDatabaseNode();
-					local nodeChar = DB.getChild(nodeSkill, "...");
-					local rActor = ActorManager.resolveActor(nodeChar);
-					ActionSkill.performRoll(draginfo, rActor, nodeSkill);
-					return true;
-				end
-				
-				function onDragStart(button, x, y, draginfo)
-					return action(draginfo);
-				end
-					
-				function onDoubleClick(x,y)
-					return action();
-				end
-			</script>
 			<anchored width="40" />
 			<displaysign />
 			<nodrag />
 			<script file="campaign/scripts/char_skill_total.lua" />
 		</number_listitem_linked_right>
 	</template>
-
 	<template name="button_skillprof">
 		<button_listitem_left>
 			<state icon="button_prof" tooltipres="char_tooltip_prof_off" merge="add" />
@@ -501,8 +433,8 @@
 			<anchored width="30" />
 			<parameters>
 				<defaultlabelres mergerule="replace">dash</defaultlabelres>
-				<labelsres>str|dex|con|int|wis|cha</labelsres>
-				<values>strength|dexterity|constitution|intelligence|wisdom|charisma</values>
+				<labelsres>AGI|ANI|ATH|AWA|CUN|DEC|END|FIG|HEA|KNO|LAN|MAR|PER|STA|STE|SUR|THI|WAR|WIL</labelsres>
+				<values>agility|animalhandling|athletics|awareness|cunning|deception|endurance|fighting|healing|knowledge|language|marksmanship|persuasion|status|stealth|survival|thievery|warfare|will</values>
 			</parameters>
 		</stringcycler_listitem_right>
 	</template>
@@ -574,7 +506,6 @@
 			</script>
 		</buttonfield>
 	</template>
-
 	<template name="state_charammocounter">
 		<buttongroup_counter>
 			<anchored height="20" />
@@ -585,32 +516,6 @@
 		</buttongroup_counter>
 	</template>
 
-	<template name="number_charinit">
-		<number_chartotal>
-			<font>reference-b-large</font>
-			<rollable />
-			<displaysign />
-			<modifiersize>mini</modifiersize>
-			<modifierfield>initiative.temporary</modifierfield>
-			<source><name>initiative.misc</name><op>+</op></source>
-			<source><name>abilities.dexterity.bonus</name><op>+</op></source>
-			<script>
-				function action(draginfo)
-					local rActor = ActorManager.resolveActor(window.getDatabaseNode());
-					ActionInit.performRoll(draginfo, rActor);
-					return true;
-				end
-				
-				function onDragStart(button, x, y, draginfo)
-					return action(draginfo);
-				end
-					
-				function onDoubleClick(x,y)
-					return action();
-				end
-			</script>
-		</number_chartotal>
-	</template>
 
 	<!-- Adjusted -->
 	<template name="list_charweapon">

@@ -21,7 +21,7 @@ function onValueChanged()
 end
 
 function parseComponents()
-	aAbilities = PowerManager.parseNPCPower(window.getDatabaseNode());
+	aAbilities = PowerManager.parseNPCPowerDesc(window.getDatabaseNode());
 	bParsed = true;
 end
 

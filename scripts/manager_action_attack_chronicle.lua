@@ -1,129 +1,74 @@
--- 
+--
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
 OOB_MSGTYPE_APPLYATK = "applyatk";
 OOB_MSGTYPE_APPLYHRFC = "applyhrfc";
 
-rAction2 = {}
+local _rActionFallback = {};
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYATK, handleApplyAttack);
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_APPLYHRFC, handleApplyHRFC);
+	OOBManager.registerOOBMsgHandler(ActionAttack.OOB_MSGTYPE_APPLYATK, ActionAttack.handleApplyAttack);
+	OOBManager.registerOOBMsgHandler(ActionAttack.OOB_MSGTYPE_APPLYHRFC, ActionAttack.handleApplyHRFC);
 
-	ActionsManager.registerTargetingHandler("attack", onTargeting);
-	ActionsManager.registerModHandler("attack", modAttack);
-	ActionsManager.registerResultHandler("attack", onAttack);
+	ActionsManager.registerTargetingHandler("attack", ActionCore.onTargeting);
+	ActionsManager.registerModHandler("attack", ActionAttack.modAttack);
+	ActionsManager.registerResultHandler("attack", ActionAttack.onAttack);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function handleApplyAttack(msgOOB)
-	-- Debug.chat("FN: handleApplyAttack in manager_action_attack")
-	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
-	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
-
-	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
-	ActionAttack.applyAttack(rSource, rTarget, rRoll);
-end
-
--- ===================================================================================================================
--- Communicate attack roll to Clients
--- ===================================================================================================================
 function notifyApplyAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: notifyApplyAttack in manager_action_attack")
 	if not rTarget then
 		return;
 	end
 
 	rRoll.bSecret = rRoll.bTower;
-	rRoll.sResults = table.concat(rRoll.aMessages, " ");
-	
+	rRoll.sResults = table.concat(rRoll.aMessages, "\r");
+
 	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
 	msgOOB.type = ActionAttack.OOB_MSGTYPE_APPLYATK;
 	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
 	msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
-
 	Comm.deliverOOBMessage(msgOOB, "");
 end
-
--- ===================================================================================================================
--- Handle "Fumble" & "Critica Hits" messaging. (HRFC = House Rules Fumble/Crit")
--- ===================================================================================================================
-function handleApplyHRFC(msgOOB)
-	-- Debug.chat("FN: handleApplyHRFC in manager_action_attack")
-	TableManager.processTableRoll("", msgOOB.sTable);
+function handleApplyAttack(msgOOB)
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
+	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
+	ActionAttack.applyAttack(rSource, rTarget, rRoll);
 end
 
--- ===================================================================================================================
--- Communicate "Fumble" & "Critica Hits" to Clients
--- ===================================================================================================================
+function handleApplyHRFC(msgOOB)
+	TableManager.processTableRoll("", msgOOB.sTable);
+end
 function notifyApplyHRFC(sTable)
-	-- Debug.chat("FN: notifyapplyHRFC in manager_action_attack")
 	local msgOOB = {};
-	msgOOB.type = OOB_MSGTYPE_APPLYHRFC;
-	
+	msgOOB.type = ActionAttack.OOB_MSGTYPE_APPLYHRFC;
+
 	msgOOB.sTable = sTable;
 
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
--- ===================================================================================================================
--- Handle "Remove On Miss" setting in options
--- ===================================================================================================================
-function onTargeting(rSource, aTargeting, rRolls)
-	-- Debug.chat("FN: onTargeting in manager_action_attack")
-	local bRemoveOnMiss = false;
-	local sOptRMMT = OptionsManager.getOption("RMMT");
-	if sOptRMMT == "on" then
-		bRemoveOnMiss = true;
-	elseif sOptRMMT == "multi" then
-		bRemoveOnMiss = (#aTargeting > 1);
-	end
-	
-	if bRemoveOnMiss then
-		for _,vRoll in ipairs(rRolls) do
-			vRoll.bRemoveOnMiss = "true";
-		end
-	end
+--
+--	ROLL BUILD/MOD/RESOLVE
+--
 
-	return aTargeting;
+function performRoll(draginfo, rActor, rAction)
+	local rRoll = ActionAttack.getRoll(rActor, rAction);
+	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function performPartySheetVsRoll(draginfo, rActor, rAction)
-	-- Debug.chat("FN: performPartySheetVsRoll in manager_action_attack")
+function performPartySheetVsRoll(_, rActor, rAction)
 	local rRoll = ActionAttack.getRoll(nil, rAction);
-	
+
 	if DB.getValue("partysheet.hiderollresults", 0) == 1 then
 		rRoll.bSecret = true;
 		rRoll.bTower = true;
 	end
-	
+
 	ActionsManager.actionDirect(nil, "attack", { rRoll }, { { rActor } });
 end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function performRoll(draginfo, rActor, rAction)
-	-- Debug.chat("FN: performRoll in manager_action_attack")
-	local rRoll = ActionAttack.getRoll(rActor, rAction);
-
-	ActionsManager.performAction(draginfo, rActor, rRoll);
-end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function getRoll(rActor, rAction)
-	-- Debug.chat("FN: getRoll in manager_action_attack")
-	-- Build rRoll
 	local rRoll = {};
 	rRoll.aDice = {};
 	rRoll.bWeapon = rAction.bWeapon;
@@ -137,254 +82,56 @@ function getRoll(rActor, rAction)
 	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor);
 	rRoll.nMod = rAction.nMod or 0;
 	rRoll.nodeWeapon = rAction.nodeWeapon;
-	
-	-- Save rAction as we need some of its data in function onAttack
-	rAction2 = rAction
-	
-	-- Add Test Die to Dice Array. This is necessary to have the proper number of die show up on drag.
-	for i = 1, rRoll.nTest do
-		table.insert(rRoll.aDice, "d6")
+	rRoll.sWeaponNode = (rAction.nodeWeapon and DB.getPath(rAction.nodeWeapon)) or "";
+
+	_rActionFallback = rAction;
+
+	for _ = 1, rRoll.nTest do
+		table.insert(rRoll.aDice, "d6");
+	end
+	for _ = 1, rRoll.nBonus do
+		table.insert(rRoll.aDice, "d6");
 	end
 
-	-- Add Bonus Die to Dice Array. This is necessary to have the proper number of die show up on drag.
-	for i = 1, rRoll.nBonus do
-		table.insert(rRoll.aDice, "d6")
-	end
-
-	-- Build the description label
-	rRoll.sDesc = "[ATTACK"
-
-	-- Add Attack range type
+	rRoll.sDesc = "[ATTACK";
 	if rAction.range then
 		rRoll.sDesc = rRoll.sDesc .. " (" .. rAction.range .. ")";
 	end
-
-	-- Add weapon name
-	rRoll.sDesc = rRoll.sDesc .. "] " .. rAction.label
+	rRoll.sDesc = rRoll.sDesc .. "] " .. (rAction.label or "");
 
 	return rRoll;
 end
 
--- ===================================================================================================================
--- This function is used to modify the Roll record for Attack checks
--- ===================================================================================================================
 function modAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: modAttack in manager_action_attack")
-	-- Clear Critical
 	ActionAttack.clearCritState(rSource);
 
 	local aAddDesc = {};
-	local aAddDice = {};
-	local nAddMod = 0;
 
-	-- Correcting changes done in CorePRG
-	rRoll.nTest = tonumber(rRoll.nTest)
-	rRoll.nBonus = tonumber(rRoll.nBonus)
-	rRoll.nPenalty = tonumber(rRoll.nPenalty)
-	rRoll.nMod = tonumber(rRoll.nMod)
+	rRoll.nTest = tonumber(rRoll.nTest) or 0;
+	rRoll.nBonus = tonumber(rRoll.nBonus) or 0;
+	rRoll.nPenalty = tonumber(rRoll.nPenalty) or 0;
+	rRoll.nMod = tonumber(rRoll.nMod) or 0;
 
-	-- Check for opportunity attack
 	local bOpportunity = ModifierManager.getKey("ATT_OPP") or Input.isShiftPressed();
-
 	if bOpportunity then
 		table.insert(aAddDesc, "[OPPORTUNITY]");
 	end
 
-	-- Consider Health
-	ActionsManager2.encodeHealthMods(rSource, rRoll)
+	ActionsManager2.encodeHealthMods(rSource, rRoll);
+	ActionsManager2.encodeDesktopMods(rRoll);
 
-	-- Consider Desktop Modifications
-	ActionsManager2.encodeDesktopMods(rRoll)
-
-	-- Check applying Effects
 	if rSource then
-		local aAttackFilter = {}
-		local bEffects = false
-
-		-- Determine attack type
-		local sAttackType = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]");
-		if not sAttackType then
-			sAttackType = "M";
-		end
-
-		-- Build attack filter
-		if sAttackType == "M" then
-			table.insert(aAttackFilter, "melee");
-		elseif sAttackType == "R" then
-			table.insert(aAttackFilter, "ranged");
-		end
-
-		-- Check for Weapon Grade
-		-- local nodeWeapon = getDatabaseNode()
-		-- local sWeaponGrade = DB.getValue(nodeWeapon, "wpn_grade", "")
-
-		-- ToDo: Implement for Attack Roll
-		-- if sWeaponGrade == "Poor" then
-			-- nPenalty = nPenalty + 1
-		-- elseif sWeaponGrade == "Superior" then
-			-- nBonus = nBonus + 1
-		-- elseif sWeaponGrade == "Extraordinary" then
-			-- nBonus = nBonus + 1
-		-- end
-
-		-- Check if a two-handed weapon is used with one hand only and apply penalty dice accordingly
-		-- ToDo: Implement for Attack Roll
-		-- local sWeaponQualities = DB.getValue(nodeWeapon, "wpn_qualities", "")
-		-- if CharWeaponManager.checkProperty(sWeaponQualities, WEAPON_PROP_TWOHANDED) == true and nWeaponHandling ~= 1 then
-			-- nPenalty = nPenalty + 2
-		-- end
-
-		-- Check for modifiers
-		-- Check for aim
-		local bAim = ModifierManager.getKey("ATT_AIM")
-		if bAim then
-			table.insert(aAddDesc, "[Aim +1B]")
-			rRoll.nBonus = rRoll.nBonus + 1
-		end
-
-		-- Check for higher ground
-		local bHighground = ModifierManager.getKey("ATT_HIGHGROUND")
-		if bHighground then
-			if sAttackType == "M" then
-				table.insert(aAddDesc, "[HIGHGROUND +1B]")
-				rRoll.nBonus = rRoll.nBonus + 1
-			end
-		end
-
-		-- Check for cautious attack
-		local bCautious = ModifierManager.getKey("ATT_CAUTIOUS")
-		if bCautious then
-			table.insert(aAddDesc, "[CAUTIOUS -1D, CoD +3]")
-			rRoll.nPenalty = rRoll.nPenalty + 1
-		end
-
-		-- Check for reckless attack
-		local bReckless = ModifierManager.getKey("ATT_RECKLESS")
-		if bReckless then
-			table.insert(aAddDesc, "[RECKLESS +1D, CoD -5]")
-			rRoll.nTest = rRoll.nTest + 1
-		end
-
-		-- Check for cover
-		local bCover = ModifierManager.getKey("DEF_COVER")
-		if bCover then
-			table.insert(aAddDesc, "[COVER -5]")
-			nAddMod = nAddMod - 5
-		end
-
-		-- Check for superior cover
-		local bSuperiorCover = ModifierManager.getKey("DEF_SCOVER")
-		if bSuperiorCover then
-			table.insert(aAddDesc, "[COVER -10]")
-			nAddMod = nAddMod - 10
-		end
-
-		-- Check for shadowy light
-		local bLowLight = ModifierManager.getKey("DEF_LOWLIGHT")
-		if bLowLight then
-			if sAttackType == "M" then
-				table.insert(aAddDesc, "[SHADOWY -1D]")
-				rRoll.nPenalty = rRoll.nPenalty + 1
-			elseif sAttackType == "R" then
-				table.insert(aAddDesc, "[SHADOWY -2D]")
-				rRoll.nPenalty = rRoll.nPenalty + 2
-			end
-		end
-
-		-- Check for darkness
-		local bNoLight = ModifierManager.getKey("DEF_NOLIGHT")
-		if bNoLight then
-			if sAttackType == "M" then
-				table.insert(aAddDesc, "[DARKNESS -2D]")
-				rRoll.nPenalty = rRoll.nPenalty + 2
-			elseif sAttackType == "R" then
-				table.insert(aAddDesc, "[DARKNESS -4D]")
-				rRoll.nPenalty = rRoll.nPenalty + 4
-			end
-		end
-
-		-- Check for sprinting target
-		local bSprint = ModifierManager.getKey("DEF_SPRINT")
-		if bSprint then
-			table.insert(aAddDesc, "[Moving Target -1D]")
-			rRoll.nPenalty = rRoll.nPenalty + 1
-		end		
-
-		-- Apply collected nAddMod to rRoll.nMod
-		rRoll.nMod = rRoll.nMod + nAddMod
-
-		-- Get attack effect modifiers
-		-- ToDo: Implement
-		local bEffects = false;
-		local nEffectCount;
-		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"ATK"}, false, aAttackFilter, rTarget);
-
-		if (nEffectCount > 0) then
-			bEffects = true;
-		end
-
-		-- Get condition modifiers
-		-- ToDo: List all conditions
-		if EffectManager5E.hasEffectCondition(rSource, "Blinded") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Encumbered") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Invisible") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
-			bEffects = true;
-		end
-		if EffectManager.hasCondition(rSource, "Prone") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Restrained") then
-			bEffects = true;
-		end
-		if EffectManager5E.hasEffectCondition(rSource, "Unconscious") then
-			bEffects = true;
-		end
-
-		-- If effects, then add them
-		if bEffects then
-			local sEffects = "";
-			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
-			
-			if sMod ~= "" then
-				sEffects = "[" .. Interface.getString("effects_tag") .. " " .. sMod .. "]";
-			else
-				sEffects = "[" .. Interface.getString("effects_tag") .. "]";
-			end
-			table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
-		end
+		ActionAttack.applyChronicleAttackModifiers(rSource, rTarget, rRoll, aAddDesc);
 	end
 
-	-- Build description string
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
 
-	-- Apply collected nAddMod to rRoll.nMod
-	rRoll.nMod = rRoll.nMod + nAddMod;
-
-	-- Set maximum Bonus and Penalty Dice
-	rRoll = ActionResult.capDice(rRoll)
+	ActionResult.capDice(rRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: onAttack in manager_action_attack")
-	-- Rebuild detail fields if dragging from chat window
 	if not rRoll.sRange then
 		rRoll.sRange = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]");
 	end
@@ -392,67 +139,58 @@ function onAttack(rSource, rTarget, rRoll)
 		rRoll.sLabel = StringManager.trim(rRoll.sDesc:match("%[ATTACK.*%]([^%[]+)"));
 	end
 
-	local rMessage = ActionsManager.createActionMessage(rSource, rRoll)
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
-	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
-	rRoll = ActionResult.DropDice(rRoll)
+	rRoll = ActionResult.DropDice(rRoll);
 
-	-- Add message array to rRoll, this is required for DoS output
 	rRoll.aMessages = {};
 
-	-- Determine Target Combat Defense and defense bonus effects
 	rRoll.nDefenseVal, rRoll.nAtkEffectsBonus, rRoll.nDefEffectsBonus = ActorManager5E.getDefenseValue(rSource, rTarget, rRoll);
 
-	if rRoll.nAtkEffectsBonus ~= 0 then
+	if (rRoll.nAtkEffectsBonus or 0) ~= 0 then
 		rRoll.nTotal = rRoll.nTotal + rRoll.nAtkEffectsBonus;
-		local sFormat = "[" .. Interface.getString("effects_tag") .. " %+d]"
 		table.insert(rRoll.aMessages, EffectManager.buildEffectOutput(rRoll.nAtkEffectsBonus));
 	end
 
-	if rRoll.nDefEffectsBonus ~= 0 then
+	if (rRoll.nDefEffectsBonus or 0) ~= 0 then
 		rRoll.nDefenseVal = rRoll.nDefenseVal + rRoll.nDefEffectsBonus;
 		table.insert(rRoll.aMessages, string.format("[%s %+d]", Interface.getString("effects_def_tag"), rRoll.nDefEffectsBonus));
 	end
 
-	-- Determine degrees of success
 	if rRoll.nDefenseVal then
-		rMessage, rRoll = ActionResult.DetermineSuccessAttack(rMessage, rRoll)
+		rMessage, rRoll = ActionResult.DetermineSuccessAttack(rMessage, rRoll);
 	end
 
-	-- Save quality of attack for use in damage calculation
-	DB.setValue(rAction2.nodeWeapon, "dmg_multiplier", "number", rRoll.nDoS - 1)
+	local nodeWeapon = rRoll.nodeWeapon or ((rRoll.sWeaponNode or "") ~= "" and DB.findNode(rRoll.sWeaponNode)) or (_rActionFallback and _rActionFallback.nodeWeapon);
+	if nodeWeapon then
+		DB.setValue(nodeWeapon, "dmg_multiplier", "number", (rRoll.nDoS or 1) - 1);
+	end
 
-	-- Build chat message if no target was selected
-	if not rTarget then
+	if not rTarget and #(rRoll.aMessages) > 0 then
 		rMessage.text = rMessage.text .. " " .. table.concat(rRoll.aMessages, " ");
 	end
 
+	GameManager.callEventFunctions("onAttackPreResolve", rSource, rTarget, rRoll);
 	ActionAttack.onPreAttackResolve(rSource, rTarget, rRoll, rMessage);
 	ActionAttack.onAttackResolve(rSource, rTarget, rRoll, rMessage);
 	ActionAttack.onPostAttackResolve(rSource, rTarget, rRoll, rMessage);
+	GameManager.callEventFunctions("onAttackPostResolve", rSource, rTarget, rRoll);
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onPreAttackResolve(rSource, rTarget, rRoll, rMessage)
+function onPreAttackResolve()
 	-- Do nothing; location to override
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
 function onAttackResolve(rSource, rTarget, rRoll, rMessage)
-	-- Debug.chat("FN: onAttackResolve in manager_action_attack")
 	Comm.deliverChatMessage(rMessage);
-	
+
 	if rTarget then
 		ActionAttack.notifyApplyAttack(rSource, rTarget, rRoll);
 	end
-	
+
 	-- TRACK CRITICAL STATE
 	if rRoll.sResult == "crit" then
 		ActionAttack.setCritState(rSource, rTarget);
 	end
-	
+
 	-- REMOVE TARGET ON MISS OPTION
 	if rTarget then
 		if (rRoll.sResult == "miss" or rRoll.sResult == "fumble") then
@@ -462,11 +200,7 @@ function onAttackResolve(rSource, rTarget, rRoll, rMessage)
 		end
 	end
 end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function onPostAttackResolve(rSource, rTarget, rRoll, rMessage)
-	-- Debug.chat("FN: onPostAttackResolve in manager_action_attack")
+function onPostAttackResolve(_, _, rRoll)
 	-- HANDLE FUMBLE/CRIT HOUSE RULES
 	local sOptionHRFC = OptionsManager.getOption("HRFC");
 	if rRoll.sResult == "fumble" and ((sOptionHRFC == "both") or (sOptionHRFC == "fumble")) then
@@ -477,14 +211,10 @@ function onPostAttackResolve(rSource, rTarget, rRoll, rMessage)
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function applyAttack(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: applyAttack in manager_action_attack")
 	local msgShort = { font = "msgfont" };
 	local msgLong = { font = "msgfont" };
-	
-	-- Standard roll information
+
 	msgShort.text = "[Attack";
 	msgLong.text = "[Attack";
 
@@ -506,7 +236,6 @@ function applyAttack(rSource, rTarget, rRoll)
 	end
 	msgLong.text = string.format("%s [%d]", msgLong.text, rRoll.nTotal or 0);
 
-	-- Targeting information
 	msgShort.text = string.format("%s ->", msgShort.text);
 	msgLong.text = string.format("%s ->", msgLong.text);
 
@@ -521,7 +250,6 @@ function applyAttack(rSource, rTarget, rRoll)
 		msgLong.text = string.format("%s [at %s]", msgLong.text, sTargetName);
 	end
 
-	-- Extra roll information
 	msgShort.icon = "roll_attack";
 	if (rRoll.sResults or "") ~= "" then
 		msgLong.text = string.format("%s %s", msgLong.text, rRoll.sResults);
@@ -542,63 +270,94 @@ function applyAttack(rSource, rTarget, rRoll)
 end
 
 --
---	CRIT STATE TRACKING
+-- CHRONICLE CUSTOM SYSTEMS
 --
 
-aCritState = {};
-
--- ===================================================================================================================
--- ===================================================================================================================
-function setCritState(rSource, rTarget)
-	-- Debug.chat("FN: setCritState in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
-	if sSourceCT == "" then
-		return;
-	end
-	local sTargetCT = "";
-	if rTarget then
-		sTargetCT = ActorManager.getCTNodeName(rTarget);
-	end
-	
-	if not aCritState[sSourceCT] then
-		aCritState[sSourceCT] = {};
-	end
-	table.insert(aCritState[sSourceCT], sTargetCT);
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function clearCritState(rSource)
-	-- Debug.chat("FN: clearCritState in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
-	if sSourceCT ~= "" then
-		aCritState[sSourceCT] = nil;
-	end
-end
-
--- ===================================================================================================================
--- ===================================================================================================================
-function isCrit(rSource, rTarget)
-	-- Debug.chat("FN: isCrit in manager_action_attack")
-	local sSourceCT = ActorManager.getCreatureNodeName(rSource);
-	if sSourceCT == "" then
-		return;
-	end
-	local sTargetCT = "";
-	if rTarget then
-		sTargetCT = ActorManager.getCTNodeName(rTarget);
+function applyChronicleAttackModifiers(rSource, rTarget, rRoll, aAddDesc)
+	local aAttackFilter = {};
+	local sAttackType = rRoll.sDesc:match("%[ATTACK.*%((%w+)%)%]") or "M";
+	if sAttackType == "M" then
+		table.insert(aAttackFilter, "melee");
+	elseif sAttackType == "R" then
+		table.insert(aAttackFilter, "ranged");
 	end
 
-	if not aCritState[sSourceCT] then
-		return false;
+	if ModifierManager.getKey("ATT_AIM") then
+		table.insert(aAddDesc, "[Aim +1B]");
+		rRoll.nBonus = rRoll.nBonus + 1;
 	end
-	
-	for k,v in ipairs(aCritState[sSourceCT]) do
-		if v == sTargetCT then
-			table.remove(aCritState[sSourceCT], k);
-			return true;
+
+	if ModifierManager.getKey("ATT_HIGHGROUND") and (sAttackType == "M") then
+		table.insert(aAddDesc, "[HIGHGROUND +1B]");
+		rRoll.nBonus = rRoll.nBonus + 1;
+	end
+
+	if ModifierManager.getKey("ATT_CAUTIOUS") then
+		table.insert(aAddDesc, "[CAUTIOUS -1D, CoD +3]");
+		rRoll.nPenalty = rRoll.nPenalty + 1;
+	end
+
+	if ModifierManager.getKey("ATT_RECKLESS") then
+		table.insert(aAddDesc, "[RECKLESS +1D, CoD -5]");
+		rRoll.nTest = rRoll.nTest + 1;
+	end
+
+	if ModifierManager.getKey("DEF_COVER") then
+		table.insert(aAddDesc, "[COVER -5]");
+		rRoll.nMod = rRoll.nMod - 5;
+	end
+
+	if ModifierManager.getKey("DEF_SCOVER") then
+		table.insert(aAddDesc, "[COVER -10]");
+		rRoll.nMod = rRoll.nMod - 10;
+	end
+
+	if ModifierManager.getKey("DEF_LOWLIGHT") then
+		if sAttackType == "M" then
+			table.insert(aAddDesc, "[SHADOWY -1D]");
+			rRoll.nPenalty = rRoll.nPenalty + 1;
+		elseif sAttackType == "R" then
+			table.insert(aAddDesc, "[SHADOWY -2D]");
+			rRoll.nPenalty = rRoll.nPenalty + 2;
 		end
 	end
-	
-	return false;
+
+	if ModifierManager.getKey("DEF_NOLIGHT") then
+		if sAttackType == "M" then
+			table.insert(aAddDesc, "[DARKNESS -2D]");
+			rRoll.nPenalty = rRoll.nPenalty + 2;
+		elseif sAttackType == "R" then
+			table.insert(aAddDesc, "[DARKNESS -4D]");
+			rRoll.nPenalty = rRoll.nPenalty + 4;
+		end
+	end
+
+	if ModifierManager.getKey("DEF_SPRINT") then
+		table.insert(aAddDesc, "[Moving Target -1D]");
+		rRoll.nPenalty = rRoll.nPenalty + 1;
+	end
+
+	local aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, { "ATK" }, false, aAttackFilter, rTarget);
+	if (nEffectCount > 0) or (nAddMod ~= 0) or (#aAddDice > 0) then
+		rRoll.nMod = rRoll.nMod + nAddMod;
+		local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
+		table.insert(aAddDesc, EffectManager.buildEffectOutput(sMod));
+	end
+
+	local tCheckConditions = { "Blinded", "Encumbered", "Frightened", "Intoxicated", "Invisible", "Poisoned", "Prone", "Restrained", "Unconscious" };
+	for _, sCond in ipairs(tCheckConditions) do
+		if EffectManager5E.hasEffectCondition(rSource, sCond) or EffectManager.hasCondition(rSource, sCond) then
+			table.insert(aAddDesc, string.format("[%s]", sCond:upper()));
+		end
+	end
+end
+
+function setCritState(rSource, rTarget)
+	ActionAttackCore.setCritState(rSource, rTarget);
+end
+function clearCritState(rSource)
+	ActionAttackCore.clearCritState(rSource);
+end
+function isCrit(rSource, rTarget)
+	return ActionAttackCore.getCritState(rSource, rTarget);
 end

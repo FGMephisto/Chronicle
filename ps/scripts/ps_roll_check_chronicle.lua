@@ -7,26 +7,23 @@
 -- ===================================================================================================================
 -- Adjusted
 -- ===================================================================================================================
-function action(draginfo)
-	local aParty = {};
-
-	for _,v in pairs(window.list.getWindows()) do
-		local rActor = ActorManager.resolveActor(v.link.getTargetDatabaseNode());
-		if rActor then
-			table.insert(aParty, rActor);
-		end
+function action()
+	local tParty = PartyManager.getPartyActors();
+	if #tParty == 0 then
+		return true;
 	end
 
-	if #aParty == 0 then
-		aParty = nil;
+	local sAbilityStat = DB.getValue("partysheet.checkselected", "");
+	if not sAbilityStat or sAbilityStat == "" then
+		return true;
 	end
 
-	local sAbilityStat = DB.getValue("partysheet.checkselected", ""):lower();
-	
+	-- Convert to lower case and remove all spaces (e.g. "Animal Handling" -> "animalhandling")
+	local sCheck = ActionsManager2.ConvertToTechnical(sAbilityStat);
+
 	ModifierManager.lock();
-	for _,v in pairs(aParty) do
-		-- Convert to lower case and removing all spaces from the string
-		ActionCheck.performPartySheetRoll(nil, v, ActionsManager2.ConvertToTechnical(sAbilityStat));
+	for _,v in pairs(tParty) do
+		ActionCheck.performPartySheetRoll(nil, v, sCheck);
 	end
 	ModifierManager.unlock(true);
 
@@ -37,4 +34,4 @@ end
 -- ===================================================================================================================
 function onButtonPress()
 	return action();
-end			
+end

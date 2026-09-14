@@ -1,25 +1,18 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	ActionsManager.registerModHandler("dice", modRoll);
-	ActionsManager.registerResultHandler("dice", onRoll);
+	ActionsManager.registerModHandler("dice", ActionGeneral.modRoll);
+	ActionsManager.registerResultHandler("dice", ActionGeneral.onRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: modRoll in manager_action_general")
-	rRoll.rActor = rSource
-	rRoll.nTest = #rRoll.aDice
-	rRoll.nBonus = 0
-	rRoll.nPenalty = 0
+	rRoll.rActor = rSource;
+	rRoll.nTest = #(rRoll.aDice or {});
+	rRoll.nBonus = 0;
+	rRoll.nPenalty = 0;
 
 	-- Get Desktop modifications
 	ActionsManager2.encodeDesktopMods(rRoll);
@@ -28,15 +21,11 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll = ActionResult.capDice(rRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: onRoll in manager_action_general")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
-	rRoll = ActionResult.DropDice(rRoll)
+	rRoll = ActionResult.DropDice(rRoll);
 
 	Comm.deliverChatMessage(rMessage);
 end

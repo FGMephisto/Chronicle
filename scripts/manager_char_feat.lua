@@ -354,7 +354,7 @@ function helperAddFeatResilientDrop2024(rAdd)
 		return;
 	end
 	if #tAbilities == 1 then
-		CharFeatManager.helperOnResilientFeatSelect(tAbilities, { nodeChar = rAdd.nodeChar, });
+		CharFeatManager.helperOnResilientFeatSelect2024(tAbilities, { nodeChar = rAdd.nodeChar, });
 		return;
 	end
 

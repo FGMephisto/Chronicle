@@ -60,9 +60,6 @@
 
 	<windowclass name="class_spell_view">
 		<frame>referencelist</frame>
-		<placement>
-			<nosave />
-		</placement>
 		<sizelimits>
 			<minimum width="450" height="450" />
 			<dynamic />

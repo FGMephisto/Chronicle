@@ -10,6 +10,9 @@ function action()
 	end
 
 	local sSkill = DB.getValue("partysheet.skillselected", "");
+	if not sSkill or sSkill == "" then
+		return true;
+	end
 
 	ModifierManager.lock();
 	for _,v in pairs(tParty) do

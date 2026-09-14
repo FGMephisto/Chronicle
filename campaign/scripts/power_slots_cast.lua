@@ -40,8 +40,10 @@ function onLockModeChanged(bReadOnly)
 
 	spellslots.setVisible(bSpellSlotsVisible);
 	spellslots_label.setVisible(bSpellSlotsVisible and bPactMagicSlotsVisible);
+	spellslots.setAnchor("left", "contentanchor", "left", "absolute", (bSpellSlotsVisible and bPactMagicSlotsVisible) and 90 or 10);
 	pactmagicslots.setVisible(bPactMagicSlotsVisible);
 	pactmagicslots_label.setVisible(bPactMagicSlotsVisible);
+	pactmagicslots.setAnchor("left", "contentanchor", "left", "absolute", bPactMagicSlotsVisible and 90 or 10);
 
 	parentcontrol.setVisible(bSpellSlotsVisible or bPactMagicSlotsVisible);
 end
@@ -60,7 +62,7 @@ function rebuildListSlots(ctrlList, sPrefix)
 	local nodeChar = getDatabaseNode();
 	for i = 1, PowerManager.SPELL_LEVELS do
 		if DB.getValue(nodeChar, "powermeta." .. sPrefix .. i .. ".max", 0) > 0 then
-			local sLabel = self.getOrdinalLabel(i);
+			local sLabel = StringManager.convertNumberToOrdinal(i);
 			local bExists = false;
 			for _,wChild in ipairs(tWindows) do
 				if wChild.label.getValue() == sLabel then
@@ -78,20 +80,6 @@ function rebuildListSlots(ctrlList, sPrefix)
 
 	ctrlList.applyFilter();
 	ctrlList.applySort();
-end
-
-function getOrdinalLabel(n)
-	if n <= 0 then
-		return tostring(n) or "";
-	end
-	if n == 1 then
-		return "1st";
-	elseif n == 2 then
-		return "2nd";
-	elseif n == 3 then
-		return "3rd";
-	end
-	return (tostring(n) or "") .. "th";
 end
 
 function rebuildSlots()

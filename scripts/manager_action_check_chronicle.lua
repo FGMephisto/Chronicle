@@ -1,25 +1,50 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
-	ActionsManager.registerModHandler("check", modRoll);
-	ActionsManager.registerResultHandler("check", onRoll);
+	ActionsManager.registerModHandler("check", ActionCheck.modRoll);
+	ActionsManager.registerResultHandler("check", ActionCheck.onRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
+function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
+	local rRoll = {};
+	rRoll.aDice = {};
+	rRoll.bSecret = bSecretRoll or false;
+	rRoll.sCheck = sCheck or "";
+	rRoll.sAbility = Interface.getString(sCheck);
+	rRoll.sType = "check";
+	rRoll.nTest = ActorManager5E.getAbilityScore(rActor, sCheck);
+	rRoll.nBonus = 0;
+	rRoll.nPenalty = 0;
+	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor);
+	rRoll.nMod = 0;
+	rRoll.nTarget = tonumber(nTargetDC) or 0;
+
+	for i = 1, (tonumber(rRoll.nTest) or 0) do
+		table.insert(rRoll.aDice, { type = "d6" });
+	end
+
+	rRoll.sDesc = rRoll.sAbility;
+
+	return rRoll;
+end
+
+function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
+	local rRoll = ActionCheck.getRoll(rActor, sCheck, nTargetDC, bSecretRoll);
+
+	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
+		rRoll.bSecret = true;
+	end
+
+	ActionsManager.performAction(draginfo, rActor, rRoll);
+end
+
 function performPartySheetRoll(draginfo, rActor, sCheck)
-	-- Debug.chat("FN: performPartySheetRoll in manager_action_check")
-	local rRoll = getRoll(rActor, sCheck);
+	local rRoll = ActionCheck.getRoll(rActor, sCheck);
 
 	local nTargetDC = DB.getValue("partysheet.checkdc", 0);
-
 	rRoll.nTarget = nTargetDC;
 
 	if DB.getValue("partysheet.hiderollresults", 0) == 1 then
@@ -30,121 +55,57 @@ function performPartySheetRoll(draginfo, rActor, sCheck)
 	ActionsManager.performAction(draginfo, rActor, rRoll);
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
-function performRoll(draginfo, rActor, sCheck, nTargetDC, bSecretRoll)
-	-- Debug.chat("FN: performRoll in manager_action_check")
-	local rRoll = getRoll(rActor, sCheck, nTargetDC, bSecretRoll);
-
-	if Session.IsHost and CombatManager.isCTHidden(ActorManager.getCTNode(rActor)) then
-		rRoll.bSecret = true;
-	end
-
-	ActionsManager.performAction(draginfo, rActor, rRoll);
-end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
-function getRoll(rActor, sCheck, nTargetDC, bSecretRoll)
-	-- Debug.chat("FN: getRoll in manager_action_check")
-	-- Build rRoll
-	local rRoll = {};
-	rRoll.aDice = {};
-	rRoll.bSecret = bSecretRoll or false;
-	rRoll.sCheck = sCheck;
-	rRoll.sAbility = Interface.getString(sCheck);
-	rRoll.sType = "check";
-	rRoll.nTest = ActorManager5E.getAbilityScore(rActor, sCheck);
-	rRoll.nBonus = 0;
-	rRoll.nPenalty = 0;
-	rRoll.nAP = ActorManager5E.getArmorPenalty(rActor);
-	rRoll.nMod = 0;
-	rRoll.nTarget = nTargetDC or 0;
-
-	-- Add Test Die to Dice Array. This is necessary to have the proper number of die show up on drag.
-	for i = 1, rRoll.nTest do
-		table.insert(rRoll.aDice, "d6")
-	end
-
-	-- Add Bonus Die to Dice Array. This is necessary to have the proper number of die show up on drag.
-	for i = 1, rRoll.nBonus do
-		table.insert(rRoll.aDice, "d6")
-	end
-
-	-- Concatenate strings
-	rRoll.sDesc = rRoll.sAbility
-
-	return rRoll;
-end
-
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function modRoll(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: modRoll in manager_action_check")
 	local aAddDesc = {};
 	local aAddDice = {};
 	local nAddMod = 0;
 
-	-- Correcting changes done in CorePRG
-	rRoll.nTest = tonumber(rRoll.nTest)
-	rRoll.nBonus = tonumber(rRoll.nBonus)
-	rRoll.nPenalty = tonumber(rRoll.nPenalty)
-	rRoll.nAP = tonumber(rRoll.nAP)
-	rRoll.nMod = tonumber(rRoll.nMod)
+	rRoll.nTest = tonumber(rRoll.nTest) or 0;
+	rRoll.nBonus = tonumber(rRoll.nBonus) or 0;
+	rRoll.nPenalty = tonumber(rRoll.nPenalty) or 0;
+	rRoll.nAP = tonumber(rRoll.nAP) or 0;
+	rRoll.nMod = tonumber(rRoll.nMod) or 0;
 
 	-- Consider Armor Penalty
-	ActionsManager2.encodeArmorMods(rRoll)
+	ActionsManager2.encodeArmorMods(rRoll);
 
 	-- Consider Desktop Modifications
-	ActionsManager2.encodeDesktopMods(rRoll)
-	
+	ActionsManager2.encodeDesktopMods(rRoll);
+
 	-- Consider Health
-	ActionsManager2.encodeHealthMods(rSource, rRoll)
+	ActionsManager2.encodeHealthMods(rSource, rRoll);
 
 	-- Consider Effects
 	if rSource then
-		local aCheckFilter = {}
+		local aCheckFilter = {};
 		local bEffects = false;
 
-		-- Add Ability to aCheckFilter
-		if rRoll.sCheck then
-			table.insert(aCheckFilter, rRoll.sCheck)
+		if (rRoll.sCheck or "") ~= "" then
+			table.insert(aCheckFilter, rRoll.sCheck);
 		end
 
-		-- Get roll effect modifiers
-		local nEffectCount
-
-		-- ToDo: Adjust Effects Bonus to handle Test/Bonus/Penalty Dice
-		aAddDice, nAddMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"CHECK"}, false, aCheckFilter)
-
-		-- Count effects
-		if (nEffectCount > 0) then
+		local aEffectsDice, nEffectsMod, nEffectCount = EffectManager5E.getEffectsBonus(rSource, {"CHECK"}, false, aCheckFilter);
+		if nEffectCount > 0 then
 			bEffects = true;
+			for _,v in ipairs(aEffectsDice) do
+				table.insert(aAddDice, v);
+			end
+			nAddMod = nAddMod + nEffectsMod;
 		end
 
-		-- Get condition modifiers
-		-- ToDo: Add possible Effects
 		if EffectManager5E.hasEffectCondition(rSource, "Frightened") then
 			bEffects = true;
 		end
 		if EffectManager5E.hasEffectCondition(rSource, "Intoxicated") then
 			bEffects = true;
 		end
-
 		if EffectManager5E.hasEffectCondition(rSource, "Poisoned") then
 			bEffects = true;
 		end
 
-		-- If effects happened, then add note
-		-- ToDo: Does it work?
 		if bEffects then
 			local sEffects = "";
-
-			-- ToDo: Get what the function does
 			local sMod = StringManager.convertDiceToString(aAddDice, nAddMod, true);
-
 			if sMod ~= "" then
 				sEffects = "[" .. Interface.getString("effects_tag") .. " " .. sMod .. "]";
 			else
@@ -154,7 +115,6 @@ function modRoll(rSource, rTarget, rRoll)
 		end
 	end
 
-	-- Build description string
 	if #aAddDesc > 0 then
 		rRoll.sDesc = rRoll.sDesc .. " " .. table.concat(aAddDesc, " ");
 	end
@@ -163,21 +123,17 @@ function modRoll(rSource, rTarget, rRoll)
 	rRoll.nMod = rRoll.nMod + nAddMod;
 
 	-- Set maximum Bonus and Penalty Dice
-	rRoll = ActionResult.capDice(rRoll)
+	rRoll = ActionResult.capDice(rRoll);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onRoll(rSource, rTarget, rRoll)
-	-- Debug.chat("FN: onRoll in manager_action_check")
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 
 	-- Drop dice and process rRoll if Bonus or Penalty Dice have been part of the roll
-	rRoll = ActionResult.DropDice(rRoll)
+	rRoll = ActionResult.DropDice(rRoll);
 
 	-- Determine degrees of success
-	rMessage, rRoll = ActionResult.DetermineSuccessTest(rMessage, rRoll)
+	rMessage, rRoll = ActionResult.DetermineSuccessTest(rMessage, rRoll);
 
 	Comm.deliverChatMessage(rMessage);
 end
