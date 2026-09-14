@@ -1,11 +1,8 @@
 -- 
 -- Please see the license.html file included with this distribution for 
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	local nodeSkill = getDatabaseNode();
 	if nodeSkill then
@@ -38,16 +35,12 @@ function updateSortKey()
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onMenuSelection(selection, subselection)
 	if selection == 6 and subselection == 7 then
 		UtilityManager.safeDeleteWindow(self);
 	end
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onEditModeChanged()
 	local bEditMode = WindowManager.getEditMode(windowlist, "skills_iedit");
 	if self.isCustom() then
@@ -57,10 +50,8 @@ function onEditModeChanged()
 	end
 end
 
--- ===================================================================================================================
 -- This function is called to set the entry to non-custom or custom.
 -- Custom entries have configurable stats and editable labels.
--- ===================================================================================================================
 local _bCustom = true;
 function setCustom(state)
 	_bCustom = state;
@@ -76,14 +67,10 @@ function setCustom(state)
 	setRadialOptions();
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function isCustom()
 	return _bCustom;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function setRadialOptions()
 	resetMenuItems();
 
@@ -93,9 +80,6 @@ function setRadialOptions()
 	end
 end
 
--- ===================================================================================================================
--- Adjusted to open "reference_skill" for skills
--- ===================================================================================================================
 function openSkillLink()
 	local nodeSkill = RecordManager.findRecordByStringI("skill", "name", name.getValue());
 

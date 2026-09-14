@@ -1,19 +1,13 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onInit()
 	onSummaryChanged();
 	update();
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onSummaryChanged()
 	-- local sSize = size.getValue();
 	-- local sType = type.getValue();
@@ -31,9 +25,6 @@ function onSummaryChanged()
 	-- summary_label.setValue(sText);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function update()
 	local nodeRecord = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(nodeRecord);
@@ -51,9 +42,6 @@ function update()
 	-- summary_label.setVisible(bReadOnly);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function onDrop(x, y, draginfo)
 	-- if WindowManager.getReadOnlyState(getDatabaseNode()) then
 		-- return true;
@@ -77,16 +65,10 @@ function onDrop(x, y, draginfo)
 	-- end
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function addSpellDrop(nodeSource, bInnate)
 	-- CampaignDataManager2.addNPCSpell(getDatabaseNode(), nodeSource, bInnate);
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function addAction(sName, sDesc)
 	-- local w = actions.createWindow();
 	-- if w then
@@ -95,9 +77,6 @@ function addAction(sName, sDesc)
 	-- end
 end
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function addTrait(sName, sDesc)
 	-- local w = traits.createWindow();
 	-- if w then

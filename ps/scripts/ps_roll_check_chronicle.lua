@@ -1,12 +1,8 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- Adjusted
--- ===================================================================================================================
 function action()
 	local tParty = PartyManager.getPartyActors();
 	if #tParty == 0 then
@@ -30,8 +26,6 @@ function action()
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onButtonPress()
 	return action();
 end

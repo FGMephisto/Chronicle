@@ -1,7 +1,6 @@
 --
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
 -- NOTE: Non-land vehicles are also immune to "prone" by default

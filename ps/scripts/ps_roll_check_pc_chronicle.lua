@@ -1,11 +1,8 @@
 -- 
 -- Please see the license.html file included with this distribution for
 -- attribution and copyright information.
--- File adjusted for Chronicle System
 --
 
--- ===================================================================================================================
--- ===================================================================================================================
 function action(draginfo)
 	-- Get actor
 	local nodeRecord = window.link.getTargetDatabaseNode();
@@ -37,8 +34,6 @@ function action(draginfo)
 	return true;
 end
 
--- ===================================================================================================================
--- ===================================================================================================================
 function onButtonPress()
 	return action();
 end
