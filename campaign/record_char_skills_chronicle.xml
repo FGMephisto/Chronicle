@@ -36,7 +36,7 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "idelete_header", }, bReadOnly);
+				WindowManager.callSafeControlsSetLockMode(self, { "skills_iedit", "list_iadd", "idelete_header", }, bReadOnly);
 			end
 		</script>
 		<sheetdata>
@@ -45,6 +45,14 @@
 
 			<area_list_content_controls name="area_controls" />
 			<anchor_list_content_controls_right name="rightanchor" />
+			<button_iedit name="skills_iedit">
+				<anchored to="rightanchor">
+					<top />
+					<right relation="relative" offset="-5" />
+				</anchored>
+				<edittarget>content_skills</edittarget>
+				<tooltip textres="char_skills_tooltip_edit" />
+			</button_iedit>
 			<filter_list_content_controls name="filter">
 				<delaykeyupdate merge="delete" />
 				<script>
