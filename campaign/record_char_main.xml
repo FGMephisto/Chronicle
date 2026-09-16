@@ -436,7 +436,7 @@
 				</anchored>
 				<icons>char_stats</icons>
 			</label_charframetop>
-			<number_charwounds name="wounds" source="hp.wounds">
+			<number_charwounds name="wounds">
 				<anchored to="healthtitle" width="40" height="30">
 					<top anchor="bottom" offset="15" />
 					<left anchor="center" offset="-60" />
@@ -448,7 +448,7 @@
 				<anchored to="wounds" offset="0,15" />
 				<static textres="char_label_wounds" />
 			</label_charfieldtop>
-			<number_dropadd name="hp" source="hp.total">
+			<number_dropadd name="hp" source="hptotal">
 				<anchored to="wounds" position="righthigh" offset="15,0" width="40" height="30" />
 				<font>reference-b-large</font>
 				<description textres="hp" />
@@ -463,7 +463,7 @@
 				<anchored to="hp" offset="5,15" />
 				<static textres="char_label_hpmax" />
 			</label_charfieldtop>
-			<basicnumber name="temphp" source="hp.temporary">
+			<basicnumber name="temphp" source="hptemp">
 				<anchored to="hp" position="righthigh" offset="15,0" width="40" height="30" />
 				<font>reference-b-large</font>
 				<description textres="temphp" />
@@ -545,7 +545,7 @@
 			<buttongroup_counter name="deathsavesuccess">
 				<anchored to="deathsave_label" position="belowleft" offset="35,2" />
 				<sourcefields>
-					<current>hp.deathsavesuccess</current>
+					<current>deathsavesuccess</current>
 				</sourcefields>
 				<values>
 					<maximum>3</maximum>
@@ -560,7 +560,7 @@
 			<buttongroup_counter name="deathsavefail">
 				<anchored to="deathsavesuccess" position="belowright" offset="0,2" />
 				<sourcefields>
-					<current>hp.deathsavefail</current>
+					<current>deathsavefail</current>
 				</sourcefields>
 				<values>
 					<maximum>3</maximum>

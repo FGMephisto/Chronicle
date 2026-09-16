@@ -33,6 +33,12 @@
 		<margins control="0,0,0,2" />
 		<script>
 			function onInit()
+				local node = getDatabaseNode();
+				if WindowManager.getRecordType(self) == "npc" or (node and not ActorManager.isPC(node)) then
+					if skills_iedit then
+						skills_iedit.destroy();
+					end
+				end
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)

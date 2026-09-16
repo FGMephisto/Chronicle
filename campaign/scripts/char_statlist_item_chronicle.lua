@@ -5,10 +5,15 @@
 
 function onInit()
 	local nodeStat = getDatabaseNode();
-	DB.addHandler(DB.getPath(nodeStat, "base"), "onUpdate", onDataChanged);
-	DB.addHandler(DB.getPath(nodeStat, "bonus"), "onUpdate", onDataChanged);
+	if nodeStat then
+		DB.addHandler(DB.getPath(nodeStat, "base"), "onUpdate", onDataChanged);
+		DB.addHandler(DB.getPath(nodeStat, "bonus"), "onUpdate", onDataChanged);
+	end
 
-	self.onDataChanged()
+	self.onDataChanged();
+	if nodeStat then
+		Debug.console("charsheet_statlist_item.onInit", DB.getPath(nodeStat), "ctrl.score:", score.getValue(), "db.score:", DB.getValue(nodeStat, "score", -999), "db.base:", DB.getValue(nodeStat, "base", -999));
+	end
 end
 
 function onClose()
@@ -76,7 +81,13 @@ end
 
 function updateScore()
 	local nodeStat = getDatabaseNode();
-	local nScore = base.getValue() + bonus.getValue()
+	if not nodeStat then return; end
 
-	if DB.getValue(nodeStat, "score") ~= nScore then DB.setValue(nodeStat, "score", "number", nScore) end;
+	local nBase = DB.getValue(nodeStat, "base", 0);
+	local nBonus = DB.getValue(nodeStat, "bonus", 0);
+	local nTotal = nBase + nBonus;
+
+	if DB.getValue(nodeStat, "score", 0) ~= nTotal then
+		DB.setValue(nodeStat, "score", "number", nTotal);
+	end
 end

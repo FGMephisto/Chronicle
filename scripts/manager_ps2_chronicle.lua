@@ -43,12 +43,17 @@ function linkPCFields(nodePS)
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "exp", "number");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "expneeded", "number");
 
-	PartyManager.linkRecordField(nodeChar, nodePS, "hp.total", "number", "hptotal");
-	PartyManager.linkRecordField(nodeChar, nodePS, "hp.wounds", "number", "wounds");
+	local sHPTotal = DB.getChild(nodeChar, "hptotal") and "hptotal" or "hp.total";
+	local sWounds = DB.getChild(nodeChar, "wounds") and "wounds" or "hp.wounds";
+	local sInjuries = DB.getChild(nodeChar, "injuries") and "injuries" or "hp.injuries";
+	local sTrauma = DB.getChild(nodeChar, "trauma") and "trauma" or "hp.trauma";
+
+	PartyManager.linkRecordField(nodeChar, nodePS, sHPTotal, "number", "hptotal");
+	PartyManager.linkRecordField(nodeChar, nodePS, sWounds, "number", "wounds");
 
 	PartyManager.linkRecordField(nodeChar, nodePS, "abilities.endurance.score", "number", "endurance");
-	PartyManager.linkRecordField(nodeChar, nodePS, "hp.injuries", "number", "injuries");
-	PartyManager.linkRecordField(nodeChar, nodePS, "hp.trauma", "number", "trauma");
+	PartyManager.linkRecordField(nodeChar, nodePS, sInjuries, "number", "injuries");
+	PartyManager.linkRecordField(nodeChar, nodePS, sTrauma, "number", "trauma");
 	
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.strength.score", "number", "strength");
 	-- PartyManager.linkRecordField(nodeChar, nodePS, "abilities.constitution.score", "number", "constitution");

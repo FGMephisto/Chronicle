@@ -111,6 +111,14 @@ function addToWeaponDB(nodeItem)
 
 		DB.setValue(nodeWeapon, "wpn_qualities", "string", sWeaponQualities);
 		DB.setValue(nodeWeapon, "wpn_handling", "number", nWeaponHandling);
+
+		local sDmgType = DB.getValue(nodeItem, "damagetype", "");
+		if sDmgType == "" then
+			sDmgType = DB.getValue(nodeItem, "damage_type", "");
+		end
+		if sDmgType ~= "" then
+			DB.setValue(nodeWeapon, "damagetype", "string", sDmgType);
+		end
 	end
 
 	-- Determine weapon type
@@ -512,8 +520,30 @@ function getDamageClauses(vActor, nodeWeapon)
 		nDmgTotal = 1;
 	end
 
+	-- Determine damage type (defaults to generic "damage" since Chronicle does not use D&D damage types)
+	local sDmgType = DB.getValue(nodeWeapon, "damagetype", "");
+	if sDmgType == "" then
+		sDmgType = DB.getValue(nodeWeapon, "dmg_type", "");
+	end
+	if sDmgType == "" then
+		local _, sRecord = DB.getValue(nodeWeapon, "shortcut", "", "");
+		if sRecord ~= "" then
+			local nodeItem = DB.findNode(sRecord);
+			if nodeItem then
+				sDmgType = DB.getValue(nodeItem, "damagetype", "");
+				if sDmgType == "" then
+					sDmgType = DB.getValue(nodeItem, "damage_type", "");
+				end
+			end
+		end
+	end
+	if sDmgType == "" then
+		sDmgType = "damage";
+	end
+	sDmgType = StringManager.trim(sDmgType:lower());
+
 	-- Add clause to list of clauses
-	table.insert(clauses, { dice = {}, stat = sDmgAbility, modifier = nDmgTotal });
+	table.insert(clauses, { dice = {}, stat = sDmgAbility, modifier = nDmgTotal, dmgtype = sDmgType });
 
 	return clauses;
 end

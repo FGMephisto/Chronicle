@@ -69,7 +69,7 @@
 								nTotal = draginfo.getNumberData(),
 								bSecret = CombatManager.isCTHidden(node),
 							};
-							ActionDamageD20.notifyApplyDamage(nil, rActor, rRoll);
+							ActionDamage.notifyApplyDamage(nil, rActor, rRoll);
 						end
 					end
 

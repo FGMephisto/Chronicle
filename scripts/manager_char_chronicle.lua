@@ -891,7 +891,10 @@ end
 --
 
 function resetHealth(nodeChar, _)
-	DB.setValue(nodeChar, "hp.wounds", "number", 0);
+	DB.setValue(nodeChar, "wounds", "number", 0);
+	if DB.findNode(DB.getPath(nodeChar, "hp.wounds")) then
+		DB.setValue(nodeChar, "hp.wounds", "number", 0);
+	end
 end
 
 function addAdventure(nodeChar, _, sRecord)

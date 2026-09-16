@@ -25,17 +25,20 @@ function onInit()
 		nodeChar = DB.getChild(node, sActorPath)
 	end
 
-	-- Initialize sub-controls variables with 2px inner padding/spacing
-	local nIconOffset = 2
-	local nIconHeight = math.max(0, nHeight - (nIconOffset * 2))
-	local nIconWidth = math.max(0, math.floor((nWidth - (nIconOffset * 3)) / 2))
+	-- Initialize sub-controls variables matching weapons menu dice size (25x25)
+	local nIconWidth = 25
+	local nLeftOffset = math.max(0, math.floor((nWidth - (nIconWidth * 2)) / 2))
+	if nLeftOffset == 0 and nWidth < 50 then
+		nIconWidth = math.max(0, math.floor(nWidth / 2))
+	end
+	local nIconHeight = nHeight
 	
 	if (sName or "") ~= "" then
 		-- Build Test Dice Icon
 		local sTestIconName = sName .. "_dicetesticon"
 		_ctrlDiceTestIcon = window.createControl("genericcontrol", sTestIconName)
-		_ctrlDiceTestIcon.setAnchor("top", sName, "top", "absolute", nIconOffset)
-		_ctrlDiceTestIcon.setAnchor("left", sName, "left", "absolute", nIconOffset)
+		_ctrlDiceTestIcon.setAnchor("top", sName, "top", "absolute", 0)
+		_ctrlDiceTestIcon.setAnchor("left", sName, "left", "absolute", nLeftOffset)
 		_ctrlDiceTestIcon.setAnchoredWidth(nIconWidth)
 		_ctrlDiceTestIcon.setAnchoredHeight(nIconHeight)
 		_ctrlDiceTestIcon.setIcon("d6icon")
@@ -44,8 +47,8 @@ function onInit()
 		-- Build Test Dice Field
 		local sTestControlName = sName .. "_diceTestControl"
 		_ctrlDiceTestControl = window.createControl("dicecontrol_ability", sTestControlName)
-		_ctrlDiceTestControl.setAnchor("top", sName, "top", "absolute", nIconOffset)
-		_ctrlDiceTestControl.setAnchor("left", sName, "left", "absolute", nIconOffset)
+		_ctrlDiceTestControl.setAnchor("top", sTestIconName, "top", "absolute", 0)
+		_ctrlDiceTestControl.setAnchor("left", sTestIconName, "left", "absolute", 0)
 		_ctrlDiceTestControl.setAnchoredWidth(nIconWidth)
 		_ctrlDiceTestControl.setAnchoredHeight(nIconHeight)
 		_ctrlDiceTestControl.setVisible(isVisible())
@@ -54,7 +57,7 @@ function onInit()
 		local sBonusIconName = sName .. "_dicebonusicon"
 		_ctrlDiceBonusIcon = window.createControl("genericcontrol", sBonusIconName)
 		_ctrlDiceBonusIcon.setAnchor("top", sTestIconName, "top", "absolute", 0)
-		_ctrlDiceBonusIcon.setAnchor("left", sTestIconName, "right", "absolute", nIconOffset)
+		_ctrlDiceBonusIcon.setAnchor("left", sTestIconName, "right", "absolute", 0)
 		_ctrlDiceBonusIcon.setAnchoredWidth(nIconWidth)
 		_ctrlDiceBonusIcon.setAnchoredHeight(nIconHeight)
 		_ctrlDiceBonusIcon.setIcon("d6gicon")
@@ -63,8 +66,8 @@ function onInit()
 		-- Build Bonus Dice Field
 		local sBonusControlName = sName .. "_diceBonusControl"
 		_ctrlDiceBonusControl = window.createControl("dicecontrol_skill", sBonusControlName)
-		_ctrlDiceBonusControl.setAnchor("top", sTestIconName, "top", "absolute", 0)
-		_ctrlDiceBonusControl.setAnchor("left", sTestIconName, "right", "absolute", nIconOffset)
+		_ctrlDiceBonusControl.setAnchor("top", sBonusIconName, "top", "absolute", 0)
+		_ctrlDiceBonusControl.setAnchor("left", sBonusIconName, "left", "absolute", 0)
 		_ctrlDiceBonusControl.setAnchoredWidth(nIconWidth)
 		_ctrlDiceBonusControl.setAnchoredHeight(nIconHeight)
 		_ctrlDiceBonusControl.setVisible(isVisible())

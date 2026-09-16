@@ -34,15 +34,45 @@ function linkPCFields()
 	if nodeChar then
 		-- senses.setLink(DB.createChild(nodeChar, "senses", "string"), true);
 
-		hptotal.setLink(DB.createChild(nodeChar, "hp.total", "number"));
-		-- hptemp.setLink(DB.createChild(nodeChar, "hp.temporary", "number"));
-		wounds.setLink(DB.createChild(nodeChar, "hp.wounds", "number"));
-		-- deathsavesuccess.setLink(DB.createChild(nodeChar, "hp.deathsavesuccess", "number"));
-		-- deathsavefail.setLink(DB.createChild(nodeChar, "hp.deathsavefail", "number"));
+		local nodeHPTotal = DB.getChild(nodeChar, "hptotal");
+		if not nodeHPTotal and DB.getChild(nodeChar, "hp.total") then
+			nodeHPTotal = DB.getChild(nodeChar, "hp.total");
+		else
+			nodeHPTotal = DB.createChild(nodeChar, "hptotal", "number");
+		end
+		hptotal.setLink(nodeHPTotal);
 
-		fatigue.setLink(DB.createChild(nodeChar, "hp.fatigue", "number"));
-		injuries.setLink(DB.createChild(nodeChar, "hp.injuries", "number"));
-		trauma.setLink(DB.createChild(nodeChar, "hp.trauma", "number"));
+		local nodeWounds = DB.getChild(nodeChar, "wounds");
+		if not nodeWounds and DB.getChild(nodeChar, "hp.wounds") then
+			nodeWounds = DB.getChild(nodeChar, "hp.wounds");
+		else
+			nodeWounds = DB.createChild(nodeChar, "wounds", "number");
+		end
+		wounds.setLink(nodeWounds);
+
+		local nodeFatigue = DB.getChild(nodeChar, "fatigue");
+		if not nodeFatigue and DB.getChild(nodeChar, "hp.fatigue") then
+			nodeFatigue = DB.getChild(nodeChar, "hp.fatigue");
+		else
+			nodeFatigue = DB.createChild(nodeChar, "fatigue", "number");
+		end
+		fatigue.setLink(nodeFatigue);
+
+		local nodeInjuries = DB.getChild(nodeChar, "injuries");
+		if not nodeInjuries and DB.getChild(nodeChar, "hp.injuries") then
+			nodeInjuries = DB.getChild(nodeChar, "hp.injuries");
+		else
+			nodeInjuries = DB.createChild(nodeChar, "injuries", "number");
+		end
+		injuries.setLink(nodeInjuries);
+
+		local nodeTrauma = DB.getChild(nodeChar, "trauma");
+		if not nodeTrauma and DB.getChild(nodeChar, "hp.trauma") then
+			nodeTrauma = DB.getChild(nodeChar, "hp.trauma");
+		else
+			nodeTrauma = DB.createChild(nodeChar, "trauma", "number");
+		end
+		trauma.setLink(nodeTrauma);
 
 		type.setLink(DB.createChild(nodeChar, "race", "string"));
 		size.setLink(DB.createChild(nodeChar, "size", "string"));

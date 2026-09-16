@@ -173,7 +173,13 @@ function onNPCPostAdd(tCustom)
 	CampaignDataManager2.resetNPCSpellcastingSlots(tCustom.nodeCT);
 
 	-- Set current hit points
-	local nHP = DB.getValue(tCustom.nodeRecord, "hp", 0);
+	local nHP = DB.getValue(tCustom.nodeRecord, "hp.total", 0);
+	if nHP == 0 then
+		nHP = DB.getValue(tCustom.nodeRecord, "hp", 0);
+	end
+	if nHP == 0 then
+		nHP = DB.getValue(tCustom.nodeRecord, "hptotal", 0);
+	end
 	local sOptHRNH = OptionsManager.getOption("HRNH");
 	if sOptHRNH == "max" then
 		local sHD = CombatManager2.onNPCPostAddGetHDStringHelper(tCustom.nodeRecord);
@@ -186,7 +192,14 @@ function onNPCPostAdd(tCustom)
 			nHP = math.max(StringManager.evalDiceString(sHD, true), 1);
 		end
 	end
+	DB.setValue(tCustom.nodeCT, "hp.total", "number", nHP);
 	DB.setValue(tCustom.nodeCT, "hptotal", "number", nHP);
+	if not DB.findNode(DB.getPath(tCustom.nodeCT, "hp.wounds")) then
+		DB.setValue(tCustom.nodeCT, "hp.wounds", "number", 0);
+	end
+	if not DB.findNode(DB.getPath(tCustom.nodeCT, "wounds")) then
+		DB.setValue(tCustom.nodeCT, "wounds", "number", 0);
+	end
 
 	-- Set initiative from Dexterity modifier
 	local nDex = DB.getValue(tCustom.nodeRecord, "abilities.dexterity.score", 10);

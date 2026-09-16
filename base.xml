@@ -5,8 +5,8 @@
   attribution and copyright information.
 -->
 
-<root version="3.0" release="9" logo="logo.png">
-	<announcement text="Chronicle System ruleset (v2026-09-14) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
+<root version="3.0" release="10" logo="logo.png">
+	<announcement text="Chronicle System ruleset (v2026-09-16) for Fantasy Grounds.\nThe ruleset uses icons made by Delapouite, Lorc, Skoll and Zeromancer available on game-icons.net." font="emotefont" icon="rulesetlogo_chronicle" />
 
 	<!-- Attributes -->
 	<description>
@@ -140,7 +140,6 @@
 	<script name="RecordManager5E"  file="scripts/manager_record_5E.lua" />
 	<script name="RecordShareManager5E" file="scripts/manager_record_share_5E.lua" />
 	<script name="TokenManager2" file="scripts/manager_token2_chronicle.lua" />
-	<script name="VersionCharManager" file="scripts/manager_version_char_chronicle.lua" />
 	<script name="VersionManager2" file="scripts/manager_version2_chronicle.lua" />
 
 	<script name="CharManager" file="scripts/manager_char_chronicle.lua" />

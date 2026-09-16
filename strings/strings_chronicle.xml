@@ -50,6 +50,12 @@
 	<string name="warfare">Warfare</string>
 	<string name="will">Will</string>
 
+	<!-- Character Sheet - Abilities Editor -->
+	<string name="char_stat_title">Abilities</string>
+	<string name="char_stat_label_base">Base</string>
+	<string name="char_stat_label_bonus">Bonus</string>
+	<string name="char_stat_label_total">Total</string>
+
 	<!-- Common -->
 	<string name="hitpoints">Health</string>
 	<string name="ac">CoD</string>
@@ -458,6 +464,7 @@
 	<string name="weapon_label_dmg_bonus">Bonus</string>
 	<string name="weapon_label_dmg_modifier">Modifier</string>
 	<string name="weapon_label_dmg_stat">Ability</string>
+	<string name="weapon_label_damagetype">Type</string>
 	<string name="weapon_label_grade">Weapon Grade</string>
 	<string name="weapon_label_grade_common">Common</string>
 	<string name="weapon_label_grade_extraordinary">Extraordinary</string>

@@ -19,10 +19,31 @@ function onInit()
 	GameManager.setOption("systemshock", "5E");
 
 	ActionDamageD20.registerStandardDamageHealHandlers();
+	ActionDamageD20.notifyApplyDamage = ActionDamage.notifyApplyDamage;
+	OOBManager.registerOOBMsgHandler(ActionDamageD20.OOB_MSGTYPE_APPLYDMG, ActionDamage.handleApplyDamage);
 
 	ActionsManager.registerResultHandler("damage", ActionDamage.onDamage);
 	GameManager.setFunction("onDamageApplyResults", ActionDamage.applyDamageResultsChronicle);
+	GameManager.setFunction("onHealthApplyGetHealth", ActionDamage.applyGetHealthChronicle);
 	GameManager.setFunction("onHealthApplySetHealth", ActionDamage.applySetHealthChronicle);
+
+	-- Record field mapping for Chronicle health structures
+	GameManager.setRecordFieldMap("charsheet", "hptotal", "hptotal");
+	GameManager.setRecordFieldMap("charsheet", "wounds", "wounds");
+	GameManager.setRecordFieldMap("charsheet", "hptemp", "hptemp");
+	GameManager.setRecordFieldMap("charsheet", "deathsavesuccess", "deathsavesuccess");
+	GameManager.setRecordFieldMap("charsheet", "deathsavefail", "deathsavefail");
+	GameManager.setRecordFieldMap("npc", "hptotal", "hp");
+	GameManager.setRecordFieldMap("npc", "wounds", "wounds");
+	GameManager.setRecordFieldMap("npc", "hptemp", "hptemp");
+	GameManager.setRecordFieldMap("", "hptotal", "hptotal");
+	GameManager.setRecordFieldMap("", "wounds", "wounds");
+	GameManager.setRecordFieldMap("", "hptemp", "hptemp");
+
+	-- Override combat overlay toast for Chronicle to display blank/untyped damage as "N damage"
+	if OverlayCombatManager and OverlayCombatManager.helperDamageNotifyToast then
+		OverlayCombatManager.helperDamageNotifyToast = ActionDamage.helperDamageNotifyToastChronicle;
+	end
 end
 
 --
@@ -263,7 +284,75 @@ function onDamage(rSource, rTarget, rRoll)
 		rRoll.nTotal = ActionsManager.total(rRoll);
 	end
 
+	-- Remove redundant [TYPE: damage] or [TYPE: untyped] display in Chronicle chat
+	if rRoll.sDesc then
+		rRoll.sDesc = rRoll.sDesc:gsub("%s?%[TYPE: damage[^]]*%]", ""):gsub("%s?%[TYPE: untyped[^]]*%]", "");
+	end
+
 	ActionDamageD20.onRoll(rSource, rTarget, rRoll);
+end
+
+function helperDamageNotifyToastChronicle(rSource, tActions)
+	local tToastText = {};
+
+	local sToastIcon = nil;
+	local sToastIconColor = nil;
+	local tDamageTotal = {};
+	local tTargets = {};
+	for _, tAction in ipairs(tActions or {}) do
+		if tAction.tData and ActionsManager.getShowResult(rSource, tAction.rTarget) then
+			if tAction.rTarget then
+				table.insert(tTargets, ActorManager.getDisplayName(tAction.rTarget));
+			end
+
+			for sKey, tResult in pairs(tAction.tData.tResults or {}) do
+				if (sToastIcon or "") == "" then
+					sToastIcon = tResult.sIcon;
+					sToastIconColor = tResult.sColor;
+				elseif sToastIcon ~= tResult.sIcon then
+					sToastIcon = ActionDamageCore.getDamageTypeIcon("");
+					sToastIconColor = ActionDamageCore.getDamageTypeColor("");
+				end
+
+				tDamageTotal[sKey] = (tDamageTotal[sKey] or 0) + (tResult.nTotal or 0);
+			end
+		end
+	end
+	if not next(tDamageTotal) then
+		return;
+	end
+	local tDamageTypeText = {};
+	for sKey, nDamage in pairs(tDamageTotal) do
+		if nDamage > 0 then
+			local sTypeText = (sKey ~= "" and sKey ~= "untyped") and sKey or "damage";
+			table.insert(tDamageTypeText, string.format("<font color=%s>%d %s</font>", ActionDamageCore.getDamageTypeColor(sKey), nDamage, sTypeText));
+		end
+	end
+	if #tDamageTypeText == 0 then
+		table.insert(tDamageTypeText, Interface.getString("combat_toast_text_damage_none"));
+	end
+
+	if rSource then
+		local sDamage = string.format(Interface.getString("combat_toast_text_damage"), ActorManager.getDisplayName(rSource), table.concat(tDamageTypeText, ", "));
+		table.insert(tToastText, sDamage);
+	else
+		table.insert(tToastText, table.concat(tDamageTypeText, ", "));
+	end
+
+	if #tTargets > 0 then
+		local sResultText = string.format("<font name=\"toast-bold\">%s:</font> %s", Interface.getString("combat_result_damage"), table.concat(tTargets, ", "));
+		table.insert(tToastText, sResultText);
+	end
+
+	local tOverlayData = {
+		sOption = "TOAST_COMBAT",
+		sToastType = "failure",
+		sIcon = sToastIcon or ActionDamageCore.getDamageTypeIcon(""),
+		sIconColor = sToastIconColor or ActionDamageCore.getDamageTypeColor(""),
+		sTitle = Interface.getString("combat_toast_title_damage"),
+		sText = table.concat(tToastText, "\r"),
+	};
+	OverlayManager.showToastMessage(tOverlayData);
 end
 
 function applyDamageResultsChronicle(rSource, rTarget, rRoll, tApplyData)
@@ -339,13 +428,197 @@ function getArmorReductionChronicle(rTarget, rSource, rRoll)
 	return nEffectiveAR, nPiercing;
 end
 
-function applySetHealthChronicle(rActor, rRoll, tApplyData)
-	ActionHealthD20.applySetHealthDefault(rActor, rRoll, tApplyData);
-
+function applyGetHealthChronicle(rActor, rRoll, tApplyData)
+	local nodeCT = ActorManager.getCTNode(rActor);
 	local nodeActor = ActorManager.getCreatureNode(rActor);
-	if nodeActor and tApplyData and tApplyData.tHealth and tApplyData.tHealth["hp"] then
-		DB.setValue(nodeActor, "hp.wounds", "number", tApplyData.tHealth["hp"].nWounds);
+	if not nodeCT and not nodeActor then
+		return;
 	end
+
+	local tHealth = { ["hp"] = {}, };
+	if GameManager.hasOption("deathsave") then
+		tHealth["deathsave"] = {};
+	end
+	if GameManager.hasOption("healsurge") then
+		tHealth["healsurge"] = {};
+	end
+
+	local nTotal = 0;
+	local nWounds = 0;
+	local nTemp = 0;
+
+	if nodeCT then
+		nTotal = DB.getValue(nodeCT, "hptotal", 0);
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeCT, "hp.total", 0);
+		end
+		nWounds = DB.getValue(nodeCT, "wounds", 0);
+		if nWounds == 0 then
+			nWounds = DB.getValue(nodeCT, "hp.wounds", 0);
+		end
+		nTemp = DB.getValue(nodeCT, "hptemp", 0);
+		if nTemp == 0 then
+			nTemp = DB.getValue(nodeCT, "hp.temporary", 0);
+		end
+	elseif ActorManager.isPC(rActor) and nodeActor then
+		nTotal = DB.getValue(nodeActor, "hptotal", 0);
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeActor, "hp.total", 0);
+		end
+		nWounds = DB.getValue(nodeActor, "wounds", 0);
+		if nWounds == 0 then
+			nWounds = DB.getValue(nodeActor, "hp.wounds", 0);
+		end
+		nTemp = DB.getValue(nodeActor, "hptemp", 0);
+		if nTemp == 0 then
+			nTemp = DB.getValue(nodeActor, "hp.temporary", 0);
+		end
+	elseif nodeActor then
+		nTotal = DB.getValue(nodeActor, "hptotal", 0);
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeActor, "hp", 0);
+		end
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeActor, "hp.total", 0);
+		end
+		nWounds = DB.getValue(nodeActor, "wounds", 0);
+		if nWounds == 0 then
+			nWounds = DB.getValue(nodeActor, "hp.wounds", 0);
+		end
+	end
+
+	-- Fallback if total was 0 but creature record has it or calculate from Endurance
+	if nTotal == 0 and nodeActor then
+		nTotal = DB.getValue(nodeActor, "hptotal", 0);
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeActor, "hp", 0);
+		end
+		if nTotal == 0 then
+			nTotal = DB.getValue(nodeActor, "hp.total", 0);
+		end
+		if nTotal == 0 then
+			local nEndurance = DB.getValue(nodeActor, "abilities.endurance.score", 0);
+			if nEndurance > 0 then
+				nTotal = nEndurance * 3;
+			end
+		end
+	end
+
+	tHealth["hp"].nTotal = nTotal;
+	tHealth["hp"].nTemp = nTemp;
+	tHealth["hp"].nWounds = nWounds;
+
+	if GameManager.hasOption("deathsave") then
+		local nSuccess = 0;
+		local nFail = 0;
+		if nodeCT then
+			nSuccess = DB.getValue(nodeCT, "deathsavesuccess", 0);
+			if nSuccess == 0 then
+				nSuccess = DB.getValue(nodeCT, "hp.deathsavesuccess", 0);
+			end
+			nFail = DB.getValue(nodeCT, "deathsavefail", 0);
+			if nFail == 0 then
+				nFail = DB.getValue(nodeCT, "hp.deathsavefail", 0);
+			end
+		elseif nodeActor then
+			nSuccess = DB.getValue(nodeActor, "deathsavesuccess", 0);
+			if nSuccess == 0 then
+				nSuccess = DB.getValue(nodeActor, "hp.deathsavesuccess", 0);
+			end
+			nFail = DB.getValue(nodeActor, "deathsavefail", 0);
+			if nFail == 0 then
+				nFail = DB.getValue(nodeActor, "hp.deathsavefail", 0);
+			end
+		end
+		tHealth["deathsave"].nSuccess = nSuccess;
+		tHealth["deathsave"].nFail = nFail;
+	end
+
+	tHealth.sOriginalStatus = ActorHealthManager.getHealthStatus(rActor);
+	tApplyData.tHealth = tHealth;
+end
+
+function applySetHealthChronicle(rActor, rRoll, tApplyData)
+	if not rActor or not tApplyData or not tApplyData.tHealth or not tApplyData.tHealth["hp"] then
+		return;
+	end
+
+	local nWounds = tApplyData.tHealth["hp"].nWounds or 0;
+	local nTemp = tApplyData.tHealth["hp"].nTemp or 0;
+
+	-- Death saves handling
+	if GameManager.hasOption("deathsave") and tApplyData.tHealth["deathsave"] then
+		if nWounds < (tApplyData.tHealth["hp"].nTotal or 0) then
+			tApplyData.tHealth["deathsave"].nSuccess = 0;
+			tApplyData.tHealth["deathsave"].nFail = 0;
+		else
+			tApplyData.tHealth["deathsave"].nSuccess = math.min(tApplyData.tHealth["deathsave"].nSuccess or 0, 3);
+			tApplyData.tHealth["deathsave"].nFail = math.min(tApplyData.tHealth["deathsave"].nFail or 0, 3);
+		end
+	end
+
+	local nodeCT = ActorManager.getCTNode(rActor);
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+
+	-- If on the combat tracker, update the CT entry directly (dual-write hp.wounds and wounds)
+	if nodeCT then
+		DB.setValue(nodeCT, "hp.wounds", "number", nWounds);
+		DB.setValue(nodeCT, "wounds", "number", nWounds);
+		DB.setValue(nodeCT, "hp.temporary", "number", nTemp);
+		DB.setValue(nodeCT, "hptemp", "number", nTemp);
+		if GameManager.hasOption("deathsave") and tApplyData.tHealth["deathsave"] then
+			DB.setValue(nodeCT, "deathsavesuccess", "number", tApplyData.tHealth["deathsave"].nSuccess);
+			DB.setValue(nodeCT, "hp.deathsavesuccess", "number", tApplyData.tHealth["deathsave"].nSuccess);
+			DB.setValue(nodeCT, "deathsavefail", "number", tApplyData.tHealth["deathsave"].nFail);
+			DB.setValue(nodeCT, "hp.deathsavefail", "number", tApplyData.tHealth["deathsave"].nFail);
+		end
+	end
+
+	-- For PCs, also sync to character sheet (or if not in CT)
+	if ActorManager.isPC(rActor) and nodeActor then
+		DB.setValue(nodeActor, "wounds", "number", nWounds);
+		DB.setValue(nodeActor, "hp.wounds", "number", nWounds);
+		DB.setValue(nodeActor, "hptemp", "number", nTemp);
+		DB.setValue(nodeActor, "hp.temporary", "number", nTemp);
+		if GameManager.hasOption("deathsave") and tApplyData.tHealth["deathsave"] then
+			DB.setValue(nodeActor, "deathsavesuccess", "number", tApplyData.tHealth["deathsave"].nSuccess);
+			DB.setValue(nodeActor, "hp.deathsavesuccess", "number", tApplyData.tHealth["deathsave"].nSuccess);
+			DB.setValue(nodeActor, "deathsavefail", "number", tApplyData.tHealth["deathsave"].nFail);
+			DB.setValue(nodeActor, "hp.deathsavefail", "number", tApplyData.tHealth["deathsave"].nFail);
+		end
+	elseif not nodeCT and nodeActor then
+		DB.setValue(nodeActor, "wounds", "number", nWounds);
+		DB.setValue(nodeActor, "hp.wounds", "number", nWounds);
+	end
+end
+
+function notifyApplyDamage(rSource, rTarget, rRoll)
+	if not rTarget then
+		return;
+	end
+
+	local msgOOB = UtilityManager.encodeRollToOOB(rRoll);
+	msgOOB.type = ActionDamageD20.OOB_MSGTYPE_APPLYDMG;
+	msgOOB.sSourceNode = ActorManager.getCreatureNodeName(rSource);
+	local sCTNode = ActorManager.getCTNodeName(rTarget);
+	if sCTNode ~= "" then
+		msgOOB.sTargetNode = sCTNode;
+	else
+		msgOOB.sTargetNode = ActorManager.getCreatureNodeName(rTarget);
+	end
+	msgOOB.nTargetOrder = rTarget.nOrder;
+	Comm.deliverOOBMessage(msgOOB, "");
+end
+
+function handleApplyDamage(msgOOB)
+	local rSource = ActorManager.resolveActor(msgOOB.sSourceNode);
+	local rTarget = ActorManager.resolveActor(msgOOB.sTargetNode);
+	if rTarget then
+		rTarget.nOrder = msgOOB.nTargetOrder;
+	end
+
+	local rRoll = UtilityManager.decodeRollFromOOB(msgOOB);
+	ActionHealthD20.applyDamage(rSource, rTarget, rRoll);
 end
 
 -- Backward compatibility aliases
@@ -354,9 +627,6 @@ function performRoll(...)
 end
 function getRoll(...)
 	return ActionDamageD20.getRoll(...);
-end
-function notifyApplyDamage(...)
-	return ActionDamageD20.notifyApplyDamage(...);
 end
 function applyDamage(...)
 	return ActionHealthD20.applyDamage(...);

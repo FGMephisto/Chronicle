@@ -10,10 +10,10 @@
 	<!-- Adjusted -->
 	<windowclass name="charsheet" copy="charsheet_base">
 		<placement>
-			<size width="610" height="633" />
+			<size width="500" height="690" />
 		</placement>
 		<sizelimits>
-			<minimum width="610" height="633" />
+			<minimum width="500" height="690" />
 			<dynamic />
 		</sizelimits>
 		<!-- <tab> -->

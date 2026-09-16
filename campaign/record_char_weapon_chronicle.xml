@@ -10,7 +10,10 @@
 		<margins control="0,0,0,5" />
 		<script file="campaign/scripts/char_weapon_chronicle.lua" />
 		<sheetdata>
-			<anchor_listitem_left />
+			<genericcontrol name="leftanchor">
+				<anchored position="insidetopleft" offset="0,14" width="0" height="0" />
+				<disabled />
+			</genericcontrol>
 			<anchor_listitem_right />
 			<anchor_listitem_top />
 
@@ -33,6 +36,10 @@
 
 			<!-- Right side -->
 			<buttonc_listitem_right name="activatedetail">
+				<anchored to="rightanchor" width="20" height="20">
+					<top offset="7" />
+					<right relation="relative" offset="-2" postoffset="-2" />
+				</anchored>
 				<icon normal="button_details" pressed="button_details_down" />
 				<script>
 					function onButtonPress()
@@ -206,7 +213,13 @@
 			<!-- </buttonc_listitem_right> -->
 
 			<!-- Center -->
-			<string_listitem_center_underline name="name" />
+			<string_listitem_center_underline name="name">
+				<anchored to="rightanchor" height="20">
+					<top parent="leftanchor" />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right relation="current" offset="-5" />
+				</anchored>
+			</string_listitem_center_underline>
 
 			<!-- Sections -->
 			<!-- <sub_content_column name="sub_mastery"> -->

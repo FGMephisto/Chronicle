@@ -135,7 +135,7 @@
 				<icon>char_health</icon>
 				<tooltip textres="char_tooltip_hp" />
 			</genericcontrol>
-			<number_charwounds name="hp" source="hp.total">
+			<number_charwounds name="hp" source="hptotal">
 				<anchored to="hp_icon" position="righthigh" offset="10,0" width="30" height="30" />
 			</number_charwounds>
 
@@ -145,7 +145,7 @@
 				<tooltip textres="char_tooltip_dmg" />
 			</genericcontrol>
 			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
-			<basicnumber name="dmg" source="hp.wounds">
+			<basicnumber name="dmg" source="wounds">
 				<anchored to="dmg_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</basicnumber>
@@ -155,7 +155,7 @@
 				<icon>char_injuries</icon>
 				<tooltip textres="char_tooltip_injuries" />
 			</genericcontrol>
-			<number_charinjuries name="injuries" source="hp.injuries">
+			<number_charinjuries name="injuries">
 				<anchored to="injuries_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</number_charinjuries>
@@ -166,7 +166,7 @@
 				<tooltip textres="char_tooltip_trauma" />
 			</genericcontrol>
 			<!-- For compatibility reasons with 5E we keep "wounds" when damage is meant. Ruleset specific "wounds" are handled via "trauma" -->
-			<number_chartrauma name="trauma" source="hp.trauma">
+			<number_chartrauma name="trauma">
 				<anchored to="trauma_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</number_chartrauma>
@@ -176,7 +176,7 @@
 				<icon>char_fatigue</icon>
 				<tooltip textres="char_tooltip_fatigue" />
 			</genericcontrol>
-			<basicnumber name="fatigue" source="hp.fatigue">
+			<basicnumber name="fatigue">
 				<anchored to="fatigue_icon" position="righthigh" offset="10,0" width="30" height="30" />
 				<min value="0" />
 			</basicnumber>
@@ -263,7 +263,7 @@
 			</label_charframetop>
 
 			<area_content_top name="dice_row">
-				<anchored height="50" />
+				<anchored height="60" />
 			</area_content_top>
 
 			<dicecontrol_init name="diceframe_init">

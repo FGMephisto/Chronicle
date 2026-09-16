@@ -575,6 +575,13 @@
 
 	<!-- Added - NPC Sheet Skills -->
 	<windowclass name="npcsheet_skills">
+		<script>
+			function onInit()
+				if contents and contents.subwindow and contents.subwindow.skills_iedit then
+					contents.subwindow.skills_iedit.destroy();
+				end
+			end
+		</script>
 		<sheetdata>
 			<subwindow name="contents">
 				<anchored>

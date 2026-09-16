@@ -38,13 +38,13 @@ function getWoundPercent(v)
 	local nodeCT = ActorManager.getCTNode(rActor);
 
 	if nodeCT then
-		nHP = math.max(DB.getValue(nodeCT, "hp.total", 0), 0);
-		nWounds = math.max(DB.getValue(nodeCT, "hp.wounds", 0), 0);
+		nHP = math.max(DB.getValue(nodeCT, "hptotal", DB.getValue(nodeCT, "hp.total", 0)), 0);
+		nWounds = math.max(DB.getValue(nodeCT, "wounds", DB.getValue(nodeCT, "hp.wounds", 0)), 0);
 	elseif ActorManager.isPC(rActor) then
 		local nodePC = ActorManager.getCreatureNode(rActor);
 		if nodePC then
-			nHP = math.max(DB.getValue(nodePC, "hp.total", 0), 0);
-			nWounds = math.max(DB.getValue(nodePC, "hp.wounds", 0), 0);
+			nHP = math.max(DB.getValue(nodePC, "hptotal", DB.getValue(nodePC, "hp.total", 0)), 0);
+			nWounds = math.max(DB.getValue(nodePC, "wounds", DB.getValue(nodePC, "hp.wounds", 0)), 0);
 		end
 	end
 
@@ -1410,7 +1410,7 @@ function getHealthFatigue(rActor)
 	if not nodeActor then
 		return -1;
 	end
-	return DB.getValue(nodeActor, "hp.fatigue", 0);
+	return DB.getValue(nodeActor, "fatigue", DB.getValue(nodeActor, "hp.fatigue", 0));
 end
 
 function getHealthInjuries(rActor)
@@ -1418,7 +1418,7 @@ function getHealthInjuries(rActor)
 	if not nodeActor then
 		return -1;
 	end
-	return DB.getValue(nodeActor, "hp.injuries", 0);
+	return DB.getValue(nodeActor, "injuries", DB.getValue(nodeActor, "hp.injuries", 0));
 end
 
 function getHealthTrauma(rActor)
@@ -1426,7 +1426,7 @@ function getHealthTrauma(rActor)
 	if not nodeActor then
 		return -1;
 	end
-	return DB.getValue(nodeActor, "hp.trauma", 0);
+	return DB.getValue(nodeActor, "trauma", DB.getValue(nodeActor, "hp.trauma", 0));
 end
 
 function getSkillRank(rActor, sSkill)

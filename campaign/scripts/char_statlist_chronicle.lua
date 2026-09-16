@@ -34,7 +34,7 @@ function constructDefaultAbilities()
 		local node = w.getDatabaseNode();
 		if node then
 			local sName = (w.name and w.name.getValue()) or "";
-			local sNodeName = node.getNodeName():lower();
+			local sNodeName = DB.getName(node):lower();
 
 			local sKey = "";
 			if validKeys[sNodeName] then
@@ -51,10 +51,10 @@ function constructDefaultAbilities()
 				else
 					local prevW = entrymap[sKey];
 					local prevNode = prevW.getDatabaseNode();
-					if prevNode and prevNode.getNodeName():lower() ~= sKey and sNodeName == sKey then
-						local nPrevBase = DB.getValue(prevNode, "base", 8);
+					if prevNode and DB.getName(prevNode):lower() ~= sKey and sNodeName == sKey then
+						local nPrevBase = DB.getValue(prevNode, "base", DB.getValue(prevNode, "score", 0));
 						local nPrevBonus = DB.getValue(prevNode, "bonus", 0);
-						if nPrevBase ~= 8 and DB.getValue(node, "base", 8) == 8 then
+						if DB.getValue(node, "base", 0) == 0 and nPrevBase ~= 0 then
 							DB.setValue(node, "base", "number", nPrevBase);
 						end
 						if nPrevBonus ~= 0 and DB.getValue(node, "bonus", 0) == 0 then
@@ -64,9 +64,9 @@ function constructDefaultAbilities()
 						table.insert(duplicates, prevW);
 					else
 						if prevNode then
-							local nWBase = DB.getValue(node, "base", 8);
+							local nWBase = DB.getValue(node, "base", DB.getValue(node, "score", 0));
 							local nWBonus = DB.getValue(node, "bonus", 0);
-							if nWBase ~= 8 and DB.getValue(prevNode, "base", 8) == 8 then
+							if DB.getValue(prevNode, "base", 0) == 0 and nWBase ~= 0 then
 								DB.setValue(prevNode, "base", "number", nWBase);
 							end
 							if nWBonus ~= 0 and DB.getValue(prevNode, "bonus", 0) == 0 then
@@ -82,13 +82,9 @@ function constructDefaultAbilities()
 		end
 	end
 
-	-- Remove duplicate / invalid windows and nodes from DB
+	-- Close duplicate / invalid windows from UI
 	for _, w in ipairs(duplicates) do
-		local node = w.getDatabaseNode();
 		w.close();
-		if node then
-			node.delete();
-		end
 	end
 
 	-- Ensure each defined ability exists exactly once with shorthand label and canonical node name
@@ -101,19 +97,19 @@ function constructDefaultAbilities()
 			if w then
 				entrymap[sKey] = w;
 			end
-		elseif w.getDatabaseNode() and w.getDatabaseNode().getNodeName():lower() ~= sKey then
+		elseif w.getDatabaseNode() and DB.getName(w.getDatabaseNode()):lower() ~= sKey then
 			local oldNode = w.getDatabaseNode();
-			local nBase = DB.getValue(oldNode, "base", 8);
+			local nBase = DB.getValue(oldNode, "base", DB.getValue(oldNode, "score", 0));
 			local nBonus = DB.getValue(oldNode, "bonus", 0);
 
 			w.close();
-			if oldNode then oldNode.delete(); end
 
 			w = createWindowWithClass(sItemClass, "." .. sKey);
 			if w then
 				entrymap[sKey] = w;
 				DB.setValue(w.getDatabaseNode(), "base", "number", nBase);
 				DB.setValue(w.getDatabaseNode(), "bonus", "number", nBonus);
+				DB.setValue(w.getDatabaseNode(), "score", "number", nBase + nBonus);
 			end
 		end
 
