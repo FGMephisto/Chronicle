@@ -128,7 +128,7 @@ function performOpposedRoll(rSource, rTarget, rSaveVsRoll)
 	local nTarget = rSaveVsRoll.nTarget;
 	if not sSave or not nTarget then
 		local sSaveShort, sSaveDC = (rSaveVsRoll.sDesc or ""):match("%[(%w+) DC (%d+)%]");
-		local sSave = DataCommon.ability_stol[sSaveShort or ""];
+		sSave = DataCommon.ability_stol[sSaveShort or ""];
 		if not sSave then
 			return;
 		end

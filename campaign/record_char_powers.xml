@@ -483,9 +483,22 @@
 		<script>
 			function onInit()
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+				self.onUpcastChanged();
 			end
 			function onLockModeChanged(bReadOnly)
 				WindowManager.callSafeControlsSetLockMode(self, { "name", }, bReadOnly);
+			end
+			function onUpcastChanged()
+				local nUpcast = DB.getValue(getDatabaseNode(), "upcast", 0);
+
+				local bShowUpcast = (nUpcast &gt; 0);
+				upcast.setValue(nUpcast);
+				upcast.setVisible(bShowUpcast);
+
+				usepower.resetMenuItems();
+				if nUpcast &gt; 0 then
+					usepower.registerMenuItem(Interface.getString("power_menu_upcast_clear"), "tokenbagreset", 8);
+				end
 			end
 		</script>
 		<sheetdata>
@@ -505,14 +518,33 @@
 					function onHover(bOnControl)
 						PowerManager5E.onUsePowerHover(self, bOnControl);
 					end
+					function onMenuSelection(selection)
+						if selection == 8 then
+							PowerManager5E.clearSpellUpcast(window.getDatabaseNode());
+						end
+					end
 				</script>
 			</icon_usepower>
+			<numberc_static name="upcast">
+				<anchored to="leftanchor" width="20" height="20">
+					<top />
+					<left relation="relative" offset="5" postoffset="5" />
+				</anchored>
+				<tooltip textres="power_tooltip_use_upcast" />
+				<invisible />
+				<displaysign />
+			</numberc_static>
 			<buttongroup_counter_power name="counter">
 				<anchored to="leftanchor">
 					<top />
 					<left relation="relative" offset="5" postoffset="5" />
 				</anchored>
 				<invisible />
+				<script>
+					function onCounterUse()
+						-- Do nothing; use the usepower button to trigger actions
+					end
+				</script>
 			</buttongroup_counter_power>
 			<button_checkbox name="preparedcheck" source="prepared">
 				<anchored to="leftanchor" width="20" height="20">

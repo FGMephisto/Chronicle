@@ -36,9 +36,7 @@ function getPowerActorNode(node)
 end
 function usePower(nodePower)
 	local rActor = PowerManager5E.getPowerActorNode(nodePower);
-
-	PowerManager5E.clearSpellUpcast(nodePower);
-	ActionsChoiceManager.deletePowerChoiceSelections(nodePower);
+	PowerManager5E.resetPower(rActor, nodePower);
 	PowerManager5E.performPower(rActor, nodePower);
 end
 function parsePower(node)
@@ -123,7 +121,7 @@ function getPowerTags(nodePower, sAutoKey)
 
 	for _, nodeAction in ipairs(DB.getChildList(nodePower, "actions")) do
 		local sType = DB.getValue(nodeAction, "type", "");
-		if StringManager.contains({ "damage", "effect", }, sType) and (not sAutoKey or (DB.getValue(nodeAction, "autokey", "") == (sAutoKey or ""))) then
+		if StringManager.contains({ "damage", "effect", }, sType) and (((sAutoKey or "") == "") or (DB.getValue(nodeAction, "autokey", "") == sAutoKey)) then
 			if sType == "damage" then
 				for _,v in ipairs(UtilityManager.getNodeSortedChildren(nodeAction, "damagelist")) do
 					local sDmgType = DB.getValue(v, "type", ""):lower();
@@ -209,12 +207,24 @@ function notifySpellCastNoSlots(rActor, nodePower)
 	ChatManager.sendMessage(s, { rActor = rActor, sIcon = "action_warning", });
 end
 
+-- resetPower(rActor, nodePower)
+function resetPower(_, nodePower)
+	if not nodePower then
+		return;
+	end
+	PowerManager5E.clearSpellUpcast(nodePower);
+	ActionsChoiceManager.deletePowerChoiceSelections(nodePower);
+end
 function performPower(rActor, nodePower)
 	if not nodePower then
 		return;
 	end
-	local tPowerData = PowerManager5E.buildPerformPowerData(rActor, nodePower, "", true);
-	PowerManager5E.performPowerInternal(rActor, tPowerData);
+	local tPowerData = PowerManager5E.buildPerformPowerData(rActor, nodePower, "default", true);
+	if tPowerData then
+		PowerManager5E.performPowerInternal(rActor, tPowerData);
+	else
+		PowerManagerCore.performDefaultPowerUse(nodePower);
+	end
 end
 function performPowerAction(nodeAction)
 	if not nodeAction then
@@ -222,7 +232,17 @@ function performPowerAction(nodeAction)
 	end
 	local nodePower = DB.getChild(nodeAction, "...");
 	local rActor = PowerManagerCore.getPowerActor(nodePower);
-	local tPowerData = PowerManager5E.buildPerformPowerData(rActor, nodePower, DB.getValue(nodeAction, "autokey", ""));
+	local sAutoKey = DB.getValue(nodeAction, "autokey", "");
+	if sAutoKey == "" then
+		local tData = { rActor = rActor, };
+		local rAction = PowerManager.getPowerAction(nodeAction, tData);
+		if rAction then
+			PowerManager.evalAction(rActor, nodePower, rAction);
+			PowerManager.performAction(nil, rActor, rAction, nodePower);
+		end
+		return;
+	end
+	local tPowerData = PowerManager5E.buildPerformPowerData(rActor, nodePower, sAutoKey);
 	PowerManager5E.handlePerformPowerDataSolo(rActor, nodeAction, tPowerData);
 	PowerManager5E.performPowerInternal(rActor, tPowerData);
 end
@@ -237,6 +257,9 @@ function buildPerformPowerData(rActor, nodePower, sAutoKey, bNewCast)
 		tPowerTags = PowerManager5E.getPowerTags(nodePower, sAutoKey)
 	};
 	PowerManager5E.buildPerformPowerDataActions(rActor, tPowerData);
+	if bNewCast and (#(tPowerData.tActionQueue) == 0) then
+		return nil;
+	end
 	PowerManager5E.buildPerformPowerDataTargeting(rActor, tPowerData);
 	PowerManager5E.buildPerformPowerSlotData(rActor, tPowerData);
 	return tPowerData;
@@ -260,7 +283,7 @@ function buildPerformPowerDataActions(_, tPowerData)
 			nTargetScaleMult = DB.getValue(nodeCast, "targetscalemult", 0),
 		};
 	end
-	local nodeFirstCast = PowerManager.getFirstActionOfType(tPowerData.nodePower, "cast", "");
+	local nodeFirstCast = PowerManager.getFirstActionOfType(tPowerData.nodePower, "cast", "default");
 	if nodeFirstCast then
 		tPowerData.bAllowUpcast = (DB.getValue(nodeFirstCast, "allowupcast", 0) == 1);
 		if not tPowerData.tCastTargeting or (tPowerData.tCastTargeting.sTargeting == "") then
@@ -491,7 +514,7 @@ function handleSpellSlotSelection(rActor, tPowerData)
 	-- If not ritual, then attempt to auto-select spell slot
 	if not tPowerData.bRitual then
 		-- If base level available, and it is the only spell level available (or Shift is pressed); then cast at the base level
-		if (not tPowerData.bAllowUpcast or (tPowerData.tSlotData.nActiveCount == 1) or Input.isAltPressed()) and ((tPowerData.tSlotData.nFirstActiveLevel or 0) == tPowerData.nPowerLevel) then
+		if (not tPowerData.bAllowUpcast or (tPowerData.tSlotData.nActiveCount == 1) or Input.isShiftPressed()) and ((tPowerData.tSlotData.nFirstActiveLevel or 0) == tPowerData.nPowerLevel) then
 			tPowerData.bSlotSelected = true;
 			return true;
 		-- If pact magic slots only, automatically cast at the power level of the first
