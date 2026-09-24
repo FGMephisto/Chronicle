@@ -97,9 +97,6 @@ function applySave(rActor, tCompData)
 		return;
 	end
 
-	local bHalfOnSave = StringManager.contains(tCompData.remainder, "half");
-	local bExpireNone = StringManager.contains(tCompData.remainder, "expirenone");
-	local bExpireAny = StringManager.contains(tCompData.remainder, "expireany");
 	local bMagic = StringManager.contains(tCompData.remainder, "magic") or (tCompData.sRemainder:match("%(M%)") ~= nil);
 
 	local tSaveDesc = {};
@@ -107,7 +104,7 @@ function applySave(rActor, tCompData)
 	if bMagic then
 		table.insert(tSaveDesc, "[MAGIC]");
 	end
-	if bHalfOnSave then
+	if StringManager.contains(tCompData.remainder, "half") then
 		table.insert(tSaveDesc, "[HALF ON SAVE]");
 	end
 
@@ -115,10 +112,12 @@ function applySave(rActor, tCompData)
 	rRoll.sSaveDesc = table.concat(tSaveDesc, " ");
 	rRoll.nTarget = tCompData.mod;
 	rRoll.sEffectRecord = DB.getPath(tCompData.node);
-	if bExpireAny then
+	if StringManager.contains(tCompData.remainder, "expireany") then
 		rRoll.sEffectExpire = "any";
-	elseif bExpireNone then
+	elseif StringManager.contains(tCompData.remainder, "expirenone") then
 		rRoll.sEffectExpire = "none";
+	elseif StringManager.contains(tCompData.remainder, "expirefail") then
+		rRoll.sEffectExpire = "fail";
 	else
 		rRoll.sEffectExpire = "success";
 	end

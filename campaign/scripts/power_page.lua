@@ -356,19 +356,13 @@ function updatePowerWindowUses(nodeChar, w)
 		w.header.subwindow.usesperiod.setVisible(false);
 		w.header.subwindow.counter.setVisible(false);
 		if sMode == "preparation" then
-			if nLevel == 0 then
+			w.header.subwindow.usepower.setVisible(false);
+			if (nLevel == 0) or (rGroup.nPrepared == 0) then
 				w.header.subwindow.preparedcheck.setVisible(false);
-				w.header.subwindow.usepower.setVisible(false);
 				w.header.subwindow.blank.setVisible(true);
 			else
-				if rGroup.nPrepared > 0 then
-					w.header.subwindow.preparedcheck.setVisible(true);
-					w.header.subwindow.blank.setVisible(false);
-				else
-					w.header.subwindow.preparedcheck.setVisible(false);
-					w.header.subwindow.blank.setVisible(true);
-				end
-				w.header.subwindow.usepower.setVisible(false);
+				w.header.subwindow.preparedcheck.setVisible(true);
+				w.header.subwindow.blank.setVisible(false);
 			end
 		else
 			w.header.subwindow.preparedcheck.setVisible(false);
@@ -395,8 +389,8 @@ function updatePowerWindowUses(nodeChar, w)
 		else
 			w.header.subwindow.prepared.setVisible(false);
 			w.header.subwindow.usesperiod.setVisible(false);
+			w.header.subwindow.usepower.setVisible(true);
 			if nAvailable > 0 then
-				w.header.subwindow.usepower.setVisible(false);
 				w.header.subwindow.counter.setVisible(true);
 				if nPrepared > 0 then
 					w.header.subwindow.counter.update(sMode, true, math.min(nAvailable, nPrepared), nTotalCast, nTotalPrepared);
@@ -404,11 +398,9 @@ function updatePowerWindowUses(nodeChar, w)
 					w.header.subwindow.counter.update(sMode, true, nAvailable, nTotalCast, nTotalPrepared);
 				end
 			elseif nPrepared > 0 then
-				w.header.subwindow.usepower.setVisible(false);
 				w.header.subwindow.counter.setVisible(true);
 				w.header.subwindow.counter.update(sMode, true, nPrepared, nCast, nPrepared);
 			else
-				w.header.subwindow.usepower.setVisible(true);
 				w.header.subwindow.counter.setVisible(false);
 			end
 		end

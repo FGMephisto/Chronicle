@@ -162,27 +162,9 @@ function migrateCharPower10(nodePower)
 	end
 	table.sort(tOrderedActions, sortOrdered);
 
-	local tActionCount = {};
 	local tNewOrderedActions = {};
 	for _,nodeOrderedAction in ipairs(tOrderedActions) do
 		local sActionType = DB.getValue(nodeOrderedAction, "type", "");
-		tActionCount[sActionType] = (tActionCount[sActionType] or 0) + 1;
-
-		local sAutoKey = ((tActionCount["cast"] or 0) > 1) and ("cast" .. tActionCount["cast"]) or "";
-		if sActionType == "cast" then
-			for k,_ in pairs(tActionCount) do
-				if k ~= "cast" then
-					tActionCount[k] = 0;
-				end
-			end
-		else
-			if tActionCount[sActionType] > 1 then
-				sAutoKey = sAutoKey .. "action" .. tActionCount[sActionType];
-			end
-		end
-
-		DB.setValue(nodeOrderedAction, "autokey", "string", sAutoKey);
-		table.insert(tNewOrderedActions, nodeOrderedAction);
 
 		if DB.getValue(nodeOrderedAction, "type", "") == "cast" then
 			if (DB.getValue(nodeOrderedAction, "atktype", "") ~= "") then
@@ -227,6 +209,8 @@ function migrateCharPower10(nodePower)
 					table.insert(tNewOrderedActions, nodeNewAction);
 				end
 			end
+		else
+			table.insert(tNewOrderedActions, nodeOrderedAction);
 		end
 	end
 

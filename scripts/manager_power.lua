@@ -3199,10 +3199,12 @@ end
 -- NOTE: Will only work for PC spell powers through linked actions
 -- 			If handling any action queues other than PC spell or weapon powers (such any NPC rolls or non spell/weapon PC rolls),
 --			then need to add action data to differentiate in original call and here
-function onActionGetRollQueueEntryToAction(rActor, tTargets, tActionQueueEntry)
+--
+-- onActionGetRollQueueEntryToAction(rActor, tTargets, tActionQueueEntry)
+function onActionGetRollQueueEntryToAction(rActor, _, tActionQueueEntry)
 	if not tActionQueueEntry or ((tActionQueueEntry.sType or "") == "") then
 		return nil;
-	end	
+	end
 	if not ActorManager.isPC(rActor) then
 		return nil;
 	end

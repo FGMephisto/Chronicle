@@ -800,6 +800,8 @@
 	<string name="power_label_healtypenormal">HP</string>
 	<string name="power_label_healtypetemp">TEMP</string>
 
+	<string name="power_menu_upcast_clear">Clear Upcast</string>
+
 	<!-- Item Forge -->
 	<string name="forge_item_window_title">Item Forge</string>
 	<string name="forge_item_label_items">Base Item</string>

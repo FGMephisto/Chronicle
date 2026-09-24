@@ -67,16 +67,16 @@
 			</label_column>
 			<stringc_column name="name" />
 
-			<sub_column name="sub_auto">
-				<class>power_action_editor_cast_auto</class>
-			</sub_column>
-
 			<sub_column name="sub_targeting">
 				<class>power_action_editor_cast_targeting</class>
 			</sub_column>
 
 			<sub_column name="sub_choices">
 				<class>power_action_editor_cast_choices</class>
+			</sub_column>
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_cast_auto</class>
 			</sub_column>
 		</sheetdata>
 	</windowclass>
@@ -224,10 +224,6 @@
 			</label_column>
 			<stringc_column name="name" />
 
-			<sub_column name="sub_auto">
-				<class>power_action_editor_sub_auto</class>
-			</sub_column>
-
 			<header_column name="header_attack">
 				<static textres="power_header_attack" />
 				<center />
@@ -301,6 +297,10 @@
 			<sub_column name="sub_result">
 				<class>power_action_editor_sub_result</class>
 			</sub_column>
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 
@@ -333,10 +333,6 @@
 				<static textres="power_label_name" />
 			</label_column>
 			<stringc_column name="name" />
-
-			<sub_column name="sub_auto">
-				<class>power_action_editor_sub_auto</class>
-			</sub_column>
 
 			<header_column name="header_save">
 				<static textres="power_header_save" />
@@ -414,6 +410,10 @@
 			<sub_column name="sub_result">
 				<class>power_action_editor_sub_result</class>
 			</sub_column>
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 
@@ -442,10 +442,6 @@
 				<static textres="power_label_name" />
 			</label_column>
 			<stringc_column name="name" />
-
-			<sub_column name="sub_auto">
-				<class>power_action_editor_sub_auto</class>
-			</sub_column>
 
 			<header_column name="header_damage">
 				<static textres="power_header_damage" />
@@ -482,6 +478,10 @@
 				</anchored>
 				<static textres="weapon_label_dmgtype" />
 			</label_fieldtop>
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_action_editor_damage_entry">
@@ -550,10 +550,6 @@
 			</label_column>
 			<stringc_column name="name" />
 
-			<sub_column name="sub_auto">
-				<class>power_action_editor_sub_auto</class>
-			</sub_column>
-
 			<header_column name="header_other">
 				<static textres="power_header_heal_other" />
 				<center />
@@ -608,6 +604,10 @@
 				<anchored to="list" position="aboveleft" offset="185,1" width="35" />
 				<static textres="weapon_label_dmgbonus" />
 			</label_fieldtop>
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_action_editor_heal_entry">
@@ -740,10 +740,6 @@
 			</label_column>
 			<stringc_column name="name" />
 
-			<sub_column name="sub_auto">
-				<class>power_action_editor_sub_auto</class>
-			</sub_column>
-
 			<header_column name="header_label">
 				<static textres="power_header_effect" />
 				<center />
@@ -786,6 +782,10 @@
 				<static textres="power_label_effect_apply" />
 			</label_column>
 			<stringcycler_column_poweraction_effect_apply name="apply" />
+
+			<sub_column name="sub_auto">
+				<class>power_action_editor_sub_auto</class>
+			</sub_column>
 		</sheetdata>
 	</windowclass>
 </root>

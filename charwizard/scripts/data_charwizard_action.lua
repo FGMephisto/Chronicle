@@ -2542,7 +2542,7 @@ parsedata = {
 	},
 	["bladesong"] = {
 		actions = {
-			{ type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; SPEED: 10", sTargeting = "self", nDuration = 1, sUnits = "minute", },
+			{ type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; ADDSPEED: 10", sTargeting = "self", nDuration = 1, sUnits = "minute", },
 		},
 		prepared = 1,
 		usesperiod = "enc",
@@ -3450,9 +3450,9 @@ tBuildDataClass2024 = {
 			},
 			["Swiftness (Experimental Elixer L3)"] = {
 				actions = {
-					{ type = "effect", sName = "Swiftness (Experimental Elixer); SPEED: 10", nDuration = 1, sUnits = "hour", },
-					{ type = "effect", sName = "Swiftness (Experimental Elixer); SPEED: 15", nDuration = 1, sUnits = "hour", },
-					{ type = "effect", sName = "Swiftness (Experimental Elixer); SPEED: 20", nDuration = 1, sUnits = "hour", },
+					{ type = "effect", sName = "Swiftness (Experimental Elixer); ADDSPEED: 10", nDuration = 1, sUnits = "hour", },
+					{ type = "effect", sName = "Swiftness (Experimental Elixer); ADDSPEED: 15", nDuration = 1, sUnits = "hour", },
+					{ type = "effect", sName = "Swiftness (Experimental Elixer); ADDSPEED: 20", nDuration = 1, sUnits = "hour", },
 				},
 			},
 			["Resilience (Experimental Elixer L3)"] = {
@@ -4199,7 +4199,7 @@ tBuildDataClass2024 = {
 			},
 			["Lunar Vitality"] = {
 				actions = {
-					{ type = "effect", sName = "Lunar Vitality (Moon's Inspiration); SPEED: 10", nDuration = 1 },
+					{ type = "effect", sName = "Lunar Vitality (Moon's Inspiration); ADDSPEED: 10", nDuration = 1 },
 				},
 			},
 		},
@@ -5848,7 +5848,7 @@ tBuildDataClass2024 = {
 			["Step of the Wind (Elemental Epitome)"] = {
 				actions = {
 					{ type = "cast", sTargeting = "self", },
-					{ type = "effect", sName = "SPEED: 20", sTargeting = "self", nDuration = 1 },
+					{ type = "effect", sName = "ADDSPEED: 20", sTargeting = "self", nDuration = 1 },
 					{ type = "cast", sAutoKey = "attack", sTargeting = "targets", nTargeting = 1, tChoices = { { sTag = "DMGTYPE", sOptions = "acid|cold|fire|lightning|thunder" }, }, },
 					{ type = "damage", sAutoKey = "attack", clauses = { { dice = { "d12" }, dmgtype = "[DMGTYPE]" }, }, },
 				},
@@ -6137,7 +6137,7 @@ tBuildDataClass2024 = {
 	["auraofalacrity"] = {
 		addspeed = 10,
 		actions = {
-			{ type = "effect", sName = "Aura of Alacrity; SPEED: 10" },
+			{ type = "effect", sName = "Aura of Alacrity; ADDSPEED: 10" },
 		},
 		group = "Aura of Protection (Paladin)",
 		ability = "charisma",
@@ -6595,7 +6595,7 @@ tBuildDataClass2024 = {
 			["Dread Ambusher"] = {
 				actions = {
 					{ type = "effect", sName = "Dread Ambusher; INIT: [WIS]", sTargeting = "self" },
-					{ type = "effect", sName = "Ambusher's Leap; SPEED: 10", sTargeting = "self", nDuration = 1 },
+					{ type = "effect", sName = "Ambusher's Leap; ADDSPEED: 10", sTargeting = "self", nDuration = 1 },
 				},
 			},
 			["Dreadful Strike"] = {
@@ -8275,7 +8275,7 @@ tBuildDataClass2024 = {
 	-- Wizard - Bladesinger
 	["bladesong"] = {
 		actions = {
-			{ type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; SPEED: 10", sTargeting = "self", nDuration = 1, sUnits = "minute", },
+			{ type = "effect", sName = "Bladesong; AC: [INT]; SAVE: [INT] concentration; ADVSKILL: acrobatics; ADDSPEED: 10", sTargeting = "self", nDuration = 1, sUnits = "minute", },
 		},
 		prepared = 1,
 		usesperiod = "enc",
@@ -8486,7 +8486,7 @@ tBuildDataSpecies2024 = {
 	["frostschill"] = {
 		actions = {
 			{ type = "damage", clauses = { { dice = { "d6" }, dmgtype = "cold", }, }, },
-			{ type = "effect", sName = "Frost's Chill; SPEED: -10", nDuration = 1, },
+			{ type = "effect", sName = "Frost's Chill; ADDSPEED: -10", nDuration = 1, },
 		},
 		prepared = 2,
 	},
@@ -8659,7 +8659,7 @@ tBuildDataFeat2024 = {
 		multiple_actions = {
 			["Charger (Improved Dash)"] = {
 				actions = {
-					{ type = "effect", sName = "Charger (Improved Dash); Dash; SPEED: 10", sTargeting = "self", nDuration = 1, },
+					{ type = "effect", sName = "Charger (Improved Dash); Dash; ADDSPEED: 10", sTargeting = "self", nDuration = 1, },
 				},
 			},
 			["Charger (Charge Attack)"] = {
@@ -8917,7 +8917,7 @@ tBuildDataFeat2024 = {
 		multiple_actions = {
 			["Slasher (Hamstring)"] = {
 				actions = {
-					{ type = "effect", sName = "Slasher (Hamstring); SPEED: -10", nDuration = 1, },
+					{ type = "effect", sName = "Slasher (Hamstring); ADDSPEED: -10", nDuration = 1, },
 				},
 			},
 			["Slasher (Enhanced Critical)"] = {

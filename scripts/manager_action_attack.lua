@@ -310,14 +310,15 @@ function setupRollMod(rRoll)
 	rRoll.tAttackFilter = ActionCore.buildEffectFilter(rRoll);
 end
 function applyEffectsToRollMod(rRoll, rSource, rTarget)
+	local tData = {};
 	ActionsManager2.applyAbilityEffectsToD20RollMod(rRoll, rSource, rTarget);
-	ActionAttack.applyStandardEffectsToRollMod(rRoll, rSource, rTarget);
-	ActionAttack.applyRangeToRollMod(rRoll, rSource, rTarget);
+	ActionAttack.applyStandardEffectsToRollMod(rRoll, rSource, rTarget, tData);
+	ActionAttack.applyRangeToRollMod(rRoll, rSource, rTarget, tData);
 	ActionsManager2.applyExhaustionEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyReliableEffectsToRollMod(rRoll, rSource, rTarget);
 	ActionAttack.applyDefenderEffectsToRollMod(rRoll, rSource, rTarget);
 end
-function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
+function applyStandardEffectsToRollMod(rRoll, rSource, rTarget, tData)
 	if not rSource then
 		return;
 	end
@@ -330,7 +331,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 
 	local tSrcEffData = { rTarget = rTarget, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
 	local tTrgtEffData = { rTarget = rSource, tFilter = rRoll.tAttackFilter, tActionTags = rRoll.tActionTags, };
-	local bInvisible = EffectManager.hasCondition(rSource, "Invisible") and not EffectManager.hasCondition(rSource, "NOINVISIBLE");
+	tData.bInvisible = EffectManager.hasCondition(rSource, "Invisible") and not EffectManager.hasCondition(rSource, "NOINVISIBLE");
 
 	-- Get roll effect modifiers
 	ActionCore.applyModRollEffectBonusDiceMod(rSource, rRoll, "ATK", tSrcEffData);
@@ -346,7 +347,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 	elseif EffectManager.hasTextOrTag(rTarget, "GRANTADVATK", tTrgtEffData) then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
-	elseif bInvisible then
+	elseif tData.bInvisible then
 		rRoll.bEffects = true;
 		rRoll.bADV = true;
 	end
@@ -417,7 +418,7 @@ function applyStandardEffectsToRollMod(rRoll, rSource, rTarget)
 		end
 	end
 end
-function applyRangeToRollMod(rRoll, rSource, rTarget)
+function applyRangeToRollMod(rRoll, rSource, rTarget, tData)
 	-- Handle prone condition range
 	if EffectManager.hasCondition(rTarget, "Prone") then
 		if ActorManager.isInRange(rSource, rTarget, 5) then
@@ -430,7 +431,7 @@ function applyRangeToRollMod(rRoll, rSource, rTarget)
 	-- Handle ranged attack specific modifications
 	if rRoll.sRange == "R" then
 		-- Check if ranged attack in melee
-		if not bInvisible and EffectQueryManager.onRangeCheck(rSource, "5,enemy,!incapacitated") then
+		if not tData.bInvisible and EffectQueryManager.onRangeCheck(rSource, "5,enemy,!incapacitated") then
 			local bApply = true;
 			if rRoll.bWeapon then
 				bApply = not ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SHARPSHOOTER) and
@@ -462,35 +463,37 @@ function applyRangeToRollMod(rRoll, rSource, rTarget)
 			end
 		end
 
-		-- Apply range modifiers
-		if rRoll.bSpell then
-			if ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SPELL_SNIPER) then
-				if (rRoll.nRange or 0) >= 10 then
-					rRoll.nRange = rRoll.nRange + 60;
+		-- Apply range modifiers (If no range defined, then ignore)
+		if ((rRoll.nRange or 0) > 0) or ((rRoll.nRangeLong or 0) > 0) then
+			if rRoll.bSpell then
+				if ActorManager5E.hasRollFeat2024(rSource, CharManager.FEAT_SPELL_SNIPER) then
+					if (rRoll.nRange or 0) >= 10 then
+						rRoll.nRange = rRoll.nRange + 60;
+					end
+				elseif ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_SPELL_SNIPER) then
+					if (rRoll.nRange or 0) > 0 then
+						rRoll.nRange = rRoll.nRange * 2;
+					end
 				end
-			elseif ActorManager5E.hasRollFeat2014(rSource, CharManager.FEAT_SPELL_SNIPER) then
-				if (rRoll.nRange or 0) > 0 then
-					rRoll.nRange = rRoll.nRange * 2;
+			elseif rRoll.bWeapon then
+				if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_SHARPSHOOTER) then
+					if ((rRoll.nRange or 0) > 0) and ((rRoll.nRangeLong or 0) > rRoll.nRange) then
+						rRoll.nRange = rRoll.nRangeLong;
+					end
 				end
 			end
-		elseif rRoll.bWeapon then
-			if ActorManager5E.hasRollFeat(rSource, CharManager.FEAT_SHARPSHOOTER) then
-				if ((rRoll.nRange or 0) > 0) and ((rRoll.nRangeLong or 0) > rRoll.nRange) then
-					rRoll.nRange = rRoll.nRangeLong;
-				end
+			if (rRoll.nRangeLong or 0) <= (rRoll.nRange or 0) then
+				rRoll.nRangeLong = rRoll.nRange;
 			end
-		end
-		if (rRoll.nRangeLong or 0) <= (rRoll.nRange or 0) then
-			rRoll.nRangeLong = rRoll.nRange;
-		end
-		local nTokenRange = ActorManager.getDistanceBetween(rSource, rTarget);
-		if nTokenRange then
-			if nTokenRange > (rRoll.nRangeLong or 0) then
-				rRoll.bOutOfRange = true;
-				table.insert(rRoll.tNotifications, "[OUT OF RANGE]");
-			elseif nTokenRange > (rRoll.nRange or 0) then
-				rRoll.bDIS = true;
-				table.insert(rRoll.tNotifications, "[LONG RANGE]");
+			local nTokenRange = ActorManager.getDistanceBetween(rSource, rTarget);
+			if nTokenRange then
+				if nTokenRange > (rRoll.nRangeLong or 0) then
+					rRoll.bOutOfRange = true;
+					table.insert(rRoll.tNotifications, "[OUT OF RANGE]");
+				elseif nTokenRange > (rRoll.nRange or 0) then
+					rRoll.bDIS = true;
+					table.insert(rRoll.tNotifications, "[LONG RANGE]");
+				end
 			end
 		end
 	end
