@@ -43,9 +43,12 @@ powershell -ExecutionPolicy Bypass -File "c:\Users\Phili\OneDrive\Dokumente\RPG\
 
 ### Step 4: Verify Exclusions and Outputs
 Confirm the script completed successfully:
-1. **Exclusions**: Ensure directories such as `.git`, `.agent`, `.github`, and `docs/` were excluded from the generated archive.
+1. **Forge Whitelist & Exclusions**:
+   - Only Forge-allowed extensions are packaged: `.xml`, `.jpg`, `.jpeg`, `.png`, `.lua`, `.txt`, `.md`, `.ttf`, `.otf`, `.fgf`, `.webm`, `.webp`.
+   - Ensure directories and files such as `.git`, `.agent`, `.github`, `docs/`, `mkdocs.yml`, and `sync.ffs_db` were excluded from the generated archive.
 2. **Deployments**: Verify that the generated `.pak` file was copied to:
    - The active `channels\Test\rulesets` folder
    - The respective `Backup\<Ruleset> Forge` folder
    - The respective `Backup\<Ruleset> Forge Test` folder
 3. **Release Date**: If updated, verify the date change in `base.xml` using `git diff base.xml`.
+

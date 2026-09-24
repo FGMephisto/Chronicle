@@ -71,7 +71,9 @@ function updateCampaign()
 		end
 		Debug.console("VersionManager2.updateCampaign: migration completed successfully.");
 	else
-		Debug.console("VersionManager2.updateCampaign: no migration needed (major=" .. tostring(major) .. " >= target=" .. tostring(rsmajorversion) .. ")");
+		Debug.console("VersionManager2.updateCampaign: checking unmigrated character abilities...");
+		VersionManager2.convertCharacters10();
+		VersionManager2.convertNPCs10();
 	end
 end
 
@@ -128,12 +130,15 @@ function migrateChar10(nodeChar)
 
 	local sName = DB.getValue(nodeChar, "name", "");
 	local sPath = DB.getPath(nodeChar);
-	Debug.console("VersionManager2.migrateChar10 - record:", sPath, "(" .. sName .. ")");
 
 	for _, nodeAbility in ipairs(DB.getChildList(nodeChar, "abilities")) do
+		local nodeBase = DB.getChild(nodeAbility, "base");
+		local nBase = DB.getValue(nodeAbility, "base", 0);
 		local nScore = DB.getValue(nodeAbility, "score", 0);
-		Debug.console("  " .. DB.getName(nodeAbility) .. ": score=" .. tostring(nScore) .. " -> base=" .. tostring(nScore) .. ", bonus=0");
-		DB.setValue(nodeAbility, "base", "number", nScore);
-		DB.setValue(nodeAbility, "bonus", "number", 0);
+
+		if (not nodeBase or nBase == 0) and nScore > 0 then
+			DB.setValue(nodeAbility, "base", "number", nScore);
+			DB.setValue(nodeAbility, "bonus", "number", 0);
+		end
 	end
 end

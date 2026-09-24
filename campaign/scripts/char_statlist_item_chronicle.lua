@@ -11,9 +11,6 @@ function onInit()
 	end
 
 	self.onDataChanged();
-	if nodeStat then
-		Debug.console("charsheet_statlist_item.onInit", DB.getPath(nodeStat), "ctrl.score:", score.getValue(), "db.score:", DB.getValue(nodeStat, "score", -999), "db.base:", DB.getValue(nodeStat, "base", -999));
-	end
 end
 
 function onClose()
