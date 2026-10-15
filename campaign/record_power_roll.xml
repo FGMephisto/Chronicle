@@ -186,7 +186,9 @@
 				<tooltip textres="power_tooltip_choice_tag" />
 			</string_listitem_left>
 			
-			<button_listitem_checkbox_right name="allowmult" />
+			<button_listitem_checkbox_right name="allowmult">
+				<tooltip textres="power_tooltip_choice_allowmult" />
+			</button_listitem_checkbox_right>
 
 			<string_listitem_center name="options">
 				<tooltip textres="power_tooltip_choice_options" />

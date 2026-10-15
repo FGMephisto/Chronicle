@@ -107,19 +107,28 @@ function deleteSpellUpcast(nodePower)
 	DB.deleteChild(nodePower, "upcast");
 end
 
-function getPowerTags(nodePower, sAutoKey)
-	if not nodePower then
+function getPowerTags(tPowerData)
+	if not tPowerData or not tPowerData.nodePower then
 		return {};
 	end
 
 	local tPowerTags = {};
 
-	local sSchool = StringManager.trim(DB.getValue(nodePower, "school", "")):lower():match("^%w+");
+	if tPowerData and tPowerData.bSpell then
+		table.insert(tPowerTags, "spell");
+		table.insert(tPowerTags, string.format("l%d", DB.getValue(tPowerData.nodePower, "level", 0)));
+	end
+	if tPowerData and tPowerData.bWeapon then
+		table.insert(tPowerTags, "weapon");
+	end
+
+	local sSchool = StringManager.trim(DB.getValue(tPowerData.nodePower, "school", "")):lower():match("^%w+");
 	if StringManager.contains(DataCommon.spellschools, sSchool) then
 		table.insert(tPowerTags, sSchool);
 	end
 
-	for _, nodeAction in ipairs(DB.getChildList(nodePower, "actions")) do
+	local sAutoKey = (tPowerData and tPowerData.sAutoKey) or "";
+	for _, nodeAction in ipairs(DB.getChildList(tPowerData.nodePower, "actions")) do
 		local sType = DB.getValue(nodeAction, "type", "");
 		if StringManager.contains({ "damage", "effect", }, sType) and (((sAutoKey or "") == "") or (DB.getValue(nodeAction, "autokey", "") == sAutoKey)) then
 			if sType == "damage" then
@@ -145,8 +154,27 @@ function getPowerTags(nodePower, sAutoKey)
 
 	return tPowerTags;
 end
-function getPowerTagsFromActions(tActions)
+function getPowerTagsFromTextAndActions(nodePower, tActions)
 	local tPowerTags = {};
+
+	local nodePowerList = DB.getChild(nodePower, "..");
+	if StringManager.contains({ "spells", "innatespells", }, DB.getName(DB.getChild(nodePower, ".."))) then
+		table.insert(tPowerTags, "spell");
+
+		local sText = DB.getText(nodePower, "desc", "");
+		local sLevel = sText:match("Level: (%d+)");
+		if sLevel then
+			table.insert(tPowerTags, string.format("l%d", tonumber(sLevel) or 0));
+		end
+		local sSchool = sText:match("School: (%w+)");
+		if sSchool then
+			sSchool = sSchool:lower();
+			if StringManager.contains(DataCommon.spellschools, sSchool) then
+				table.insert(tPowerTags, sSchool);
+			end
+		end
+	end
+
 	for _,tActionData in ipairs(tActions or {}) do
 		if tActionData.type == "damage" then
 			for _,tClause in ipairs(tActionData.clauses) do
@@ -237,7 +265,6 @@ function performPowerAction(nodeAction)
 		local tData = { rActor = rActor, };
 		local rAction = PowerManager.getPowerAction(nodeAction, tData);
 		if rAction then
-			PowerManager.evalAction(rActor, nodePower, rAction);
 			PowerManager.performAction(nil, rActor, rAction, nodePower);
 		end
 		return;
@@ -254,8 +281,14 @@ function buildPerformPowerData(rActor, nodePower, sAutoKey, bNewCast)
 		bRitual = (DB.getValue(nodePower, "ritual", 0) == 1),
 		bNewCast = bNewCast,
 		sAutoKey = sAutoKey or "",
-		tPowerTags = PowerManager5E.getPowerTags(nodePower, sAutoKey)
+		tPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower),
 	};
+
+	if tPowerData.tPowerGroup and ((tPowerData.tPowerGroup.sCasterType or "") == "memorization") then
+		tPowerData.bSpell = true;
+	end
+	tPowerData.tPowerTags = PowerManager5E.getPowerTags(tPowerData);
+
 	PowerManager5E.buildPerformPowerDataActions(rActor, tPowerData);
 	if bNewCast and (#(tPowerData.tActionQueue) == 0) then
 		return nil;
@@ -383,8 +416,7 @@ function buildPerformPowerSlotData(rActor, tPowerData)
 	if tPowerData.nPowerLevel <= 0 then
 		return;
 	end
-	local rPowerGroup = PowerManager.getPowerGroupRecord(rActor, tPowerData.nodePower);
-	if not rPowerGroup or ((rPowerGroup.sCasterType or "") ~= "memorization") then
+	if not tPowerData.tPowerGroup or ((tPowerData.tPowerGroup.sCasterType or "") ~= "memorization") then
 		return;
 	end
 
@@ -489,6 +521,9 @@ end
 --			(requires spell data for # targets, or shape (any targets), ...)
 function handleTargetSelection(rActor, tPowerData)
 	if not tPowerData then
+		return true;
+	end
+	if tPowerData.nodeSoloAction then
 		return true;
 	end
 

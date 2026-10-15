@@ -292,7 +292,7 @@ function getSaveActionText(nodeAction)
 		PowerManager.evalAction(tData.rActor, DB.getChild(nodeAction, "..."), rAction);
 	end
 
-	local sSaveStat = (rAction.save == "base") and StringManager.capitalize(rAction.save) or StringManager.capitalize(rAction.save:sub(1,3));
+	local sSaveStat = StringManager.capitalize(rAction.save:sub(1,3));
 
 	local sSave;
 	if tData.rActor then
@@ -489,24 +489,22 @@ function getPowerGroupRecord(rActor, nodePower, bNPCInnate)
 			end
 		end
 		if nodePowerGroup then
-			aPowerGroup = {};
-
-			aPowerGroup.sCasterType = DB.getValue(nodePowerGroup, "castertype", "memorization");
-			aPowerGroup.sStat = DB.getValue(nodePowerGroup, "stat", "");
-
-			aPowerGroup.nAtkProf = DB.getValue(nodePowerGroup, "atkprof", 1);
-			aPowerGroup.sAtkStat = DB.getValue(nodePowerGroup, "atkstat", "");
+			aPowerGroup = {
+				sCasterType = DB.getValue(nodePowerGroup, "castertype", ""),
+				sStat = DB.getValue(nodePowerGroup, "stat", ""),
+				nAtkProf = DB.getValue(nodePowerGroup, "atkprof", 1),
+				sAtkStat = DB.getValue(nodePowerGroup, "atkstat", ""),
+				nAtkMod = DB.getValue(nodePowerGroup, "atkmod", 0),
+				nSaveDCProf = DB.getValue(nodePowerGroup, "saveprof", 1),
+				sSaveDCStat = DB.getValue(nodePowerGroup, "savestat", ""),
+				nSaveDCMod = DB.getValue(nodePowerGroup, "savemod", 0),
+			};
 			if aPowerGroup.sAtkStat == "" then
 				aPowerGroup.sAtkStat = aPowerGroup.sStat;
 			end
-			aPowerGroup.nAtkMod = DB.getValue(nodePowerGroup, "atkmod", 0);
-
-			aPowerGroup.nSaveDCProf = DB.getValue(nodePowerGroup, "saveprof", 1);
-			aPowerGroup.sSaveDCStat = DB.getValue(nodePowerGroup, "savestat", "");
 			if aPowerGroup.sSaveDCStat == "" then
 				aPowerGroup.sSaveDCStat = aPowerGroup.sStat;
 			end
-			aPowerGroup.nSaveDCMod = DB.getValue(nodePowerGroup, "savemod", 0);
 		end
 	else
 		if nodePower then
@@ -620,13 +618,10 @@ function evalAction(rActor, nodePower, rAction)
 		return;
 	end
 
-	local aPowerGroup = nil;
+	local aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
 
 	if (rAction.type == "attack") then
 		if (rAction.base or "") == "group" then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup then
 				rAction.stat = aPowerGroup.sAtkStat;
 				rAction.prof = aPowerGroup.nAtkProf;
@@ -634,9 +629,6 @@ function evalAction(rActor, nodePower, rAction)
 			end
 		end
 		if (rAction.stat or "") == "base" then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup then
 				rAction.stat = aPowerGroup.sStat or "";
 			end
@@ -651,17 +643,11 @@ function evalAction(rActor, nodePower, rAction)
 
 	if (rAction.type == "powersave") then
 		if (rAction.save or "") == "base" then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup then
 				rAction.save = aPowerGroup.sStat or "";
 			end
 		end
 		if (rAction.savebase or "") == "group" then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup then
 				rAction.savestat = aPowerGroup.sSaveDCStat;
 				rAction.saveprof = aPowerGroup.nSaveDCProf;
@@ -669,9 +655,6 @@ function evalAction(rActor, nodePower, rAction)
 			end
 		end
 		if (rAction.savestat or "") == "base" then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup then
 				rAction.savestat = aPowerGroup.sSaveDCStat or "";
 			end
@@ -688,9 +671,6 @@ function evalAction(rActor, nodePower, rAction)
 		for _,tClause in ipairs(rAction.clauses) do
 			if (tClause.stat or "") ~= "" then
 				if tClause.stat == "base" then
-					if not aPowerGroup then
-						aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-					end
 					if aPowerGroup then
 						local nAbilityBonus = ActorManager5E.getAbilityBonus(rActor, aPowerGroup.sStat);
 						local nMult = tClause.statmult or 1;
@@ -720,9 +700,6 @@ function evalAction(rActor, nodePower, rAction)
 
 	if (rAction.type == "effect") then
 		if rAction.sName:match("%[BASE%]") then
-			if not aPowerGroup then
-				aPowerGroup = PowerManager.getPowerGroupRecord(rActor, nodePower);
-			end
 			if aPowerGroup and aPowerGroup.sStat and DataCommon.ability_ltos[aPowerGroup.sStat] then
 				rAction.sName =  rAction.sName:gsub("%[BASE%]", string.format("[%s]", DataCommon.ability_ltos[aPowerGroup.sStat]));
 			end
@@ -734,15 +711,14 @@ function evalAction(rActor, nodePower, rAction)
 		rAction.bSpell = true;
 	end
 
-	if not rAction.tActionTags and rAction.nodeAction then
-		rAction.tActionTags = PowerManager5E.getPowerTags(nodePower, DB.getValue(rAction.nodeAction, "autokey", ""));
-		if rAction.bSpell then
-			table.insert(rAction.tActionTags, "spell");
-			table.insert(rAction.tActionTags, string.format("l%d", DB.getValue(nodePower, "level", 0)));
-		end
-		if rAction.bWeapon then
-			table.insert(rAction.tActionTags, "weapon");
-		end
+	if not rAction.tActionTags then
+		local tPowerData = {
+			nodePower = nodePower,
+			sAutoKey = rAction.nodeAction and DB.getValue(rAction.nodeAction, "autokey", "") or "",
+			bSpell = rAction.bSpell,
+			bWeapon = rAction.bWeapon,
+		};
+		rAction.tActionTags = PowerManager5E.getPowerTags(tPowerData);
 	end
 end
 
@@ -2428,7 +2404,7 @@ function getNPCPowerVariables(nodePower)
 end
 function parseNPCPowerDesc(nodePower)
 	local tActions = PowerManager.parseNPCPower(nodePower);
-	local tPowerTags = PowerManager5E.getPowerTagsFromActions(tActions);
+	local tPowerTags = PowerManager5E.getPowerTagsFromTextAndActions(nodePower, tActions);
 	for _,tActionData in ipairs(tActions) do
 		tActionData.tActionTags = tPowerTags;
 	end
@@ -2754,8 +2730,8 @@ function getSaveActionData(nodeAction)
 		tActionData.savebase = "fixed";
 	elseif tActionData.savedcbase == "ability" then
 		tActionData.savebase = "";
-		tActionData.savestat = DB.getValue(nodeAction, "savestat", "");
-		tActionData.saveprof = DB.getValue(nodeAction, "saveprof", 1);
+		tActionData.savestat = DB.getValue(nodeAction, "savedcstat", "");
+		tActionData.saveprof = DB.getValue(nodeAction, "savedcprof", 1);
 		tActionData.savemod = tActionData.savemod + 8;
 	else
 		tActionData.savebase = "group";

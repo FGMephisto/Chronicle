@@ -4,7 +4,7 @@
 --
 
 local rsname = "Chronicle";
-local rsmajorversion = 10;
+local rsmajorversion = 11;
 
 function onInit()
 	Debug.console("VersionManager2.onInit - Session.IsHost:", Session.IsHost);
